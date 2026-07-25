@@ -18,7 +18,7 @@ function SystemSettings() {
     handleSubmit,
     reset,
     formState: { isSubmitting },
-  } = useForm({ defaultValues: { taxEnabled: false, taxRate: 0, notificationEmailEnabled: true } });
+  } = useForm({ defaultValues: { taxEnabled: false, taxRate: 0, notificationEmailEnabled: true, receiptQrVerificationEnabled: false } });
 
   useEffect(() => {
     settingsService
@@ -35,6 +35,7 @@ function SystemSettings() {
         taxEnabled: values.taxEnabled,
         taxRate: Number(values.taxRate) || 0,
         notificationEmailEnabled: values.notificationEmailEnabled,
+        receiptQrVerificationEnabled: values.receiptQrVerificationEnabled,
       });
       reset(updated);
       toast.success('Settings saved successfully.');
@@ -48,7 +49,7 @@ function SystemSettings() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Settings</h1>
-          <p className="page-subtitle">Tax rate and notification email preferences</p>
+          <p className="page-subtitle">Tax rate, notification email, and receipt preferences</p>
         </div>
       </div>
 
@@ -91,6 +92,16 @@ function SystemSettings() {
               <label className="form-switch">
                 <input type="checkbox" disabled={!canManage} {...register('notificationEmailEnabled')} />
                 Send email notifications (in addition to in-app notifications)
+              </label>
+            </div>
+          </div>
+
+          <div className="card mb-5">
+            <div className="card-header"><span className="card-title">Receipt</span></div>
+            <div className="card-body">
+              <label className="form-switch">
+                <input type="checkbox" disabled={!canManage} {...register('receiptQrVerificationEnabled')} />
+                Print a verification QR code on receipts
               </label>
             </div>
           </div>

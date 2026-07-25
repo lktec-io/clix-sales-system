@@ -49,8 +49,14 @@ export async function salesReport({ dateFrom, dateTo, branchId, cashierId, custo
       totalDiscount: Number(summary.totalDiscount),
       averageSale: Number(summary.averageSale),
     },
-    byDay,
-    byBranch,
+    // mysql2 returns DECIMAL-derived aggregates (SUM(s.total_amount) here)
+    // as strings unless `decimalNumbers: true` is set on the pool (it
+    // isn't — see config/db.js) — every consumer (PDF/Excel/CSV renderers,
+    // the frontend chart/table) expects real numbers the same way
+    // `summary` above already is, so this normalizes at the source instead
+    // of every caller needing to know to re-coerce it.
+    byDay: byDay.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+    byBranch: byBranch.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
   };
 }
 
@@ -85,7 +91,9 @@ export async function inventoryReport({ branchId, categoryId, branchIds }) {
       outOfStock: Number(summary.outOfStock) || 0,
       lowStock: Number(summary.lowStock) || 0,
     },
-    byCategory,
+    // See salesReport's comment above — SUM()-derived columns come back as
+    // strings from mysql2, normalized here for every downstream consumer.
+    byCategory: byCategory.map((row) => ({ ...row, quantity: Number(row.quantity), value: Number(row.value) })),
   };
 }
 
@@ -118,7 +126,9 @@ export async function purchasesReport({ dateFrom, dateTo, branchId, supplierId, 
 
   return {
     summary: { totalPurchases: Number(summary.totalPurchases), totalAmount: Number(summary.totalAmount) },
-    bySupplier,
+    // See salesReport's comment above — SUM()-derived columns come back as
+    // strings from mysql2, normalized here for every downstream consumer.
+    bySupplier: bySupplier.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
   };
 }
 
@@ -145,7 +155,9 @@ export async function expensesReport({ dateFrom, dateTo, branchId, categoryId, b
 
   return {
     summary: { totalExpenses: Number(summary.totalExpenses), totalAmount: Number(summary.totalAmount) },
-    byCategory,
+    // See salesReport's comment above — SUM()-derived columns come back as
+    // strings from mysql2, normalized here for every downstream consumer.
+    byCategory: byCategory.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
   };
 }
 
@@ -172,7 +184,9 @@ export async function carwashReport({ dateFrom, dateTo, branchId, branchIds }) {
 
   return {
     summary: { totalTransactions: Number(summary.totalTransactions), totalRevenue: Number(summary.totalRevenue) },
-    byService,
+    // See salesReport's comment above — SUM()-derived columns come back as
+    // strings from mysql2, normalized here for every downstream consumer.
+    byService: byService.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
   };
 }
 
@@ -241,7 +255,9 @@ export async function profitReport({ dateFrom, dateTo, branchId, branchIds }) {
 
   return {
     summary: { salesRevenue, carwashRevenue, totalRevenue, cogs, grossProfit, expenses, netProfit },
-    byDay,
+    // See salesReport's comment above — SUM()-derived columns come back as
+    // strings from mysql2, normalized here for every downstream consumer.
+    byDay: byDay.map((row) => ({ ...row, value: Number(row.value) })),
   };
 }
 
@@ -301,7 +317,9 @@ export async function productsReport({ dateFrom, dateTo, branchId, categoryId, b
     [...allParams, limit],
   );
 
-  return { topProducts };
+  // See salesReport's comment above — SUM()-derived columns come back as
+  // strings from mysql2, normalized here for every downstream consumer.
+  return { topProducts: topProducts.map((row) => ({ ...row, quantity: Number(row.quantity), value: Number(row.value) })) };
 }
 
 export async function customersReport({ dateFrom, dateTo, branchId, branchIds, limit = 20 }) {
@@ -320,7 +338,9 @@ export async function customersReport({ dateFrom, dateTo, branchId, branchIds, l
     [...allParams, limit],
   );
 
-  return { topCustomers };
+  // See salesReport's comment above — SUM()-derived columns come back as
+  // strings from mysql2, normalized here for every downstream consumer.
+  return { topCustomers: topCustomers.map((row) => ({ ...row, orders: Number(row.orders), value: Number(row.value) })) };
 }
 
 export async function suppliersReport() {
@@ -371,7 +391,9 @@ export async function returnsReport({ dateFrom, dateTo, branchId, status, custom
 
   return {
     summary: { totalReturns: Number(summary.totalReturns), totalRefund: Number(summary.totalRefund) },
-    byReason,
+    // See salesReport's comment above — SUM()-derived columns come back as
+    // strings from mysql2, normalized here for every downstream consumer.
+    byReason: byReason.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
   };
 }
 
@@ -400,7 +422,7 @@ export async function transfersReport({ dateFrom, dateTo, branchId, branchIds })
 
   return {
     summary: { totalTransfers: Number(summary.totalTransfers) },
-    byStatus,
+    byStatus: byStatus.map((row) => ({ ...row, count: Number(row.count) })),
   };
 }
 
@@ -442,7 +464,7 @@ export async function usersReport({ dateFrom, dateTo, branchId, branchIds }) {
       suspendedUsers: Number(summary.suspendedUsers) || 0,
       lockedUsers: Number(summary.lockedUsers) || 0,
     },
-    byRole,
-    byBranch,
+    byRole: byRole.map((row) => ({ ...row, count: Number(row.count) })),
+    byBranch: byBranch.map((row) => ({ ...row, count: Number(row.count) })),
   };
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import { Html5Qrcode, Html5QrcodeScannerState, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { FiZap } from 'react-icons/fi';
 import '../../styles/components/QRScanner.css';
 
@@ -34,6 +34,30 @@ const SCAN_FORMATS = [
 // that can't zoom (most laptop webcams) simply shows no zoom row instead of
 // buttons that would silently no-op.
 const ZOOM_PRESETS = [0.5, 1, 2, 3];
+
+// html5-qrcode's stop() throws *synchronously* — not a rejected promise —
+// when the scanner isn't currently SCANNING/PAUSED (see its source: `if
+// (!this.stateManagerProxy.isScanning()) throw "Cannot stop, scanner is not
+// running or paused.";`, before it ever returns anything to chain .catch()
+// onto). A plain `scanner.stop().catch(() => {})` only catches a rejection
+// — it does nothing for that synchronous throw, which is exactly what
+// produced the "Uncaught Cannot stop..." error whenever cleanup ran before
+// start() had finished negotiating the camera (component unmounted/closed
+// quickly, or React re-invoking effects). getState() is synchronous and
+// backed by the same flag stop() itself checks, so reading it immediately
+// beforehand — no `await` in between — reliably predicts whether stop()
+// would throw. The try/catch is extra insurance for any other synchronous
+// throw the library can raise (e.g. mid-transition), not just this one.
+function safeStopScanner(scanner) {
+  if (scanner.getState() === Html5QrcodeScannerState.NOT_STARTED) {
+    return Promise.resolve();
+  }
+  try {
+    return scanner.stop().catch(() => {});
+  } catch {
+    return Promise.resolve();
+  }
+}
 
 function playBeep() {
   try {
@@ -124,7 +148,7 @@ function QRScanner({ onScan, onError }) {
       )
       .then(async () => {
         if (cancelled) {
-          scanner.stop().catch(() => {});
+          safeStopScanner(scanner);
           return;
         }
         setStatus('scanning');
@@ -138,7 +162,7 @@ function QRScanner({ onScan, onError }) {
           // focus behavior still works, just without this hint.
         }
         if (cancelled) {
-          scanner.stop().catch(() => {});
+          safeStopScanner(scanner);
           return;
         }
 
@@ -173,22 +197,19 @@ function QRScanner({ onScan, onError }) {
 
     return () => {
       cancelled = true;
-      // Always attempted, not gated behind a getState() check — a stop()
-      // call when the camera never actually reached SCANNING just rejects
-      // harmlessly (caught below) and is cheap insurance against ever
-      // leaving the hardware held past this component's lifetime. clear()
-      // afterward tears down the library's own rendered video/canvas/UI
-      // state so nothing lingers if this same DOM node is ever reused.
-      scanner
-        .stop()
-        .catch(() => {})
-        .finally(() => {
-          try {
-            scanner.clear();
-          } catch {
-            // Nothing rendered yet (start() never got far enough) — fine.
-          }
-        });
+      // safeStopScanner checks getState() first — stop() throws
+      // *synchronously* (see its definition above) when the camera never
+      // reached SCANNING, so this is required, not just cheap insurance.
+      // clear() afterward tears down the library's own rendered
+      // video/canvas/UI state so nothing lingers if this same DOM node is
+      // ever reused.
+      safeStopScanner(scanner).finally(() => {
+        try {
+          scanner.clear();
+        } catch {
+          // Nothing rendered yet (start() never got far enough) — fine.
+        }
+      });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- scanner lifecycle is intentionally mount/unmount only
   }, []);

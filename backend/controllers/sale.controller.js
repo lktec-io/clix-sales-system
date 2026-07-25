@@ -3,6 +3,7 @@ import { success } from '../utils/apiResponse.js';
 import * as saleService from '../services/sale.service.js';
 import * as receiptService from '../services/receipt.service.js';
 import * as companyService from '../services/company.service.js';
+import * as systemSettingsService from '../services/systemSettings.service.js';
 
 export const list = asyncHandler(async (req, res) => {
   const { items, meta } = await saleService.listSales(req.query, req.user);
@@ -21,8 +22,11 @@ export const checkout = asyncHandler(async (req, res) => {
 
 export const receipt = asyncHandler(async (req, res) => {
   const sale = await saleService.getSale(Number(req.params.id));
-  const company = await companyService.getProfile();
-  const pdf = await receiptService.buildReceiptPdf(sale, company, req.query.size);
+  const [company, { receiptQrVerificationEnabled }] = await Promise.all([
+    companyService.getProfile(),
+    systemSettingsService.getSettings(),
+  ]);
+  const pdf = await receiptService.buildReceiptPdf(sale, company, req.query.size, receiptQrVerificationEnabled);
 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `inline; filename="${sale.sale_number}.pdf"`);

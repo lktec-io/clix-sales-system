@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import PDFDocument from 'pdfkit';
+import QRCode from 'qrcode';
 import { formatCurrency } from '../utils/formatCurrency.js';
 import { logger } from '../config/logger.js';
 
@@ -59,6 +60,23 @@ function resolveLocalLogoPath(logoPath) {
 
 function formatCompanyAddress(company) {
   return [company?.street, company?.district, company?.region].filter(Boolean).join(', ') || company?.address || '';
+}
+
+// A compact, self-contained verification payload — no lookup URL/endpoint
+// exists in this app to point a QR at, so it encodes exactly what a
+// cashier could otherwise read off the paper (receipt number, total, date)
+// in a form that's fast to scan and cross-check, rather than a fabricated
+// link to a page that doesn't exist. Same 'M' error-correction + 4-module
+// quiet zone convention as qrCode.service.js's product QR codes.
+async function buildVerificationQrBuffer(sale) {
+  const payload = `RCPT:${sale.sale_number}:${formatCurrency(sale.total_amount)}:${sale.created_at}`;
+  return QRCode.toBuffer(payload, {
+    type: 'png',
+    width: 200,
+    margin: 4,
+    errorCorrectionLevel: 'M',
+    color: { dark: '#000000', light: '#FFFFFF' },
+  });
 }
 
 // A real bordered thermal-receipt table (Product / Qty / Unit Price /
@@ -147,8 +165,9 @@ function totalsRow(doc, label, value, { contentWidth, margin, fontScale, bold = 
 // print time. sizeKey selects between three real paper shapes (58mm/80mm
 // thermal, A4 full page) rather than stretching one layout to fit all
 // three; default stays 80mm, matching every receipt printed before this
-// redesign.
-export function buildReceiptPdf(sale, company, sizeKey = '80') {
+// redesign. qrVerificationEnabled defaults false — an existing install's
+// receipt is unchanged until an admin opts in via System Settings.
+export async function buildReceiptPdf(sale, company, sizeKey = '80', qrVerificationEnabled = false) {
   const { width: pageWidth, margin, fontScale } = resolvePageSize(sizeKey);
   // A4's own real height; the two thermal widths use the same fixed
   // length pdfkit needs a concrete page size for — a true continuous roll
@@ -222,6 +241,20 @@ export function buildReceiptPdf(sale, company, sizeKey = '80') {
   const totalPaid = sale.payments.reduce((sum, payment) => sum + Number(payment.amount), 0);
   const balance = totalPaid - Number(sale.total_amount);
   totalsRow(doc, 'Balance', formatCurrency(Math.abs(balance)), { contentWidth, margin, fontScale });
+
+  if (qrVerificationEnabled) {
+    try {
+      const verificationQr = await buildVerificationQrBuffer(sale);
+      const qrSize = Math.min(mm(18) * fontScale, contentWidth * 0.35);
+      doc.moveDown(0.3);
+      doc.image(verificationQr, margin + (contentWidth - qrSize) / 2, doc.y, { width: qrSize });
+      doc.y += qrSize + mm(1);
+      doc.fontSize(6 * fontScale).font('Helvetica').fillColor(COLOR_GRAY)
+        .text('Scan to verify this receipt', { width: contentWidth, align: 'center' });
+    } catch (err) {
+      logger.warn('Receipt PDF: failed to generate verification QR, omitting it', { error: err.message });
+    }
+  }
 
   doc.moveDown(0.4);
   doc.moveTo(margin, doc.y).lineTo(margin + contentWidth, doc.y).strokeColor(COLOR_GREEN).lineWidth(1.5).stroke();
