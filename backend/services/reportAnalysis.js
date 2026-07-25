@@ -9,6 +9,22 @@ function pct(part, whole) {
   return whole > 0 ? (part / whole) * 100 : 0;
 }
 
+// Buckets the same byDay rows the report already computed by calendar month
+// (label is a DATE-truncated ISO string like "2026-07-15", so the first 7
+// characters are always "YYYY-MM") — no new query, since a date range that
+// only ever spans one month (the default "this month so far", or most
+// custom ranges) would produce a single-point "trend" with nothing to show.
+function monthlyTrend(dayRows) {
+  if (!dayRows || dayRows.length === 0) return null;
+  const byMonth = new Map();
+  for (const row of dayRows) {
+    const month = String(row.label).slice(0, 7);
+    byMonth.set(month, (byMonth.get(month) || 0) + Number(row.value));
+  }
+  if (byMonth.size < 2) return null;
+  return [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([month, value]) => ({ month, value }));
+}
+
 function dayRowsFinancialSummary(dayRows, { totalTransactions } = {}) {
   if (!dayRows || dayRows.length === 0) return null;
   const totalRevenue = dayRows.reduce((sum, r) => sum + Number(r.value), 0);
@@ -20,6 +36,7 @@ function dayRowsFinancialSummary(dayRows, { totalTransactions } = {}) {
     averageInvoice: totalTransactions ? totalRevenue / totalTransactions : null,
     highestSalesDay: { date: highest.label, value: Number(highest.value) },
     lowestSalesDay: { date: lowest.label, value: Number(lowest.value) },
+    monthlyTrend: monthlyTrend(dayRows),
   };
 }
 
@@ -216,16 +233,45 @@ function buildSuppliers(report) {
   return { analysis, recommendations, financialSummary: null };
 }
 
-function buildReturns(report) {
+function buildReturns(report, { totalSalesCount } = {}) {
   const { summary, byReason } = report;
   const analysis = [];
   const recommendations = [];
 
   if (summary.totalReturns > 0) {
     analysis.push(`${summary.totalReturns} returns processed, refunding ${formatCurrency(summary.totalRefund)}.`);
+    if (totalSalesCount > 0) {
+      const returnRate = pct(summary.totalReturns, totalSalesCount);
+      analysis.push(`Return rate: ${returnRate.toFixed(1)}% of ${totalSalesCount} sales in this period.`);
+      if (returnRate > 10) recommendations.push('Return rate is above 10% of sales — review product quality or listing accuracy to reduce returns.');
+    }
     if (byReason?.length > 0) {
       analysis.push(`Most common reason: ${byReason[0].label} (${byReason[0].count} returns).`);
       recommendations.push(`"${byReason[0].label}" is the leading return reason — investigate whether a product or process change would reduce it.`);
+    }
+  }
+
+  return { analysis, recommendations, financialSummary: null };
+}
+
+function buildUsers(report) {
+  const { summary, byRole, byBranch } = report;
+  const analysis = [];
+  const recommendations = [];
+
+  if (summary.totalUsers > 0) {
+    analysis.push(`${summary.totalUsers} user${summary.totalUsers === 1 ? '' : 's'} in this period — ${summary.activeUsers} active, ${summary.suspendedUsers} suspended, ${summary.lockedUsers} locked.`);
+    if (byRole?.length > 0) {
+      analysis.push(`${byRole[0].label} is the most common role (${byRole[0].count} user${byRole[0].count === 1 ? '' : 's'}).`);
+    }
+    if (byBranch?.length > 0) {
+      const unassigned = byBranch.find((b) => b.label === 'Unassigned');
+      if (unassigned?.count > 0) {
+        recommendations.push(`${unassigned.count} user${unassigned.count === 1 ? '' : 's'} have no branch assigned — review their access scope.`);
+      }
+    }
+    if (summary.lockedUsers > 0) {
+      recommendations.push(`${summary.lockedUsers} account${summary.lockedUsers === 1 ? '' : 's'} locked — review whether they need reinstating or offboarding.`);
     }
   }
 
@@ -303,14 +349,15 @@ const BUILDERS = {
   suppliers: buildSuppliers,
   returns: buildReturns,
   purchases: buildPurchases,
+  users: buildUsers,
   all: buildAll,
 };
 
-// `users`/`transfers` intentionally have no builder — an account/stock-move
-// audit list doesn't have a natural "business insight" the way a revenue or
-// inventory report does, so they get { analysis: [], recommendations: [],
-// financialSummary: null } via the fallback below rather than a forced,
-// low-value sentence.
+// `transfers` intentionally has no builder — a stock-move audit list
+// doesn't have a natural "business insight" the way a revenue, inventory,
+// or account-roster report does, so it gets { analysis: [],
+// recommendations: [], financialSummary: null } via the fallback below
+// rather than a forced, low-value sentence.
 export function buildAnalysis(type, report, context = {}) {
   const builder = BUILDERS[type];
   if (!builder) return { analysis: [], recommendations: [], financialSummary: null };

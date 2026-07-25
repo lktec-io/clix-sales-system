@@ -18,10 +18,17 @@ function formatDateTime(isoString) {
   return new Date(isoString).toLocaleString('en-TZ', { dateStyle: 'medium', timeStyle: 'short' });
 }
 
+const RECEIPT_SIZES = [
+  { value: '58', label: '58mm' },
+  { value: '80', label: '80mm' },
+  { value: 'a4', label: 'A4' },
+];
+
 function SaleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [sale, setSale] = useState(null);
+  const [receiptSize, setReceiptSize] = useState('80');
 
   useEffect(() => {
     saleService.getSale(id).then(setSale);
@@ -48,10 +55,19 @@ function SaleDetail() {
           </p>
         </div>
         <div className="page-actions">
-          <button type="button" className="btn btn-secondary" onClick={() => saleService.printReceipt(sale.id)}>
+          <select
+            className="form-control"
+            style={{ width: 90 }}
+            value={receiptSize}
+            onChange={(e) => setReceiptSize(e.target.value)}
+            aria-label="Receipt paper size"
+          >
+            {RECEIPT_SIZES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          </select>
+          <button type="button" className="btn btn-secondary" onClick={() => saleService.printReceipt(sale.id, receiptSize)}>
             <FiPrinter aria-hidden="true" /> Print
           </button>
-          <button type="button" className="btn btn-secondary" onClick={() => saleService.downloadReceiptPdf(sale.id, sale.sale_number)}>
+          <button type="button" className="btn btn-secondary" onClick={() => saleService.downloadReceiptPdf(sale.id, sale.sale_number, receiptSize)}>
             <FiDownload aria-hidden="true" /> Download PDF
           </button>
           <button type="button" className="btn btn-primary" onClick={() => navigate('/pos')}>

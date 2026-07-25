@@ -23,9 +23,12 @@ export async function checkout(payload) {
 }
 
 // "Print" opens the receipt in a new tab so the browser's own PDF viewer
-// (and its print icon/Ctrl+P) handles the actual print dialog.
-export async function printReceipt(id) {
-  const { data } = await apiClient.get(`/sales/${id}/receipt`, { responseType: 'blob' });
+// (and its print icon/Ctrl+P) handles the actual print dialog. size selects
+// the paper shape the PDF itself is laid out for (58/80mm thermal or a4) —
+// defaults to '80' server-side, matching every receipt printed before this
+// option existed.
+export async function printReceipt(id, size) {
+  const { data } = await apiClient.get(`/sales/${id}/receipt`, { params: { size }, responseType: 'blob' });
   openPdfBlob(data);
 }
 
@@ -33,7 +36,7 @@ export async function printReceipt(id) {
 // (spec: "Provide: Print, Download PDF, New Sale") — triggers a real file
 // save via the same <a download> pattern the Reports exports use, not
 // another new-tab open a user would have to manually save from.
-export async function downloadReceiptPdf(id, saleNumber) {
-  const { data } = await apiClient.get(`/sales/${id}/receipt`, { responseType: 'blob' });
+export async function downloadReceiptPdf(id, saleNumber, size) {
+  const { data } = await apiClient.get(`/sales/${id}/receipt`, { params: { size }, responseType: 'blob' });
   downloadBlob(`${saleNumber || `Receipt-${id}`}.pdf`, data);
 }

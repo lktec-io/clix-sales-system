@@ -67,6 +67,11 @@ export async function getReport(type, query, user) {
   const needsPreviousRevenue = type === 'sales' || type === 'profit' || type === 'all';
   const previousRevenue = needsPreviousRevenue ? await getPreviousPeriodRevenue(filters) : null;
 
+  // Return rate needs a same-period sales count as its denominator — one
+  // extra real query (the same salesReport every "sales" report type
+  // already runs, just for its count), not an estimate.
+  const totalSalesCount = type === 'returns' ? (await reportRepository.salesReport(filters)).summary.totalSales : null;
+
   let report;
   switch (type) {
     case 'sales': report = await reportRepository.salesReport(filters); break;
@@ -86,7 +91,7 @@ export async function getReport(type, query, user) {
     default: throw new ApiError(404, `Unknown report type "${type}"`);
   }
 
-  const { analysis, recommendations, financialSummary } = buildAnalysis(type, report, { previousRevenue });
+  const { analysis, recommendations, financialSummary } = buildAnalysis(type, report, { previousRevenue, totalSalesCount });
   return { ...report, analysis, recommendations, financialSummary };
 }
 

@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { FiPrinter, FiDownload, FiFileText, FiBarChart2, FiGrid, FiTrendingUp } from 'react-icons/fi';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import html2canvas from 'html2canvas';
+import { FiPrinter, FiDownload, FiFileText, FiBarChart2, FiGrid, FiImage, FiTrendingUp } from 'react-icons/fi';
 import KPICard from '../../components/dashboard/KPICard';
 import EmptyState from '../../components/common/EmptyState';
 import Skeleton from '../../components/common/Skeleton';
@@ -14,7 +15,7 @@ import * as customerService from '../../services/customerService';
 import * as productService from '../../services/productService';
 import * as userService from '../../services/userService';
 import { formatCurrency } from '../../utils/formatCurrency';
-import { downloadCsv } from '../../utils/exportCsv';
+import { downloadCsv, downloadBlob } from '../../utils/exportCsv';
 import '../../styles/pages/Reports.css';
 
 function todayIso() {
@@ -250,6 +251,9 @@ function ReportsCenter() {
   const [exportingPdf, setExportingPdf] = useState(false);
   const [exportingExcel, setExportingExcel] = useState(false);
   const [exportingCsv, setExportingCsv] = useState(false);
+  const [exportingPng, setExportingPng] = useState(false);
+  const reportContentRef = useRef(null);
+  const printHeaderRef = useRef(null);
 
   const config = REPORT_CONFIGS[reportType];
 
@@ -360,9 +364,54 @@ function ReportsCenter() {
     }
   };
 
+  // A screenshot of the already-branded on-screen report, not a server
+  // render — reuses the same KPI cards/charts/analysis the user is looking
+  // at, so there's no second "does the PNG match the preview" layout to
+  // maintain. The masthead is captured separately because it's the
+  // print-only `.reports-print-header` (display:none on screen, see
+  // Reports.css) — toggled visible just long enough to rasterize, then
+  // reverted, so it never flashes into the live page the user sees.
+  const handleExportPng = async () => {
+    const contentEl = reportContentRef.current;
+    const headerEl = printHeaderRef.current;
+    if (!contentEl || !headerEl) return;
+
+    setExportingPng(true);
+    const previousDisplay = headerEl.style.display;
+    try {
+      headerEl.style.display = 'flex';
+      const [headerCanvas, contentCanvas] = await Promise.all([
+        html2canvas(headerEl, { backgroundColor: '#FFFFFF', scale: 2, useCORS: true }),
+        html2canvas(contentEl, { backgroundColor: '#FFFFFF', scale: 2, useCORS: true }),
+      ]);
+
+      const gap = 24;
+      const merged = document.createElement('canvas');
+      merged.width = Math.max(headerCanvas.width, contentCanvas.width);
+      merged.height = headerCanvas.height + gap + contentCanvas.height;
+      const ctx = merged.getContext('2d');
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, merged.width, merged.height);
+      ctx.drawImage(headerCanvas, 0, 0);
+      ctx.drawImage(contentCanvas, 0, headerCanvas.height + gap);
+
+      await new Promise((resolve) => {
+        merged.toBlob((blob) => {
+          if (blob) downloadBlob(`${config.label.replace(/\s+/g, '_')}_Report_${todayIso()}.png`, blob);
+          resolve();
+        }, 'image/png');
+      });
+    } catch {
+      setError('Failed to export PNG.');
+    } finally {
+      headerEl.style.display = previousDisplay;
+      setExportingPng(false);
+    }
+  };
+
   return (
     <div className="reports-page">
-      <div className="reports-print-header">
+      <div className="reports-print-header" ref={printHeaderRef}>
         {company?.logo_path ? (
           <img src={company.logo_path} alt={company.company_name || 'Company logo'} className="reports-print-logo" />
         ) : (
@@ -389,6 +438,9 @@ function ReportsCenter() {
             </button>
             <button type="button" className={`btn btn-secondary ${exportingCsv ? 'btn-loading' : ''}`} onClick={handleExportCsv} disabled={exportingCsv}>
               <FiDownload aria-hidden="true" /> Export CSV
+            </button>
+            <button type="button" className={`btn btn-secondary ${exportingPng ? 'btn-loading' : ''}`} onClick={handleExportPng} disabled={exportingPng || !report}>
+              <FiImage aria-hidden="true" /> Export PNG
             </button>
           </div>
         )}
@@ -510,7 +562,7 @@ function ReportsCenter() {
           ))}
         </div>
       ) : (
-        <>
+        <div ref={reportContentRef}>
           {summaryEntries.length > 0 && (
             <div className="grid grid-cols-4 mb-5">
               {summaryEntries.map((entry) => (
@@ -566,6 +618,19 @@ function ReportsCenter() {
             </div>
           )}
 
+          {Array.isArray(report?.financialSummary?.monthlyTrend) && (
+            <div className="card mb-5">
+              <div className="card-header"><span className="card-title">Monthly Trend</span></div>
+              <div className="card-body">
+                <LineChart
+                  labels={report.financialSummary.monthlyTrend.map((m) => m.month)}
+                  values={report.financialSummary.monthlyTrend.map((m) => Number(m.value))}
+                  valueFormatter={formatCurrency}
+                />
+              </div>
+            </div>
+          )}
+
           {Array.isArray(report?.analysis) && report.analysis.length > 0 && (
             <div className="card mb-5">
               <div className="card-header"><span className="card-title">Business Analysis</span></div>
@@ -600,7 +665,7 @@ function ReportsCenter() {
               onExport={(title, rows) => downloadCsv(`${config.label}-${title}-${filters.dateFrom}-${filters.dateTo}`, rows)}
             />
           ))}
-        </>
+        </div>
       )}
     </div>
   );

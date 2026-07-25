@@ -129,6 +129,10 @@
 }
 
 @media print {
+  @page {
+    margin: 12mm;
+  }
+
   .sidebar, .navbar, .page-actions, .reports-type-pills, .reports-filter-bar {
     display: none !important;
   }
@@ -140,5 +144,31 @@
     margin-bottom: var(--space-5);
     padding-bottom: var(--space-4);
     border-bottom: 2px solid var(--color-border);
+  }
+
+  /* Chrome/Safari drop background colors and box-shadows by default when
+     printing — without this, every KPI card, the financial-summary panel,
+     and the active-pill/chart colors would print as plain white/black even
+     though the on-screen preview (and the PDF/Excel/PNG exports, which
+     don't go through the browser's print pipeline) show them in color. */
+  .reports-page,
+  .reports-page * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  /* Browsers only avoid a break when the whole block fits in the remaining
+     page — a card taller than one page still breaks internally as needed,
+     so this never causes clipped or missing content, just fewer
+     orphaned/split headers. */
+  .reports-page .card,
+  .reports-page .grid > * {
+    break-inside: avoid;
+    box-shadow: none;
+  }
+
+  .app-main {
+    overflow-x: visible;
   }
 }

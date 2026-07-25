@@ -47,6 +47,13 @@ export function buildReportCsv(type, report) {
     sections.push(`Highest Sales Day,${csvEscape(`${fs.highestSalesDay.date} (${formatCell('totalRevenue', fs.highestSalesDay.value)})`)}`);
     sections.push(`Lowest Sales Day,${csvEscape(`${fs.lowestSalesDay.date} (${formatCell('totalRevenue', fs.lowestSalesDay.value)})`)}`);
     sections.push('');
+
+    if (Array.isArray(fs.monthlyTrend)) {
+      sections.push('Monthly Trend');
+      sections.push('Month,Revenue');
+      fs.monthlyTrend.forEach(({ month, value }) => sections.push(`${csvEscape(month)},${csvEscape(formatCell('totalRevenue', value))}`));
+      sections.push('');
+    }
   }
 
   if (Array.isArray(report.analysis) && report.analysis.length > 0) {

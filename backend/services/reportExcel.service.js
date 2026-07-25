@@ -126,6 +126,20 @@ function addSummarySheet(workbook, { config, dateRangeLabel, company, generatedB
       row += 1;
     });
     row += 1;
+
+    if (Array.isArray(fs2.monthlyTrend)) {
+      sheet.getCell(`A${row}`).value = 'Monthly Trend';
+      sheet.getCell(`A${row}`).font = { bold: true, size: 12, color: { argb: COLOR_NAVY } };
+      row += 1;
+      fs2.monthlyTrend.forEach(({ month, value }) => {
+        sheet.getCell(`A${row}`).value = month;
+        const valueCell = sheet.getCell(`B${row}`);
+        valueCell.value = value;
+        valueCell.numFmt = '"TZS" #,##0.00';
+        row += 1;
+      });
+      row += 1;
+    }
   }
 
   if (Array.isArray(report.analysis) && report.analysis.length > 0) {

@@ -330,6 +330,14 @@ export function buildReportPdf(type, report, { dateFrom, dateTo, company, genera
     drawBarChart(doc, type === 'profit' ? 'Daily Profit Trend' : 'Sales Trend', chartRows);
   }
 
+  // Only appears when the date range spans 2+ calendar months (see
+  // reportAnalysis.js's monthlyTrend()) — a single-month range would just
+  // duplicate the daily chart above with one bar.
+  if (Array.isArray(report.financialSummary?.monthlyTrend)) {
+    const monthlyRows = report.financialSummary.monthlyTrend.map((m) => ({ label: m.month, value: m.value }));
+    drawBarChart(doc, 'Monthly Trend', monthlyRows);
+  }
+
   if (Array.isArray(report.analysis) && report.analysis.length > 0) {
     sectionTitle(doc, 'Business Analysis');
     drawBulletList(doc, report.analysis, { bullet: '•', color: COLOR_NAVY });

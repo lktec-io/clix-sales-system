@@ -22,7 +22,7 @@ export const checkout = asyncHandler(async (req, res) => {
 export const receipt = asyncHandler(async (req, res) => {
   const sale = await saleService.getSale(Number(req.params.id));
   const company = await companyService.getProfile();
-  const pdf = await receiptService.buildReceiptPdf(sale, company);
+  const pdf = await receiptService.buildReceiptPdf(sale, company, req.query.size);
 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `inline; filename="${sale.sale_number}.pdf"`);
