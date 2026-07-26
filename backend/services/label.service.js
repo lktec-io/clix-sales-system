@@ -33,9 +33,10 @@ const PAGE_HEIGHT = mm(297);
 const PAGE_MARGIN = mm(6);
 const LABEL_GAP = mm(2);
 
-const COLOR_INK = '#111111';
-const COLOR_MUTED = '#6B7280';
-const COLOR_BORDER = '#E5E7EB';
+// Navy / Green / Black only, per spec — no gray, no border color.
+const COLOR_NAVY = '#0B1F4D';
+const COLOR_GREEN = '#10B981';
+const COLOR_BLACK = '#000000';
 
 function resolveLocalLogoPath(logoPath) {
   if (!logoPath || !logoPath.startsWith('/uploads/')) return null;
@@ -43,48 +44,58 @@ function resolveLocalLogoPath(logoPath) {
   return fs.existsSync(absPath) ? absPath : null;
 }
 
-// Logo (small) top-left, QR filling most of the label (the spec's explicit
-// "QR Code must occupy most of the label" / "easy to scan even from
-// distance"), Name/Code/Price stacked underneath in a compact block. No
-// barcode, no branch line, no other field — exactly the five things the
-// spec allows and nothing else.
-function drawLabel(doc, { x, y, width, height, logoPath, product, qrImageBuffer }) {
-  doc.roundedRect(x, y, width, height, mm(1)).stroke(COLOR_BORDER);
+// Fixed (not height-percentage) increments for the logo/name/code/price
+// block, tuned against the *smallest* label size (50x30mm) so the block
+// always leaves real room for the QR beneath it — on the larger 60x40/
+// 70x45mm sizes the same fixed block just leaves proportionally more.
+const LOGO_SIZE = mm(3.5);
+const LOGO_GAP = mm(0.6);
+const NAME_FONT = 6.5;
+const NAME_LINE = mm(2.6);
+const CODE_FONT = 5.5;
+const CODE_LINE = mm(2.4);
+const PRICE_FONT = 8.5;
+const PRICE_LINE = mm(3.8);
+const QR_GAP = mm(0.8);
+const MIN_QR_SIZE = mm(8);
 
-  const pad = mm(2);
+// Vertical stack, top to bottom, exactly as specified: Logo -> Product
+// Name -> Product ID -> Price (large, bold) -> QR code. No border, no
+// other field. QR gets whatever vertical room is left after the fixed
+// text block above it (always positive — see the LOGO_SIZE.../MIN_QR_SIZE
+// constants' comment), capped by the label's own width so it never
+// overflows a narrow label either.
+function drawLabel(doc, { x, y, width, height, logoPath, product, qrImageBuffer }) {
+  const pad = mm(1.8);
   const innerX = x + pad;
   const innerWidth = width - pad * 2;
+  let cursorY = y + pad;
 
-  const logoSize = mm(4.5);
   if (logoPath) {
     try {
-      doc.image(logoPath, innerX, y + pad, { width: logoSize, height: logoSize });
+      doc.image(logoPath, x + (width - LOGO_SIZE) / 2, cursorY, { width: LOGO_SIZE, height: LOGO_SIZE });
     } catch (err) {
       logger.warn('Label PDF: failed to embed company logo, continuing without it', { error: err.message });
     }
+    cursorY += LOGO_SIZE + LOGO_GAP;
   }
 
-  // QR takes the majority of the label's height — square, capped by
-  // whichever of width/remaining-height is tighter, with its own quiet
-  // zone from `pad` plus the QR image's own built-in margin (see
-  // qrCode.service.js: margin 4 modules already baked into the PNG).
-  const qrTop = y + pad + logoSize + mm(1.5);
-  const qrMaxHeight = height * 0.58;
-  const qrSize = Math.min(innerWidth, qrMaxHeight);
+  doc.fontSize(NAME_FONT).font('Helvetica-Bold').fillColor(COLOR_NAVY)
+    .text(product.name, innerX, cursorY, { width: innerWidth, align: 'center', ellipsis: true });
+  cursorY += NAME_LINE;
+
+  doc.fontSize(CODE_FONT).font('Helvetica').fillColor(COLOR_BLACK)
+    .text(product.code, innerX, cursorY, { width: innerWidth, align: 'center', ellipsis: true });
+  cursorY += CODE_LINE;
+
+  doc.fontSize(PRICE_FONT).font('Helvetica-Bold').fillColor(COLOR_GREEN)
+    .text(formatCurrency(product.selling_price), innerX, cursorY, { width: innerWidth, align: 'center' });
+  cursorY += PRICE_LINE + QR_GAP;
+
+  const qrAvailableHeight = (y + height - pad) - cursorY;
+  const qrSize = Math.max(Math.min(innerWidth, qrAvailableHeight), MIN_QR_SIZE);
   const qrX = x + (width - qrSize) / 2;
-  doc.image(qrImageBuffer, qrX, qrTop, { width: qrSize, height: qrSize });
-
-  let textY = qrTop + qrSize + mm(2);
-  doc.fontSize(Math.max(7, height * 0.11)).font('Helvetica-Bold').fillColor(COLOR_INK)
-    .text(product.name, innerX, textY, { width: innerWidth, align: 'center', ellipsis: true });
-  textY += mm(4);
-
-  doc.fontSize(Math.max(6, height * 0.08)).font('Helvetica').fillColor(COLOR_MUTED)
-    .text(product.code, innerX, textY, { width: innerWidth, align: 'center', ellipsis: true });
-  textY += mm(3.5);
-
-  doc.fontSize(Math.max(8, height * 0.13)).font('Helvetica-Bold').fillColor(COLOR_INK)
-    .text(formatCurrency(product.selling_price), innerX, textY, { width: innerWidth, align: 'center' });
+  doc.image(qrImageBuffer, qrX, cursorY, { width: qrSize, height: qrSize });
 }
 
 export async function buildLabelsPdf(productIds, branchName, sizeKey, company) {

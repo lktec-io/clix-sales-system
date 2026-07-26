@@ -87,7 +87,8 @@ export const exportExcel = asyncHandler(async (req, res) => {
 
 export const exportCsv = asyncHandler(async (req, res) => {
   const report = await reportService.getReport(req.params.type, req.query, req.user);
-  const csv = buildReportCsv(req.params.type, report);
+  const context = await buildExportContext(req);
+  const csv = buildReportCsv(req.params.type, report, { ...req.query, ...context });
   const filename = buildReportFilename(req.params.type, report, 'csv');
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

@@ -1,8 +1,92 @@
-.reports-type-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+/* Report-type picker — one premium card per report, replacing the old pill
+   row. auto-fit/minmax (same overflow-safe pattern as the Customer/Supplier
+   management grid) so it never overflows down to 320px while still
+   reaching a dense multi-column layout on desktop. */
+.reports-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
   margin-bottom: var(--space-5);
+  width: 100%;
+}
+
+.reports-type-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+  gap: var(--space-2);
+  min-width: 0;
+  max-width: 100%;
+  border: 2px solid transparent;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.reports-type-card-active {
+  border-color: var(--color-primary);
+}
+
+.reports-type-card-select {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  color: inherit;
+  font: inherit;
+}
+
+.reports-type-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary);
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-1);
+  flex-shrink: 0;
+}
+
+.reports-type-card-active .reports-type-card-icon {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.reports-type-card-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.reports-type-card-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-base);
+  overflow-wrap: break-word;
+}
+
+.reports-type-card-date {
+  width: 100%;
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  padding: var(--space-1) var(--space-2);
+  height: auto;
+}
+
+.reports-type-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  margin-top: auto;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
 }
 
 .reports-analysis-list {
@@ -70,27 +154,6 @@
   color: var(--color-primary);
 }
 
-.reports-type-pill {
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-card-bg);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: border-color var(--transition-fast), color var(--transition-fast), background-color var(--transition-fast);
-}
-
-.reports-type-pill:hover {
-  border-color: var(--color-primary);
-}
-
-.reports-type-pill-active {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-white);
-}
-
 .reports-filter-bar {
   display: flex;
   flex-wrap: wrap;
@@ -133,7 +196,7 @@
     margin: 12mm;
   }
 
-  .sidebar, .navbar, .page-actions, .reports-type-pills, .reports-filter-bar {
+  .sidebar, .navbar, .page-actions, .reports-type-grid, .reports-filter-bar {
     display: none !important;
   }
 
@@ -148,9 +211,9 @@
 
   /* Chrome/Safari drop background colors and box-shadows by default when
      printing — without this, every KPI card, the financial-summary panel,
-     and the active-pill/chart colors would print as plain white/black even
-     though the on-screen preview (and the PDF/Excel/PNG exports, which
-     don't go through the browser's print pipeline) show them in color. */
+     and chart colors would print as plain white/black even though the
+     on-screen preview (and the PDF/Excel exports, which don't go through
+     the browser's print pipeline) show them in color. */
   .reports-page,
   .reports-page * {
     -webkit-print-color-adjust: exact;

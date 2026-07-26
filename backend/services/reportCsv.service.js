@@ -22,9 +22,17 @@ function rowsToCsv(rows, columns, headerLabels) {
 // Whole-report export (summary + every breakdown, each as its own labeled
 // section) — distinct from the frontend's existing per-breakdown-table CSV
 // button, which stays as a quick one-table-at-a-time option.
-export function buildReportCsv(type, report) {
+export function buildReportCsv(type, report, { dateFrom, dateTo, company, generatedByName } = {}) {
   const config = resolveConfig(type, report);
-  const sections = [`${config.title} Report`, ''];
+  const dateRangeLabel = dateFrom && dateTo ? `${dateFrom} to ${dateTo}` : 'All time';
+  const sections = [
+    csvEscape(company?.company_name || 'JOZZY Sales Management System'),
+    csvEscape(`${config.title} Report`),
+    `Date Range,${csvEscape(dateRangeLabel)}`,
+    `Generated,${csvEscape(new Date().toLocaleString('en-TZ', { dateStyle: 'medium', timeStyle: 'short' }))}`,
+    ...(generatedByName ? [`Prepared By,${csvEscape(generatedByName)}`] : []),
+    '',
+  ];
 
   if (report.summary && config.summaryLabels) {
     sections.push('Executive Summary');

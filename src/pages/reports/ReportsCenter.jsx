@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import html2canvas from 'html2canvas';
-import { FiPrinter, FiDownload, FiFileText, FiBarChart2, FiGrid, FiImage, FiTrendingUp } from 'react-icons/fi';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  FiPrinter, FiDownload, FiFileText, FiBarChart2, FiGrid, FiTrendingUp,
+  FiDollarSign, FiPackage, FiBox, FiUsers, FiTruck, FiCreditCard, FiLayers,
+} from 'react-icons/fi';
 import KPICard from '../../components/dashboard/KPICard';
 import EmptyState from '../../components/common/EmptyState';
 import Skeleton from '../../components/common/Skeleton';
@@ -15,7 +17,7 @@ import * as customerService from '../../services/customerService';
 import * as productService from '../../services/productService';
 import * as userService from '../../services/userService';
 import { formatCurrency } from '../../utils/formatCurrency';
-import { downloadCsv, downloadBlob } from '../../utils/exportCsv';
+import { downloadCsv } from '../../utils/exportCsv';
 import '../../styles/pages/Reports.css';
 
 function todayIso() {
@@ -179,6 +181,33 @@ const REPORT_CONFIGS = {
   },
 };
 
+// "Show only: Sales, Product, Inventory, Customer, Supplier, Expenses, All
+// Reports" — the other REPORT_CONFIGS entries (purchases/returns/carwash/
+// profit/branches/users) stay fully supported by the backend and this same
+// generic renderer; they're just no longer offered as a card here, so
+// nothing about how a report actually renders needed to change.
+const VISIBLE_REPORT_TYPES = ['sales', 'products', 'inventory', 'customers', 'suppliers', 'expenses', 'all'];
+
+const REPORT_ICONS = {
+  sales: FiDollarSign,
+  products: FiPackage,
+  inventory: FiBox,
+  customers: FiUsers,
+  suppliers: FiTruck,
+  expenses: FiCreditCard,
+  all: FiLayers,
+};
+
+const REPORT_DESCRIPTIONS = {
+  sales: 'Revenue, transactions, and daily trends.',
+  products: 'Best-selling products by quantity and revenue.',
+  inventory: 'Stock levels, value, and low-stock alerts.',
+  customers: 'Top customers by spend and order count.',
+  suppliers: 'Purchase totals and outstanding balances.',
+  expenses: 'Spending by category for the period.',
+  all: 'A combined business summary across every area.',
+};
+
 function humanize(key) {
   const result = key.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1');
   return result.charAt(0).toUpperCase() + result.slice(1);
@@ -251,9 +280,6 @@ function ReportsCenter() {
   const [exportingPdf, setExportingPdf] = useState(false);
   const [exportingExcel, setExportingExcel] = useState(false);
   const [exportingCsv, setExportingCsv] = useState(false);
-  const [exportingPng, setExportingPng] = useState(false);
-  const reportContentRef = useRef(null);
-  const printHeaderRef = useRef(null);
 
   const config = REPORT_CONFIGS[reportType];
 
@@ -364,54 +390,27 @@ function ReportsCenter() {
     }
   };
 
-  // A screenshot of the already-branded on-screen report, not a server
-  // render — reuses the same KPI cards/charts/analysis the user is looking
-  // at, so there's no second "does the PNG match the preview" layout to
-  // maintain. The masthead is captured separately because it's the
-  // print-only `.reports-print-header` (display:none on screen, see
-  // Reports.css) — toggled visible just long enough to rasterize, then
-  // reverted, so it never flashes into the live page the user sees.
-  const handleExportPng = async () => {
-    const contentEl = reportContentRef.current;
-    const headerEl = printHeaderRef.current;
-    if (!contentEl || !headerEl) return;
-
-    setExportingPng(true);
-    const previousDisplay = headerEl.style.display;
+  // Per-card "Quick Export" shortcut — exports the report type shown on
+  // that card without first switching to it. For the currently-open type
+  // it reuses the exact filters already applied; for any other type it
+  // exports with no filters, which is the same as the backend's own
+  // default ("this month so far") rather than an arbitrarily different
+  // behavior for a report that was never opened.
+  const quickExport = async (type, format) => {
+    const cfg = REPORT_CONFIGS[type];
+    const params = type === reportType ? buildExportParams() : {};
     try {
-      headerEl.style.display = 'flex';
-      const [headerCanvas, contentCanvas] = await Promise.all([
-        html2canvas(headerEl, { backgroundColor: '#FFFFFF', scale: 2, useCORS: true }),
-        html2canvas(contentEl, { backgroundColor: '#FFFFFF', scale: 2, useCORS: true }),
-      ]);
-
-      const gap = 24;
-      const merged = document.createElement('canvas');
-      merged.width = Math.max(headerCanvas.width, contentCanvas.width);
-      merged.height = headerCanvas.height + gap + contentCanvas.height;
-      const ctx = merged.getContext('2d');
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, merged.width, merged.height);
-      ctx.drawImage(headerCanvas, 0, 0);
-      ctx.drawImage(contentCanvas, 0, headerCanvas.height + gap);
-
-      await new Promise((resolve) => {
-        merged.toBlob((blob) => {
-          if (blob) downloadBlob(`${config.label.replace(/\s+/g, '_')}_Report_${todayIso()}.png`, blob);
-          resolve();
-        }, 'image/png');
-      });
+      if (format === 'pdf') await reportService.exportReportPdf(type, params, cfg.label);
+      else if (format === 'excel') await reportService.exportReportExcel(type, params, cfg.label);
+      else await reportService.exportReportCsv(type, params, cfg.label);
     } catch {
-      setError('Failed to export PNG.');
-    } finally {
-      headerEl.style.display = previousDisplay;
-      setExportingPng(false);
+      setError(`Failed to export ${cfg.label}.`);
     }
   };
 
   return (
     <div className="reports-page">
-      <div className="reports-print-header" ref={printHeaderRef}>
+      <div className="reports-print-header">
         {company?.logo_path ? (
           <img src={company.logo_path} alt={company.company_name || 'Company logo'} className="reports-print-logo" />
         ) : (
@@ -427,36 +426,64 @@ function ReportsCenter() {
         </div>
         {canExport && (
           <div className="page-actions">
-            <button type="button" className="btn btn-secondary" onClick={() => window.print()}>
-              <FiPrinter aria-hidden="true" /> Print
-            </button>
             <button type="button" className={`btn btn-secondary ${exportingPdf ? 'btn-loading' : ''}`} onClick={handleExportPdf} disabled={exportingPdf}>
-              <FiFileText aria-hidden="true" /> Export PDF
+              <FiFileText aria-hidden="true" /> PDF
             </button>
             <button type="button" className={`btn btn-secondary ${exportingExcel ? 'btn-loading' : ''}`} onClick={handleExportExcel} disabled={exportingExcel}>
-              <FiGrid aria-hidden="true" /> Export Excel
+              <FiGrid aria-hidden="true" /> Excel
             </button>
             <button type="button" className={`btn btn-secondary ${exportingCsv ? 'btn-loading' : ''}`} onClick={handleExportCsv} disabled={exportingCsv}>
-              <FiDownload aria-hidden="true" /> Export CSV
+              <FiDownload aria-hidden="true" /> CSV
             </button>
-            <button type="button" className={`btn btn-secondary ${exportingPng ? 'btn-loading' : ''}`} onClick={handleExportPng} disabled={exportingPng || !report}>
-              <FiImage aria-hidden="true" /> Export PNG
+            <button type="button" className="btn btn-secondary" onClick={() => window.print()}>
+              <FiPrinter aria-hidden="true" /> Print
             </button>
           </div>
         )}
       </div>
 
-      <div className="reports-type-pills">
-        {Object.entries(REPORT_CONFIGS).map(([key, cfg]) => (
-          <button
-            key={key}
-            type="button"
-            className={`reports-type-pill ${reportType === key ? 'reports-type-pill-active' : ''}`}
-            onClick={() => setReportType(key)}
-          >
-            {cfg.label}
-          </button>
-        ))}
+      <div className="reports-type-grid">
+        {VISIBLE_REPORT_TYPES.map((key) => {
+          const cfg = REPORT_CONFIGS[key];
+          const Icon = REPORT_ICONS[key];
+          const active = reportType === key;
+          return (
+            <div key={key} className={`card reports-type-card ${active ? 'reports-type-card-active' : ''}`}>
+              <button type="button" className="reports-type-card-select" onClick={() => setReportType(key)}>
+                <span className="reports-type-card-icon"><Icon aria-hidden="true" /></span>
+                <span className="reports-type-card-title">{cfg.label}</span>
+                <span className="reports-type-card-desc">{REPORT_DESCRIPTIONS[key]}</span>
+              </button>
+              {cfg.filters.includes('dateFrom') && (
+                <select
+                  className="form-control reports-type-card-date no-print"
+                  aria-label={`${cfg.label} date range`}
+                  value={active ? datePreset : 'month'}
+                  onChange={(e) => { setReportType(key); applyDatePreset(e.target.value); }}
+                >
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                  <option value="lastMonth">Last Month</option>
+                  <option value="year">This Year</option>
+                </select>
+              )}
+              {canExport && (
+                <div className="reports-type-card-actions no-print">
+                  <button type="button" className="btn btn-ghost btn-icon btn-sm" aria-label={`Export ${cfg.label} as PDF`} onClick={() => quickExport(key, 'pdf')}>
+                    <FiFileText aria-hidden="true" />
+                  </button>
+                  <button type="button" className="btn btn-ghost btn-icon btn-sm" aria-label={`Export ${cfg.label} as Excel`} onClick={() => quickExport(key, 'excel')}>
+                    <FiGrid aria-hidden="true" />
+                  </button>
+                  <button type="button" className="btn btn-ghost btn-icon btn-sm" aria-label={`Export ${cfg.label} as CSV`} onClick={() => quickExport(key, 'csv')}>
+                    <FiDownload aria-hidden="true" />
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {config.filters.length > 0 && (
@@ -562,7 +589,7 @@ function ReportsCenter() {
           ))}
         </div>
       ) : (
-        <div ref={reportContentRef}>
+        <div>
           {summaryEntries.length > 0 && (
             <div className="grid grid-cols-4 mb-5">
               {summaryEntries.map((entry) => (
