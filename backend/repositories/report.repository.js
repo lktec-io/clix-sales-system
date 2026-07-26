@@ -308,8 +308,17 @@ export async function productsReport({ dateFrom, dateTo, branchId, categoryId, b
   // Grouped by the *_snapshot code (not p.id, which is NULL for every
   // deleted product alike) so multiple different deleted products don't
   // collapse into a single combined row.
+  //
+  // p.id is wrapped in MAX() — not selected raw — because ONLY_FULL_GROUP_BY
+  // (correctly) can't prove it's single-valued per group from the GROUP BY
+  // clause alone. It provably IS, though: p.code is UNIQUE per product, so
+  // within one COALESCE(p.code, snapshot) group there is at most one live
+  // product, meaning p.id is either that one product's id or NULL (deleted)
+  // for every row in the group — never two different ids. MAX() picks that
+  // single value deterministically; it does not pick "an arbitrary row" the
+  // way it would for a genuinely multi-valued column.
   const [topProducts] = await pool.query(
-    `SELECT p.id, COALESCE(p.name, si.product_name_snapshot) AS label, COALESCE(p.code, si.product_code_snapshot) AS code,
+    `SELECT MAX(p.id) AS id, COALESCE(p.name, si.product_name_snapshot) AS label, COALESCE(p.code, si.product_code_snapshot) AS code,
             SUM(si.quantity) AS quantity, COALESCE(SUM(si.line_total), 0) AS value
      FROM sale_items si JOIN sales s ON s.id = si.sale_id LEFT JOIN products p ON p.id = si.product_id
      ${where} GROUP BY COALESCE(p.code, si.product_code_snapshot), COALESCE(p.name, si.product_name_snapshot)

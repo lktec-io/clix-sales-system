@@ -217,19 +217,32 @@ export async function getProfitTrend(branchIds) {
 // product alike) so different deleted products don't collapse together;
 // the image subquery naturally returns NULL for one (nothing to show), the
 // same as a product that never had an image.
+//
+// The aggregation happens in an inner derived table that only ever selects
+// grouped/aggregated columns (id via MAX() — see productsReport() in
+// report.repository.js for why that's safe, not arbitrary, under
+// ONLY_FULL_GROUP_BY). The per-row image lookup then runs in the *outer*
+// query against that derived table's plain `id` column — outside any GROUP
+// BY, so it's just an ordinary correlated subquery on a real column, not a
+// grouped-column violation. Same rows, same order, same values as before;
+// only where the image subquery's reference to the id resolves from has
+// changed.
 export async function getTopProducts(branchIds, limit = 5) {
   const filter = branchFilter('s.branch_id', branchIds);
   const [rows] = await pool.query(
-    `SELECT p.id, COALESCE(p.name, si.product_name_snapshot) AS name,
-            SUM(si.quantity) AS quantity, SUM(si.line_total) AS revenue,
+    `SELECT agg.id, agg.name, agg.quantity, agg.revenue,
             (SELECT pi.image_path FROM product_images pi
-             WHERE pi.product_id = p.id ORDER BY pi.is_primary DESC, pi.sort_order LIMIT 1) AS image_path
-     FROM sale_items si
-     JOIN sales s ON s.id = si.sale_id
-     LEFT JOIN products p ON p.id = si.product_id
-     WHERE s.status = 'completed' ${filter.clause}
-     GROUP BY COALESCE(p.code, si.product_code_snapshot), COALESCE(p.name, si.product_name_snapshot)
-     ORDER BY quantity DESC
+             WHERE pi.product_id = agg.id ORDER BY pi.is_primary DESC, pi.sort_order LIMIT 1) AS image_path
+     FROM (
+       SELECT MAX(p.id) AS id, COALESCE(p.name, si.product_name_snapshot) AS name,
+              SUM(si.quantity) AS quantity, SUM(si.line_total) AS revenue
+       FROM sale_items si
+       JOIN sales s ON s.id = si.sale_id
+       LEFT JOIN products p ON p.id = si.product_id
+       WHERE s.status = 'completed' ${filter.clause}
+       GROUP BY COALESCE(p.code, si.product_code_snapshot), COALESCE(p.name, si.product_name_snapshot)
+     ) agg
+     ORDER BY agg.quantity DESC
      LIMIT ?`,
     [...filter.params, limit],
   );
