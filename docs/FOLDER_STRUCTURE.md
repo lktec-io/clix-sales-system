@@ -1,4 +1,4 @@
-﻿# JOZZY ERP — Folder Structure
+﻿# Clix Sales System — Folder Structure
 
 ## Deviation from the master prompt's example layout
 
@@ -15,7 +15,7 @@ This still delivers the required separation and layered architecture; it just av
 ## 1. Repository Root
 
 ```
-lizzy-decoration/
+clix-sales-system/
 ├── docs/                          # PROJECT_PLAN, TODO, CHANGELOG, DATABASE_PLAN, API_PLAN,
 │                                   # FOLDER_STRUCTURE, ARCHITECTURE, DATABASE, API,
 │                                   # DEPLOYMENT, SECURITY, TESTING, CODING-STANDARDS

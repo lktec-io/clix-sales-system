@@ -1,6 +1,6 @@
 # Deployment
 
-Production target: Contabo VPS, Ubuntu, serving `https://jozzy.clixworks.co.tz`. This document is written for whoever runs the actual deployment — per this project's constraint, that's the user, not this build process. Nothing in this document requires or references real credentials; every command below uses placeholders you fill in on the server itself.
+Production target: Contabo VPS, Ubuntu, serving `https://sales.clixworks.co.tz`. This document is written for whoever runs the actual deployment — per this project's constraint, that's the user, not this build process. Nothing in this document requires or references real credentials; every command below uses placeholders you fill in on the server itself.
 
 ## 1. Server prerequisites
 
@@ -39,9 +39,9 @@ sudo mysql -u root -p
 ```
 
 ```sql
-CREATE DATABASE jozzy_erp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'jozzy_app'@'localhost' IDENTIFIED BY 'CHOOSE_A_STRONG_PASSWORD_HERE';
-GRANT ALL PRIVILEGES ON jozzy_erp.* TO 'jozzy_app'@'localhost';
+CREATE DATABASE sales CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'clix_app'@'localhost' IDENTIFIED BY 'CHOOSE_A_STRONG_PASSWORD_HERE';
+GRANT ALL PRIVILEGES ON sales.* TO 'clix_app'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 ```
@@ -49,14 +49,14 @@ EXIT;
 Apply the schema (idempotent — safe to re-run, every `CREATE TABLE` is `IF NOT EXISTS`):
 
 ```bash
-mysql -u jozzy_app -p jozzy_erp < backend/database/schema.sql
+mysql -u clix_app -p sales < backend/database/schema.sql
 ```
 
 Seed reference data (roles, permissions, expense categories, car wash services — **not** demo business data):
 
 ```bash
-mysql -u jozzy_app -p jozzy_erp < backend/database/seeders/001_seed_roles_permissions.sql
-mysql -u jozzy_app -p jozzy_erp < backend/database/seeders/002_seed_reference_data.sql
+mysql -u clix_app -p sales < backend/database/seeders/001_seed_roles_permissions.sql
+mysql -u clix_app -p sales < backend/database/seeders/002_seed_reference_data.sql
 ```
 
 Create the first Super Administrator account:
@@ -69,10 +69,10 @@ npm run seed:admin
 ## 3. Application deployment
 
 ```bash
-sudo mkdir -p /var/www/jozzy-erp
-sudo chown $USER:$USER /var/www/jozzy-erp
-git clone <your-repo-url> /var/www/jozzy-erp
-cd /var/www/jozzy-erp
+sudo mkdir -p /var/www/clix-sales-system
+sudo chown $USER:$USER /var/www/clix-sales-system
+git clone <your-repo-url> /var/www/clix-sales-system
+cd /var/www/clix-sales-system
 
 # Frontend — build the static bundle Nginx will serve
 npm install
@@ -88,12 +88,12 @@ npm install --omit=dev
 **Never commit this file.** Copy the example and fill in real values on the server only:
 
 ```bash
-cd /var/www/jozzy-erp/backend
+cd /var/www/clix-sales-system/backend
 cp .env.example .env
 nano .env
 ```
 
-Required variables (see `.env.example` for the full list): `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` (the credentials created in step 2), `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` (generate two long random strings — `openssl rand -hex 64` is a good source), `FRONTEND_URL=https://jozzy.clixworks.co.tz`, `NODE_ENV=production`, `PORT=4000`, and the `SMTP_*` variables if password-reset emails should actually send (leave blank in early testing — `email.service.js` logs a failure to `email_logs` and doesn't crash the app if SMTP isn't configured).
+Required variables (see `.env.example` for the full list): `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` (the credentials created in step 2), `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` (generate two long random strings — `openssl rand -hex 64` is a good source), `FRONTEND_URL=https://sales.clixworks.co.tz`, `NODE_ENV=production`, `PORT=4000`, and the `SMTP_*` variables if password-reset emails should actually send (leave blank in early testing — `email.service.js` logs a failure to `email_logs` and doesn't crash the app if SMTP isn't configured).
 
 Set the file permissions so it's readable only by the app's user:
 
@@ -106,7 +106,7 @@ chmod 600 .env
 A PM2 process definition already exists at `backend/ecosystem.config.cjs`:
 
 ```bash
-cd /var/www/jozzy-erp/backend
+cd /var/www/clix-sales-system/backend
 pm2 start ecosystem.config.cjs --env production
 pm2 save
 pm2 startup   # follow the printed instructions to persist PM2 across reboots
@@ -124,8 +124,8 @@ curl http://127.0.0.1:4000/api/v1/health
 A template exists at `deploy/nginx.conf.template`. It serves the frontend's `dist/` build as static files, proxies `/api/` and `/uploads/` to the PM2-managed backend on port 4000, and deliberately does **not** expose `backend/backups/` (see [SECURITY.md](SECURITY.md) — a full database dump must never be reachable at a public URL).
 
 ```bash
-sudo cp deploy/nginx.conf.template /etc/nginx/sites-available/jozzy.clixworks.co.tz
-sudo ln -s /etc/nginx/sites-available/jozzy.clixworks.co.tz /etc/nginx/sites-enabled/
+sudo cp deploy/nginx.conf.template /etc/nginx/sites-available/sales.clixworks.co.tz
+sudo ln -s /etc/nginx/sites-available/sales.clixworks.co.tz /etc/nginx/sites-enabled/
 sudo nginx -t   # validate config syntax before reloading
 sudo systemctl reload nginx
 ```
@@ -133,7 +133,7 @@ sudo systemctl reload nginx
 ## 7. SSL (Let's Encrypt)
 
 ```bash
-sudo certbot --nginx -d jozzy.clixworks.co.tz
+sudo certbot --nginx -d sales.clixworks.co.tz
 ```
 
 Certbot edits the Nginx config in place to add the SSL block and redirect HTTP → HTTPS, and sets up automatic renewal (`certbot renew` via a systemd timer, installed automatically). Verify renewal works without actually renewing:
@@ -147,20 +147,20 @@ sudo certbot renew --dry-run
 **Backup** is already built into the application — no separate cron setup needed:
 - **Manual**: Settings → Backups → "Run Backup Now" (requires `settings.manage`), or `POST /api/v1/settings/backups`.
 - **Scheduled**: `backend/jobs/backupJob.js` runs automatically once the backend starts (registered in `server.js`), daily at 02:00 server time. Both paths call the same `backup.service.createBackup()`, writing to `backend/backups/` (outside the publicly-served `uploads/` directory) and recording a row in `system_backups` with `trigger_type` distinguishing manual from scheduled.
-- Verify the scheduled job is actually running: `pm2 logs jozzy-erp-api | grep -i backup`, or check Settings → Backups for a `scheduled`-triggered row appearing daily.
+- Verify the scheduled job is actually running: `pm2 logs clix-sales-api | grep -i backup`, or check Settings → Backups for a `scheduled`-triggered row appearing daily.
 
 **Restore** (manual — there is no restore endpoint in the application, deliberately: restoring a database is a rare, high-consequence operation that should require direct server access, not be reachable over HTTP):
 
 ```bash
 # 1. Stop the backend so nothing writes during restore
-pm2 stop jozzy-erp-api
+pm2 stop clix-sales-api
 
 # 2. Restore from a backup file (either downloaded via Settings > Backups,
 #    or found directly in backend/backups/ on the server)
-mysql -u jozzy_app -p jozzy_erp < backend/backups/backup-jozzy_erp-<timestamp>.sql
+mysql -u clix_app -p sales < backend/backups/backup-sales-<timestamp>.sql
 
 # 3. Restart
-pm2 start jozzy-erp-api
+pm2 start clix-sales-api
 ```
 
 Test this procedure against a **non-production** database before you ever need it against production — the first time you run a restore should not be during an actual incident.
@@ -169,7 +169,7 @@ Test this procedure against a **non-production** database before you ever need i
 
 Before announcing the system is live, verify manually:
 
-- [ ] `https://jozzy.clixworks.co.tz` loads over HTTPS with a valid certificate (padlock, no browser warning).
+- [ ] `https://sales.clixworks.co.tz` loads over HTTPS with a valid certificate (padlock, no browser warning).
 - [ ] Login with the Super Administrator account created in step 2 succeeds.
 - [ ] Company Settings (logo upload, business info) saves correctly.
 - [ ] Create at least one Branch, Category, Brand, Product — confirm each appears in its list.
@@ -182,6 +182,6 @@ Before announcing the system is live, verify manually:
 
 ## 10. Ongoing maintenance
 
-- **Logs**: `pm2 logs jozzy-erp-api` for live tailing; `backend/logs/` for Winston's file output (rotate with `logrotate` if disk usage becomes a concern — not configured by default).
-- **Updates**: `git pull`, `npm install` (both `/` and `backend/`), `npm run build` (frontend), `mysql ... < backend/database/schema.sql` (safe to re-run — every table is `CREATE TABLE IF NOT EXISTS`; new migrations from a future change would need to be applied individually), `pm2 restart jozzy-erp-api`.
+- **Logs**: `pm2 logs clix-sales-api` for live tailing; `backend/logs/` for Winston's file output (rotate with `logrotate` if disk usage becomes a concern — not configured by default).
+- **Updates**: `git pull`, `npm install` (both `/` and `backend/`), `npm run build` (frontend), `mysql ... < backend/database/schema.sql` (safe to re-run — every table is `CREATE TABLE IF NOT EXISTS`; new migrations from a future change would need to be applied individually), `pm2 restart clix-sales-api`.
 - **Scaling**: the current PM2 config runs a single backend instance (`exec_mode: 'fork'`). The `authorize()` middleware's permission cache is in-process memory — moving to PM2 cluster mode (multiple Node processes) is possible since all persistent state lives in MySQL, but be aware each worker would keep its own permission cache, so a role-permission change could take up to 60 seconds to reflect on a worker that didn't handle the request that changed it. Not a correctness issue, just a note if cluster mode is adopted later.

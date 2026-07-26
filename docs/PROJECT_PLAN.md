@@ -1,4 +1,4 @@
-﻿# JOZZY ERP — Project Plan
+﻿# Clix Sales System — Project Plan
 
 Source of truth: `prompt/MASTER_PROMPT.md`. This document is the architect-level plan produced from analyzing that spec against the current repository state. No application code has been written yet — this is the pre-implementation deliverable requested before Phase 1 begins.
 
@@ -157,7 +157,7 @@ A feature is not complete until: backend done, frontend done, validation added, 
 - **Sequence collisions**: concurrent POS terminals generating sale/purchase/transfer numbers simultaneously must use `SELECT ... FOR UPDATE` inside a transaction on `document_sequences`, or duplicate numbers are possible under load.
 - **Financial atomicity**: sale/purchase/return/transfer/expense writes touch 3+ tables each (header, lines, inventory movement) — every one of these must be a single MySQL transaction with rollback on any failure, per the spec's explicit rule.
 - **VPS resource ceiling**: Contabo VPS tiers are typically modest (2–4 vCPU / 4–8GB RAM). Avoid Puppeteer/headless-Chrome-based PDF generation for this reason — `pdfkit` is the safer default.
-- **Camera QR scanning on desktop cashier stations**: `html5-qrcode` requires `getUserMedia` (HTTPS or localhost) and a webcam. Since the production URL is HTTPS (`https://jozzy.clixworks.co.tz`), this is fine in production, but local dev over plain HTTP will need `localhost` (browsers treat it as a secure context) — no extra config needed as long as dev is accessed via `localhost`, not a LAN IP.
+- **Camera QR scanning on desktop cashier stations**: `html5-qrcode` requires `getUserMedia` (HTTPS or localhost) and a webcam. Since the production URL is HTTPS (`https://sales.clixworks.co.tz`), this is fine in production, but local dev over plain HTTP will need `localhost` (browsers treat it as a secure context) — no extra config needed as long as dev is accessed via `localhost`, not a LAN IP.
 
 ---
 

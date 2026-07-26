@@ -16,7 +16,7 @@ async function start() {
     await ensureUploadDirs();
 
     app.listen(env.port, () => {
-      logger.info(`JOZZY ERP API listening on port ${env.port} [${env.nodeEnv}]`);
+      logger.info(`Clix Sales System API listening on port ${env.port} [${env.nodeEnv}]`);
     });
 
     scheduleDailyBackup();

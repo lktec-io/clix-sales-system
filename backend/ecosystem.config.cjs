@@ -8,7 +8,7 @@
 module.exports = {
   apps: [
     {
-      name: 'jozzy-erp-api',
+      name: 'clix-sales-api',
       script: './server.js',
       cwd: __dirname,
       instances: 1,

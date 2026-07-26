@@ -29,7 +29,7 @@ const router = Router();
 // phase is implemented — see docs/API_PLAN.md for the full contract.
 
 router.get('/health', (req, res) => {
-  return success(res, { message: 'JOZZY ERP API is running' });
+  return success(res, { message: 'Clix Sales System API is running' });
 });
 
 router.use('/auth', authRoutes);

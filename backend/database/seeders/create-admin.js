@@ -59,7 +59,7 @@ async function promptHidden(question, envValue) {
 }
 
 async function main() {
-  console.log('JOZZY ERP — Create Super Administrator\n');
+  console.log('Clix Sales System — Create Super Administrator\n');
 
   const firstName = await promptVisible('First name: ', process.env.ADMIN_FIRST_NAME);
   const lastName = await promptVisible('Last name: ', process.env.ADMIN_LAST_NAME);

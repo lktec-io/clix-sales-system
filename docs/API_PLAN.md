@@ -1,4 +1,4 @@
-﻿# JOZZY ERP — API Plan
+﻿# Clix Sales System — API Plan
 
 Contract-level plan for the REST API, updated as each phase ships real route handlers (see `docs/CHANGELOG.md` for what's actually implemented vs. still planned below). Base path: `/api/v1`.
 

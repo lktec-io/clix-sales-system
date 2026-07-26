@@ -191,7 +191,7 @@ export async function buildReceiptPdf(sale, company, sizeKey = '80', qrVerificat
   }
 
   doc.fontSize(12 * fontScale).font('Helvetica-Bold').fillColor(COLOR_NAVY)
-    .text(company?.company_name || 'JOZZY Decoration & Accessories', margin, doc.y, { width: contentWidth, align: 'center' });
+    .text(company?.company_name || 'Clix Sales System', margin, doc.y, { width: contentWidth, align: 'center' });
   doc.font('Helvetica').fontSize(7 * fontScale).fillColor(COLOR_GRAY);
 
   const addressLine = formatCompanyAddress(company);
@@ -265,7 +265,7 @@ export async function buildReceiptPdf(sale, company, sizeKey = '80', qrVerificat
     .text(company?.receipt_footer || 'Thank you for your business!', { width: contentWidth, align: 'center' });
   doc.moveDown(0.2);
   doc.fontSize(6.5 * fontScale).font('Helvetica').fillColor(COLOR_GRAY)
-    .text(`Powered by ${company?.company_name || 'JOZZY Sales Management System'}`, { width: contentWidth, align: 'center' });
+    .text(`Powered by ${company?.company_name || 'Clix Sales System'}`, { width: contentWidth, align: 'center' });
 
   doc.end();
 

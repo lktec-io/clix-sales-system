@@ -25,8 +25,8 @@ PROJECT
 
 Project Name:
 
-JOZZY Decoration & Accessories
-Business Management System (ERP)
+Clix Sales System
+Sales Management System
 
 This is NOT a demo.
 

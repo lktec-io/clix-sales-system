@@ -53,10 +53,10 @@ export async function sendMail({ to, subject, html, template }) {
 
 export function passwordResetEmail(resetUrl) {
   return {
-    subject: 'Reset your JOZZY ERP password',
+    subject: 'Reset your Clix Sales System password',
     template: 'password-reset',
     html: `
-      <p>You requested a password reset for your JOZZY ERP account.</p>
+      <p>You requested a password reset for your Clix Sales System account.</p>
       <p><a href="${resetUrl}">Click here to reset your password</a>. This link expires in 30 minutes.</p>
       <p>If you did not request this, you can safely ignore this email.</p>
     `,

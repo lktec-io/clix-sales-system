@@ -7,27 +7,27 @@ Plain `.sql` files, applied manually — no migration framework/CLI is installed
 Run the numbered files in `migrations/` in order, then `seeders/` in order:
 
 ```bash
-mysql -u <user> -p jozzy_erp < migrations/001_create_roles_permissions.sql
-mysql -u <user> -p jozzy_erp < migrations/002_create_branches_users.sql
-mysql -u <user> -p jozzy_erp < migrations/003_create_settings_sessions.sql
-mysql -u <user> -p jozzy_erp < migrations/004_create_catalog_inventory.sql
-mysql -u <user> -p jozzy_erp < migrations/005_create_purchases_suppliers.sql
-mysql -u <user> -p jozzy_erp < migrations/006_create_sales_pos.sql
-mysql -u <user> -p jozzy_erp < migrations/007_create_stock_transfers.sql
-mysql -u <user> -p jozzy_erp < migrations/008_create_expenses.sql
-mysql -u <user> -p jozzy_erp < migrations/009_create_carwash.sql
-mysql -u <user> -p jozzy_erp < migrations/010_create_notifications_logs.sql
+mysql -u <user> -p sales < migrations/001_create_roles_permissions.sql
+mysql -u <user> -p sales < migrations/002_create_branches_users.sql
+mysql -u <user> -p sales < migrations/003_create_settings_sessions.sql
+mysql -u <user> -p sales < migrations/004_create_catalog_inventory.sql
+mysql -u <user> -p sales < migrations/005_create_purchases_suppliers.sql
+mysql -u <user> -p sales < migrations/006_create_sales_pos.sql
+mysql -u <user> -p sales < migrations/007_create_stock_transfers.sql
+mysql -u <user> -p sales < migrations/008_create_expenses.sql
+mysql -u <user> -p sales < migrations/009_create_carwash.sql
+mysql -u <user> -p sales < migrations/010_create_notifications_logs.sql
 
-mysql -u <user> -p jozzy_erp < seeders/001_seed_roles_permissions.sql
-mysql -u <user> -p jozzy_erp < seeders/002_seed_reference_data.sql
+mysql -u <user> -p sales < seeders/001_seed_roles_permissions.sql
+mysql -u <user> -p sales < seeders/002_seed_reference_data.sql
 ```
 
 Or apply everything in one shot with the concatenated `schema.sql` in this directory (migrations only — run seeders separately after):
 
 ```bash
-mysql -u <user> -p jozzy_erp < schema.sql
-mysql -u <user> -p jozzy_erp < seeders/001_seed_roles_permissions.sql
-mysql -u <user> -p jozzy_erp < seeders/002_seed_reference_data.sql
+mysql -u <user> -p sales < schema.sql
+mysql -u <user> -p sales < seeders/001_seed_roles_permissions.sql
+mysql -u <user> -p sales < seeders/002_seed_reference_data.sql
 ```
 
 All files are written with `CREATE TABLE IF NOT EXISTS` / `INSERT IGNORE`, so re-running them is safe.

@@ -1,8 +1,8 @@
-# JOZZY ERP
+# Clix Sales System
 
-Business Management System for **JOZZY Decoration & Accessories** — a production ERP covering authentication, inventory, POS, purchases, transfers, expenses, car wash, and reporting across multiple branches.
+Sales Management System for **Clix Digital Works** — covering authentication, inventory, POS, purchases, transfers, expenses, car wash, and reporting across multiple branches.
 
-Production URL: `https://jozzy.clixworks.co.tz`
+Production URL: `https://sales.clixworks.co.tz`
 
 ## Documentation
 

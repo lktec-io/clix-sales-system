@@ -1,16 +1,16 @@
-# Nginx reverse proxy for JOZZY ERP — serves the built frontend as static
-# files and proxies /api and /uploads to the Node backend (PM2, port 4000).
+# Nginx reverse proxy for Clix Sales System — serves the built frontend as
+# static files and proxies /api and /uploads to the Node backend (PM2, port 4000).
 #
-# Copy to /etc/nginx/sites-available/jozzy.clixworks.co.tz, symlink into
+# Copy to /etc/nginx/sites-available/sales.clixworks.co.tz, symlink into
 # sites-enabled, then run certbot --nginx to fill in the SSL block below.
 # See docs/DEPLOYMENT.md for the full walkthrough.
 
 server {
     listen 80;
-    server_name jozzy.clixworks.co.tz;
+    server_name sales.clixworks.co.tz;
 
     # Frontend static build (npm run build -> dist/)
-    root /var/www/jozzy-decoration/dist;
+    root /var/www/clix-sales-system/dist;
     index index.html;
 
     # React Router — always fall through to index.html for client-side routes

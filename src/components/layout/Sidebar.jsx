@@ -66,7 +66,7 @@ function Sidebar({ collapsed, onToggle, onNavigate, isOpen }) {
   const { logout, hasPermission } = useAuth();
   const { company } = useCompany();
   const navigate = useNavigate();
-  const companyName = company?.company_name || 'JOZZY';
+  const companyName = company?.company_name || 'Clix';
 
   // Plain function call, not the usePermission() hook — this runs once per
   // item inside a .filter() below, and hooks can't be called in a loop.

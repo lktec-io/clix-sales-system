@@ -41,7 +41,7 @@ const HEADER_KEY_ALIASES = {
 
 export async function buildImportTemplate() {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'JOZZY Sales Management System';
+  workbook.creator = 'Clix Sales System';
   workbook.created = new Date();
 
   const sheet = workbook.addWorksheet('Purchases Import');

@@ -1,9 +1,9 @@
 {
-  "name": "jozzy-erp-backend",
+  "name": "clix-sales-system-backend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "JOZZY ERP API - Express backend",
+  "description": "Clix Sales System API - Express backend",
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",

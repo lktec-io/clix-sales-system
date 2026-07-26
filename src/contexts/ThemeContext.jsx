@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { ThemeContext, THEMES, THEME_IDS } from './themeContextInstance';
 
-const STORAGE_KEY = 'jozzy-theme';
+const STORAGE_KEY = 'clix-theme';
 const DEFAULT_THEME = 'aurora';
 
 function readInitialTheme() {

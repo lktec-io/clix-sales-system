@@ -50,7 +50,7 @@ export const env = {
     port: Number(process.env.SMTP_PORT || 587),
     user: process.env.SMTP_USER || '',
     password: process.env.SMTP_PASSWORD || '',
-    from: process.env.SMTP_FROM || 'no-reply@jozzy.clixworks.co.tz',
+    from: process.env.SMTP_FROM || 'no-reply@sales.clixworks.co.tz',
   },
 
   // Primary storage for uploaded images (avatars, company logo, product

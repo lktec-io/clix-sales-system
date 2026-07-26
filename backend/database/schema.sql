@@ -1,4 +1,4 @@
--- schema.sql — JOZZY ERP full schema (generated from migrations/001..010)
+-- schema.sql — Clix Sales System full schema (generated from migrations/001..010)
 -- Apply migrations/*.sql individually if you prefer incremental control; this is the one-shot equivalent.
 -- Run seeders/*.sql separately afterward for reference data.
 

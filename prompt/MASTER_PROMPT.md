@@ -1,11 +1,11 @@
 =========================================================
-JOZZY ERP
+CLIX SALES SYSTEM
 BRAND IDENTITY & UI DESIGN STANDARDS
 =========================================================
 
-This ERP is for:
+This Sales Management System is for:
 
-JOZZY DECORATION & ACCESSORIES
+CLIX DIGITAL WORKS
 
 The UI must reflect a premium, elegant and modern business.
 
@@ -199,7 +199,7 @@ SYSTEM URL
 
 Production URL:
 
-https://jozzy.clixworks.co.tz
+https://sales.clixworks.co.tz
 
 Frontend routing, metadata and deployment should assume this is the production domain.
 
@@ -258,8 +258,8 @@ PROJECT
 
 Project Name:
 
-JOZZY Decoration & Accessories
-Business Management System (ERP)
+Clix Sales System
+Sales Management System
 
 This is NOT a demo.
 

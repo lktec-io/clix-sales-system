@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to JOZZY ERP are recorded here, newest first.
+All notable changes to Clix Sales System are recorded here, newest first.
 
 ## Phase 25 — Deployment Preparation
 
@@ -465,14 +465,14 @@ Completes the RBAC module — the permission-check middleware and `usePermission
 - **`GET /company` is deliberately public** (no `authenticate`) — the Login page needs the name/logo before a session exists. Safe here because this is a single-tenant system (one company's own public-facing profile, not another tenant's private data); `PUT`/`POST /company/logo` still require `authenticate` + `authorize('company.manage')`.
 
 **Frontend**
-- New `CompanyContext`/`useCompany()` (mirrors the `AuthContext` pattern) fetches the company profile once at the app root and is consumed by `AuthLayout` (login page brand), `Sidebar` (logo replaces the "JOZZY" text mark when set), and `Navbar` (a small logo shown only ≤768px, since the sidebar already carries the brand on desktop — added specifically for when the sidebar is off-screen on mobile).
+- New `CompanyContext`/`useCompany()` (mirrors the `AuthContext` pattern) fetches the company profile once at the app root and is consumed by `AuthLayout` (login page brand), `Sidebar` (logo replaces the "Clix" text mark when set), and `Navbar` (a small logo shown only ≤768px, since the sidebar already carries the brand on desktop — added specifically for when the sidebar is off-screen on mobile).
 - `CompanySettings.jsx`: full form matching every field in `MASTER_PROMPT.md`'s Module 1, immediate-upload logo picker with preview, and a read-only mode (all fields disabled, no save/upload controls) for users without `company.manage` — the frontend gate is UX only, the backend still enforces it independently per the spec's "never rely only on frontend hiding buttons" rule.
 - Routed at `/settings/company`; Sidebar's "Settings" link now points there (temporary — Phase 23 will turn `/settings` into a hub with Company as one tab among several).
 
 **Verification**
 - Backend dry-run (still no live DB): confirmed `GET /company` is reachable pre-auth and fails safely (generic 500, DB unreachable) rather than 404/leaking a DB error; confirmed `PUT /company` correctly returns 401 before authentication is checked.
 - Caught and fixed a real bug during dry-run testing: a stale backend process from earlier manual testing survived a `pkill -f` (unreliable against Windows-spawned node processes from Git Bash) and was silently serving pre-Phase-2 routes, producing misleading 404s. Resolved by enumerating and force-stopping node processes via PowerShell `Get-CimInstance`/`Stop-Process` instead of `pkill`, then re-verified cleanly.
-- Frontend verified in-browser: Login page renders correctly with `CompanyProvider` added (falls back to the "JOZZY" text mark when no company row exists yet, exactly as designed), zero uncaught JS errors.
+- Frontend verified in-browser: Login page renders correctly with `CompanyProvider` added (falls back to the "Clix" text mark when no company row exists yet, exactly as designed), zero uncaught JS errors.
 
 ## Phase 1 — Authentication
 

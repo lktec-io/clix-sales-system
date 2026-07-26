@@ -8,7 +8,7 @@ import { resolveConfig, humanize, MONEY_KEYS } from './reportConfig.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOADS_ROOT = path.join(__dirname, '..', 'uploads');
 
-// JOZZY brand palette — same Navy/Emerald/Gold tokens as reportPdf.service.js
+// Clix brand palette — same Navy/Emerald/Gold tokens as reportPdf.service.js
 // (ARGB, exceljs's color format — 'FF' alpha prefix + the same hex used
 // everywhere else in the app's design system).
 const COLOR_NAVY = 'FF0B1F4D';
@@ -54,7 +54,7 @@ function addSummarySheet(workbook, { config, dateRangeLabel, company, generatedB
     }
   }
 
-  sheet.getCell(`A${row}`).value = company?.company_name || 'JOZZY SALES MANAGEMENT SYSTEM';
+  sheet.getCell(`A${row}`).value = company?.company_name || 'CLIX SALES SYSTEM';
   sheet.getCell(`A${row}`).font = { bold: true, size: 10, color: { argb: COLOR_MUTED } };
   row += 1;
 
@@ -254,7 +254,7 @@ export async function buildReportExcel(type, report, { dateFrom, dateTo, company
   const dateRangeLabel = dateFrom && dateTo ? `${dateFrom} to ${dateTo}` : 'All time';
 
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'JOZZY Sales Management System';
+  workbook.creator = 'Clix Sales System';
   workbook.created = new Date();
 
   addSummarySheet(workbook, { config, dateRangeLabel, company, generatedByName, filtersLabel, branchLabel, report });

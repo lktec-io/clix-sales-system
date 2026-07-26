@@ -1,4 +1,4 @@
-﻿# JOZZY ERP — Database Plan
+﻿# Clix Sales System — Database Plan
 
 Database-first planning document and schema reference. The runnable DDL now exists as numbered migrations in [`backend/database/migrations/`](../backend/database/migrations/) (10 files, 42 tables, statically verified for FK-ordering correctness) plus seed data in [`backend/database/seeders/`](../backend/database/seeders/) and a combined [`backend/database/schema.sql`](../backend/database/schema.sql) — see [`backend/database/README.md`](../backend/database/README.md) for apply instructions and the reasoning behind the `branches`↔`users` circular-FK resolution and the deliberate omission of a seeded admin account. Engine: **MySQL 8**, InnoDB, `utf8mb4`.
 

@@ -1,4 +1,4 @@
-﻿# JOZZY ERP — TODO
+﻿# Clix Sales System — TODO
 
 The heart of the project. Every task lives here. Checked items are never deleted, only marked complete with a date. Update this file immediately after finishing any task — never batch updates.
 
@@ -347,7 +347,7 @@ Legend: Priority = Critical / High / Medium / Low. Status = ☐ Not Started / �
 | Status | Task | Priority | Module | Completed |
 |---|---|---|---|---|
 | ☐ | Provision Contabo VPS (Ubuntu), Node.js, MySQL install | Critical | Deploy | *(manual — user's own server, documented step-by-step in `DEPLOYMENT.md` §1)* |
-| ☑ | Nginx reverse proxy config for `jozzy.clixworks.co.tz` | Critical | Deploy | 2026-07-08 — template written: `deploy/nginx.conf.template` |
+| ☑ | Nginx reverse proxy config for `sales.clixworks.co.tz` | Critical | Deploy | 2026-07-08 — template written: `deploy/nginx.conf.template` |
 | ☑ | PM2 process config for backend | Critical | Deploy | 2026-07-08 — `backend/ecosystem.config.cjs`, verified it loads correctly |
 | ☐ | SSL certificate (Let's Encrypt/Certbot) | Critical | Deploy | *(manual — requires the real domain pointed at the real server; exact `certbot` command documented in `DEPLOYMENT.md` §7)* |
 | ☑ | Production `.env` setup (never committed) | Critical | Deploy | 2026-07-08 — `.env.example` already complete since Phase 0; `DEPLOYMENT.md` §4 documents every required variable and how to generate strong JWT secrets |

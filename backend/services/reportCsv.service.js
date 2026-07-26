@@ -26,7 +26,7 @@ export function buildReportCsv(type, report, { dateFrom, dateTo, company, genera
   const config = resolveConfig(type, report);
   const dateRangeLabel = dateFrom && dateTo ? `${dateFrom} to ${dateTo}` : 'All time';
   const sections = [
-    csvEscape(company?.company_name || 'JOZZY Sales Management System'),
+    csvEscape(company?.company_name || 'Clix Sales System'),
     csvEscape(`${config.title} Report`),
     `Date Range,${csvEscape(dateRangeLabel)}`,
     `Generated,${csvEscape(new Date().toLocaleString('en-TZ', { dateStyle: 'medium', timeStyle: 'short' }))}`,

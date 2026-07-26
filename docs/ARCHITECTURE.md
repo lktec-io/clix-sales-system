@@ -1,6 +1,6 @@
 # Architecture
 
-As-built reference for JOZZY ERP. For the phase-by-phase build history, see [CHANGELOG.md](CHANGELOG.md). For the original plan, see [PROJECT_PLAN.md](PROJECT_PLAN.md).
+As-built reference for Clix Sales System. For the phase-by-phase build history, see [CHANGELOG.md](CHANGELOG.md). For the original plan, see [PROJECT_PLAN.md](PROJECT_PLAN.md).
 
 ## Stack
 

@@ -5,7 +5,7 @@ import '../styles/pages/AuthLayout.css';
 
 function AuthLayout() {
   const { company } = useCompany();
-  const companyName = company?.company_name || 'JOZZY';
+  const companyName = company?.company_name || 'Clix';
 
   return (
     <div className="auth-shell">
@@ -29,7 +29,7 @@ function AuthLayout() {
           ) : (
             <span className="auth-brand-mark">{companyName}</span>
           )}
-          <span className="auth-brand-sub">Decoration &amp; Accessories</span>
+          <span className="auth-brand-sub">Sales Management System</span>
         </div>
         <PageTransition />
       </div>

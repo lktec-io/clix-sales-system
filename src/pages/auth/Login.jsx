@@ -34,7 +34,7 @@ function Login() {
     <div>
       <h1 className="text-lg font-semibold">Welcome back</h1>
       <p className="text-secondary text-sm mt-1 mb-4">
-        Sign in to continue to the JOZZY Business Management System.
+        Sign in to continue to the Clix Sales System.
       </p>
 
       {resetSuccess && !formError && (

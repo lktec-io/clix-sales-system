@@ -414,9 +414,9 @@ function ReportsCenter() {
         {company?.logo_path ? (
           <img src={company.logo_path} alt={company.company_name || 'Company logo'} className="reports-print-logo" />
         ) : (
-          <span className="reports-print-mark">{company?.company_name || 'JOZZY'}</span>
+          <span className="reports-print-mark">{company?.company_name || 'Clix'}</span>
         )}
-        <span className="reports-print-name">{company?.company_name || 'JOZZY Decoration & Accessories'}</span>
+        <span className="reports-print-name">{company?.company_name || 'Clix Sales System'}</span>
       </div>
 
       <div className="page-header">
