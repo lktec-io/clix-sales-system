@@ -161,36 +161,7 @@ export async function expensesReport({ dateFrom, dateTo, branchId, categoryId, b
   };
 }
 
-export async function carwashReport({ dateFrom, dateTo, branchId, branchIds }) {
-  const conditions = ['ct.created_at >= ?', 'ct.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
-  const params = [dateFrom, dateTo];
-  if (branchId) { conditions.push('ct.branch_id = ?'); params.push(branchId); }
-  const scope = branchFilter('ct.branch_id', branchIds);
-  const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
-  const allParams = [...params, ...scope.params];
-
-  const [[summary]] = await pool.query(
-    `SELECT COUNT(*) AS totalTransactions, COALESCE(SUM(ct.amount), 0) AS totalRevenue
-     FROM carwash_transactions ct ${where}`,
-    allParams,
-  );
-
-  const [byService] = await pool.query(
-    `SELECT cs.name AS label, COUNT(*) AS count, COALESCE(SUM(ct.amount), 0) AS value
-     FROM carwash_transactions ct JOIN carwash_services cs ON cs.id = ct.service_id
-     ${where} GROUP BY cs.id, cs.name ORDER BY value DESC`,
-    allParams,
-  );
-
-  return {
-    summary: { totalTransactions: Number(summary.totalTransactions), totalRevenue: Number(summary.totalRevenue) },
-    // See salesReport's comment above — SUM()-derived columns come back as
-    // strings from mysql2, normalized here for every downstream consumer.
-    byService: byService.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
-  };
-}
-
-// Profit = (sales revenue + car wash revenue) - cost of goods sold - expenses.
+// Profit = sales revenue - cost of goods sold - expenses.
 // Purchases aren't subtracted directly — they become inventory (an asset);
 // COGS at the moment of sale is what actually reduces profit.
 export async function profitReport({ dateFrom, dateTo, branchId, branchIds }) {
@@ -217,16 +188,6 @@ export async function profitReport({ dateFrom, dateTo, branchId, branchIds }) {
     salesAllParams,
   );
 
-  const carwashConditions = ['ct.created_at >= ?', 'ct.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
-  const carwashParams = [dateFrom, dateTo];
-  if (branchId) { carwashConditions.push('ct.branch_id = ?'); carwashParams.push(branchId); }
-  const carwashScope = branchFilter('ct.branch_id', branchIds);
-  const [[carwashRow]] = await pool.query(
-    `SELECT COALESCE(SUM(ct.amount), 0) AS revenue FROM carwash_transactions ct
-     WHERE ${carwashConditions.join(' AND ')} ${carwashScope.clause}`,
-    [...carwashParams, ...carwashScope.params],
-  );
-
   const expenseConditions = ['e.deleted_at IS NULL', 'e.expense_date >= ?', 'e.expense_date <= ?'];
   const expenseParams = [dateFrom, dateTo];
   if (branchId) { expenseConditions.push('e.branch_id = ?'); expenseParams.push(branchId); }
@@ -246,15 +207,14 @@ export async function profitReport({ dateFrom, dateTo, branchId, branchIds }) {
   );
 
   const salesRevenue = Number(revenueRow.revenue);
-  const carwashRevenue = Number(carwashRow.revenue);
   const cogs = Number(cogsRow.cogs);
   const expenses = Number(expenseRow.total);
-  const totalRevenue = salesRevenue + carwashRevenue;
+  const totalRevenue = salesRevenue;
   const grossProfit = totalRevenue - cogs;
   const netProfit = grossProfit - expenses;
 
   return {
-    summary: { salesRevenue, carwashRevenue, totalRevenue, cogs, grossProfit, expenses, netProfit },
+    summary: { salesRevenue, totalRevenue, cogs, grossProfit, expenses, netProfit },
     // See salesReport's comment above — SUM()-derived columns come back as
     // strings from mysql2, normalized here for every downstream consumer.
     byDay: byDay.map((row) => ({ ...row, value: Number(row.value) })),
@@ -268,24 +228,20 @@ export async function branchesReport({ dateFrom, dateTo, branchIds }) {
        COALESCE((SELECT SUM(s.total_amount) FROM sales s
          WHERE s.branch_id = b.id AND s.status = 'completed'
            AND s.created_at >= ? AND s.created_at < DATE_ADD(?, INTERVAL 1 DAY)), 0) AS salesRevenue,
-       COALESCE((SELECT SUM(ct.amount) FROM carwash_transactions ct
-         WHERE ct.branch_id = b.id
-           AND ct.created_at >= ? AND ct.created_at < DATE_ADD(?, INTERVAL 1 DAY)), 0) AS carwashRevenue,
        COALESCE((SELECT SUM(e.amount) FROM expenses e
          WHERE e.branch_id = b.id AND e.deleted_at IS NULL
            AND e.expense_date >= ? AND e.expense_date <= ?), 0) AS expenses
      FROM branches b
      WHERE b.deleted_at IS NULL ${scope.clause}
      ORDER BY salesRevenue DESC`,
-    [dateFrom, dateTo, dateFrom, dateTo, dateFrom, dateTo, ...scope.params],
+    [dateFrom, dateTo, dateFrom, dateTo, ...scope.params],
   );
 
   const byBranch = rows.map((row) => ({
     label: row.label,
     salesRevenue: Number(row.salesRevenue),
-    carwashRevenue: Number(row.carwashRevenue),
     expenses: Number(row.expenses),
-    net: Number(row.salesRevenue) + Number(row.carwashRevenue) - Number(row.expenses),
+    net: Number(row.salesRevenue) - Number(row.expenses),
   }));
 
   return { byBranch };

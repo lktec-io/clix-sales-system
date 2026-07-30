@@ -1,5 +1,5 @@
 -- 004_fix_role_permissions.sql
--- Authoritative reset of the 5 supported system roles' permission sets.
+-- Authoritative reset of the 4 supported system roles' permission sets.
 -- Supersedes 003_seed_role_updates.sql's "Cashier -> Sales" rename (reverted
 -- here per updated spec: the role stays "Cashier") and fully replaces each
 -- system role's role_permissions instead of only adding to them, so this
@@ -36,7 +36,6 @@ SELECT r.id, p.id FROM roles r JOIN permissions p ON p.code IN (
   'sales.view', 'sales.create', 'sales.manage',
   'returns.view', 'returns.create', 'returns.approve',
   'expenses.view', 'expenses.create', 'expenses.edit',
-  'carwash.view', 'carwash.create',
   'reports.view', 'reports.export'
 ) WHERE r.name = 'Manager';
 
@@ -44,7 +43,7 @@ SELECT r.id, p.id FROM roles r JOIN permissions p ON p.code IN (
 -- explicit sidebar spec (Dashboard / Customers / Sales / Profile / Logout,
 -- nothing else). Deliberately dropped from the original broader seed:
 -- products/inventory/suppliers/purchases/transfers/returns/expenses/
--- carwash/reports view access.
+-- reports view access.
 DELETE rp FROM role_permissions rp JOIN roles r ON r.id = rp.role_id WHERE r.name = 'Cashier';
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r JOIN permissions p ON p.code IN (
@@ -67,13 +66,3 @@ SELECT r.id, p.id FROM roles r JOIN permissions p ON p.code IN (
   'returns.view',
   'reports.view'
 ) WHERE r.name = 'Store Keeper';
-
--- Car Wash Operator: exactly Dashboard + Car Wash — unchanged from
--- 003_seed_role_updates.sql, restated here so this file is a complete,
--- standalone source of truth for all 5 roles.
-DELETE rp FROM role_permissions rp JOIN roles r ON r.id = rp.role_id WHERE r.name = 'Car Wash Operator';
-INSERT INTO role_permissions (role_id, permission_id)
-SELECT r.id, p.id FROM roles r JOIN permissions p ON p.code IN (
-  'dashboard.view',
-  'carwash.view', 'carwash.create'
-) WHERE r.name = 'Car Wash Operator';

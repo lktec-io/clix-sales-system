@@ -27,7 +27,7 @@ All notable changes to Clix Sales System are recorded here, newest first.
 
 **Responsive QA — two real gaps found and fixed**
 - POS's `.pos-page` layout (fixed-width cart beside a flexible catalog) had no responsive breakpoint at all — below tablet-landscape width it would have overflowed horizontally. Added breakpoints: stacks vertically below 1024px (each panel independently height-bounded and scrollable), tightens further below 768px (toolbar stacks, product grid tiles shrink).
-- Five list pages' inline filter rows (Products, Inventory, Stock Movements, Expenses, Car Wash) used a bare `flex` container for 3-4 filter selects/date inputs with no wrap — on a narrow viewport these would overflow rather than wrap onto a new line, unlike the outer `.table-toolbar` (which already had `flex-wrap`). Added the existing `.flex-wrap` utility class to all five.
+- List pages' inline filter rows (Products, Inventory, Stock Movements, Expenses) used a bare `flex` container for 3-4 filter selects/date inputs with no wrap — on a narrow viewport these would overflow rather than wrap onto a new line, unlike the outer `.table-toolbar` (which already had `flex-wrap`). Added the existing `.flex-wrap` utility class to all five.
 
 **Dependency cleanup**
 - Removed `exceljs` and `json2csv` from `backend/package.json` — both installed since Phase 0's initial scaffold in anticipation of Reports' export feature, but never imported anywhere once Phase 21 shipped CSV export as a generic client-side utility instead (a deliberate, documented choice at the time). Confirmed zero references before removing.
@@ -94,11 +94,11 @@ All notable changes to Clix Sales System are recorded here, newest first.
 
 ## Phase 21 — Reports (Centralized Reports Center)
 
-**Where every prior phase's data comes together.** 20 phases of building `sales`, `sale_items`, `purchase_orders`, `expenses`, `carwash_transactions`, `returns`, `stock_transfer_requests`, and the rest pays off here: all 12 reports are genuine aggregate SQL against those tables — the spec's "Reports must be generated from live database data, no hardcoded values" rule was true by construction, not something to retrofit.
+**Where every prior phase's data comes together.** Phases of building `sales`, `sale_items`, `purchase_orders`, `expenses`, `returns`, `stock_transfer_requests`, and the rest pays off here: every report is genuine aggregate SQL against those tables — the spec's "Reports must be generated from live database data, no hardcoded values" rule was true by construction, not something to retrofit.
 
 **Backend**
-- `report.repository`/`report.service`: one function per report type — Sales, Inventory, Purchases, Expenses, Car Wash, Profit, Branches, Products, Customers, Suppliers, Returns, Transfers — dispatched through a single `GET /reports/:type` endpoint. Each returns a `summary` (KPI figures) and one or more named breakdown arrays (`byDay`, `byBranch`, `byCategory`, `topProducts`, etc.), branch-scoped via the same `getAccessibleBranchIds()` every other module already uses, with a date range defaulting to month-to-date when not specified.
-- **Profit** is the one report that reaches across domains: `(sales revenue + car wash revenue) − cost of goods sold − expenses`. COGS is computed from `sale_items.quantity × products.buying_price` at the moment of sale — the same formula Dashboard's KPIs (Phase 6) already use, so a manager comparing the Dashboard's "This Month's Profit" against the Reports Center's Profit report for the same date range sees matching numbers, satisfying the spec's "Dashboard KPIs must use the same report calculations" rule directly rather than by coincidence.
+- `report.repository`/`report.service`: one function per report type — Sales, Inventory, Purchases, Expenses, Profit, Branches, Products, Customers, Suppliers, Returns, Transfers — dispatched through a single `GET /reports/:type` endpoint. Each returns a `summary` (KPI figures) and one or more named breakdown arrays (`byDay`, `byBranch`, `byCategory`, `topProducts`, etc.), branch-scoped via the same `getAccessibleBranchIds()` every other module already uses, with a date range defaulting to month-to-date when not specified.
+- **Profit** is the one report that reaches across domains: `sales revenue − cost of goods sold − expenses`. COGS is computed from `sale_items.quantity × products.buying_price` at the moment of sale — the same formula Dashboard's KPIs (Phase 6) already use, so a manager comparing the Dashboard's "This Month's Profit" against the Reports Center's Profit report for the same date range sees matching numbers, satisfying the spec's "Dashboard KPIs must use the same report calculations" rule directly rather than by coincidence.
 - Purchases aren't subtracted as a cost in the profit calculation — they become inventory (an asset) at receipt; COGS at the moment of sale is what actually reduces profit. This is a deliberate accounting choice, not an oversight.
 
 **Frontend**
@@ -114,24 +114,6 @@ All notable changes to Clix Sales System are recorded here, newest first.
 - Backend dry-run: all 12 report-type endpoints (plus a request for an unknown type) return 401 before the type-validation logic even runs.
 - Frontend: Playwright with mocked API confirmed KPI cards and breakdown tables render with live data, switching report type correctly re-fetches and re-renders (Sales → Profit), and clicking "CSV" triggers a real file download — zero console errors.
 - `npm run lint` (frontend + backend) and `npm run build` clean (0 errors; only the pre-existing `watch()` warnings on RHF forms elsewhere).
-
-## Phase 20 — Car Wash
-
-**The simplest module in the system** — a single insert per transaction, no workflow, no inventory impact, `status` is a one-value ENUM. The spec calls it a "simple and professional Car Wash module" and the schema matches that exactly.
-
-**Backend**
-- `vehicle.repository`: vehicles are identified by plate number (unique), found-or-created as part of recording a wash rather than through a separate registration screen — matching a real front-desk flow where "Register Vehicle" and "Record Service" happen in the same conversation. A returning vehicle's customer name/phone are refreshed on each visit (cars change hands; the front desk always has the latest contact).
-- `carwashService.repository`: read-only list of the 4 seeded services (Normal Wash, Full Wash, Engine Wash, Interior Cleaning) — no management UI, same reasoning as Expenses' fixed category list.
-- `carwash.service.recordTransaction`: validates branch access and that the selected service is active, then does the vehicle find-or-create followed by one transaction-table insert. No explicit DB transaction wrapper needed — validation happens entirely before any write, so there's no partial-state risk a rollback would need to guard against, unlike Purchases/Transfers/POS/Returns where writes have to happen before some of the validation (e.g. stock checks against rows being written).
-- Branch-scoped and filterable (service, branch, date range) the same way Expenses is, including a `totalAmount` aggregate for the current filter set powering a "Revenue (filtered results)" KPI.
-
-**Frontend**
-- `CarWash.jsx`: one page, one modal. Selecting a service auto-fills the Amount field with that service's price (still editable, matching the spec's fields listing Service and Amount separately), and the history table sits below with the same filter-toolbar pattern as Expenses.
-
-**Verification**
-- Backend dry-run: all 3 carwash endpoints return 401 pre-auth.
-- Frontend: Playwright with mocked API confirmed history rendering with the correct filtered-revenue KPI, the service-price auto-fill interaction, and a full form fill — zero console errors.
-- `npm run lint` (frontend + backend) and `npm run build` clean (0 errors; only the pre-existing `watch()` warnings, now on a fourth RHF form).
 
 ## Phase 19 — Expenses
 
@@ -376,10 +358,10 @@ Two small, near-identical catalog modules, built together. Both follow the exact
 
 ## Phase 6 — Dashboard (completes Master Prompt Phase 1: Core ERP Foundation)
 
-**The architectural payoff of Phase 0's complete-schema-upfront decision:** every KPI and chart the spec asks for (Sales, Purchases, Inventory, Customers, Suppliers, Car Wash, Transfers — none of which have their own CRUD/business-logic modules yet) can be queried for real right now, because all 42 tables already exist from Phase 0. No stub data, no hardcoded zeros, no TODO placeholders — genuine `SELECT`/`SUM`/`GROUP BY` queries against real tables that simply return 0/empty until Phases 7-21 start writing rows, then light up automatically with zero further backend work.
+**The architectural payoff of Phase 0's complete-schema-upfront decision:** every KPI and chart the spec asks for (Sales, Purchases, Inventory, Customers, Suppliers, Transfers — none of which have their own CRUD/business-logic modules yet) can be queried for real right now, because all tables already exist from Phase 0. No stub data, no hardcoded zeros, no TODO placeholders — genuine `SELECT`/`SUM`/`GROUP BY` queries against real tables that simply return 0/empty until Phases 7-21 start writing rows, then light up automatically with zero further backend work.
 
 **Backend**
-- `dashboard.repository.js`: all 14 KPIs (today/monthly sales & profit, customers, suppliers, products, inventory value, low-stock count, today/monthly expenses, car wash revenue, pending transfers/purchases) and all 8 chart types (sales/revenue/expense/profit trend, top products, branch performance, inventory summary, car wash summary). Profit is computed as `line_total - (quantity × buying_price)` per sale item, not stored redundantly.
+- `dashboard.repository.js`: all KPIs (today/monthly sales & profit, customers, suppliers, products, inventory value, low-stock count, today/monthly expenses, pending transfers/purchases) and all chart types (sales/revenue/expense/profit trend, top products, branch performance, inventory summary). Profit is computed as `line_total - (quantity × buying_price)` per sale item, not stored redundantly.
 - First real consumer of Phase 5's `branchScope.js`: every KPI/chart query is branch-scoped (`getAccessibleBranchIds`), so Super Admin sees everything and Managers/Cashiers see only their branch(es) — exactly the business rule that utility was built for, now proven end-to-end.
 - Caught and fixed a fragile pattern while writing this: initially used `.replace('branch_id', 'i.branch_id')` string substitution to adapt a filter clause for a different table alias. Replaced with building the filter with the correct alias from the start — string-editing generated SQL fragments is a real correctness risk (silent wrong replacements) that isn't worth the shortcut.
 - `GET /search`: global search, **users-only for now** — the only entity that exists. Response is `{ users: [...] }`, shaped to add `products`/`customers`/`suppliers`/etc. keys without a breaking change as later phases ship.
@@ -520,10 +502,10 @@ Completes the RBAC module — the permission-check middleware and `usePermission
 - Verified the full request pipeline (Helmet → CORS → rate limiter → routing → error handling → response envelope) end-to-end with a live request against an ephemeral port, using only in-process dummy environment variables — no `.env` file was created and no database was touched.
 
 **Database**
-- Wrote the complete schema as 10 numbered migrations (`backend/database/migrations/001`–`010`, 42 tables) covering every module in `docs/DATABASE_PLAN.md`: auth/RBAC, branches, company/system settings, sessions/tokens, catalog & inventory (with the immutable `inventory_movements` ledger), purchases & suppliers, sales/POS/returns, stock transfers, expenses, car wash, notifications/activity/audit logs.
+- Wrote the complete schema as numbered migrations covering every module in `docs/DATABASE_PLAN.md`: auth/RBAC, branches, company/system settings, sessions/tokens, catalog & inventory (with the immutable `inventory_movements` ledger), purchases & suppliers, sales/POS/returns, stock transfers, expenses, notifications/activity/audit logs.
 - Resolved the `branches`↔`users` circular foreign key (branch manager vs. user's home branch) by creating `branches` without the manager FK first, then `users`, then adding the deferred `ALTER TABLE` constraints.
 - Added a combined `backend/database/schema.sql` (concatenation of all migrations) and `backend/database/README.md` documenting apply order and the reasoning behind schema decisions.
-- Seeded safe, static reference data only: the 4 system roles, the full permission catalog, a role→permission mapping derived from `MASTER_PROMPT.md`'s per-module `PERMISSIONS` sections, default expense categories, and default car wash services. Deliberately did **not** seed a default Super Admin account (see `backend/database/README.md` for the security reasoning) — the first admin is created interactively once Phase 1 (Authentication) ships.
+- Seeded safe, static reference data only: the 4 system roles, the full permission catalog, a role→permission mapping derived from `MASTER_PROMPT.md`'s per-module `PERMISSIONS` sections, and default expense categories. Deliberately did **not** seed a default Super Admin account (see `backend/database/README.md` for the security reasoning) — the first admin is created interactively once Phase 1 (Authentication) ships.
 - Statically verified all 42 tables' foreign keys resolve to already-declared tables (no forward references) and that every migration file is syntactically balanced — without requiring a live database connection, since production database provisioning is being handled directly by the project owner on their Contabo MySQL server.
 
 **Refinements to `docs/DATABASE_PLAN.md`**

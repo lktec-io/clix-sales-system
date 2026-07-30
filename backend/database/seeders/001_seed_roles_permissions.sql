@@ -5,7 +5,7 @@
 
 INSERT IGNORE INTO roles (name, description, is_system) VALUES
   ('Super Administrator', 'Full system access across all branches', TRUE),
-  ('Manager', 'Manages assigned branch(es): catalog, inventory, sales, purchases, transfers, expenses, car wash, reports', TRUE),
+  ('Manager', 'Manages assigned branch(es): catalog, inventory, sales, purchases, transfers, expenses, reports', TRUE),
   ('Cashier', 'Point of sale operations for their assigned branch', TRUE),
   ('Store Keeper', 'Inventory, purchases and stock transfers for their assigned branch', TRUE);
 
@@ -83,9 +83,6 @@ INSERT IGNORE INTO permissions (code, module, action, description) VALUES
   ('expenses.edit', 'expenses', 'edit', 'Edit expenses'),
   ('expenses.delete', 'expenses', 'delete', 'Delete expenses'),
 
-  ('carwash.view', 'carwash', 'view', 'View car wash vehicles and transactions'),
-  ('carwash.create', 'carwash', 'create', 'Register vehicles and record wash transactions'),
-
   ('reports.view', 'reports', 'view', 'View reports'),
   ('reports.export', 'reports', 'export', 'Export reports to PDF/Excel/CSV');
 
@@ -93,7 +90,7 @@ INSERT IGNORE INTO permissions (code, module, action, description) VALUES
 INSERT IGNORE INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r CROSS JOIN permissions p WHERE r.name = 'Super Administrator';
 
--- Manager: catalog, inventory oversight, sales, purchases, transfers, expenses, car wash, reports.
+-- Manager: catalog, inventory oversight, sales, purchases, transfers, expenses, reports.
 INSERT IGNORE INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r JOIN permissions p ON p.code IN (
   'dashboard.view', 'branches.view',
@@ -108,7 +105,6 @@ SELECT r.id, p.id FROM roles r JOIN permissions p ON p.code IN (
   'sales.view','sales.create','sales.manage',
   'returns.view','returns.create','returns.approve',
   'expenses.view','expenses.create','expenses.edit',
-  'carwash.view','carwash.create',
   'reports.view','reports.export'
 ) WHERE r.name = 'Manager';
 
@@ -125,7 +121,6 @@ SELECT r.id, p.id FROM roles r JOIN permissions p ON p.code IN (
   'sales.view','sales.create',
   'returns.view','returns.create',
   'expenses.view',
-  'carwash.view','carwash.create',
   'reports.view'
 ) WHERE r.name = 'Cashier';
 

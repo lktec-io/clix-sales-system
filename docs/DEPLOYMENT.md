@@ -52,7 +52,7 @@ Apply the schema (idempotent — safe to re-run, every `CREATE TABLE` is `IF NOT
 mysql -u clix_app -p sales < backend/database/schema.sql
 ```
 
-Seed reference data (roles, permissions, expense categories, car wash services — **not** demo business data):
+Seed reference data (roles, permissions, expense categories — **not** demo business data):
 
 ```bash
 mysql -u clix_app -p sales < backend/database/seeders/001_seed_roles_permissions.sql

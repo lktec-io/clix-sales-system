@@ -17,7 +17,6 @@ As-built reference. The full schema lives in [`backend/database/schema.sql`](../
 | Returns | `returns`, `return_items` |
 | Transfers | `stock_transfer_requests`, `stock_transfer_items` |
 | Expenses | `expense_categories`, `expenses` |
-| Car Wash | `vehicles`, `carwash_services`, `carwash_transactions` |
 | System | `notifications`, `activity_logs`, `audit_logs`, `email_logs`, `system_backups` |
 
 ## Conventions used throughout
@@ -40,7 +39,6 @@ As-built reference. The full schema lives in [`backend/database/schema.sql`](../
 
 ## Reference tables intentionally left thin
 
-- **`carwash_services`**: 4 rows seeded once (`Normal Wash`, `Full Wash`, `Engine Wash`, `Interior Cleaning`), no management UI — the spec's Car Wash feature list didn't call for managing services, only picking from them.
 - **`expense_categories`**: 9 rows seeded once (`Rent`, `Electricity`, `Water`, `Fuel`, `Salary`, `Maintenance`, `Transport`, `Office Supplies`, `Other`), same reasoning.
 
 ## Tables with no application code writing to them yet
@@ -50,7 +48,7 @@ As-built reference. The full schema lives in [`backend/database/schema.sql`](../
 
 ## Branch scoping
 
-Every table that represents branch-owned data has a `branch_id` column (`sales`, `purchase_orders`, `expenses`, `carwash_transactions`, `inventory`, etc.) or reaches one through a join (`inventory_movements` via `branch_id` directly; `returns`/`stock_transfer_items` via their parent sale/transfer). `branchScope.getAccessibleBranchIds(user)` is the single function every service calls to translate "what can this user see" into a SQL filter — see [ARCHITECTURE.md](ARCHITECTURE.md) for how it's used.
+Every table that represents branch-owned data has a `branch_id` column (`sales`, `purchase_orders`, `expenses`, `inventory`, etc.) or reaches one through a join (`inventory_movements` via `branch_id` directly; `returns`/`stock_transfer_items` via their parent sale/transfer). `branchScope.getAccessibleBranchIds(user)` is the single function every service calls to translate "what can this user see" into a SQL filter — see [ARCHITECTURE.md](ARCHITECTURE.md) for how it's used.
 
 ## ER overview (textual)
 

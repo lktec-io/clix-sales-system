@@ -79,7 +79,6 @@ src/
 │   ├── sales/                      # SaleHistory, SaleDetail, ReceiptPreview
 │   ├── returns/                    # ReturnList, ReturnForm
 │   ├── expenses/                   # ExpenseList, ExpenseForm
-│   ├── carwash/                    # VehicleRegister, CarWashHistory
 │   ├── reports/                    # ReportsCenter + one page per report category
 │   ├── notifications/              # NotificationsPage
 │   ├── settings/                   # SystemSettings
@@ -114,7 +113,6 @@ src/
 │   ├── saleService.js
 │   ├── returnService.js
 │   ├── expenseService.js
-│   ├── carwashService.js
 │   ├── reportService.js
 │   ├── notificationService.js
 │   └── dashboardService.js
@@ -204,7 +202,6 @@ backend/
 │   ├── sale.controller.js
 │   ├── return.controller.js
 │   ├── expense.controller.js
-│   ├── carwash.controller.js
 │   ├── report.controller.js
 │   ├── notification.controller.js
 │   └── dashboard.controller.js
@@ -227,7 +224,6 @@ backend/
 │   ├── sale.service.js
 │   ├── return.service.js
 │   ├── expense.service.js
-│   ├── carwash.service.js
 │   ├── report.service.js
 │   ├── notification.service.js
 │   ├── dashboard.service.js
@@ -256,7 +252,6 @@ backend/
 │   ├── sale.repository.js
 │   ├── return.repository.js
 │   ├── expense.repository.js
-│   ├── carwash.repository.js
 │   ├── notification.repository.js
 │   ├── auditLog.repository.js
 │   ├── activityLog.repository.js
@@ -281,7 +276,6 @@ backend/
 │   ├── sale.routes.js
 │   ├── return.routes.js
 │   ├── expense.routes.js
-│   ├── carwash.routes.js
 │   ├── report.routes.js
 │   ├── notification.routes.js
 │   └── dashboard.routes.js
@@ -297,7 +291,7 @@ backend/
 │
 ├── validators/                     # express-validator chains, one file per resource
 │   └── (auth|user|role|branch|company|settings|category|brand|product|inventory|
-│         supplier|purchase|transfer|customer|sale|return|expense|carwash).validator.js
+│         supplier|purchase|transfer|customer|sale|return|expense).validator.js
 │
 ├── utils/
 │   ├── apiResponse.js              # success()/error() envelope helpers
@@ -307,7 +301,7 @@ backend/
 │
 ├── database/
 │   ├── migrations/                 # numbered, one per table/change
-│   └── seeders/                    # roles, permissions, default Super Admin, expense_categories, carwash_services
+│   └── seeders/                    # roles, permissions, default Super Admin, expense_categories
 │
 ├── jobs/                           # node-cron
 │   ├── lowStockCheck.job.js

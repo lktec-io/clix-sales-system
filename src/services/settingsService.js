@@ -28,23 +28,3 @@ export async function updateExpenseCategory(id, payload) {
 export async function deleteExpenseCategory(id) {
   await apiClient.delete(`/settings/expense-categories/${id}`);
 }
-
-export async function listCarwashServices(params) {
-  const { data } = await apiClient.get('/settings/carwash-services', { params });
-  return data.data;
-}
-
-export async function createCarwashService(payload) {
-  const { data } = await apiClient.post('/settings/carwash-services', payload);
-  return data.data;
-}
-
-export async function updateCarwashService(id, payload) {
-  const { data } = await apiClient.put(`/settings/carwash-services/${id}`, payload);
-  return data.data;
-}
-
-export async function setCarwashServiceStatus(id, status) {
-  const { data } = await apiClient.patch(`/settings/carwash-services/${id}/status`, { status });
-  return data.data;
-}

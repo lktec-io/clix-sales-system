@@ -243,8 +243,6 @@ Transfers
 
 Expenses
 
-Car Wash
-
 Reports
 
 Notifications
@@ -309,8 +307,6 @@ Low Stock Products
 
 Pending Transfers
 
-Car Wash Revenue
-
 Total Customers
 
 Total Products
@@ -338,8 +334,6 @@ Branch Performance
 Monthly Profit
 
 Inventory Summary
-
-Car Wash Summary
 
 Charts must resize properly.
 
@@ -600,28 +594,6 @@ Approval
 Transfer History
 
 =========================================================
-CAR WASH MODULE
-=========================================================
-
-Vehicle Registration
-
-Plate Number
-
-Customer
-
-Phone Number
-
-Service
-
-Price
-
-Payment
-
-Status
-
-Wash History
-
-=========================================================
 EXPENSES PAGE
 =========================================================
 
@@ -656,8 +628,6 @@ Inventory
 Purchases
 
 Expenses
-
-Car Wash
 
 Financial
 

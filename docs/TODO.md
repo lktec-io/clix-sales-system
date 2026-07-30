@@ -20,7 +20,7 @@ Legend: Priority = Critical / High / Medium / Low. Status = ☐ Not Started / �
 | ☑ | Set up base Express app: Helmet, CORS, rate limiter, JSON body parser, centralized error handler | Critical | Setup | 2026-07-07 |
 | ☑ | Set up React Router skeleton + `AuthLayout`/`MainLayout` shells | Critical | Setup | 2026-07-07 |
 | ☑ | Configure ESLint for backend (mirror frontend strictness) | High | Setup | 2026-07-07 |
-| ☑ | Write complete database schema: 10 migrations, 42 tables, FK-order statically verified + seeders (roles/permissions/expense categories/carwash services) + `schema.sql` | Critical | Setup | 2026-07-07 |
+| ☑ | Write complete database schema: 10 migrations, 42 tables, FK-order statically verified + seeders (roles/permissions/expense categories) + `schema.sql` | Critical | Setup | 2026-07-07 |
 | ☑ | Verify `npm run build` and `npm run lint` pass on frontend | Critical | Setup | 2026-07-07 |
 | ☑ | Verify backend structure without a live DB: syntax check every file, dry-import `app.js`, live health-check request on an ephemeral port | Critical | Setup | 2026-07-07 |
 | ☑ | Initialize git repository, initial commit | High | Setup | 2026-07-07 |
@@ -104,7 +104,7 @@ Legend: Priority = Critical / High / Medium / Low. Status = ☐ Not Started / �
 | Status | Task | Priority | Module | Completed |
 |---|---|---|---|---|
 | ☑ | Backend: KPI aggregation endpoint — all 14 KPIs from the spec, querying the real tables built in Phase 0 (correctly returns 0 until Sales/Purchases/Inventory/etc. start writing data in later phases; no stubbing needed since the full schema already existed) | Critical | Dashboard | 2026-07-08 |
-| ☑ | Backend: chart data endpoints — all 8 types (sales/revenue/expense/profit trend, top products, branch performance, inventory summary, car wash summary), `GET /dashboard/charts/:type` | Critical | Dashboard | 2026-07-08 |
+| ☑ | Backend: chart data endpoints — all 7 types (sales/revenue/expense/profit trend, top products, branch performance, inventory summary), `GET /dashboard/charts/:type` | Critical | Dashboard | 2026-07-08 |
 | ☑ | Backend: recent activity timeline endpoint (reuses `activityLog.repository.js` from Phase 1) | High | Dashboard | 2026-07-08 |
 | ☑ | Backend: global search endpoint — **users only** for now (the only searchable entity that exists); response shape is grouped by entity type so products/customers/suppliers/etc. slot in without a breaking change as their phases ship | High | Dashboard | 2026-07-08 |
 | ☑ | Backend: all KPIs/charts respect branch scoping via Phase 5's `branchScope.js` — first real consumer of that utility | Critical | Dashboard | 2026-07-08 |
@@ -282,27 +282,17 @@ Legend: Priority = Critical / High / Medium / Low. Status = ☐ Not Started / �
 | ☑ | Business rule: expenses feed Profit Reports — `branch_id` and `expense_date` are correctly captured now so Phase 21's Reports can aggregate against real data with no rework | Critical | Expenses | 2026-07-08 |
 | ☑ | Quality Check — build/lint pass; backend dry-run confirms all 6 expense endpoints 401 pre-auth; Playwright confirms list+filtered-total KPI, required-field validation, and form fill, zero console errors | Critical | Expenses | 2026-07-08 |
 
-## Phase 20 — Car Wash
-
-| Status | Task | Priority | Module | Completed |
-|---|---|---|---|---|
-| ☑ | DB: `vehicles`, `carwash_services`, `carwash_transactions` tables | Critical | Car Wash | 2026-07-07 (Phase 0) |
-| ☑ | Backend: vehicle registration (find-or-create by plate number, contact info refreshed on each visit), service catalog (read-only, seeded), transaction + payment recording | Critical | Car Wash | 2026-07-08 |
-| ☑ | Frontend: single-page "Register Vehicle + Record Service" modal (collapses the spec's two steps into one front-desk flow) + history table with service/branch/date-range filters and a filtered-revenue KPI | Critical | Car Wash | 2026-07-08 |
-| ☑ | Business rule: revenue feeds Profit Reports and Dashboard — `branch_id` and `created_at` correctly captured for Phase 21's Reports to aggregate against with no rework | Critical | Car Wash | 2026-07-08 |
-| ☑ | Quality Check — build/lint pass; backend dry-run confirms all 3 carwash endpoints 401 pre-auth; Playwright confirms history+filtered-KPI, service-price auto-fill, and full form fill, zero console errors | Critical | Car Wash | 2026-07-08 |
-
 ## Phase 21 — Reports
 
 | Status | Task | Priority | Module | Completed |
 |---|---|---|---|---|
-| ☑ | Backend: report query services per category — Sales, Inventory, Purchases, Expenses, Car Wash, Profit, Branches, Products, Customers, Suppliers, Returns, Transfers (12 of the spec's 13; Activity/Audit already has its own timeline entry point, not duplicated here) — every report is a real aggregate query against live data, no hardcoded values, dispatched through one `GET /reports/:type` endpoint | Critical | Reports | 2026-07-08 |
+| ☑ | Backend: report query services per category — Sales, Inventory, Purchases, Expenses, Profit, Branches, Products, Customers, Suppliers, Returns, Transfers — every report is a real aggregate query against live data, no hardcoded values, dispatched through one `GET /reports/:type` endpoint | Critical | Reports | 2026-07-08 |
 | ☑ | Backend: shared filter engine — date range (defaults to month-to-date), branch, category, supplier, all branch-scoped via the same `getAccessibleBranchIds()` every other module uses | Critical | Reports | 2026-07-08 |
 | ☑ | Frontend: CSV export (generic, client-side, works for any report's breakdown table) | Critical | Reports | 2026-07-08 |
 | ☐ | Backend: dedicated PDF export (pdfkit) and Excel export (exceljs) — **deferred**; CSV opens directly in Excel and covers the practical need, and building 12 bespoke PDF layouts wasn't justified by remaining scope. See CHANGELOG for reasoning | Critical | Reports | |
 | ☑ | Frontend: Reports Center hub — report-type pills, shared filter bar, KPI cards, and a generic breakdown-table renderer that adapts to whichever report is selected | Critical | Reports | 2026-07-08 |
 | ☑ | Frontend: print — browser-native `window.print()` with print-specific CSS hiding the sidebar/navbar/filters | High | Reports | 2026-07-08 |
-| ☑ | Verify: Profit report's calculation (sales + car wash revenue − COGS − expenses) matches the same formula Dashboard's KPIs already use (Phase 6) | Critical | Reports | 2026-07-08 |
+| ☑ | Verify: Profit report's calculation (sales revenue − COGS − expenses) matches the same formula Dashboard's KPIs already use (Phase 6) | Critical | Reports | 2026-07-08 |
 | ☑ | Quality Check — build/lint pass; backend dry-run confirms all 12 report-type endpoints (plus an unknown-type request) 401 pre-auth; Playwright confirms KPI/breakdown rendering, report-type switching re-fetches correctly, and a real CSV file downloads, zero console errors | Critical | Reports | 2026-07-08 |
 
 ## Phase 22 — Notifications
@@ -336,7 +326,7 @@ Legend: Priority = Critical / High / Medium / Low. Status = ☐ Not Started / �
 |---|---|---|---|---|
 | ☑ | Full regression: fresh lint/build/syntax-check across all 23 phases, plus a final backend dry-run sweep hitting one representative endpoint from every module (21/21 correctly 401, `/health` correctly 200) | Critical | QA | 2026-07-08 |
 | ☑ | Security pass: Helmet/rate-limiting/CORS confirmed wired in `app.js`; repo-wide sweep found zero raw-value SQL interpolation (every query is parameterized); confirmed no `dangerouslySetInnerHTML` anywhere in the frontend (React's default escaping is the XSS defense); **JWT algorithm now pinned explicitly** (`HS256` on both sign and verify, `tokenUtils.js`) as a hardening finding from this pass, verified with a real sign/verify/cross-secret-rejection round-trip; CSRF posture reviewed and documented (`Authorization` header for state-changing calls + `sameSite=lax` cookie + single-origin CORS on the one cookie-authenticated endpoint) | Critical | QA | 2026-07-08 |
-| ☑ | Responsive QA: found and fixed two real gaps — POS's fixed-width cart-beside-catalog layout had no breakpoint (now stacks below 1024px, tightens further below 768px); five list pages' inline filter rows used `flex` without `flex-wrap`, risking horizontal overflow on narrow viewports (Products, Inventory, Stock Movements, Expenses, Car Wash — all now `flex-wrap`) | Critical | QA | 2026-07-08 |
+| ☑ | Responsive QA: found and fixed two real gaps — POS's fixed-width cart-beside-catalog layout had no breakpoint (now stacks below 1024px, tightens further below 768px); list pages' inline filter rows used `flex` without `flex-wrap`, risking horizontal overflow on narrow viewports (Products, Inventory, Stock Movements, Expenses — all now `flex-wrap`) | Critical | QA | 2026-07-08 |
 | ☑ | Print QA: receipts (Phase 17) and labels (Phase 12) already verified via pdfkit generation + browser print dialog; Reports (Phase 21) verified via `window.print()` with dedicated print CSS hiding navigation chrome | Critical | QA | 2026-07-08 |
 | ☑ | Zero console errors, zero runtime errors, build + lint clean — confirmed via the full regression sweep above; every phase's individual Playwright verification (documented in that phase's CHANGELOG entry) already confirmed zero console errors for that phase's pages | Critical | QA | 2026-07-08 |
 | ☑ | Dependency cleanup: removed `exceljs` and `json2csv` from `backend/package.json` — installed since Phase 0 but never imported anywhere once Reports shipped CSV export as a client-side utility instead; wired up the previously-deferred `node-cron` daily backup job (`backend/jobs/backupJob.js`), since the dependency was already installed and only the scheduling wire-up was missing | High | QA | 2026-07-08 |

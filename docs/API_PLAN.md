@@ -108,7 +108,7 @@ Contract-level plan for the REST API, updated as each phase ships real route han
 | Method | Endpoint | Permission | Description |
 |---|---|---|---|
 | GET | `/dashboard/kpis` | `dashboard.view` | All KPI card values (branch-scoped) |
-| GET | `/dashboard/charts/:type` | `dashboard.view` | `sales-trend`, `revenue-trend`, `expense-trend`, `profit-trend`, `top-products`, `branch-performance`, `inventory-summary`, `carwash-summary` |
+| GET | `/dashboard/charts/:type` | `dashboard.view` | `sales-trend`, `revenue-trend`, `expense-trend`, `profit-trend`, `top-products`, `branch-performance`, `inventory-summary` |
 | GET | `/dashboard/activity` | `dashboard.view` | Recent activity timeline (sales/purchases/expenses/transfers/logins) |
 | GET | `/search` | Authenticated | Global search across products/customers/suppliers/sales/purchases/vehicles/expenses/users |
 
@@ -233,16 +233,6 @@ Contract-level plan for the REST API, updated as each phase ships real route han
 | DELETE | `/expenses/:id` | `expenses.delete` | Soft delete |
 | GET | `/expense-categories` | `expenses.view` | Category list |
 
-## 20. Car Wash — `/api/v1/carwash`
-
-| Method | Endpoint | Permission | Description |
-|---|---|---|---|
-| GET | `/carwash/vehicles` | `carwash.view` | List/search vehicles |
-| POST | `/carwash/vehicles` | `carwash.create` | Register vehicle |
-| GET | `/carwash/services` | `carwash.view` | Service catalog |
-| POST | `/carwash/transactions` | `carwash.create` | Record wash + payment |
-| GET | `/carwash/transactions` | `carwash.view` | History — filters: `branch_id`, `service_id`, date range |
-
 ## 21. Reports — `/api/v1/reports`
 
 | Method | Endpoint | Permission | Description |
@@ -251,7 +241,6 @@ Contract-level plan for the REST API, updated as each phase ships real route han
 | GET | `/reports/inventory` | `reports.view` | Inventory / stock movement report |
 | GET | `/reports/purchases` | `reports.view` | Purchases report |
 | GET | `/reports/expenses` | `reports.view` | Expenses report |
-| GET | `/reports/carwash` | `reports.view` | Car wash report |
 | GET | `/reports/profit` | `reports.view` | Profit & loss report |
 | GET | `/reports/branches` | `reports.view` | Branch comparison report |
 | GET | `/reports/customers` | `reports.view` | Customer report |

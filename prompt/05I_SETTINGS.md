@@ -91,8 +91,6 @@ Transfers
 
 Expenses
 
-Car Wash
-
 Reports
 
 Notifications

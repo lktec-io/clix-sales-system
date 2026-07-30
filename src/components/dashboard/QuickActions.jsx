@@ -1,12 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { FiDollarSign, FiUserPlus, FiCreditCard, FiDroplet, FiBarChart2 } from 'react-icons/fi';
+import { FiDollarSign, FiUserPlus, FiCreditCard, FiBarChart2 } from 'react-icons/fi';
 import '../../styles/components/QuickActions.css';
 
 const ACTIONS = [
   { label: 'New Sale', icon: FiDollarSign, to: '/pos', accent: '#2F6BFF' },
   { label: 'New Customer', icon: FiUserPlus, to: '/customers', accent: '#14B8A6' },
   { label: 'New Expense', icon: FiCreditCard, to: '/expenses', accent: '#F59E0B' },
-  { label: 'New Car Wash', icon: FiDroplet, to: '/carwash', accent: '#06B6D4' },
   { label: 'Reports', icon: FiBarChart2, to: '/reports', accent: '#8B5CF6' },
 ];
 

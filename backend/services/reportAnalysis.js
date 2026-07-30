@@ -163,22 +163,6 @@ function buildExpenses(report) {
   return { analysis, recommendations, financialSummary: null };
 }
 
-function buildCarwash(report) {
-  const { summary, byService } = report;
-  const analysis = [];
-  const recommendations = [];
-
-  if (summary.totalTransactions > 0) {
-    analysis.push(`${summary.totalTransactions} car wash transactions generated ${formatCurrency(summary.totalRevenue)}.`);
-    recommendations.push('Car Wash is generating steady revenue — consider bundling popular packages with in-store promotions.');
-  }
-  if (byService?.length > 0) {
-    analysis.push(`${byService[0].label} is the most popular service (${byService[0].count} washes).`);
-  }
-
-  return { analysis, recommendations, financialSummary: null };
-}
-
 function buildProfit(report, { previousRevenue } = {}) {
   const { summary, byDay } = report;
   const analysis = [];
@@ -186,7 +170,7 @@ function buildProfit(report, { previousRevenue } = {}) {
 
   if (summary.totalRevenue > 0) {
     const margin = pct(summary.grossProfit, summary.totalRevenue);
-    analysis.push(`Total revenue of ${formatCurrency(summary.totalRevenue)} (sales ${formatCurrency(summary.salesRevenue)} + car wash ${formatCurrency(summary.carwashRevenue)}) produced a gross margin of ${margin.toFixed(1)}%.`);
+    analysis.push(`Total revenue of ${formatCurrency(summary.totalRevenue)} produced a gross margin of ${margin.toFixed(1)}%.`);
     analysis.push(`Net profit for the period: ${formatCurrency(summary.netProfit)}, after ${formatCurrency(summary.expenses)} in expenses.`);
     if (summary.netProfit < 0) recommendations.push('The period closed with a net loss — review expenses and pricing before the next period.');
     else if (margin < 20) recommendations.push('Gross margin is under 20% — review cost of goods sold or pricing to protect profitability.');
@@ -292,11 +276,11 @@ function buildPurchases(report) {
 }
 
 // Unlike every other builder, this one takes the raw pre-flatten sub-report
-// object ({ sales, products, customers, expenses, carwash, profit }, each
-// shaped exactly like that type's own standalone report) rather than the
-// flattened { summary, salesByDay, ... } shape report.service.js ultimately
-// returns to callers — report.service.js calls this before flattening.
-function buildAll({ sales, products, customers, expenses, carwash, profit }, { previousRevenue } = {}) {
+// object ({ sales, products, customers, expenses, profit }, each shaped
+// exactly like that type's own standalone report) rather than the flattened
+// { summary, salesByDay, ... } shape report.service.js ultimately returns to
+// callers — report.service.js calls this before flattening.
+function buildAll({ sales, products, customers, expenses, profit }, { previousRevenue } = {}) {
   const analysis = [];
   const recommendations = [];
 
@@ -305,11 +289,6 @@ function buildAll({ sales, products, customers, expenses, carwash, profit }, { p
   }
   const growth = growthLine(sales.summary.totalRevenue, previousRevenue);
   if (growth) analysis.push(growth);
-  if (profit.summary.totalRevenue > 0 && carwash.summary.totalRevenue > 0) {
-    const carwashShare = pct(carwash.summary.totalRevenue, profit.summary.totalRevenue);
-    analysis.push(`Car Wash contributed ${carwashShare.toFixed(1)}% of total revenue (${formatCurrency(carwash.summary.totalRevenue)} from ${carwash.summary.totalTransactions} washes).`);
-    if (carwashShare > 10) recommendations.push('Car Wash is a meaningful revenue contributor — consider promoting it alongside in-store sales.');
-  }
   if (products.topProducts.length > 0) {
     const top = products.topProducts[0];
     analysis.push(`Top selling product was ${top.label}, with ${top.quantity} units sold (${formatCurrency(top.value)} in revenue).`);
@@ -343,7 +322,6 @@ const BUILDERS = {
   products: buildProducts,
   customers: buildCustomers,
   expenses: buildExpenses,
-  carwash: buildCarwash,
   profit: buildProfit,
   branches: buildBranches,
   suppliers: buildSuppliers,

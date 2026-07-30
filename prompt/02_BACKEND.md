@@ -182,12 +182,6 @@ expense_categories
 
 expenses
 
-vehicles
-
-carwash_services
-
-carwash_transactions
-
 notifications
 
 activity_logs

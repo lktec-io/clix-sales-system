@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { FiBriefcase, FiMapPin, FiUsers, FiShield, FiTag, FiDroplet, FiPercent } from 'react-icons/fi';
+import { FiBriefcase, FiMapPin, FiUsers, FiShield, FiTag, FiPercent } from 'react-icons/fi';
 
 const TABS = [
   { to: '/settings/company', label: 'Company', icon: FiBriefcase },
@@ -7,7 +7,6 @@ const TABS = [
   { to: '/settings/users', label: 'Users', icon: FiUsers },
   { to: '/settings/permissions', label: 'Roles', icon: FiShield },
   { to: '/settings/expense-categories', label: 'Expense Categories', icon: FiTag },
-  { to: '/settings/carwash-services', label: 'Car Wash Packages', icon: FiDroplet },
   { to: '/settings/system', label: 'Tax & Email', icon: FiPercent },
 ];
 

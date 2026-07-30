@@ -259,8 +259,6 @@ Manage Expenses
 
 Manage Transfers
 
-Manage Car Wash
-
 Permissions must come from database.
 
 Every page checks permissions.
@@ -390,8 +388,6 @@ Today's Expenses
 
 Monthly Expenses
 
-Car Wash Revenue
-
 Pending Transfers
 
 Pending Purchases
@@ -419,8 +415,6 @@ Inventory Overview
 Top Selling Products
 
 Branch Performance
-
-Car Wash Performance
 
 =========================================================
 RECENT ACTIVITIES

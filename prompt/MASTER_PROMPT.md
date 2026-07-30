@@ -900,12 +900,6 @@ expense_categories
 
 expenses
 
-vehicles
-
-carwash_services
-
-carwash_transactions
-
 notifications
 
 activity_logs
@@ -1575,8 +1569,6 @@ Transfers
 
 Expenses
 
-Car Wash
-
 Reports
 
 Notifications
@@ -1641,8 +1633,6 @@ Low Stock Products
 
 Pending Transfers
 
-Car Wash Revenue
-
 Total Customers
 
 Total Products
@@ -1670,8 +1660,6 @@ Branch Performance
 Monthly Profit
 
 Inventory Summary
-
-Car Wash Summary
 
 Charts must resize properly.
 
@@ -1932,28 +1920,6 @@ Approval
 Transfer History
 
 =========================================================
-CAR WASH MODULE
-=========================================================
-
-Vehicle Registration
-
-Plate Number
-
-Customer
-
-Phone Number
-
-Service
-
-Price
-
-Payment
-
-Status
-
-Wash History
-
-=========================================================
 EXPENSES PAGE
 =========================================================
 
@@ -1988,8 +1954,6 @@ Inventory
 Purchases
 
 Expenses
-
-Car Wash
 
 Financial
 
@@ -2231,8 +2195,6 @@ Branch Reports
 Profit Reports
 
 Loss Reports
-
-Car Wash Reports
 
 Product Movement Reports
 
@@ -3081,8 +3043,6 @@ Manage Expenses
 
 Manage Transfers
 
-Manage Car Wash
-
 Permissions must come from database.
 
 Every page checks permissions.
@@ -3212,8 +3172,6 @@ Today's Expenses
 
 Monthly Expenses
 
-Car Wash Revenue
-
 Pending Transfers
 
 Pending Purchases
@@ -3241,8 +3199,6 @@ Inventory Overview
 Top Selling Products
 
 Branch Performance
-
-Car Wash Performance
 
 =========================================================
 RECENT ACTIVITIES
@@ -5182,110 +5138,6 @@ END OF PART 5F
 
 
 =========================================================
-PHASE 7
-CAR WASH
-=========================================================
-
-Create a simple and professional Car Wash module.
-
-=========================================================
-FIELDS
-=========================================================
-
-Vehicle Plate Number
-
-Customer Name
-
-Phone Number
-
-Service
-
-Amount
-
-Payment Method
-
-Date
-
-Served By
-
-=========================================================
-SERVICES
-=========================================================
-
-Normal Wash
-
-Full Wash
-
-Engine Wash
-
-Interior Cleaning
-
-=========================================================
-FEATURES
-=========================================================
-
-Register Vehicle
-
-Record Service
-
-Receive Payment
-
-View History
-
-Search
-
-Filter
-
-=========================================================
-BUSINESS RULES
-=========================================================
-
-Every completed service appears in dashboard.
-
-Revenue contributes to Profit Reports.
-
-=========================================================
-REPORTS
-=========================================================
-
-Daily Car Wash
-
-Monthly Car Wash
-
-Revenue Summary
-
-Popular Services
-
-=========================================================
-PERMISSIONS
-=========================================================
-
-Super Admin
-
-Manager
-
-Cashier
-
-=========================================================
-QUALITY CHECK
-=========================================================
-
-Verify reports.
-
-Verify dashboard.
-
-Update TODO.
-
-Update CHANGELOG.
-
-=========================================================
-END OF PART 5G
-=========================================================
-
-
-
-
-=========================================================
 PHASE 8
 REPORTING
 =========================================================
@@ -5303,8 +5155,6 @@ Inventory
 Purchases
 
 Expenses
-
-Car Wash
 
 Profit
 
@@ -5475,8 +5325,6 @@ Transfers
 
 Expenses
 
-Car Wash
-
 Reports
 
 Notifications
@@ -5634,9 +5482,7 @@ Build in this order:
 
 20. Expenses
 
-21. Car Wash
-
-22. Reports
+21. Reports
 
 23. Notifications
 

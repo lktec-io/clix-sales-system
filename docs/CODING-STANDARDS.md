@@ -36,7 +36,7 @@ Throw `new ApiError(status, message)` for anything the client should see a speci
 
 ### Page shape
 
-- **List + modal**: for simple CRUD (Categories, Brands, Customers, Suppliers, Expenses, Car Wash) — one page, `useTable()` for pagination/search/filters, a `Modal` with a React Hook Form for create/edit, `ConfirmDialog` for destructive/state-changing confirmations.
+- **List + modal**: for simple CRUD (Categories, Brands, Customers, Suppliers, Expenses) — one page, `useTable()` for pagination/search/filters, a `Modal` with a React Hook Form for create/edit, `ConfirmDialog` for destructive/state-changing confirmations.
 - **List + Form + Detail**: for anything with enough state or a multi-step workflow to warrant its own page (Purchases, Transfers, POS/Sales, Returns) — a dedicated `/new` route for creation, a `/:id` detail route, list page links to both.
 - Every list page's toolbar: `SearchInput` on the left, filter `<select>`/date inputs on the right, wrapped in `flex flex-wrap items-center gap-3` (not bare `flex` — filters must wrap on narrow viewports, not overflow).
 

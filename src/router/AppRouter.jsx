@@ -40,11 +40,9 @@ const ReturnList = lazy(() => import('../pages/returns/ReturnList'));
 const ReturnForm = lazy(() => import('../pages/returns/ReturnForm'));
 const ReturnDetail = lazy(() => import('../pages/returns/ReturnDetail'));
 const ExpenseList = lazy(() => import('../pages/expenses/ExpenseList'));
-const CarWash = lazy(() => import('../pages/carwash/CarWash'));
 const ReportsCenter = lazy(() => import('../pages/reports/ReportsCenter'));
 const SystemSettings = lazy(() => import('../pages/settings/SystemSettings'));
 const ExpenseCategorySettings = lazy(() => import('../pages/settings/ExpenseCategorySettings'));
-const CarwashServiceSettings = lazy(() => import('../pages/settings/CarwashServiceSettings'));
 const Profile = lazy(() => import('../pages/profile/Profile'));
 const NotFound404 = lazy(() => import('../pages/errors/NotFound404'));
 const Forbidden403 = lazy(() => import('../pages/errors/Forbidden403'));
@@ -89,7 +87,6 @@ function AppRouter() {
               <Route path="/settings/users/:id/edit" element={<RequirePermission permission="users.view"><UserForm /></RequirePermission>} />
               <Route path="/settings/permissions" element={<RequirePermission permission="roles.view"><RoleList /></RequirePermission>} />
               <Route path="/settings/expense-categories" element={<RequirePermission permission="settings.manage"><ExpenseCategorySettings /></RequirePermission>} />
-              <Route path="/settings/carwash-services" element={<RequirePermission permission="settings.manage"><CarwashServiceSettings /></RequirePermission>} />
               <Route path="/settings/system" element={<RequirePermission permission="settings.view"><SystemSettings /></RequirePermission>} />
               <Route path="/profile" element={<Profile />} />
 
@@ -123,7 +120,6 @@ function AppRouter() {
               <Route path="/returns/new" element={<RequirePermission permission="returns.view"><ReturnForm /></RequirePermission>} />
               <Route path="/returns/:id" element={<RequirePermission permission="returns.view"><ReturnDetail /></RequirePermission>} />
               <Route path="/expenses" element={<RequirePermission permission="expenses.view"><ExpenseList /></RequirePermission>} />
-              <Route path="/carwash" element={<RequirePermission permission="carwash.view"><CarWash /></RequirePermission>} />
               <Route path="/reports" element={<RequirePermission permission="reports.view"><ReportsCenter /></RequirePermission>} />
             </Route>
           </Route>

@@ -4,7 +4,7 @@ import * as reportRepository from '../repositories/report.repository.js';
 import { buildAnalysis } from './reportAnalysis.js';
 
 const REPORT_TYPES = [
-  'sales', 'inventory', 'purchases', 'expenses', 'carwash', 'profit',
+  'sales', 'inventory', 'purchases', 'expenses', 'profit',
   'branches', 'products', 'customers', 'suppliers', 'returns', 'transfers', 'users', 'all',
 ];
 
@@ -78,7 +78,6 @@ export async function getReport(type, query, user) {
     case 'inventory': report = await reportRepository.inventoryReport(filters); break;
     case 'purchases': report = await reportRepository.purchasesReport(filters); break;
     case 'expenses': report = await reportRepository.expensesReport(filters); break;
-    case 'carwash': report = await reportRepository.carwashReport(filters); break;
     case 'profit': report = await reportRepository.profitReport(filters); break;
     case 'branches': report = await reportRepository.branchesReport(filters); break;
     case 'products': report = await reportRepository.productsReport(filters); break;
@@ -130,18 +129,17 @@ async function getPreviousPeriodRevenue(filters) {
 // need no special-casing for this one type — only a new REPORT_CONFIGS
 // entry (frontend + reportConfig.js) naming which flattened keys to show.
 async function buildAllReport(filters, { previousRevenue } = {}) {
-  const [sales, products, customers, expenses, carwash, profit] = await Promise.all([
+  const [sales, products, customers, expenses, profit] = await Promise.all([
     reportRepository.salesReport(filters),
     reportRepository.productsReport(filters),
     reportRepository.customersReport(filters),
     reportRepository.expensesReport(filters),
-    reportRepository.carwashReport(filters),
     reportRepository.profitReport(filters),
   ]);
 
   const { analysis, recommendations, financialSummary } = buildAnalysis(
     'all',
-    { sales, products, customers, expenses, carwash, profit },
+    { sales, products, customers, expenses, profit },
     { previousRevenue },
   );
 
@@ -150,7 +148,6 @@ async function buildAllReport(filters, { previousRevenue } = {}) {
       totalSales: sales.summary.totalSales,
       totalRevenue: profit.summary.totalRevenue,
       totalExpenses: expenses.summary.totalAmount,
-      carwashRevenue: carwash.summary.totalRevenue,
       netProfit: profit.summary.netProfit,
     },
     salesByDay: sales.byDay,
@@ -158,7 +155,6 @@ async function buildAllReport(filters, { previousRevenue } = {}) {
     topProducts: products.topProducts,
     topCustomers: customers.topCustomers,
     expensesByCategory: expenses.byCategory,
-    carwashByService: carwash.byService,
     analysis,
     recommendations,
     financialSummary,

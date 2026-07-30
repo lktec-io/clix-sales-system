@@ -321,29 +321,6 @@ Below, each table lists only its **domain-specific** columns; the global standar
 
 ---
 
-## 9. Car Wash
-
-### `vehicles`
-- `plate_number` VARCHAR(20) UNIQUE
-- `customer_name` VARCHAR(150)
-- `phone` VARCHAR(20)
-
-### `carwash_services`
-- `name` VARCHAR(100) — Normal Wash, Full Wash, Engine Wash, Interior Cleaning
-- `price` DECIMAL(14,2)
-- `status` ENUM('active','inactive') DEFAULT 'active'
-
-### `carwash_transactions`
-- `vehicle_id` → `vehicles.id`
-- `service_id` → `carwash_services.id`
-- `branch_id` → `branches.id`
-- `amount` DECIMAL(14,2)
-- `payment_method` ENUM('cash','mpesa','airtel_money')
-- `served_by` → `users.id`
-- `status` ENUM('completed') DEFAULT 'completed'
-
----
-
 ## 10. System, Notifications & Audit
 
 ### `notifications`
@@ -401,7 +378,6 @@ roles ─┬─< role_permissions >─┬─ permissions
                     │                                ├─< sales
                     │                                ├─< purchase_orders
                     │                                ├─< expenses
-                    │                                ├─< carwash_transactions
                     │                                └─< inventory (per branch)
                     ├─< sales (cashier_id)
                     ├─< audit_logs / activity_logs
@@ -418,7 +394,6 @@ brands     ─< products    ├─< qr_codes
                            └─< stock_transfer_items >─ stock_transfer_requests ─┬─ source branch
                                                                                  └─ destination branch
 
-vehicles ─< carwash_transactions >─ carwash_services
 expense_categories ─< expenses
 
 document_sequences (standalone counter, referenced logically by sales/purchases/transfers/returns/products)

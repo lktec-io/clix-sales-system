@@ -80,7 +80,7 @@ const DATE_PRESETS = {
 
 const MONEY_KEYS = new Set([
   'value', 'totalRevenue', 'totalAmount', 'totalDiscount', 'averageSale', 'totalValue',
-  'salesRevenue', 'carwashRevenue', 'expenses', 'totalExpenses', 'net', 'cogs', 'grossProfit', 'netProfit',
+  'salesRevenue', 'expenses', 'totalExpenses', 'net', 'cogs', 'grossProfit', 'netProfit',
   'totalPurchased', 'totalPaid', 'outstandingBalance', 'averageDailySales', 'averageInvoice',
 ]);
 
@@ -136,15 +136,10 @@ const REPORT_CONFIGS = {
     summary: { totalExpenses: 'Total Expenses', totalAmount: 'Total Amount' },
     breakdowns: [{ key: 'byCategory', title: 'By Category', labelHeader: 'Category' }],
   },
-  carwash: {
-    label: 'Car Wash', filters: ['dateFrom', 'dateTo', 'branchId'],
-    summary: { totalTransactions: 'Total Transactions', totalRevenue: 'Total Revenue' },
-    breakdowns: [{ key: 'byService', title: 'Popular Services', labelHeader: 'Service' }],
-  },
   profit: {
     label: 'Profit', filters: ['dateFrom', 'dateTo', 'branchId'],
     summary: {
-      salesRevenue: 'Sales Revenue', carwashRevenue: 'Car Wash Revenue', totalRevenue: 'Total Revenue',
+      salesRevenue: 'Sales Revenue', totalRevenue: 'Total Revenue',
       cogs: 'Cost of Goods Sold', grossProfit: 'Gross Profit', expenses: 'Expenses', netProfit: 'Net Profit',
     },
     breakdowns: [{ key: 'byDay', title: 'By Day', labelHeader: 'Date' }],
@@ -159,16 +154,16 @@ const REPORT_CONFIGS = {
     breakdowns: [{ key: 'byRole', title: 'By Role', labelHeader: 'Role' }, { key: 'byBranch', title: 'By Branch', labelHeader: 'Branch' }],
   },
   // Combined business-summary report — backend/services/report.service.js's
-  // buildAllReport() flattens Sales/Products/Customers/Expenses/Car Wash/
-  // Profit into this exact shape, so it renders through the same summary
-  // cards + BreakdownTable components every other report type already
-  // uses. `analysis` is the one field that isn't a breakdown table — it's
+  // buildAllReport() flattens Sales/Products/Customers/Expenses/Profit into
+  // this exact shape, so it renders through the same summary cards +
+  // BreakdownTable components every other report type already uses.
+  // `analysis` is the one field that isn't a breakdown table — it's
   // rendered separately, right below the summary cards.
   all: {
     label: 'All Reports', filters: ['dateFrom', 'dateTo', 'branchId'],
     summary: {
       totalSales: 'Total Sales', totalRevenue: 'Total Revenue', totalExpenses: 'Total Expenses',
-      carwashRevenue: 'Car Wash Revenue', netProfit: 'Net Profit',
+      netProfit: 'Net Profit',
     },
     breakdowns: [
       { key: 'salesByDay', title: 'Sales By Day', labelHeader: 'Date' },
@@ -176,14 +171,13 @@ const REPORT_CONFIGS = {
       { key: 'topProducts', title: 'Top Products', labelHeader: 'Product' },
       { key: 'topCustomers', title: 'Top Customers', labelHeader: 'Customer' },
       { key: 'expensesByCategory', title: 'Expenses By Category', labelHeader: 'Category' },
-      { key: 'carwashByService', title: 'Car Wash By Service', labelHeader: 'Service' },
     ],
   },
 };
 
 // "Show only: Sales, Product, Inventory, Customer, Supplier, Expenses, All
-// Reports" — the other REPORT_CONFIGS entries (purchases/returns/carwash/
-// profit/branches/users) stay fully supported by the backend and this same
+// Reports" — the other REPORT_CONFIGS entries (purchases/returns/profit/
+// branches/users) stay fully supported by the backend and this same
 // generic renderer; they're just no longer offered as a card here, so
 // nothing about how a report actually renders needed to change.
 const VISIBLE_REPORT_TYPES = ['sales', 'products', 'inventory', 'customers', 'suppliers', 'expenses', 'all'];

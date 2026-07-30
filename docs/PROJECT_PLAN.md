@@ -135,7 +135,6 @@ Since no application code exists, numeric quality scores would be meaningless no
 | 17 | POS | Cart, camera QR scan (`html5-qrcode`), discounts (permission-gated), mixed payments, checkout transaction, receipt generation/printing | 10, 16 |
 | 18 | Returns | Return workflow against original sale, inventory restoration, refund tracking, return numbering | 17 |
 | 19 | Expenses | Expense CRUD, categories, branch scoping, profit-report impact | 4 |
-| 20 | Car Wash | Vehicle registration, service catalog, transactions, payment, revenue reporting | 4 |
 | 21 | Reports | Centralized Reports Center across all modules, filters, Print/PDF/Excel/CSV export, dashboard KPI parity | 9–20 |
 | 22 | Notifications | Notification generation on key events, read/unread, mark-all-read, polling delivery | 6–21 |
 | 23 | Settings | System settings (currency, tax, receipt footer, email config, backup) | 2 |

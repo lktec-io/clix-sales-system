@@ -173,18 +173,11 @@ Identical shape for both:
 | PUT | `/:id` | `expenses.edit` |
 | DELETE | `/:id` | `expenses.delete` |
 
-## `/carwash` — `authenticate` + `carwash.view`
-
-| Method | Path | Permission |
-|---|---|---|
-| GET | `/services`, `/` | (group default) |
-| POST | `/` | `carwash.create` |
-
 ## `/reports` — `authenticate` + `reports.view`
 
 | Method | Path |
 |---|---|
-| GET | `/:type` — `type` ∈ `sales, inventory, purchases, expenses, carwash, profit, branches, products, customers, suppliers, returns, transfers`; query params: `dateFrom`, `dateTo`, `branchId`, `categoryId`, `supplierId`, `cashierId` (accepted by some report types, not all — see `report.service.js`) |
+| GET | `/:type` — `type` ∈ `sales, inventory, purchases, expenses, profit, branches, products, customers, suppliers, returns, transfers`; query params: `dateFrom`, `dateTo`, `branchId`, `categoryId`, `supplierId`, `cashierId` (accepted by some report types, not all — see `report.service.js`) |
 
 ## `/notifications` — `authenticate`, no permission gate (every user manages their own inbox)
 

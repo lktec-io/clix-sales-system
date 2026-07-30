@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle, FiDroplet } from 'react-icons/fi';
+import { FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle } from 'react-icons/fi';
 import KPICard from '../../components/dashboard/KPICard';
 import ChartCard from '../../components/dashboard/ChartCard';
 import DashboardHero from '../../components/dashboard/DashboardHero';
@@ -24,16 +24,15 @@ const KPI_DEFS = [
   { key: 'monthlyProfit', label: 'Monthly Profit', icon: FiTrendingUp, formatter: formatCurrency, subtitle: 'Net of cost this month', accent: '#8B5CF6' },
   { key: 'todayOrders', label: "Today's Orders", icon: FiShoppingBag, formatter: formatNumber, subtitle: 'Completed sales today', accent: '#F59E0B' },
   { key: 'lowStockCount', label: 'Low Stock Products', icon: FiAlertTriangle, formatter: formatNumber, subtitle: 'Need restocking', accent: '#EF4444' },
-  { key: 'carwashRevenue', label: "Today's Car Wash", icon: FiDroplet, formatter: formatCurrency, subtitle: 'Service revenue today', accent: '#06B6D4' },
 ];
 
 // Only the business-critical analytics for a sales system: how much came
 // in (trend), what it cost against it (revenue vs expenses), how customers
 // paid, what's selling, and what needs restocking. Branch performance,
-// inventory/car-wash breakdown donuts, a redundant "today" recap, a
-// generic activity feed, and ops/infra status were all cut — this is
-// meant to read in 3-5 seconds, not require scrolling through an audit
-// log to find the numbers that matter.
+// inventory breakdown donuts, a redundant "today" recap, a generic
+// activity feed, and ops/infra status were all cut — this is meant to
+// read in 3-5 seconds, not require scrolling through an audit log to find
+// the numbers that matter.
 const CHART_TYPES = ['top-products', 'payment-status', 'revenue-vs-expenses'];
 
 const STAGGER_CONTAINER = {

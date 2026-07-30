@@ -17,8 +17,6 @@ Purchases
 
 Expenses
 
-Car Wash
-
 Profit
 
 Branches

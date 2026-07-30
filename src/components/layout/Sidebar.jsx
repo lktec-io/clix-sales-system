@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   FiGrid, FiUserCheck, FiTruck,
   FiBox, FiArchive, FiShoppingCart, FiDollarSign, FiRotateCcw,
-  FiDroplet, FiBarChart2, FiSettings, FiLogOut,
+  FiBarChart2, FiSettings, FiLogOut,
   FiChevronsLeft, FiChevronsRight,
 } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
@@ -57,7 +57,6 @@ const NAV_ITEMS = [
   { to: '/pos', label: 'Sales (POS)', icon: FiDollarSign, requiredPermission: 'sales.view' },
   { to: '/returns', label: 'Returns', icon: FiRotateCcw, requiredPermission: 'returns.view' },
   { to: '/expenses', label: 'Expenses', icon: FiDollarSign, requiredPermission: 'expenses.view' },
-  { to: '/carwash', label: 'Car Wash', icon: FiDroplet, requiredPermission: 'carwash.view' },
   { to: '/reports', label: 'Reports', icon: FiBarChart2, requiredPermission: 'reports.view' },
   { to: '/settings/company', label: 'Settings', icon: FiSettings, requiredPermission: ['company.manage', 'settings.view'] },
 ];

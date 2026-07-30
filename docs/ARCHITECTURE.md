@@ -54,7 +54,7 @@ List endpoints return a consistent pagination envelope: `data: { items: [...], m
 
 ## Frontend structure
 
-- **`src/pages/<module>/`**: one folder per module, typically `List`, `Form` or modal-based create/edit, and `Detail` where the module has enough state to warrant a dedicated page (Purchases, Transfers, POS/Sales, Returns). Simpler modules (Categories, Brands, Customers, Suppliers, Expenses, Car Wash) use a list page with an inline modal for create/edit instead of separate routes.
+- **`src/pages/<module>/`**: one folder per module, typically `List`, `Form` or modal-based create/edit, and `Detail` where the module has enough state to warrant a dedicated page (Purchases, Transfers, POS/Sales, Returns). Simpler modules (Categories, Brands, Customers, Suppliers, Expenses) use a list page with an inline modal for create/edit instead of separate routes.
 - **`src/hooks/useTable.js`**: the shared list-page hook — pagination, debounced search, arbitrary filters, sort — wired to any service function shaped as `fetchFn(params) -> { items, meta }`.
 - **`src/components/common/`**: `Table`, `Pagination`, `SearchInput`, `Modal`, `ConfirmDialog`, `QRScanner`, `SettingsTabs` — reused across every module rather than reimplemented.
 - **Route-level code splitting**: every page is `React.lazy()`-loaded behind a single `<Suspense>` boundary in `AppRouter.jsx`. Introduced in Phase 5 once the bundle crossed 500KB; every subsequent phase's pages follow the same pattern automatically.
@@ -71,7 +71,7 @@ Suppliers → Purchases (recordMovement, increases stock)
 Transfers (recordMovement × 2, moves stock between branches)
 Customers → POS/Sales (recordMovement, decreases stock; QRScanner; discount authority)
 Returns (recordMovement, restores stock; refund computed from the sale's actual paid price)
-Expenses, Car Wash (no inventory impact — simple branch-scoped CRUD/append-only logs)
+Expenses (no inventory impact — simple branch-scoped CRUD/append-only logs)
 Reports (aggregates every table above — no new tables, only queries)
 Notifications (reaches back into Purchases/POS/Transfers/Expenses/Returns to add triggers)
 Settings (Tax/Email config, backups, self-service Profile/Password)

@@ -15,7 +15,6 @@ mysql -u <user> -p sales < migrations/005_create_purchases_suppliers.sql
 mysql -u <user> -p sales < migrations/006_create_sales_pos.sql
 mysql -u <user> -p sales < migrations/007_create_stock_transfers.sql
 mysql -u <user> -p sales < migrations/008_create_expenses.sql
-mysql -u <user> -p sales < migrations/009_create_carwash.sql
 mysql -u <user> -p sales < migrations/010_create_notifications_logs.sql
 
 mysql -u <user> -p sales < seeders/001_seed_roles_permissions.sql
@@ -39,9 +38,8 @@ All files are written with `CREATE TABLE IF NOT EXISTS` / `INSERT IGNORE`, so re
 ## What's deliberately NOT seeded
 
 - **No default Super Admin user.** Seeding a shipped, guessable initial credential (even a bcrypt hash of a "default" password) is a real production risk if this repo or the SQL file is ever exposed. Create the first Super Administrator interactively once the Auth module (Phase 1) is live — see `docs/TODO.md`.
-- **Car wash service prices in `002_seed_reference_data.sql` are placeholders** (5,000 / 10,000 / 8,000 / 12,000 TZS) so the module isn't empty out of the box. Adjust them via the Car Wash settings UI once built, or edit the seeder before running it.
 - Everything else seeded (roles, permission catalog, role→permission mapping, expense categories) is static reference data with no secrets, matching what `MASTER_PROMPT.md` explicitly enumerates.
 
 ## Role → permission mapping source
 
-`seeders/001_seed_roles_permissions.sql` encodes the per-role access described across `MASTER_PROMPT.md`'s per-module `PERMISSIONS` sections (Inventory, POS, Purchases, Transfers, Expenses, Car Wash). Where the spec is silent for a module/role combination (e.g. Store Keeper and Expenses), the seeder grants no access — safer to add later via the Role Management UI (Phase 4) than to over-grant now.
+`seeders/001_seed_roles_permissions.sql` encodes the per-role access described across `MASTER_PROMPT.md`'s per-module `PERMISSIONS` sections (Inventory, POS, Purchases, Transfers, Expenses). Where the spec is silent for a module/role combination (e.g. Store Keeper and Expenses), the seeder grants no access — safer to add later via the Role Management UI (Phase 4) than to over-grant now.

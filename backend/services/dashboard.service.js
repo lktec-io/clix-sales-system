@@ -8,14 +8,14 @@ import * as activityLogRepository from '../repositories/activityLog.repository.j
 const EMPTY_KPIS = {
   todaySales: 0, monthlySales: 0, todayProfit: 0, monthlyProfit: 0,
   totalCustomers: 0, totalSuppliers: 0, totalProducts: 0, inventoryValue: 0,
-  lowStockCount: 0, todayExpenses: 0, monthlyExpenses: 0, carwashRevenue: 0,
-  todayOrders: 0, todayCarwashCount: 0, pendingTransfers: 0, pendingPurchases: 0,
+  lowStockCount: 0, todayExpenses: 0, monthlyExpenses: 0,
+  todayOrders: 0, pendingTransfers: 0, pendingPurchases: 0,
 };
 
 const EMPTY_INVENTORY_SUMMARY = { outOfStock: 0, lowStock: 0, inStock: 0 };
 
 // The dashboard aggregates a dozen independent queries across sales,
-// inventory, expenses, and carwash data — a single malformed query (a
+// inventory, and expense data — a single malformed query (a
 // missing table, a renamed column after a schema change that hasn't been
 // fully rolled out yet, a lock timeout) should degrade that one widget to
 // an empty/zero state, not crash the whole dashboard with a 500. The real
@@ -37,7 +37,6 @@ const CHART_HANDLERS = {
   'top-products': (branchIds) => safely('top-products', () => dashboardRepository.getTopProducts(branchIds), []),
   'branch-performance': (branchIds) => safely('branch-performance', () => dashboardRepository.getBranchPerformance(branchIds), []),
   'inventory-summary': (branchIds) => safely('inventory-summary', () => dashboardRepository.getInventorySummary(branchIds), EMPTY_INVENTORY_SUMMARY),
-  'carwash-summary': (branchIds) => safely('carwash-summary', () => dashboardRepository.getCarwashSummary(branchIds), []),
   'payment-status': (branchIds) => safely('payment-status', () => dashboardRepository.getPaymentStatus(branchIds), []),
   'revenue-vs-expenses': (branchIds) => safely('revenue-vs-expenses', () => dashboardRepository.getRevenueVsExpenses(branchIds), []),
 };

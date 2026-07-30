@@ -79,9 +79,7 @@ Build in this order:
 
 20. Expenses
 
-21. Car Wash
-
-22. Reports
+21. Reports
 
 23. Notifications
 

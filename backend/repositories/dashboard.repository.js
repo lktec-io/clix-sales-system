@@ -10,7 +10,6 @@ function branchFilter(column, branchIds) {
 export async function getKpis(branchIds) {
   const sales = branchFilter('branch_id', branchIds);
   const expenses = branchFilter('branch_id', branchIds);
-  const carwash = branchFilter('branch_id', branchIds);
   const inventory = branchFilter('i.branch_id', branchIds);
   const transfers = branchFilter('destination_branch_id', branchIds);
   const purchases = branchFilter('branch_id', branchIds);
@@ -80,22 +79,10 @@ export async function getKpis(branchIds) {
     expenses.params,
   );
 
-  const [[carwashRevenue]] = await pool.query(
-    `SELECT COALESCE(SUM(amount), 0) AS value FROM carwash_transactions
-     WHERE DATE(created_at) = CURDATE() ${carwash.clause}`,
-    carwash.params,
-  );
-
   const [[todayOrders]] = await pool.query(
     `SELECT COUNT(*) AS value FROM sales
      WHERE status = 'completed' AND DATE(created_at) = CURDATE() ${sales.clause}`,
     sales.params,
-  );
-
-  const [[todayCarwashCount]] = await pool.query(
-    `SELECT COUNT(*) AS value FROM carwash_transactions
-     WHERE DATE(created_at) = CURDATE() ${carwash.clause}`,
-    carwash.params,
   );
 
   const [[pendingTransfers]] = await pool.query(
@@ -119,9 +106,7 @@ export async function getKpis(branchIds) {
     lowStockCount: Number(lowStockCount.value),
     todayExpenses: Number(todayExpenses.value),
     monthlyExpenses: Number(monthlyExpenses.value),
-    carwashRevenue: Number(carwashRevenue.value),
     todayOrders: Number(todayOrders.value),
-    todayCarwashCount: Number(todayCarwashCount.value),
     pendingTransfers: Number(pendingTransfers.value),
     pendingPurchases: Number(pendingPurchases.value),
   };
@@ -166,19 +151,11 @@ export async function getSalesTrend(branchIds, range = 'week') {
 
 export async function getRevenueTrend(branchIds) {
   const salesFilter = branchFilter('branch_id', branchIds);
-  const carwashFilter = branchFilter('branch_id', branchIds);
   const [rows] = await pool.query(
-    `SELECT date, SUM(value) AS value FROM (
-       SELECT DATE(created_at) AS date, COALESCE(SUM(total_amount), 0) AS value
-       FROM sales WHERE status = 'completed' AND created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY) ${salesFilter.clause}
-       GROUP BY DATE(created_at)
-       UNION ALL
-       SELECT DATE(created_at) AS date, COALESCE(SUM(amount), 0) AS value
-       FROM carwash_transactions WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY) ${carwashFilter.clause}
-       GROUP BY DATE(created_at)
-     ) combined
-     GROUP BY date ORDER BY date`,
-    [DAYS_BACK, ...salesFilter.params, DAYS_BACK, ...carwashFilter.params],
+    `SELECT DATE(created_at) AS date, COALESCE(SUM(total_amount), 0) AS value
+     FROM sales WHERE status = 'completed' AND created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY) ${salesFilter.clause}
+     GROUP BY DATE(created_at) ORDER BY date`,
+    [DAYS_BACK, ...salesFilter.params],
   );
   return rows;
 }
@@ -281,20 +258,6 @@ export async function getInventorySummary(branchIds) {
   };
 }
 
-export async function getCarwashSummary(branchIds) {
-  const filter = branchFilter('ct.branch_id', branchIds);
-  const [rows] = await pool.query(
-    `SELECT cs.name, COALESCE(SUM(ct.amount), 0) AS value
-     FROM carwash_services cs
-     LEFT JOIN carwash_transactions ct ON ct.service_id = cs.id
-       AND YEAR(ct.created_at) = YEAR(CURDATE()) AND MONTH(ct.created_at) = MONTH(CURDATE()) ${filter.clause}
-     WHERE cs.status = 'active'
-     GROUP BY cs.id, cs.name ORDER BY value DESC`,
-    filter.params,
-  );
-  return rows;
-}
-
 // payment_method does NOT live on `sales` — it's on `sale_payments`, a
 // separate one-row-per-payment table joined via sale_id (see
 // 006_create_sales_pos.sql). A sale can have more than one payment row
@@ -333,7 +296,6 @@ export async function getPaymentStatus(branchIds) {
 
 export async function getRevenueVsExpenses(branchIds) {
   const salesFilter = branchFilter('branch_id', branchIds);
-  const carwashFilter = branchFilter('branch_id', branchIds);
   const expenseFilter = branchFilter('branch_id', branchIds);
   const [rows] = await pool.query(
     `SELECT date, SUM(revenue) AS revenue, SUM(expenses) AS expenses FROM (
@@ -341,16 +303,12 @@ export async function getRevenueVsExpenses(branchIds) {
        FROM sales WHERE status = 'completed' AND created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY) ${salesFilter.clause}
        GROUP BY DATE(created_at)
        UNION ALL
-       SELECT DATE(created_at) AS date, COALESCE(SUM(amount), 0) AS revenue, 0 AS expenses
-       FROM carwash_transactions WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY) ${carwashFilter.clause}
-       GROUP BY DATE(created_at)
-       UNION ALL
        SELECT expense_date AS date, 0 AS revenue, COALESCE(SUM(amount), 0) AS expenses
        FROM expenses WHERE expense_date >= DATE_SUB(CURDATE(), INTERVAL ? DAY) ${expenseFilter.clause}
        GROUP BY expense_date
      ) combined
      GROUP BY date ORDER BY date`,
-    [DAYS_BACK, ...salesFilter.params, DAYS_BACK, ...carwashFilter.params, DAYS_BACK, ...expenseFilter.params],
+    [DAYS_BACK, ...salesFilter.params, DAYS_BACK, ...expenseFilter.params],
   );
   return rows.map((row) => ({
     date: row.date,

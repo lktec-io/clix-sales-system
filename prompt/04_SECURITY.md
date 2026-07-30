@@ -130,8 +130,6 @@ Profit Reports
 
 Loss Reports
 
-Car Wash Reports
-
 Product Movement Reports
 
 Activity Reports

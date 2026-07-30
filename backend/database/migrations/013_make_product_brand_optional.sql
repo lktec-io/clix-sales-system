@@ -1,7 +1,7 @@
 -- 013_make_product_brand_optional.sql
 -- Sales Management System UI/UX refactor sprint: the Products form now
--- treats Brand as optional (not every product a decoration/accessories +
--- car-wash retailer sells has a meaningful brand) — relaxes the column
+-- treats Brand as optional (not every product a retailer sells has a
+-- meaningful brand) — relaxes the column
 -- from NOT NULL to nullable. Non-destructive: every existing product keeps
 -- its current brand_id value unchanged; this only allows new/edited rows
 -- to store NULL going forward. The FK (fk_products_brand, ON DELETE

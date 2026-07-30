@@ -5,9 +5,3 @@
 INSERT IGNORE INTO expense_categories (name) VALUES
   ('Rent'), ('Electricity'), ('Water'), ('Fuel'), ('Salary'),
   ('Maintenance'), ('Transport'), ('Office Supplies'), ('Other');
-
-INSERT IGNORE INTO carwash_services (name, price, status) VALUES
-  ('Normal Wash', 5000.00, 'active'),
-  ('Full Wash', 10000.00, 'active'),
-  ('Engine Wash', 8000.00, 'active'),
-  ('Interior Cleaning', 12000.00, 'active');

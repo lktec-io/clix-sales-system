@@ -9,7 +9,7 @@ import { formatCurrency } from '../utils/formatCurrency.js';
 // reportService.getReport() every consumer uses).
 export const MONEY_KEYS = new Set([
   'value', 'totalRevenue', 'totalAmount', 'totalDiscount', 'averageSale', 'totalValue',
-  'salesRevenue', 'carwashRevenue', 'expenses', 'totalExpenses', 'net', 'cogs', 'grossProfit', 'netProfit', 'totalRefund',
+  'salesRevenue', 'expenses', 'totalExpenses', 'net', 'cogs', 'grossProfit', 'netProfit', 'totalRefund',
   'totalPurchased', 'totalPaid', 'outstandingBalance',
 ]);
 
@@ -49,15 +49,10 @@ export const REPORT_CONFIGS = {
     summaryLabels: { totalExpenses: 'Total Expenses', totalAmount: 'Total Amount' },
     breakdowns: [{ key: 'byCategory', title: 'By Category', labelHeader: 'Category' }],
   },
-  carwash: {
-    title: 'Car Wash',
-    summaryLabels: { totalTransactions: 'Total Transactions', totalRevenue: 'Total Revenue' },
-    breakdowns: [{ key: 'byService', title: 'Popular Services', labelHeader: 'Service' }],
-  },
   profit: {
     title: 'Profit',
     summaryLabels: {
-      salesRevenue: 'Sales Revenue', carwashRevenue: 'Car Wash Revenue', totalRevenue: 'Total Revenue',
+      salesRevenue: 'Sales Revenue', totalRevenue: 'Total Revenue',
       cogs: 'Cost of Goods Sold', grossProfit: 'Gross Profit', expenses: 'Expenses', netProfit: 'Net Profit',
     },
     breakdowns: [{ key: 'byDay', title: 'By Day', labelHeader: 'Date' }],
@@ -78,8 +73,8 @@ export const REPORT_CONFIGS = {
     breakdowns: [{ key: 'byRole', title: 'By Role', labelHeader: 'Role' }, { key: 'byBranch', title: 'By Branch', labelHeader: 'Branch' }],
   },
   // The business-summary report — report.service.js's buildAllReport()
-  // flattens sales/products/customers/expenses/carwash/profit into this
-  // same { summary, ...arrays } shape every other report already uses, so
+  // flattens sales/products/customers/expenses/profit into this same
+  // { summary, ...arrays } shape every other report already uses, so
   // nothing here (or in the PDF/Excel/CSV renderers) needs special-casing
   // beyond naming which flattened keys to show. report.analysis (a plain
   // string array, not a breakdown table) is handled separately by each
@@ -88,7 +83,7 @@ export const REPORT_CONFIGS = {
     title: 'All Reports',
     summaryLabels: {
       totalSales: 'Total Sales', totalRevenue: 'Total Revenue', totalExpenses: 'Total Expenses',
-      carwashRevenue: 'Car Wash Revenue', netProfit: 'Net Profit',
+      netProfit: 'Net Profit',
     },
     breakdowns: [
       { key: 'salesByDay', title: 'Sales By Day', labelHeader: 'Date' },
@@ -96,7 +91,6 @@ export const REPORT_CONFIGS = {
       { key: 'topProducts', title: 'Top Products', labelHeader: 'Product' },
       { key: 'topCustomers', title: 'Top Customers', labelHeader: 'Customer' },
       { key: 'expensesByCategory', title: 'Expenses By Category', labelHeader: 'Category' },
-      { key: 'carwashByService', title: 'Car Wash By Service', labelHeader: 'Service' },
     ],
   },
 };
