@@ -47,6 +47,11 @@ export async function updateProfile(payload) {
   return data.data;
 }
 
+export async function updateLanguage(preferredLanguage) {
+  const { data } = await apiClient.patch('/auth/language', { preferredLanguage });
+  return data.data;
+}
+
 export async function uploadProfileAvatar(file) {
   const formData = new FormData();
   formData.append('avatar', file);

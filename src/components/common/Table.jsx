@@ -1,4 +1,5 @@
 import { FiInbox } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import Skeleton from './Skeleton';
 import EmptyState from './EmptyState';
 
@@ -6,7 +7,9 @@ const SKELETON_ROWS = 5;
 
 // Styled by the core design system's styles/tables.css (imported globally via theme.css).
 // columns: [{ key, label, render?(row), sortable? }]
-function Table({ columns, rows, loading, emptyMessage = 'No records found', sort, onSortChange, rowKey = 'id' }) {
+function Table({ columns, rows, loading, emptyMessage, sort, onSortChange, rowKey = 'id' }) {
+  const { t } = useTranslation('common');
+  const resolvedEmptyMessage = emptyMessage ?? t('table.noRecordsFound');
   const handleSort = (column) => {
     if (!column.sortable || !onSortChange) return;
     const isSameColumn = sort?.key === column.key;
@@ -41,7 +44,7 @@ function Table({ columns, rows, loading, emptyMessage = 'No records found', sort
           ) : rows.length === 0 ? (
             <tr>
               <td colSpan={columns.length} className="table-empty">
-                <EmptyState icon={FiInbox} title={emptyMessage} />
+                <EmptyState icon={FiInbox} title={resolvedEmptyMessage} />
               </td>
             </tr>
           ) : (

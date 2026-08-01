@@ -1,0 +1,60 @@
+{
+  "hero": {
+    "goodMorning": "Habari za Asubuhi",
+    "goodAfternoon": "Habari za Mchana",
+    "goodEvening": "Habari za Jioni",
+    "welcomeBack": "Karibu tena,",
+    "subtitle": "Haya ndiyo yanayoendelea kwenye biashara yako leo.",
+    "guestName": "Rafiki"
+  },
+  "kpi": {
+    "todaySales": "Mauzo ya Leo",
+    "todaySalesSubtitle": "Katika matawi yote",
+    "monthlySales": "Mauzo ya Mwezi",
+    "monthlySalesSubtitle": "Mwezi huu",
+    "monthlyProfit": "Faida ya Mwezi",
+    "monthlyProfitSubtitle": "Baada ya gharama mwezi huu",
+    "todayOrders": "Oda za Leo",
+    "todayOrdersSubtitle": "Mauzo yaliyokamilika leo",
+    "lowStockCount": "Bidhaa Zenye Hesabu Ndogo",
+    "lowStockCountSubtitle": "Zinahitaji kuongezwa",
+    "trendVsYesterday": "{{percent}}% ikilinganishwa na jana"
+  },
+  "charts": {
+    "revenueVsExpenses": "Mapato dhidi ya Matumizi",
+    "revenue": "Mapato",
+    "expenses": "Matumizi",
+    "profit": "Faida",
+    "noFinancialActivity": "Hakuna shughuli za kifedha bado",
+    "paymentStatus": "Hali ya Malipo",
+    "noPayments": "Hakuna malipo yaliyorekodiwa bado",
+    "noDataYet": "Hakuna data bado",
+    "salesTrend": "Mwenendo wa Mauzo",
+    "salesTrendRange": "Kipindi cha mwenendo wa mauzo",
+    "today": "Leo",
+    "week": "Wiki",
+    "month": "Mwezi",
+    "year": "Mwaka",
+    "noSalesForPeriod": "Hakuna mauzo yaliyorekodiwa kwa kipindi hiki"
+  },
+  "topProducts": {
+    "title": "Bidhaa Zinazouzwa Zaidi",
+    "noSales": "Hakuna mauzo yaliyorekodiwa bado",
+    "sold": "{{count}} zimeuzwa"
+  },
+  "lowStock": {
+    "title": "Tahadhari za Hesabu Ndogo",
+    "noneRightNow": "Hakuna bidhaa zenye hesabu ndogo kwa sasa",
+    "outOfStock": "Hazipo Kabisa",
+    "criticalLow": "Hesabu Ndogo Sana",
+    "lowStockTag": "Hesabu Ndogo",
+    "min": "kiwango cha chini"
+  },
+  "quickActions": {
+    "newSale": "Uzo Mpya",
+    "newCustomer": "Mteja Mpya",
+    "newExpense": "Tumizi Jipya",
+    "reports": "Ripoti"
+  },
+  "loadError": "Imeshindwa kupakia taarifa za dashibodi."
+}

@@ -1,0 +1,60 @@
+{
+  "hero": {
+    "goodMorning": "Good Morning",
+    "goodAfternoon": "Good Afternoon",
+    "goodEvening": "Good Evening",
+    "welcomeBack": "Welcome back,",
+    "subtitle": "Here's what's happening across your business today.",
+    "guestName": "there"
+  },
+  "kpi": {
+    "todaySales": "Today's Sales",
+    "todaySalesSubtitle": "Across all branches",
+    "monthlySales": "Monthly Sales",
+    "monthlySalesSubtitle": "This calendar month",
+    "monthlyProfit": "Monthly Profit",
+    "monthlyProfitSubtitle": "Net of cost this month",
+    "todayOrders": "Today's Orders",
+    "todayOrdersSubtitle": "Completed sales today",
+    "lowStockCount": "Low Stock Products",
+    "lowStockCountSubtitle": "Need restocking",
+    "trendVsYesterday": "{{percent}}% vs yesterday"
+  },
+  "charts": {
+    "revenueVsExpenses": "Revenue vs Expenses",
+    "revenue": "Revenue",
+    "expenses": "Expenses",
+    "profit": "Profit",
+    "noFinancialActivity": "No financial activity yet",
+    "paymentStatus": "Payment Status",
+    "noPayments": "No payments recorded yet",
+    "noDataYet": "No data yet",
+    "salesTrend": "Sales Trend",
+    "salesTrendRange": "Sales trend range",
+    "today": "Today",
+    "week": "Week",
+    "month": "Month",
+    "year": "Year",
+    "noSalesForPeriod": "No sales recorded for this period"
+  },
+  "topProducts": {
+    "title": "Top Selling Products",
+    "noSales": "No sales recorded yet",
+    "sold": "{{count}} sold"
+  },
+  "lowStock": {
+    "title": "Low Stock Alerts",
+    "noneRightNow": "No low-stock products right now",
+    "outOfStock": "Out of Stock",
+    "criticalLow": "Critical Low",
+    "lowStockTag": "Low Stock",
+    "min": "min"
+  },
+  "quickActions": {
+    "newSale": "New Sale",
+    "newCustomer": "New Customer",
+    "newExpense": "New Expense",
+    "reports": "Reports"
+  },
+  "loadError": "Failed to load dashboard data."
+}

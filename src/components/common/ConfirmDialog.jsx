@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Modal from './Modal';
 
-function ConfirmDialog({ open, onClose, onConfirm, title = 'Are you sure?', message, confirmLabel = 'Confirm', variant = 'danger' }) {
+function ConfirmDialog({ open, onClose, onConfirm, title, message, confirmLabel, variant = 'danger' }) {
+  const { t } = useTranslation('common');
   const [submitting, setSubmitting] = useState(false);
 
   const handleConfirm = async () => {
@@ -18,12 +20,12 @@ function ConfirmDialog({ open, onClose, onConfirm, title = 'Are you sure?', mess
     <Modal
       open={open}
       onClose={onClose}
-      title={title}
+      title={title ?? t('confirmDialog.areYouSure')}
       size="sm"
       footer={
         <>
           <button type="button" className="btn btn-secondary" onClick={onClose} disabled={submitting}>
-            Cancel
+            {t('actions.cancel')}
           </button>
           <button
             type="button"
@@ -31,7 +33,7 @@ function ConfirmDialog({ open, onClose, onConfirm, title = 'Are you sure?', mess
             onClick={handleConfirm}
             disabled={submitting}
           >
-            {confirmLabel}
+            {confirmLabel ?? t('actions.confirm')}
           </button>
         </>
       }

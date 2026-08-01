@@ -1,0 +1,11 @@
+{
+  "forbidden": {
+    "title": "Huna Ruhusa",
+    "message": "Huna ruhusa ya kuona ukurasa huu. Wasiliana na msimamizi wako ikiwa unaamini hii ni kosa."
+  },
+  "notFound": {
+    "title": "Ukurasa Haukupatikana",
+    "message": "Ukurasa unaoutafuta haupo au umehamishwa."
+  },
+  "backToDashboard": "Rudi kwenye Dashibodi"
+}

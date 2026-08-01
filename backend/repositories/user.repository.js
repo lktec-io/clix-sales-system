@@ -2,7 +2,7 @@ import { pool } from '../config/db.js';
 
 const BASE_SELECT = `
   SELECT u.id, u.first_name, u.last_name, u.gender, u.phone, u.email, u.username,
-         u.password_hash, u.role_id, u.branch_id, u.avatar_path, u.status,
+         u.password_hash, u.role_id, u.branch_id, u.avatar_path, u.preferred_language, u.status,
          u.failed_login_attempts, u.locked_until, u.last_login_at,
          u.created_at, u.updated_at, u.deleted_at,
          r.name AS role_name,
@@ -130,6 +130,14 @@ export async function updateOwnProfile(id, { firstName, lastName, gender, phone 
 
 export async function updateAvatarPath(id, avatarPath) {
   await pool.query('UPDATE users SET avatar_path = ? WHERE id = ?', [avatarPath, id]);
+  return findById(id);
+}
+
+// Self-service language switch — deliberately its own single-column update
+// (not folded into updateOwnProfile) so flipping the language toggle never
+// has to resend/revalidate the rest of the profile form.
+export async function updatePreferredLanguage(id, preferredLanguage) {
+  await pool.query('UPDATE users SET preferred_language = ? WHERE id = ?', [preferredLanguage, id]);
   return findById(id);
 }
 

@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ROUTES } from '../../constants/routes';
 import * as authService from '../../services/authService';
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-const PASSWORD_POLICY_MESSAGE =
-  'Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number and a symbol.';
 
 function ResetPassword() {
+  const { t } = useTranslation('auth');
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
   const navigate = useNavigate();
@@ -29,19 +29,19 @@ function ResetPassword() {
       await authService.resetPassword({ token, newPassword: values.newPassword });
       navigate(ROUTES.LOGIN, { replace: true, state: { resetSuccess: true } });
     } catch (err) {
-      setFormError(err.response?.data?.message || 'This reset link is invalid or has expired.');
+      setFormError(err.response?.data?.message || t('resetPassword.genericError'));
     }
   };
 
   if (!token) {
     return (
       <div>
-        <h1 className="text-lg font-semibold">Invalid link</h1>
+        <h1 className="text-lg font-semibold">{t('resetPassword.invalidLinkTitle')}</h1>
         <p className="text-secondary text-sm mt-1">
-          This password reset link is missing its token. Request a new one below.
+          {t('resetPassword.invalidLinkMessage')}
         </p>
         <Link to={ROUTES.FORGOT_PASSWORD} className="btn btn-primary btn-block mt-4">
-          Request New Link
+          {t('resetPassword.requestNewLink')}
         </Link>
       </div>
     );
@@ -49,8 +49,8 @@ function ResetPassword() {
 
   return (
     <div>
-      <h1 className="text-lg font-semibold">Reset password</h1>
-      <p className="text-secondary text-sm mt-1 mb-4">Choose a new password for your account.</p>
+      <h1 className="text-lg font-semibold">{t('resetPassword.title')}</h1>
+      <p className="text-secondary text-sm mt-1 mb-4">{t('resetPassword.subtitle')}</p>
 
       {formError && (
         <div className="alert alert-danger mb-4" role="alert">
@@ -61,7 +61,7 @@ function ResetPassword() {
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="form-group">
           <label className="form-label form-label-required" htmlFor="newPassword">
-            New Password
+            {t('resetPassword.newPasswordLabel')}
           </label>
           <input
             id="newPassword"
@@ -69,20 +69,20 @@ function ResetPassword() {
             autoComplete="new-password"
             className={`form-control ${errors.newPassword ? 'form-control-error' : ''}`}
             {...register('newPassword', {
-              required: 'New password is required',
-              pattern: { value: PASSWORD_REGEX, message: PASSWORD_POLICY_MESSAGE },
+              required: t('resetPassword.newPasswordRequired'),
+              pattern: { value: PASSWORD_REGEX, message: t('resetPassword.passwordPolicy') },
             })}
           />
           {errors.newPassword ? (
             <span className="form-error">{errors.newPassword.message}</span>
           ) : (
-            <span className="form-help">{PASSWORD_POLICY_MESSAGE}</span>
+            <span className="form-help">{t('resetPassword.passwordPolicy')}</span>
           )}
         </div>
 
         <div className="form-group">
           <label className="form-label form-label-required" htmlFor="confirmPassword">
-            Confirm Password
+            {t('resetPassword.confirmPasswordLabel')}
           </label>
           <input
             id="confirmPassword"
@@ -90,15 +90,15 @@ function ResetPassword() {
             autoComplete="new-password"
             className={`form-control ${errors.confirmPassword ? 'form-control-error' : ''}`}
             {...register('confirmPassword', {
-              required: 'Please confirm your password',
-              validate: (value) => value === newPassword || 'Passwords do not match',
+              required: t('resetPassword.confirmPasswordRequired'),
+              validate: (value) => value === newPassword || t('resetPassword.passwordMismatch'),
             })}
           />
           {errors.confirmPassword && <span className="form-error">{errors.confirmPassword.message}</span>}
         </div>
 
         <button type="submit" className={`btn btn-primary btn-block ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
-          Reset Password
+          {t('resetPassword.resetButton')}
         </button>
       </form>
     </div>

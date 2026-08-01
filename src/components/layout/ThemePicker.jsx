@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HiOutlineSparkles } from 'react-icons/hi';
 import { FiCheck } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks/useTheme';
 import '../../styles/components/ThemePicker.css';
 
@@ -44,6 +45,7 @@ function ThemeSwatchPreview({ preview }) {
 }
 
 function ThemePicker() {
+  const { t } = useTranslation('navbar');
   const { theme, setTheme, themes } = useTheme();
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -71,7 +73,7 @@ function ThemePicker() {
       <button
         type="button"
         className="navbar-icon-btn"
-        aria-label="Change theme"
+        aria-label={t('themePicker.changeTheme')}
         aria-haspopup="true"
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
@@ -80,10 +82,10 @@ function ThemePicker() {
       </button>
       <AnimatePresence>
         {open && (
-          <motion.div className="theme-picker-panel glass-panel" role="menu" aria-label="Theme picker" {...POPUP_MOTION}>
+          <motion.div className="theme-picker-panel glass-panel" role="menu" aria-label={t('themePicker.changeTheme')} {...POPUP_MOTION}>
             <div className="theme-picker-header">
-              <span className="theme-picker-title">Appearance</span>
-              <span className="theme-picker-subtitle">Choose your theme</span>
+              <span className="theme-picker-title">{t('themePicker.appearance')}</span>
+              <span className="theme-picker-subtitle">{t('themePicker.chooseTheme')}</span>
             </div>
             <div className="theme-picker-options">
               {themes.map((t) => {

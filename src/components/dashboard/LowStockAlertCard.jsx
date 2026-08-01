@@ -1,4 +1,5 @@
 import { FiAlertTriangle } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import EmptyState from '../common/EmptyState';
 import Skeleton from '../common/Skeleton';
 import { formatNumber } from '../../utils/formatCurrency';
@@ -16,17 +17,17 @@ function severityOf(product) {
   return 'caution';
 }
 
-const SEVERITY_LABEL = { critical: 'Out of Stock', warning: 'Critical Low', caution: 'Low Stock' };
-
 function LowStockAlertCard({ products, loading }) {
+  const { t } = useTranslation('dashboard');
+  const SEVERITY_LABEL = { critical: t('lowStock.outOfStock'), warning: t('lowStock.criticalLow'), caution: t('lowStock.lowStockTag') };
   return (
     <div className="card">
-      <div className="card-header"><span className="card-title">Low Stock Alerts</span></div>
+      <div className="card-header"><span className="card-title">{t('lowStock.title')}</span></div>
       <div className="card-body">
         {loading ? (
           <Skeleton height={220} />
         ) : products.length === 0 ? (
-          <EmptyState icon={FiAlertTriangle} title="No low-stock products right now" />
+          <EmptyState icon={FiAlertTriangle} title={t('lowStock.noneRightNow')} />
         ) : (
           <ul className="low-stock-list">
             {products.map((product) => {
@@ -37,7 +38,7 @@ function LowStockAlertCard({ products, loading }) {
                   <div className="low-stock-alert-body">
                     <div className="low-stock-alert-name">{product.product_name}</div>
                     <div className="low-stock-alert-meta">
-                      {product.branch_name} &middot; {formatNumber(product.quantity)} / {formatNumber(product.min_stock)} min
+                      {product.branch_name} &middot; {formatNumber(product.quantity)} / {formatNumber(product.min_stock)} {t('lowStock.min')}
                     </div>
                   </div>
                   <span className="low-stock-alert-tag">{SEVERITY_LABEL[severity]}</span>

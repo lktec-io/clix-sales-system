@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "dashboard": "Dashibodi",
+    "customers": "Wateja",
+    "suppliers": "Wasambazaji",
+    "products": "Bidhaa",
+    "inventory": "Hesabu ya Bidhaa",
+    "purchases": "Manunuzi",
+    "sales": "Mauzo (POS)",
+    "returns": "Marejesho",
+    "expenses": "Matumizi",
+    "reports": "Ripoti",
+    "settings": "Mipangilio"
+  },
+  "logout": "Ondoka",
+  "expandSidebar": "Panua Menyu",
+  "collapseSidebar": "Kunja Menyu"
+}

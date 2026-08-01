@@ -1,0 +1,100 @@
+{
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "print": "Print",
+    "download": "Download",
+    "export": "Export",
+    "create": "Create",
+    "update": "Update",
+    "view": "View",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "add": "Add",
+    "clear": "Clear",
+    "reset": "Reset",
+    "apply": "Apply",
+    "retry": "Retry",
+    "saveChanges": "Save Changes",
+    "select": "Select"
+  },
+  "labels": {
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "name": "Name",
+    "date": "Date",
+    "amount": "Amount",
+    "branch": "Branch",
+    "branches": "Branches",
+    "allBranches": "All Branches",
+    "actionsColumn": "Actions",
+    "yes": "Yes",
+    "no": "No",
+    "total": "Total",
+    "phone": "Phone Number",
+    "email": "Email",
+    "password": "Password",
+    "username": "Username",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "preferNotToSay": "Prefer not to say",
+    "dateFrom": "From Date",
+    "dateTo": "To Date",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "description": "Description",
+    "notes": "Notes",
+    "address": "Address",
+    "optional": "optional"
+  },
+  "table": {
+    "noRecordsFound": "No records found"
+  },
+  "pagination": {
+    "showing": "Showing {{start}}–{{end}} of {{total}}",
+    "pageOf": "Page {{page}} of {{totalPages}}",
+    "previousPage": "Previous page",
+    "nextPage": "Next page"
+  },
+  "confirmDialog": {
+    "areYouSure": "Are you sure?",
+    "cannotBeUndone": "This action cannot be undone."
+  },
+  "state": {
+    "loading": "Loading…",
+    "saving": "Saving…",
+    "processing": "Processing…"
+  },
+  "toast": {
+    "genericError": "Something went wrong. Please try again.",
+    "genericSuccess": "Done.",
+    "dismiss": "Dismiss notification"
+  },
+  "viewToggle": {
+    "groupLabel": "Toggle list or grid view",
+    "listView": "List view",
+    "gridView": "Grid view",
+    "list": "List",
+    "grid": "Grid"
+  },
+  "validation": {
+    "required": "This field is required"
+  },
+  "misc": {
+    "companyLogo": "Company logo",
+    "avatar": "Avatar"
+  }
+}

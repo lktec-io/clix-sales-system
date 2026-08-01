@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import AnimatedCounter from './AnimatedCounter';
 
 // Turns a "#RRGGBB" accent into an "r, g, b" triple so CSS can build
@@ -18,6 +19,7 @@ function hexToRgbTriple(hex) {
 // real day-over-day (or period-over-period) comparison available should
 // show no trend at all rather than a fabricated "0%" or invented direction.
 function KPICard({ icon: Icon, label, value, formatter, subtitle, accent, trend }) {
+  const { t } = useTranslation('dashboard');
   const gradientStyle = accent ? { backgroundImage: `linear-gradient(135deg, var(--color-primary), ${accent})` } : undefined;
   // Each card gets its own identity via one CSS custom property — the
   // background wash, hover glow, and accent bar in cards.css all derive
@@ -36,7 +38,7 @@ function KPICard({ icon: Icon, label, value, formatter, subtitle, accent, trend 
         {subtitle && <div className="kpi-card-subtitle">{subtitle}</div>}
         {trend && (
           <div className={`kpi-card-trend ${trend.direction === 'down' ? 'kpi-card-trend-down' : 'kpi-card-trend-up'}`}>
-            <TrendIcon aria-hidden="true" /> {Math.abs(trend.percent).toFixed(1)}% vs yesterday
+            <TrendIcon aria-hidden="true" /> {t('kpi.trendVsYesterday', { percent: Math.abs(trend.percent).toFixed(1) })}
           </div>
         )}
       </div>

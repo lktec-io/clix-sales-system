@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { FiCheckCircle, FiAlertTriangle, FiXCircle, FiInfo, FiX } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 
 const VARIANT_ICONS = {
   success: FiCheckCircle,
@@ -14,6 +15,7 @@ const VARIANT_ICONS = {
 export const TOAST_DURATION_MS = 4000;
 
 function Toast({ id, variant = 'info', message, onDismiss }) {
+  const { t } = useTranslation('common');
   const Icon = VARIANT_ICONS[variant] || FiInfo;
 
   return (
@@ -30,7 +32,7 @@ function Toast({ id, variant = 'info', message, onDismiss }) {
         <Icon className="toast-icon" aria-hidden="true" />
       </span>
       <span className="toast-message">{message}</span>
-      <button type="button" className="toast-close" onClick={() => onDismiss(id)} aria-label="Dismiss notification">
+      <button type="button" className="toast-close" onClick={() => onDismiss(id)} aria-label={t('toast.dismiss')}>
         <FiX />
       </button>
       <motion.div

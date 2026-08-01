@@ -1,0 +1,21 @@
+{
+  "openMenu": "Fungua Menyu",
+  "closeMenu": "Funga Menyu",
+  "branch": "Tawi",
+  "allBranches": "Matawi Yote",
+  "searchPlaceholder": "Tafuta bidhaa, wateja, mauzo...",
+  "globalSearch": "Tafuta kwa Ujumla",
+  "noMatchesTitle": "Hakuna matokeo bado",
+  "noMatchesDescription": "Kwa sasa utafutaji unahusisha Watumiaji tu.",
+  "user": {
+    "defaultName": "Mtumiaji",
+    "profile": "Wasifu",
+    "settings": "Mipangilio",
+    "logout": "Ondoka"
+  },
+  "themePicker": {
+    "changeTheme": "Badilisha Mandhari",
+    "appearance": "Mwonekano",
+    "chooseTheme": "Chagua Mandhari Yako"
+  }
+}

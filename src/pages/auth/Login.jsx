@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
 import { ROUTES } from '../../constants/routes';
 
 function Login() {
+  const { t } = useTranslation('auth');
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,20 +28,20 @@ function Login() {
       const redirectTo = location.state?.from?.pathname || ROUTES.DASHBOARD;
       navigate(redirectTo, { replace: true });
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Unable to sign in. Please try again.');
+      setFormError(err.response?.data?.message || t('login.genericError'));
     }
   };
 
   return (
     <div>
-      <h1 className="text-lg font-semibold">Welcome back</h1>
+      <h1 className="text-lg font-semibold">{t('login.welcomeBack')}</h1>
       <p className="text-secondary text-sm mt-1 mb-4">
-        Sign in to continue to the Clix Sales System.
+        {t('login.signInSubtitle')}
       </p>
 
       {resetSuccess && !formError && (
         <div className="alert alert-success mb-4" role="status">
-          Your password was reset successfully. Please sign in.
+          {t('login.resetSuccess')}
         </div>
       )}
 
@@ -52,21 +54,21 @@ function Login() {
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="form-group">
           <label className="form-label form-label-required" htmlFor="identifier">
-            Email or Username
+            {t('login.identifierLabel')}
           </label>
           <input
             id="identifier"
             type="text"
             autoComplete="username"
             className={`form-control ${errors.identifier ? 'form-control-error' : ''}`}
-            {...register('identifier', { required: 'Email or username is required' })}
+            {...register('identifier', { required: t('login.identifierRequired') })}
           />
           {errors.identifier && <span className="form-error">{errors.identifier.message}</span>}
         </div>
 
         <div className="form-group">
           <label className="form-label form-label-required" htmlFor="password">
-            Password
+            {t('login.passwordLabel')}
           </label>
           <div className="flex items-center gap-2">
             <input
@@ -74,13 +76,13 @@ function Login() {
               type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
               className={`form-control ${errors.password ? 'form-control-error' : ''}`}
-              {...register('password', { required: 'Password is required' })}
+              {...register('password', { required: t('login.passwordRequired') })}
             />
             <button
               type="button"
               className="btn btn-ghost btn-icon"
               onClick={() => setShowPassword((prev) => !prev)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
             >
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>
@@ -91,15 +93,15 @@ function Login() {
         <div className="flex items-center justify-between mb-4">
           <label className="form-checkbox">
             <input type="checkbox" {...register('rememberMe')} />
-            Remember me
+            {t('login.rememberMe')}
           </label>
           <Link to={ROUTES.FORGOT_PASSWORD} className="text-sm">
-            Forgot password?
+            {t('login.forgotPassword')}
           </Link>
         </div>
 
         <button type="submit" className={`btn btn-primary btn-block ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
-          Sign In
+          {t('login.signIn')}
         </button>
       </form>
     </div>

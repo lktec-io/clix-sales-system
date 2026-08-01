@@ -1,0 +1,12 @@
+{
+  "title": "Notifications",
+  "markAllRead": "Mark All Read",
+  "markAllReadAria": "Mark all as read",
+  "deleteAll": "Delete All",
+  "deleteAllAria": "Delete all notifications",
+  "markAsRead": "Mark as read",
+  "deleteNotification": "Delete notification",
+  "unread": "Unread",
+  "noNewNotifications": "No new notifications",
+  "loading": "Loading"
+}

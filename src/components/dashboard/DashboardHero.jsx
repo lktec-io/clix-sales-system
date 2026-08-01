@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiMapPin } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import '../../styles/components/DashboardHero.css';
 
@@ -15,21 +16,23 @@ function useLiveClock() {
   return now;
 }
 
-function getGreeting(hour) {
-  if (hour < 12) return 'Good Morning';
-  if (hour < 17) return 'Good Afternoon';
-  return 'Good Evening';
-}
-
 function DashboardHero() {
+  const { t, i18n } = useTranslation(['dashboard', 'common']);
   const { user } = useAuth();
   const now = useLiveClock();
 
-  const firstName = user?.first_name || 'there';
-  const branchLabel = user?.branch_name || 'All Branches';
+  function getGreeting(hour) {
+    if (hour < 12) return t('dashboard:hero.goodMorning');
+    if (hour < 17) return t('dashboard:hero.goodAfternoon');
+    return t('dashboard:hero.goodEvening');
+  }
+
+  const firstName = user?.first_name || t('dashboard:hero.guestName');
+  const branchLabel = user?.branch_name || t('common:labels.allBranches');
   const greeting = getGreeting(now.getHours());
-  const dateLabel = now.toLocaleDateString('en-TZ', { weekday: 'short', day: 'numeric', month: 'short' });
-  const timeLabel = now.toLocaleTimeString('en-TZ', { hour: '2-digit', minute: '2-digit' });
+  const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
+  const dateLabel = now.toLocaleDateString(dateLocale, { weekday: 'short', day: 'numeric', month: 'short' });
+  const timeLabel = now.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' });
 
   return (
     <motion.div
@@ -42,8 +45,8 @@ function DashboardHero() {
 
       <motion.div className="dashboard-hero-greeting-block" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.1 }}>
         <span className="dashboard-hero-eyebrow">{greeting}</span>
-        <h1 className="dashboard-hero-title">Welcome back, <span className="dashboard-hero-name">{firstName}</span></h1>
-        <p className="dashboard-hero-subtitle">Here&apos;s what&apos;s happening across your business today.</p>
+        <h1 className="dashboard-hero-title">{t('dashboard:hero.welcomeBack')} <span className="dashboard-hero-name">{firstName}</span></h1>
+        <p className="dashboard-hero-subtitle">{t('dashboard:hero.subtitle')}</p>
       </motion.div>
 
       <div className="dashboard-hero-meta">

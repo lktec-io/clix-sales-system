@@ -2,9 +2,11 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FiX } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import '../../styles/components/Modal.css';
 
 function Modal({ open, onClose, title, children, footer, size = 'md' }) {
+  const { t } = useTranslation('common');
   useEffect(() => {
     if (!open) return undefined;
 
@@ -39,7 +41,7 @@ function Modal({ open, onClose, title, children, footer, size = 'md' }) {
           >
             <div className="modal-header">
               <span className="modal-title">{title}</span>
-              <button type="button" className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Close">
+              <button type="button" className="btn btn-ghost btn-icon" onClick={onClose} aria-label={t('actions.close')}>
                 <FiX />
               </button>
             </div>

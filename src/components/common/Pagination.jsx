@@ -1,6 +1,8 @@
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 
 function Pagination({ page, totalPages, total, limit, onPageChange }) {
+  const { t } = useTranslation('common');
   if (total === 0) return null;
 
   const start = (page - 1) * limit + 1;
@@ -9,7 +11,7 @@ function Pagination({ page, totalPages, total, limit, onPageChange }) {
   return (
     <div className="table-pagination">
       <span>
-        Showing {start}–{end} of {total}
+        {t('pagination.showing', { start, end, total })}
       </span>
       <div className="flex items-center gap-2">
         <button
@@ -17,19 +19,19 @@ function Pagination({ page, totalPages, total, limit, onPageChange }) {
           className="btn btn-secondary btn-sm btn-icon"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          aria-label="Previous page"
+          aria-label={t('pagination.previousPage')}
         >
           <FiChevronLeft />
         </button>
         <span className="pagination-indicator">
-          Page {page} of {Math.max(totalPages, 1)}
+          {t('pagination.pageOf', { page, totalPages: Math.max(totalPages, 1) })}
         </span>
         <button
           type="button"
           className="btn btn-secondary btn-sm btn-icon"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          aria-label="Next page"
+          aria-label={t('pagination.nextPage')}
         >
           <FiChevronRight />
         </button>

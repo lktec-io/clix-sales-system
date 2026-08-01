@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ROUTES } from '../../constants/routes';
 import * as authService from '../../services/authService';
 
 function ForgotPassword() {
+  const { t } = useTranslation('auth');
   const [sent, setSent] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -20,19 +22,19 @@ function ForgotPassword() {
       await authService.forgotPassword(email);
       setSent(true);
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      setFormError(err.response?.data?.message || t('forgotPassword.genericError'));
     }
   };
 
   if (sent) {
     return (
       <div>
-        <h1 className="text-lg font-semibold">Check your email</h1>
+        <h1 className="text-lg font-semibold">{t('forgotPassword.checkEmailTitle')}</h1>
         <p className="text-secondary text-sm mt-1">
-          If an account exists for that address, we&apos;ve sent a link to reset your password.
+          {t('forgotPassword.checkEmailMessage')}
         </p>
         <Link to={ROUTES.LOGIN} className="btn btn-secondary btn-block mt-4">
-          Back to Sign In
+          {t('forgotPassword.backToSignIn')}
         </Link>
       </div>
     );
@@ -40,9 +42,9 @@ function ForgotPassword() {
 
   return (
     <div>
-      <h1 className="text-lg font-semibold">Forgot password</h1>
+      <h1 className="text-lg font-semibold">{t('forgotPassword.title')}</h1>
       <p className="text-secondary text-sm mt-1 mb-4">
-        Enter your account email and we&apos;ll send you a reset link.
+        {t('forgotPassword.subtitle')}
       </p>
 
       {formError && (
@@ -54,7 +56,7 @@ function ForgotPassword() {
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="form-group">
           <label className="form-label form-label-required" htmlFor="email">
-            Email
+            {t('forgotPassword.emailLabel')}
           </label>
           <input
             id="email"
@@ -62,19 +64,19 @@ function ForgotPassword() {
             autoComplete="email"
             className={`form-control ${errors.email ? 'form-control-error' : ''}`}
             {...register('email', {
-              required: 'Email is required',
-              pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email address' },
+              required: t('forgotPassword.emailRequired'),
+              pattern: { value: /^\S+@\S+\.\S+$/, message: t('forgotPassword.emailInvalid') },
             })}
           />
           {errors.email && <span className="form-error">{errors.email.message}</span>}
         </div>
 
         <button type="submit" className={`btn btn-primary btn-block ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
-          Send Reset Link
+          {t('forgotPassword.sendResetLink')}
         </button>
 
         <Link to={ROUTES.LOGIN} className="btn btn-ghost btn-block mt-2">
-          Back to Sign In
+          {t('forgotPassword.backToSignIn')}
         </Link>
       </form>
     </div>

@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useCompany } from '../hooks/useCompany';
 import PageTransition from '../components/common/PageTransition';
 import '../styles/pages/AuthLayout.css';
 
 function AuthLayout() {
+  const { t } = useTranslation('auth');
   const { company } = useCompany();
   const companyName = company?.company_name || 'Clix';
 
@@ -29,7 +31,7 @@ function AuthLayout() {
           ) : (
             <span className="auth-brand-mark">{companyName}</span>
           )}
-          <span className="auth-brand-sub">Sales Management System</span>
+          <span className="auth-brand-sub">{t('brand.tagline')}</span>
         </div>
         <PageTransition />
       </div>

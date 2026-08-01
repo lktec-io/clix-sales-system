@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import {
   FiGrid, FiUserCheck, FiTruck,
   FiBox, FiArchive, FiShoppingCart, FiDollarSign, FiRotateCcw,
@@ -47,24 +48,29 @@ const NAV_LABEL_VARIANT = {
 // RequirePermission guards use — a role only sees the modules its seeded
 // permissions actually unlock. Dashboard has no gate: every role is seeded
 // with dashboard.view.
-const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', icon: FiGrid, end: true },
-  { to: '/customers', label: 'Customers', icon: FiUserCheck, requiredPermission: 'customers.view' },
-  { to: '/suppliers', label: 'Suppliers', icon: FiTruck, requiredPermission: 'suppliers.view' },
-  { to: '/products', label: 'Products', icon: FiBox, requiredPermission: 'products.view' },
-  { to: '/inventory', label: 'Inventory', icon: FiArchive, requiredPermission: 'inventory.view' },
-  { to: '/purchases', label: 'Purchases', icon: FiShoppingCart, requiredPermission: 'purchases.view' },
-  { to: '/pos', label: 'Sales (POS)', icon: FiDollarSign, requiredPermission: 'sales.view' },
-  { to: '/returns', label: 'Returns', icon: FiRotateCcw, requiredPermission: 'returns.view' },
-  { to: '/expenses', label: 'Expenses', icon: FiDollarSign, requiredPermission: 'expenses.view' },
-  { to: '/reports', label: 'Reports', icon: FiBarChart2, requiredPermission: 'reports.view' },
-  { to: '/settings/company', label: 'Settings', icon: FiSettings, requiredPermission: ['company.manage', 'settings.view'] },
-];
+function useNavItems() {
+  const { t } = useTranslation('sidebar');
+  return [
+    { to: '/', label: t('nav.dashboard'), icon: FiGrid, end: true },
+    { to: '/customers', label: t('nav.customers'), icon: FiUserCheck, requiredPermission: 'customers.view' },
+    { to: '/suppliers', label: t('nav.suppliers'), icon: FiTruck, requiredPermission: 'suppliers.view' },
+    { to: '/products', label: t('nav.products'), icon: FiBox, requiredPermission: 'products.view' },
+    { to: '/inventory', label: t('nav.inventory'), icon: FiArchive, requiredPermission: 'inventory.view' },
+    { to: '/purchases', label: t('nav.purchases'), icon: FiShoppingCart, requiredPermission: 'purchases.view' },
+    { to: '/pos', label: t('nav.sales'), icon: FiDollarSign, requiredPermission: 'sales.view' },
+    { to: '/returns', label: t('nav.returns'), icon: FiRotateCcw, requiredPermission: 'returns.view' },
+    { to: '/expenses', label: t('nav.expenses'), icon: FiDollarSign, requiredPermission: 'expenses.view' },
+    { to: '/reports', label: t('nav.reports'), icon: FiBarChart2, requiredPermission: 'reports.view' },
+    { to: '/settings/company', label: t('nav.settings'), icon: FiSettings, requiredPermission: ['company.manage', 'settings.view'] },
+  ];
+}
 
 function Sidebar({ collapsed, onToggle, onNavigate, isOpen }) {
+  const { t } = useTranslation('sidebar');
   const { logout, hasPermission } = useAuth();
   const { company } = useCompany();
   const navigate = useNavigate();
+  const NAV_ITEMS = useNavItems();
   const companyName = company?.company_name || 'Clix';
 
   // Plain function call, not the usePermission() hook — this runs once per
@@ -168,13 +174,13 @@ function Sidebar({ collapsed, onToggle, onNavigate, isOpen }) {
       <div className="sidebar-footer">
         <button type="button" className="sidebar-link sidebar-logout" onClick={handleLogout}>
           <FiLogOut className="sidebar-link-icon" aria-hidden="true" />
-          {!collapsed && <span className="sidebar-link-label">Logout</span>}
+          {!collapsed && <span className="sidebar-link-label">{t('logout')}</span>}
         </button>
         <button
           type="button"
           className="sidebar-collapse-toggle"
           onClick={onToggle}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={collapsed ? t('expandSidebar') : t('collapseSidebar')}
         >
           {collapsed ? <FiChevronsRight /> : <FiChevronsLeft />}
         </button>

@@ -1,0 +1,100 @@
+{
+  "actions": {
+    "save": "Hifadhi",
+    "cancel": "Ghairi",
+    "delete": "Futa",
+    "edit": "Hariri",
+    "search": "Tafuta",
+    "filter": "Chuja",
+    "print": "Chapisha",
+    "download": "Pakua",
+    "export": "Hamisha",
+    "create": "Unda",
+    "update": "Sasisha",
+    "view": "Angalia",
+    "close": "Funga",
+    "confirm": "Thibitisha",
+    "back": "Rudi",
+    "next": "Ijayo",
+    "previous": "Iliyotangulia",
+    "submit": "Wasilisha",
+    "add": "Ongeza",
+    "clear": "Futa Vichujio",
+    "reset": "Rejesha",
+    "apply": "Tumia",
+    "retry": "Jaribu Tena",
+    "saveChanges": "Hifadhi Mabadiliko",
+    "select": "Chagua"
+  },
+  "labels": {
+    "status": "Hali",
+    "active": "Hai",
+    "inactive": "Haifanyi Kazi",
+    "name": "Jina",
+    "date": "Tarehe",
+    "amount": "Kiasi",
+    "branch": "Tawi",
+    "branches": "Matawi",
+    "allBranches": "Matawi Yote",
+    "actionsColumn": "Vitendo",
+    "yes": "Ndiyo",
+    "no": "Hapana",
+    "total": "Jumla",
+    "phone": "Namba ya Simu",
+    "email": "Barua Pepe",
+    "password": "Nenosiri",
+    "username": "Jina la Mtumiaji",
+    "firstName": "Jina la Kwanza",
+    "lastName": "Jina la Ukoo",
+    "gender": "Jinsia",
+    "male": "Kiume",
+    "female": "Kike",
+    "other": "Nyingine",
+    "preferNotToSay": "Sipendi Kusema",
+    "dateFrom": "Kuanzia Tarehe",
+    "dateTo": "Hadi Tarehe",
+    "createdAt": "Ilitengenezwa",
+    "updatedAt": "Ilisasishwa",
+    "description": "Maelezo",
+    "notes": "Maelezo Zaidi",
+    "address": "Anwani",
+    "optional": "hiari"
+  },
+  "table": {
+    "noRecordsFound": "Hakuna rekodi zilizopatikana"
+  },
+  "pagination": {
+    "showing": "Inaonyesha {{start}}–{{end}} kati ya {{total}}",
+    "pageOf": "Ukurasa {{page}} kati ya {{totalPages}}",
+    "previousPage": "Ukurasa uliopita",
+    "nextPage": "Ukurasa unaofuata"
+  },
+  "confirmDialog": {
+    "areYouSure": "Una uhakika?",
+    "cannotBeUndone": "Kitendo hiki hakiwezi kutenduliwa."
+  },
+  "state": {
+    "loading": "Inapakia…",
+    "saving": "Inahifadhi…",
+    "processing": "Inachakata…"
+  },
+  "toast": {
+    "genericError": "Hitilafu imetokea. Tafadhali jaribu tena.",
+    "genericSuccess": "Imekamilika.",
+    "dismiss": "Ondoa Arifa"
+  },
+  "viewToggle": {
+    "groupLabel": "Badilisha mwonekano wa orodha au gridi",
+    "listView": "Mwonekano wa Orodha",
+    "gridView": "Mwonekano wa Gridi",
+    "list": "Orodha",
+    "grid": "Gridi"
+  },
+  "validation": {
+    "required": "Sehemu hii inahitajika"
+  },
+  "misc": {
+    "companyLogo": "Nembo ya Kampuni",
+    "avatar": "Picha ya Wasifu"
+  }
+}

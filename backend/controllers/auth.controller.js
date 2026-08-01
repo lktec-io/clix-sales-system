@@ -89,6 +89,11 @@ export const updateProfile = asyncHandler(async (req, res) => {
   return success(res, { message: 'Profile updated', data: user });
 });
 
+export const updateLanguage = asyncHandler(async (req, res) => {
+  const user = await authService.updateLanguagePreference(req.user.id, req.body.preferredLanguage);
+  return success(res, { message: 'Language updated', data: user });
+});
+
 export const uploadProfileAvatar = asyncHandler(async (req, res) => {
   if (!req.file) {
     throw new ApiError(400, 'No avatar file uploaded');

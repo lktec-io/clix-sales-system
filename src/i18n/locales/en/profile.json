@@ -1,0 +1,42 @@
+{
+  "page": {
+    "title": "My Profile",
+    "subtitle": "Update your personal information and password"
+  },
+  "avatar": {
+    "upload": "Upload Avatar",
+    "hint": "JPG, PNG or WEBP, up to 2MB.",
+    "uploadSuccess": "Avatar updated successfully.",
+    "uploadError": "Failed to upload avatar."
+  },
+  "personalInfo": {
+    "title": "Personal Information",
+    "saveButton": "Save Profile",
+    "updateSuccess": "Profile updated successfully.",
+    "updateError": "Failed to update profile."
+  },
+  "validation": {
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "phoneRequired": "Phone number is required"
+  },
+  "password": {
+    "title": "Change Password",
+    "current": "Current Password",
+    "new": "New Password",
+    "confirm": "Confirm New Password",
+    "changeButton": "Change Password",
+    "currentRequired": "Current password is required",
+    "newRequired": "New password is required",
+    "policyMessage": "Must be at least 8 characters with an uppercase letter, lowercase letter, number and symbol",
+    "confirmRequired": "Please confirm your new password",
+    "mismatch": "Passwords do not match",
+    "changeSuccess": "Password changed. You will be signed out shortly.",
+    "changeError": "Failed to change password."
+  },
+  "language": {
+    "title": "Language",
+    "subtitle": "Choose your preferred language for the app",
+    "syncError": "Could not save your language preference. It will still apply on this device."
+  }
+}

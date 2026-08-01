@@ -1,14 +1,18 @@
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { FiUpload } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
+import { FiUpload, FiCheck } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
+import { useLanguage } from '../../hooks/useLanguage';
 import * as authService from '../../services/authService';
 import '../../styles/pages/CompanySettings.css';
 
 function Profile() {
+  const { t } = useTranslation(['profile', 'common']);
   const { user, updateUser, logout } = useAuth();
+  const { language, setLanguage, languages } = useLanguage();
   const navigate = useNavigate();
   const toast = useToast();
   const fileInputRef = useRef(null);
@@ -35,9 +39,9 @@ function Profile() {
     try {
       const updated = await authService.updateProfile(values);
       updateUser(updated);
-      toast.success('Profile updated successfully.');
+      toast.success(t('profile:personalInfo.updateSuccess'));
     } catch (err) {
-      setProfileError(err.response?.data?.message || 'Failed to update profile.');
+      setProfileError(err.response?.data?.message || t('profile:personalInfo.updateError'));
     }
   };
 
@@ -51,9 +55,9 @@ function Profile() {
       const updated = await authService.uploadProfileAvatar(file);
       setAvatarPath(updated.avatar_path);
       updateUser(updated);
-      toast.success('Avatar updated successfully.');
+      toast.success(t('profile:avatar.uploadSuccess'));
     } catch (err) {
-      setProfileError(err.response?.data?.message || 'Failed to upload avatar.');
+      setProfileError(err.response?.data?.message || t('profile:avatar.uploadError'));
     } finally {
       setUploadingAvatar(false);
       event.target.value = '';
@@ -64,14 +68,14 @@ function Profile() {
     setPasswordError('');
     try {
       await authService.changePassword({ currentPassword: values.currentPassword, newPassword: values.newPassword });
-      toast.success('Password changed. You will be signed out shortly.');
+      toast.success(t('profile:password.changeSuccess'));
       passwordForm.reset();
       setTimeout(async () => {
         await logout();
         navigate('/login', { replace: true });
       }, 2000);
     } catch (err) {
-      setPasswordError(err.response?.data?.message || 'Failed to change password.');
+      setPasswordError(err.response?.data?.message || t('profile:password.changeError'));
     }
   };
 
@@ -79,8 +83,8 @@ function Profile() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">My Profile</h1>
-          <p className="page-subtitle">Update your personal information and password</p>
+          <h1 className="page-title">{t('profile:page.title')}</h1>
+          <p className="page-subtitle">{t('profile:page.subtitle')}</p>
         </div>
       </div>
 
@@ -89,7 +93,7 @@ function Profile() {
       <div className="card mb-5">
         <div className="card-body flex items-center gap-4">
           <div className="avatar-preview">
-            {avatarPath ? <img src={avatarPath} alt="Avatar" loading="lazy" /> : <span className="company-logo-placeholder">{user?.first_name?.charAt(0).toUpperCase()}</span>}
+            {avatarPath ? <img src={avatarPath} alt={t('common:misc.avatar')} loading="lazy" /> : <span className="company-logo-placeholder">{user?.first_name?.charAt(0).toUpperCase()}</span>}
           </div>
           <div>
             <input
@@ -105,54 +109,54 @@ function Profile() {
               disabled={uploadingAvatar}
               onClick={() => fileInputRef.current?.click()}
             >
-              <FiUpload aria-hidden="true" /> Upload Avatar
+              <FiUpload aria-hidden="true" /> {t('profile:avatar.upload')}
             </button>
-            <p className="form-help mt-2">JPG, PNG or WEBP, up to 2MB.</p>
+            <p className="form-help mt-2">{t('profile:avatar.hint')}</p>
           </div>
         </div>
       </div>
 
       <form onSubmit={profileForm.handleSubmit(onSubmitProfile)} noValidate>
         <div className="card mb-5">
-          <div className="card-header"><span className="card-title">Personal Information</span></div>
+          <div className="card-header"><span className="card-title">{t('profile:personalInfo.title')}</span></div>
           <div className="card-body">
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label form-label-required" htmlFor="firstName">First Name</label>
+                <label className="form-label form-label-required" htmlFor="firstName">{t('common:labels.firstName')}</label>
                 <input
                   id="firstName"
                   className={`form-control ${profileForm.formState.errors.firstName ? 'form-control-error' : ''}`}
-                  {...profileForm.register('firstName', { required: 'First name is required' })}
+                  {...profileForm.register('firstName', { required: t('profile:validation.firstNameRequired') })}
                 />
                 {profileForm.formState.errors.firstName && <span className="form-error">{profileForm.formState.errors.firstName.message}</span>}
               </div>
               <div className="form-group">
-                <label className="form-label form-label-required" htmlFor="lastName">Last Name</label>
+                <label className="form-label form-label-required" htmlFor="lastName">{t('common:labels.lastName')}</label>
                 <input
                   id="lastName"
                   className={`form-control ${profileForm.formState.errors.lastName ? 'form-control-error' : ''}`}
-                  {...profileForm.register('lastName', { required: 'Last name is required' })}
+                  {...profileForm.register('lastName', { required: t('profile:validation.lastNameRequired') })}
                 />
                 {profileForm.formState.errors.lastName && <span className="form-error">{profileForm.formState.errors.lastName.message}</span>}
               </div>
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label form-label-required" htmlFor="phone">Phone Number</label>
+                <label className="form-label form-label-required" htmlFor="phone">{t('common:labels.phone')}</label>
                 <input
                   id="phone"
                   className={`form-control ${profileForm.formState.errors.phone ? 'form-control-error' : ''}`}
-                  {...profileForm.register('phone', { required: 'Phone number is required' })}
+                  {...profileForm.register('phone', { required: t('profile:validation.phoneRequired') })}
                 />
                 {profileForm.formState.errors.phone && <span className="form-error">{profileForm.formState.errors.phone.message}</span>}
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="gender">Gender</label>
+                <label className="form-label" htmlFor="gender">{t('common:labels.gender')}</label>
                 <select id="gender" className="form-control" {...profileForm.register('gender')}>
-                  <option value="">Prefer not to say</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
+                  <option value="">{t('common:labels.preferNotToSay')}</option>
+                  <option value="male">{t('common:labels.male')}</option>
+                  <option value="female">{t('common:labels.female')}</option>
+                  <option value="other">{t('common:labels.other')}</option>
                 </select>
               </div>
             </div>
@@ -160,53 +164,79 @@ function Profile() {
         </div>
         <div className="form-actions">
           <button type="submit" className={`btn btn-primary ${profileForm.formState.isSubmitting ? 'btn-loading' : ''}`} disabled={profileForm.formState.isSubmitting}>
-            Save Profile
+            {t('profile:personalInfo.saveButton')}
           </button>
         </div>
       </form>
+
+      <div className="card mb-5 mt-5">
+        <div className="card-header">
+          <span className="card-title">{t('profile:language.title')}</span>
+        </div>
+        <div className="card-body">
+          <p className="text-secondary text-sm mb-4">{t('profile:language.subtitle')}</p>
+          <div className="flex flex-wrap gap-3">
+            {languages.map((option) => {
+              const isActive = language === option.code;
+              return (
+                <button
+                  key={option.code}
+                  type="button"
+                  className={`btn ${isActive ? 'btn-primary' : 'btn-secondary'}`}
+                  aria-pressed={isActive}
+                  onClick={() => setLanguage(option.code)}
+                >
+                  <span aria-hidden="true">{option.flag}</span> {option.label}
+                  {isActive && <FiCheck aria-hidden="true" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
       {passwordError && <div className="alert alert-danger mb-4 mt-5" role="alert">{passwordError}</div>}
 
       <form onSubmit={passwordForm.handleSubmit(onSubmitPassword)} noValidate className="mt-5">
         <div className="card mb-5">
-          <div className="card-header"><span className="card-title">Change Password</span></div>
+          <div className="card-header"><span className="card-title">{t('profile:password.title')}</span></div>
           <div className="card-body">
             <div className="form-group">
-              <label className="form-label form-label-required" htmlFor="currentPassword">Current Password</label>
+              <label className="form-label form-label-required" htmlFor="currentPassword">{t('profile:password.current')}</label>
               <input
                 id="currentPassword"
                 type="password"
                 className={`form-control ${passwordForm.formState.errors.currentPassword ? 'form-control-error' : ''}`}
-                {...passwordForm.register('currentPassword', { required: 'Current password is required' })}
+                {...passwordForm.register('currentPassword', { required: t('profile:password.currentRequired') })}
               />
               {passwordForm.formState.errors.currentPassword && <span className="form-error">{passwordForm.formState.errors.currentPassword.message}</span>}
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label form-label-required" htmlFor="newPassword">New Password</label>
+                <label className="form-label form-label-required" htmlFor="newPassword">{t('profile:password.new')}</label>
                 <input
                   id="newPassword"
                   type="password"
                   className={`form-control ${passwordForm.formState.errors.newPassword ? 'form-control-error' : ''}`}
                   {...passwordForm.register('newPassword', {
-                    required: 'New password is required',
+                    required: t('profile:password.newRequired'),
                     pattern: {
                       value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
-                      message: 'Must be at least 8 characters with an uppercase letter, lowercase letter, number and symbol',
+                      message: t('profile:password.policyMessage'),
                     },
                   })}
                 />
                 {passwordForm.formState.errors.newPassword && <span className="form-error">{passwordForm.formState.errors.newPassword.message}</span>}
               </div>
               <div className="form-group">
-                <label className="form-label form-label-required" htmlFor="confirmPassword">Confirm New Password</label>
+                <label className="form-label form-label-required" htmlFor="confirmPassword">{t('profile:password.confirm')}</label>
                 <input
                   id="confirmPassword"
                   type="password"
                   className={`form-control ${passwordForm.formState.errors.confirmPassword ? 'form-control-error' : ''}`}
                   {...passwordForm.register('confirmPassword', {
-                    required: 'Please confirm your new password',
-                    validate: (value) => value === newPassword || 'Passwords do not match',
+                    required: t('profile:password.confirmRequired'),
+                    validate: (value) => value === newPassword || t('profile:password.mismatch'),
                   })}
                 />
                 {passwordForm.formState.errors.confirmPassword && <span className="form-error">{passwordForm.formState.errors.confirmPassword.message}</span>}
@@ -216,7 +246,7 @@ function Profile() {
         </div>
         <div className="form-actions">
           <button type="submit" className={`btn btn-primary ${passwordForm.formState.isSubmitting ? 'btn-loading' : ''}`} disabled={passwordForm.formState.isSubmitting}>
-            Change Password
+            {t('profile:password.changeButton')}
           </button>
         </div>
       </form>

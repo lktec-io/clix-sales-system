@@ -25,6 +25,10 @@ export const updateProfileValidator = [
   body('phone').trim().notEmpty().withMessage('Phone number is required').isLength({ max: 20 }),
 ];
 
+export const updateLanguageValidator = [
+  body('preferredLanguage').trim().notEmpty().withMessage('Language is required').isIn(['en', 'sw']).withMessage('Unsupported language'),
+];
+
 export const changePasswordValidator = [
   body('currentPassword').notEmpty().withMessage('Current password is required'),
   body('newPassword')

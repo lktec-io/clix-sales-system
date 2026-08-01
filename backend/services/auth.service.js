@@ -248,6 +248,11 @@ export async function updateOwnProfile(userId, data) {
   return withPermissions(user);
 }
 
+export async function updateLanguagePreference(userId, preferredLanguage) {
+  const user = await userRepository.updatePreferredLanguage(userId, preferredLanguage);
+  return withPermissions(user);
+}
+
 // Unlike an admin resetting someone else's password (no current-password
 // check, gated by users.edit), changing your own password requires proving
 // you know the old one. Revokes every session afterward — the same

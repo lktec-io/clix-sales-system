@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { ROUTES } from '../../constants/routes';
 
 function SessionExpired() {
+  const { t } = useTranslation('auth');
   const { acknowledgeSessionExpired } = useAuth();
   const navigate = useNavigate();
 
@@ -13,12 +15,12 @@ function SessionExpired() {
 
   return (
     <div>
-      <h1 className="text-lg font-semibold">Session expired</h1>
+      <h1 className="text-lg font-semibold">{t('sessionExpired.title')}</h1>
       <p className="text-secondary text-sm mt-1 mb-4">
-        For your security, you&apos;ve been signed out due to inactivity. Please sign in again to continue.
+        {t('sessionExpired.message')}
       </p>
       <button type="button" className="btn btn-primary btn-block" onClick={handleLoginAgain}>
-        Log In Again
+        {t('sessionExpired.loginAgain')}
       </button>
     </div>
   );

@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "customers": "Customers",
+    "suppliers": "Suppliers",
+    "products": "Products",
+    "inventory": "Inventory",
+    "purchases": "Purchases",
+    "sales": "Sales (POS)",
+    "returns": "Returns",
+    "expenses": "Expenses",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "logout": "Logout",
+  "expandSidebar": "Expand sidebar",
+  "collapseSidebar": "Collapse sidebar"
+}

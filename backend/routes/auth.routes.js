@@ -9,6 +9,7 @@ import {
   forgotPasswordValidator,
   resetPasswordValidator,
   updateProfileValidator,
+  updateLanguageValidator,
   changePasswordValidator,
 } from '../validators/auth.validator.js';
 
@@ -25,6 +26,7 @@ router.get('/me', authenticate, authController.me);
 router.get('/sessions', authenticate, authController.sessions);
 router.delete('/sessions/:id', authenticate, authController.revokeSession);
 router.put('/profile', authenticate, updateProfileValidator, validateRequest, authController.updateProfile);
+router.patch('/language', authenticate, updateLanguageValidator, validateRequest, authController.updateLanguage);
 router.post('/profile/avatar', authenticate, avatarUploader.single('avatar'), authController.uploadProfileAvatar);
 router.patch('/change-password', authenticate, changePasswordValidator, validateRequest, authController.changePassword);
 

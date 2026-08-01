@@ -1,0 +1,21 @@
+{
+  "openMenu": "Open menu",
+  "closeMenu": "Close menu",
+  "branch": "Branch",
+  "allBranches": "All Branches",
+  "searchPlaceholder": "Search products, customers, sales...",
+  "globalSearch": "Global search",
+  "noMatchesTitle": "No matches yet",
+  "noMatchesDescription": "Search currently covers Users only.",
+  "user": {
+    "defaultName": "User",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "themePicker": {
+    "changeTheme": "Change theme",
+    "appearance": "Appearance",
+    "chooseTheme": "Choose your theme"
+  }
+}

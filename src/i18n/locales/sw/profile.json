@@ -1,0 +1,42 @@
+{
+  "page": {
+    "title": "Wasifu Wangu",
+    "subtitle": "Sasisha taarifa zako binafsi na nenosiri"
+  },
+  "avatar": {
+    "upload": "Pakia Picha",
+    "hint": "JPG, PNG au WEBP, hadi 2MB.",
+    "uploadSuccess": "Picha imesasishwa kikamilifu.",
+    "uploadError": "Imeshindwa kupakia picha."
+  },
+  "personalInfo": {
+    "title": "Taarifa Binafsi",
+    "saveButton": "Hifadhi Wasifu",
+    "updateSuccess": "Wasifu umesasishwa kikamilifu.",
+    "updateError": "Imeshindwa kusasisha wasifu."
+  },
+  "validation": {
+    "firstNameRequired": "Jina la kwanza linahitajika",
+    "lastNameRequired": "Jina la ukoo linahitajika",
+    "phoneRequired": "Namba ya simu inahitajika"
+  },
+  "password": {
+    "title": "Badilisha Nenosiri",
+    "current": "Nenosiri la Sasa",
+    "new": "Nenosiri Jipya",
+    "confirm": "Thibitisha Nenosiri Jipya",
+    "changeButton": "Badilisha Nenosiri",
+    "currentRequired": "Nenosiri la sasa linahitajika",
+    "newRequired": "Nenosiri jipya linahitajika",
+    "policyMessage": "Lazima liwe na herufi 8 au zaidi, likijumuisha herufi kubwa, herufi ndogo, namba na alama maalum",
+    "confirmRequired": "Tafadhali thibitisha nenosiri lako jipya",
+    "mismatch": "Manenosiri hayafanani",
+    "changeSuccess": "Nenosiri limebadilishwa. Utatoka kwenye mfumo hivi karibuni.",
+    "changeError": "Imeshindwa kubadilisha nenosiri."
+  },
+  "language": {
+    "title": "Lugha",
+    "subtitle": "Chagua lugha unayopendelea kutumia kwenye mfumo",
+    "syncError": "Imeshindwa kuhifadhi mapendeleo yako ya lugha. Bado yatatumika kwenye kifaa hiki."
+  }
+}
