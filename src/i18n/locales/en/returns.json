@@ -1,1 +1,118 @@
-{}
+{
+  "list": {
+    "title": "Returns",
+    "subtitle": "Customer returns and refunds against completed sales",
+    "newReturn": "New Return",
+    "searchPlaceholder": "Search by return or sale number...",
+    "emptyMessage": "No returns recorded yet",
+    "viewReturnAria": "View return",
+    "walkIn": "Walk-in"
+  },
+  "form": {
+    "title": "New Return",
+    "subtitle": "Locate the original sale, choose items to return, and set a reason and refund method",
+    "locateSale": "Locate Original Sale",
+    "saleQueryLabel": "Receipt Number, Barcode, or Product Name",
+    "saleQueryPlaceholder": "e.g. SAL-2026-000001, a barcode, or a product name",
+    "findSale": "Find Sale",
+    "searchPrompt": "Search for a sale number to begin.",
+    "changeSale": "Change Sale",
+    "returnItemAria": "Return {{name}}",
+    "returnDetails": "Return Details",
+    "reason": "Reason",
+    "refundMethod": "Refund Method",
+    "cancel": "Cancel",
+    "approveReturn": "Approve Return",
+    "submitRequest": "Submit Return Request",
+    "walkIn": "Walk-in",
+    "reasons": {
+      "damaged": "Damaged Product",
+      "wrongItem": "Wrong Product Issued",
+      "changedMind": "Customer Changed Mind",
+      "expired": "Expired Product",
+      "other": "Other"
+    },
+    "refundMethods": {
+      "cash": "Cash",
+      "mpesa": "M-Pesa",
+      "airtelMoney": "Airtel Money",
+      "bankTransfer": "Bank Transfer"
+    },
+    "toast": {
+      "selectAtLeastOneItem": "Select at least one item to return",
+      "approvedSuccess": "Return approved — inventory and reports updated.",
+      "submittedSuccess": "Return request submitted for approval.",
+      "createFailed": "Failed to create the return request."
+    }
+  },
+  "detail": {
+    "backToReturns": "Back to Returns",
+    "againstSale": "Against sale {{saleNumber}}",
+    "reject": "Reject",
+    "approve": "Approve",
+    "status": "Status",
+    "reason": "Reason",
+    "customer": "Customer",
+    "walkIn": "Walk-in",
+    "requestedBy": "Requested By",
+    "approvedBy": "Approved By",
+    "rejectedBy": "Rejected By",
+    "returnedItems": "Returned Items",
+    "refund": "Refund",
+    "refundAmount": "Refund Amount",
+    "refundMethod": "Refund Method",
+    "refundStatus": "Refund Status",
+    "approveDialogTitle": "Approve Return",
+    "approveDialogMessage": "Approving will restore stock for the returned items and mark the refund as issued.",
+    "approveConfirm": "Approve",
+    "rejectDialogTitle": "Reject Return",
+    "rejectDialogMessage": "Rejecting this return will not move any stock or issue a refund. This cannot be undone.",
+    "rejectConfirm": "Reject",
+    "toast": {
+      "approved": "Return approved.",
+      "approveFailed": "Failed to approve return.",
+      "rejected": "Return rejected.",
+      "rejectFailed": "Failed to reject return."
+    }
+  },
+  "columns": {
+    "returnNumber": "Return #",
+    "originalSale": "Original Sale",
+    "customer": "Customer",
+    "reason": "Reason",
+    "refund": "Refund",
+    "date": "Date",
+    "status": "Status",
+    "product": "Product",
+    "quantity": "Quantity",
+    "soldQty": "Sold Qty",
+    "currentStock": "Current Stock",
+    "returnQty": "Return Qty",
+    "unitPrice": "Unit Price",
+    "saleNumber": "Sale #",
+    "amount": "Amount",
+    "branch": "Branch"
+  },
+  "reasons": {
+    "damaged": "Damaged Product",
+    "wrongItem": "Wrong Product Issued",
+    "changedMind": "Changed Mind",
+    "expired": "Expired Product",
+    "other": "Other"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "refundMethod": {
+    "cash": "Cash",
+    "mpesa": "M-Pesa",
+    "airtelMoney": "Airtel Money",
+    "bankTransfer": "Bank Transfer"
+  },
+  "refundStatus": {
+    "refunded": "Refunded",
+    "pending": "Pending"
+  }
+}

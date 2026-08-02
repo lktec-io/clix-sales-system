@@ -1,1 +1,101 @@
-{}
+{
+  "list": {
+    "title": "Manunuzi",
+    "subtitle": "Oda za ununuzi zilizopokelewa kutoka kwa wasambazaji",
+    "importExcel": "Leta Faili la Excel",
+    "newPurchase": "Ununuzi Mpya",
+    "searchPlaceholder": "Tafuta kwa namba ya ununuzi...",
+    "emptyMessage": "Hakuna manunuzi yaliyorekodiwa bado",
+    "viewPurchase": "Angalia ununuzi"
+  },
+  "columns": {
+    "purchaseNumber": "Namba ya Ununuzi",
+    "supplier": "Msambazaji",
+    "branch": "Tawi",
+    "amount": "Kiasi",
+    "date": "Tarehe",
+    "status": "Hali"
+  },
+  "statusOptions": {
+    "pending": "Inasubiri",
+    "received": "Imepokelewa",
+    "cancelled": "Imeghairiwa"
+  },
+  "itemColumns": {
+    "product": "Bidhaa",
+    "quantity": "Idadi",
+    "buyingPrice": "Bei ya Ununuzi",
+    "lineTotal": "Jumla ya Mstari"
+  },
+  "form": {
+    "newTitle": "Ununuzi Mpya",
+    "newSubtitle": "Pokea bidhaa kutoka kwa msambazaji — hesabu ya bidhaa itasasishwa moja kwa moja baada ya kuhifadhi",
+    "detailsTitle": "Taarifa za Ununuzi",
+    "supplierLabel": "Msambazaji",
+    "supplierRequired": "Msambazaji anahitajika",
+    "selectSupplier": "Chagua msambazaji",
+    "branchLabel": "Tawi Litakalopokea",
+    "branchRequired": "Tawi linahitajika",
+    "selectBranch": "Chagua tawi",
+    "itemsTitle": "Bidhaa",
+    "addLine": "Ongeza Mstari",
+    "selectProduct": "Chagua bidhaa",
+    "removeLine": "Ondoa mstari",
+    "totalLabel": "Jumla",
+    "savePurchase": "Hifadhi Ununuzi",
+    "createSuccess": "Ununuzi umerekodiwa.",
+    "createError": "Imeshindwa kurekodi ununuzi."
+  },
+  "detail": {
+    "backToPurchases": "Rudi kwenye Manunuzi",
+    "itemsTitle": "Bidhaa",
+    "totalLabel": "Jumla"
+  },
+  "import": {
+    "title": "Leta Manunuzi kutoka Excel",
+    "instructions": "Pakua kiolezo, jaza bidhaa zako, kisha upakie hapa. Hakuna kitakacholetwa mpaka uangalie na uthibitishe muhtasari.",
+    "branchLabel": "Tawi Litakalopokea",
+    "selectBranch": "Chagua tawi",
+    "downloadTemplate": "Pakua Kiolezo",
+    "uploadTemplate": "Pakia Kiolezo Kilichojazwa",
+    "selectBranchHint": "Chagua tawi kabla ya kupakia faili.",
+    "downloadError": "Imeshindwa kupakua kiolezo.",
+    "readFileError": "Imeshindwa kusoma faili lililopakiwa.",
+    "importError": "Imeshindwa kuleta faili.",
+    "rowsCount": "safu {{count}}",
+    "validCount": "{{count}} sahihi",
+    "invalidCount": "{{count}} batili",
+    "duplicateCount": "{{count}} zinazorudia",
+    "newProductsCount": "bidhaa mpya {{count}}",
+    "productUpdatesCount": "bidhaa zilizosasishwa {{count}}",
+    "columnRow": "Safu",
+    "columnProduct": "Bidhaa",
+    "columnCategory": "Kategoria",
+    "columnSupplier": "Msambazaji",
+    "columnQty": "Idadi",
+    "columnBuyingPrice": "Bei ya Ununuzi",
+    "columnAction": "Kitendo",
+    "columnStatus": "Hali",
+    "columnNotes": "Maelezo",
+    "actionUpdate": "Sasisha",
+    "actionCreate": "Unda",
+    "rowStatus": {
+      "valid": "Sahihi",
+      "invalid": "Batili",
+      "duplicate": "Inarudia"
+    },
+    "startOver": "Anza Upya",
+    "confirmImport_one": "Thibitisha Kuleta (safu {{count}})",
+    "confirmImport_other": "Thibitisha Kuleta (safu {{count}})",
+    "importComplete": "Kuleta Kumekamilika",
+    "rowsImported": "{{count}} zimeletwa",
+    "productsCreated": "bidhaa {{count}} zimeundwa",
+    "productsUpdated": "bidhaa {{count}} zimesasishwa",
+    "rowsSkipped": "{{count}} zimerukwa",
+    "purchaseOrdersCreated": "oda {{count}} za ununuzi",
+    "errorsTitle": "Makosa",
+    "warningsTitle": "Tahadhari",
+    "rowMessage": "Safu {{row}}: {{message}}",
+    "done": "Imekamilika"
+  }
+}

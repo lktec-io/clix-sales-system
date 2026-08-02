@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useChartTheme } from './chartTheme';
 import '../../styles/components/DoughnutChart.css';
 
@@ -22,7 +23,7 @@ function polarPoint(angleDeg, radius) {
 // "Other" slice rather than repeating colors or growing the palette ad hoc.
 // Palette/otherColor come from the active theme so a theme switch recolors
 // every slice on next render.
-function prepareSlices(data, palette, otherColor) {
+function prepareSlices(data, palette, otherColor, otherLabel) {
   const sorted = [...data].filter((d) => d.value > 0).sort((a, b) => b.value - a.value);
   const maxSlices = palette.length;
   let visible = sorted;
@@ -30,7 +31,7 @@ function prepareSlices(data, palette, otherColor) {
   if (sorted.length > maxSlices) {
     visible = sorted.slice(0, maxSlices - 1);
     const otherValue = sorted.slice(maxSlices - 1).reduce((sum, d) => sum + d.value, 0);
-    other = { label: 'Other', value: otherValue };
+    other = { label: otherLabel, value: otherValue };
   }
   const total = sorted.reduce((sum, d) => sum + d.value, 0);
   const items = other ? [...visible, other] : visible;
@@ -48,9 +49,10 @@ function prepareSlices(data, palette, otherColor) {
 }
 
 function DoughnutChart({ data, valueFormatter = (v) => v }) {
+  const { t } = useTranslation('common');
   const chartColors = useChartTheme();
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const slices = prepareSlices(data || [], chartColors.doughnut, chartColors.doughnutOther);
+  const slices = prepareSlices(data || [], chartColors.doughnut, chartColors.doughnutOther, t('chart.other'));
   const total = slices.reduce((sum, s) => sum + s.value, 0);
   const hovered = hoveredIndex !== null ? slices[hoveredIndex] : null;
 
@@ -99,7 +101,7 @@ function DoughnutChart({ data, valueFormatter = (v) => v }) {
           ) : (
             <>
               <span className="doughnut-chart-center-value">{valueFormatter(total)}</span>
-              <span className="doughnut-chart-center-label">Total</span>
+              <span className="doughnut-chart-center-label">{t('chart.total')}</span>
             </>
           )}
         </div>

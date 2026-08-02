@@ -1,1 +1,78 @@
-{}
+{
+  "list": {
+    "title": "Suppliers",
+    "subtitle": "Manage suppliers and their purchase history",
+    "newSupplier": "New Supplier",
+    "searchPlaceholder": "Search by name, phone, email...",
+    "emptyMessage": "No suppliers found",
+    "viewSupplier": "View supplier",
+    "editSupplier": "Edit supplier",
+    "deleteSupplier": "Delete supplier",
+    "activateSupplier": "Activate supplier",
+    "deactivateSupplier": "Deactivate supplier",
+    "updateSuccess": "Supplier updated.",
+    "createSuccess": "Supplier created.",
+    "saveError": "Failed to save supplier.",
+    "activateSuccess": "Supplier activated.",
+    "deactivateSuccess": "Supplier deactivated.",
+    "statusUpdateError": "Failed to update supplier status.",
+    "deleteSuccess": "Supplier permanently deleted.",
+    "deleteError": "Failed to delete supplier.",
+    "tinLabel": "TIN: {{tin}}",
+    "editModalTitle": "Edit Supplier",
+    "newModalTitle": "New Supplier",
+    "saveChanges": "Save Changes",
+    "createSupplier": "Create Supplier",
+    "deleteDialogTitle": "Delete Supplier?",
+    "deleteDialogMessage": "This action cannot be undone.",
+    "deleteConfirmLabel": "Delete"
+  },
+  "columns": {
+    "supplierName": "Supplier Name",
+    "phone": "Phone",
+    "email": "Email",
+    "status": "Status"
+  },
+  "form": {
+    "nameLabel": "Supplier Name",
+    "nameRequired": "Supplier name is required.",
+    "phoneLabel": "Phone Number",
+    "phoneRequired": "Phone number is required.",
+    "emailLabel": "Email",
+    "emailInvalid": "Invalid email.",
+    "addressLabel": "Address",
+    "notesLabel": "Notes"
+  },
+  "detail": {
+    "backToSuppliers": "Back to Suppliers",
+    "noPhoneOnFile": "No phone on file",
+    "recordPayment": "Record Payment",
+    "totalPurchased": "Total Purchased",
+    "totalPaid": "Total Paid",
+    "outstandingBalance": "Outstanding Balance",
+    "purchaseHistory": "Purchase History",
+    "emptyMessage": "No purchases recorded yet",
+    "paymentModalTitle": "Record Payment",
+    "savePayment": "Save Payment",
+    "cancel": "Cancel",
+    "outstandingBalanceLine": "Outstanding balance: {{amount}}",
+    "amountLabel": "Amount",
+    "amountRequired": "Amount is required",
+    "mustBePositive": "Must be positive",
+    "paymentMethodLabel": "Payment Method",
+    "paymentSuccess": "Payment recorded.",
+    "paymentError": "Failed to record payment."
+  },
+  "detailColumns": {
+    "purchaseNumber": "Purchase #",
+    "date": "Date",
+    "amount": "Amount",
+    "status": "Status"
+  },
+  "paymentMethods": {
+    "cash": "Cash",
+    "mpesa": "M-Pesa",
+    "airtel_money": "Airtel Money",
+    "bank_transfer": "Bank Transfer"
+  }
+}

@@ -1,1 +1,152 @@
-{}
+{
+  "page": {
+    "title": "Reports Center",
+    "subtitle": "Live reports generated directly from current data — no hardcoded values"
+  },
+  "actions": {
+    "print": "Print",
+    "dateRangeLabel": "{{type}} date range",
+    "exportPdfLabel": "Export {{type}} as PDF",
+    "exportExcelLabel": "Export {{type}} as Excel",
+    "exportCsvLabel": "Export {{type}} as CSV"
+  },
+  "types": {
+    "sales": "Sales",
+    "suppliers": "Suppliers",
+    "customers": "Customers",
+    "inventory": "Inventory",
+    "products": "Products",
+    "purchases": "Purchases",
+    "returns": "Returns",
+    "expenses": "Expenses",
+    "profit": "Profit",
+    "branches": "Branches",
+    "users": "Users",
+    "all": "All Reports"
+  },
+  "descriptions": {
+    "sales": "Revenue, transactions, and daily trends.",
+    "suppliers": "Purchase totals and outstanding balances.",
+    "customers": "Top customers by spend and order count.",
+    "inventory": "Stock levels, value, and low-stock alerts.",
+    "products": "Best-selling products by quantity and revenue.",
+    "purchases": "Purchase totals and outstanding balances.",
+    "returns": "Returned items and refund totals.",
+    "expenses": "Spending by category for the period.",
+    "profit": "Revenue, cost of goods sold and net profit.",
+    "branches": "Performance comparison across branches.",
+    "users": "Staff accounts by role, branch and status.",
+    "all": "A combined business summary across every area."
+  },
+  "summary": {
+    "totalSales": "Total Sales",
+    "totalRevenue": "Total Revenue",
+    "totalDiscount": "Total Discount",
+    "averageSale": "Average Sale",
+    "totalRecords": "Total Records",
+    "totalValue": "Total Value",
+    "lowStock": "Low Stock",
+    "outOfStock": "Out of Stock",
+    "totalPurchases": "Total Purchases",
+    "totalAmount": "Total Amount",
+    "totalReturns": "Total Returns",
+    "totalRefund": "Total Refund",
+    "totalExpenses": "Total Expenses",
+    "salesRevenue": "Sales Revenue",
+    "cogs": "Cost of Goods Sold",
+    "grossProfit": "Gross Profit",
+    "expenses": "Expenses",
+    "netProfit": "Net Profit",
+    "totalUsers": "Total Users",
+    "activeUsers": "Active",
+    "suspendedUsers": "Suspended",
+    "lockedUsers": "Locked"
+  },
+  "breakdowns": {
+    "byDay": "By Day",
+    "byBranch": "By Branch",
+    "supplierBalances": "Supplier Balances",
+    "topCustomers": "Top Customers",
+    "byCategory": "By Category",
+    "topProducts": "Top Products",
+    "bySupplier": "By Supplier",
+    "byReason": "By Reason",
+    "branchComparison": "Branch Comparison",
+    "byRole": "By Role",
+    "salesByDay": "Sales By Day",
+    "salesByBranch": "Sales By Branch",
+    "expensesByCategory": "Expenses By Category"
+  },
+  "headers": {
+    "date": "Date",
+    "branch": "Branch",
+    "supplier": "Supplier",
+    "customer": "Customer",
+    "category": "Category",
+    "product": "Product",
+    "reason": "Reason",
+    "role": "Role"
+  },
+  "filters": {
+    "quickRange": "Quick Range",
+    "from": "From",
+    "to": "To",
+    "cashier": "Cashier",
+    "allCashiers": "All Cashiers",
+    "category": "Category",
+    "allCategories": "All Categories",
+    "allStatuses": "All Statuses",
+    "customer": "Customer",
+    "allCustomers": "All Customers",
+    "product": "Product",
+    "allProducts": "All Products"
+  },
+  "presets": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "last7": "Last 7 Days",
+    "last30": "Last 30 Days",
+    "week": "This Week",
+    "month": "This Month",
+    "lastMonth": "Last Month",
+    "year": "This Year",
+    "custom": "Custom"
+  },
+  "statusOptions": {
+    "pending": "Pending",
+    "received": "Received",
+    "cancelled": "Cancelled",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "charts": {
+    "dailyProfitTrend": "Daily Profit Trend",
+    "salesTrend": "Sales Trend"
+  },
+  "financialSummary": {
+    "title": "Financial Summary",
+    "totalRevenue": "Total Revenue",
+    "averageDailySales": "Average Daily Sales",
+    "averageInvoice": "Average Invoice",
+    "highestSalesDay": "Highest Sales Day",
+    "lowestSalesDay": "Lowest Sales Day",
+    "monthlyTrend": "Monthly Trend"
+  },
+  "analysis": {
+    "title": "Business Analysis"
+  },
+  "recommendations": {
+    "title": "Recommendations"
+  },
+  "empty": {
+    "title": "No data",
+    "description": "No data for the selected filters."
+  },
+  "errors": {
+    "loadFailed": "Failed to load report.",
+    "exportPdfFailed": "Failed to export PDF.",
+    "exportExcelFailed": "Failed to export Excel.",
+    "exportCsvFailed": "Failed to export CSV.",
+    "exportFailed": "Failed to export {{type}}."
+  }
+}

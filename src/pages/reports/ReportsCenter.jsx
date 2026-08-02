@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   FiPrinter, FiDownload, FiFileText, FiBarChart2, FiGrid, FiTrendingUp,
   FiDollarSign, FiPackage, FiBox, FiUsers, FiTruck, FiCreditCard, FiLayers,
@@ -84,96 +85,137 @@ const MONEY_KEYS = new Set([
   'totalPurchased', 'totalPaid', 'outstandingBalance', 'averageDailySales', 'averageInvoice',
 ]);
 
-const PURCHASE_STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'received', label: 'Received' },
-  { value: 'cancelled', label: 'Cancelled' },
-];
+// Report type labels/summary labels/breakdown titles all come from the
+// active i18n language, so this is a hook (called inside the component)
+// rather than a module-level constant — same pattern as useKpiDefs(t) in
+// Dashboard.jsx. Only the structural bits (keys, filter lists) stay fixed;
+// every string value is resolved through t() at call time.
+function usePurchaseStatusOptions(t) {
+  return [
+    { value: 'pending', label: t('reports:statusOptions.pending') },
+    { value: 'received', label: t('reports:statusOptions.received') },
+    { value: 'cancelled', label: t('reports:statusOptions.cancelled') },
+  ];
+}
 
-const RETURN_STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'rejected', label: 'Rejected' },
-];
+function useReturnStatusOptions(t) {
+  return [
+    { value: 'pending', label: t('reports:statusOptions.pending') },
+    { value: 'approved', label: t('reports:statusOptions.approved') },
+    { value: 'rejected', label: t('reports:statusOptions.rejected') },
+  ];
+}
 
-const REPORT_CONFIGS = {
-  sales: {
-    label: 'Sales', filters: ['dateFrom', 'dateTo', 'branchId', 'cashierId', 'customerId', 'productId'],
-    summary: { totalSales: 'Total Sales', totalRevenue: 'Total Revenue', totalDiscount: 'Total Discount', averageSale: 'Average Sale' },
-    breakdowns: [{ key: 'byDay', title: 'By Day', labelHeader: 'Date' }, { key: 'byBranch', title: 'By Branch', labelHeader: 'Branch' }],
-  },
-  suppliers: {
-    label: 'Suppliers', filters: [],
-    breakdowns: [{ key: 'bySupplier', title: 'Supplier Balances', labelHeader: 'Supplier' }],
-  },
-  customers: {
-    label: 'Customers', filters: ['dateFrom', 'dateTo', 'branchId'],
-    breakdowns: [{ key: 'topCustomers', title: 'Top Customers', labelHeader: 'Customer' }],
-  },
-  inventory: {
-    label: 'Inventory', filters: ['branchId', 'categoryId'],
-    summary: { totalRecords: 'Total Records', totalValue: 'Total Value', lowStock: 'Low Stock', outOfStock: 'Out of Stock' },
-    breakdowns: [{ key: 'byCategory', title: 'By Category', labelHeader: 'Category' }],
-  },
-  products: {
-    label: 'Products', filters: ['dateFrom', 'dateTo', 'branchId', 'categoryId'],
-    breakdowns: [{ key: 'topProducts', title: 'Top Products', labelHeader: 'Product' }],
-  },
-  purchases: {
-    label: 'Purchases', filters: ['dateFrom', 'dateTo', 'branchId', 'status', 'productId'],
-    statusOptions: PURCHASE_STATUS_OPTIONS,
-    summary: { totalPurchases: 'Total Purchases', totalAmount: 'Total Amount' },
-    breakdowns: [{ key: 'bySupplier', title: 'By Supplier', labelHeader: 'Supplier' }],
-  },
-  returns: {
-    label: 'Returns', filters: ['dateFrom', 'dateTo', 'branchId', 'status', 'customerId', 'productId'],
-    statusOptions: RETURN_STATUS_OPTIONS,
-    summary: { totalReturns: 'Total Returns', totalRefund: 'Total Refund' },
-    breakdowns: [{ key: 'byReason', title: 'By Reason', labelHeader: 'Reason' }],
-  },
-  expenses: {
-    label: 'Expenses', filters: ['dateFrom', 'dateTo', 'branchId', 'categoryId'],
-    summary: { totalExpenses: 'Total Expenses', totalAmount: 'Total Amount' },
-    breakdowns: [{ key: 'byCategory', title: 'By Category', labelHeader: 'Category' }],
-  },
-  profit: {
-    label: 'Profit', filters: ['dateFrom', 'dateTo', 'branchId'],
-    summary: {
-      salesRevenue: 'Sales Revenue', totalRevenue: 'Total Revenue',
-      cogs: 'Cost of Goods Sold', grossProfit: 'Gross Profit', expenses: 'Expenses', netProfit: 'Net Profit',
+function useReportConfigs(t) {
+  const purchaseStatusOptions = usePurchaseStatusOptions(t);
+  const returnStatusOptions = useReturnStatusOptions(t);
+
+  return {
+    sales: {
+      label: t('reports:types.sales'), description: t('reports:descriptions.sales'),
+      filters: ['dateFrom', 'dateTo', 'branchId', 'cashierId', 'customerId', 'productId'],
+      summary: {
+        totalSales: t('reports:summary.totalSales'), totalRevenue: t('reports:summary.totalRevenue'),
+        totalDiscount: t('reports:summary.totalDiscount'), averageSale: t('reports:summary.averageSale'),
+      },
+      breakdowns: [
+        { key: 'byDay', title: t('reports:breakdowns.byDay'), labelHeader: t('reports:headers.date') },
+        { key: 'byBranch', title: t('reports:breakdowns.byBranch'), labelHeader: t('reports:headers.branch') },
+      ],
     },
-    breakdowns: [{ key: 'byDay', title: 'By Day', labelHeader: 'Date' }],
-  },
-  branches: {
-    label: 'Branches', filters: ['dateFrom', 'dateTo'],
-    breakdowns: [{ key: 'byBranch', title: 'Branch Comparison', labelHeader: 'Branch' }],
-  },
-  users: {
-    label: 'Users', filters: ['dateFrom', 'dateTo', 'branchId'],
-    summary: { totalUsers: 'Total Users', activeUsers: 'Active', suspendedUsers: 'Suspended', lockedUsers: 'Locked' },
-    breakdowns: [{ key: 'byRole', title: 'By Role', labelHeader: 'Role' }, { key: 'byBranch', title: 'By Branch', labelHeader: 'Branch' }],
-  },
-  // Combined business-summary report — backend/services/report.service.js's
-  // buildAllReport() flattens Sales/Products/Customers/Expenses/Profit into
-  // this exact shape, so it renders through the same summary cards +
-  // BreakdownTable components every other report type already uses.
-  // `analysis` is the one field that isn't a breakdown table — it's
-  // rendered separately, right below the summary cards.
-  all: {
-    label: 'All Reports', filters: ['dateFrom', 'dateTo', 'branchId'],
-    summary: {
-      totalSales: 'Total Sales', totalRevenue: 'Total Revenue', totalExpenses: 'Total Expenses',
-      netProfit: 'Net Profit',
+    suppliers: {
+      label: t('reports:types.suppliers'), description: t('reports:descriptions.suppliers'), filters: [],
+      breakdowns: [{ key: 'bySupplier', title: t('reports:breakdowns.supplierBalances'), labelHeader: t('reports:headers.supplier') }],
     },
-    breakdowns: [
-      { key: 'salesByDay', title: 'Sales By Day', labelHeader: 'Date' },
-      { key: 'salesByBranch', title: 'Sales By Branch', labelHeader: 'Branch' },
-      { key: 'topProducts', title: 'Top Products', labelHeader: 'Product' },
-      { key: 'topCustomers', title: 'Top Customers', labelHeader: 'Customer' },
-      { key: 'expensesByCategory', title: 'Expenses By Category', labelHeader: 'Category' },
-    ],
-  },
-};
+    customers: {
+      label: t('reports:types.customers'), description: t('reports:descriptions.customers'),
+      filters: ['dateFrom', 'dateTo', 'branchId'],
+      breakdowns: [{ key: 'topCustomers', title: t('reports:breakdowns.topCustomers'), labelHeader: t('reports:headers.customer') }],
+    },
+    inventory: {
+      label: t('reports:types.inventory'), description: t('reports:descriptions.inventory'),
+      filters: ['branchId', 'categoryId'],
+      summary: {
+        totalRecords: t('reports:summary.totalRecords'), totalValue: t('reports:summary.totalValue'),
+        lowStock: t('reports:summary.lowStock'), outOfStock: t('reports:summary.outOfStock'),
+      },
+      breakdowns: [{ key: 'byCategory', title: t('reports:breakdowns.byCategory'), labelHeader: t('reports:headers.category') }],
+    },
+    products: {
+      label: t('reports:types.products'), description: t('reports:descriptions.products'),
+      filters: ['dateFrom', 'dateTo', 'branchId', 'categoryId'],
+      breakdowns: [{ key: 'topProducts', title: t('reports:breakdowns.topProducts'), labelHeader: t('reports:headers.product') }],
+    },
+    purchases: {
+      label: t('reports:types.purchases'), description: t('reports:descriptions.purchases'),
+      filters: ['dateFrom', 'dateTo', 'branchId', 'status', 'productId'],
+      statusOptions: purchaseStatusOptions,
+      summary: { totalPurchases: t('reports:summary.totalPurchases'), totalAmount: t('reports:summary.totalAmount') },
+      breakdowns: [{ key: 'bySupplier', title: t('reports:breakdowns.bySupplier'), labelHeader: t('reports:headers.supplier') }],
+    },
+    returns: {
+      label: t('reports:types.returns'), description: t('reports:descriptions.returns'),
+      filters: ['dateFrom', 'dateTo', 'branchId', 'status', 'customerId', 'productId'],
+      statusOptions: returnStatusOptions,
+      summary: { totalReturns: t('reports:summary.totalReturns'), totalRefund: t('reports:summary.totalRefund') },
+      breakdowns: [{ key: 'byReason', title: t('reports:breakdowns.byReason'), labelHeader: t('reports:headers.reason') }],
+    },
+    expenses: {
+      label: t('reports:types.expenses'), description: t('reports:descriptions.expenses'),
+      filters: ['dateFrom', 'dateTo', 'branchId', 'categoryId'],
+      summary: { totalExpenses: t('reports:summary.totalExpenses'), totalAmount: t('reports:summary.totalAmount') },
+      breakdowns: [{ key: 'byCategory', title: t('reports:breakdowns.byCategory'), labelHeader: t('reports:headers.category') }],
+    },
+    profit: {
+      label: t('reports:types.profit'), description: t('reports:descriptions.profit'),
+      filters: ['dateFrom', 'dateTo', 'branchId'],
+      summary: {
+        salesRevenue: t('reports:summary.salesRevenue'), totalRevenue: t('reports:summary.totalRevenue'),
+        cogs: t('reports:summary.cogs'), grossProfit: t('reports:summary.grossProfit'),
+        expenses: t('reports:summary.expenses'), netProfit: t('reports:summary.netProfit'),
+      },
+      breakdowns: [{ key: 'byDay', title: t('reports:breakdowns.byDay'), labelHeader: t('reports:headers.date') }],
+    },
+    branches: {
+      label: t('reports:types.branches'), description: t('reports:descriptions.branches'),
+      filters: ['dateFrom', 'dateTo'],
+      breakdowns: [{ key: 'byBranch', title: t('reports:breakdowns.branchComparison'), labelHeader: t('reports:headers.branch') }],
+    },
+    users: {
+      label: t('reports:types.users'), description: t('reports:descriptions.users'),
+      filters: ['dateFrom', 'dateTo', 'branchId'],
+      summary: {
+        totalUsers: t('reports:summary.totalUsers'), activeUsers: t('reports:summary.activeUsers'),
+        suspendedUsers: t('reports:summary.suspendedUsers'), lockedUsers: t('reports:summary.lockedUsers'),
+      },
+      breakdowns: [
+        { key: 'byRole', title: t('reports:breakdowns.byRole'), labelHeader: t('reports:headers.role') },
+        { key: 'byBranch', title: t('reports:breakdowns.byBranch'), labelHeader: t('reports:headers.branch') },
+      ],
+    },
+    // Combined business-summary report — backend/services/report.service.js's
+    // buildAllReport() flattens Sales/Products/Customers/Expenses/Profit into
+    // this exact shape, so it renders through the same summary cards +
+    // BreakdownTable components every other report type already uses.
+    // `analysis` is the one field that isn't a breakdown table — it's
+    // rendered separately, right below the summary cards.
+    all: {
+      label: t('reports:types.all'), description: t('reports:descriptions.all'),
+      filters: ['dateFrom', 'dateTo', 'branchId'],
+      summary: {
+        totalSales: t('reports:summary.totalSales'), totalRevenue: t('reports:summary.totalRevenue'),
+        totalExpenses: t('reports:summary.totalExpenses'), netProfit: t('reports:summary.netProfit'),
+      },
+      breakdowns: [
+        { key: 'salesByDay', title: t('reports:breakdowns.salesByDay'), labelHeader: t('reports:headers.date') },
+        { key: 'salesByBranch', title: t('reports:breakdowns.salesByBranch'), labelHeader: t('reports:headers.branch') },
+        { key: 'topProducts', title: t('reports:breakdowns.topProducts'), labelHeader: t('reports:headers.product') },
+        { key: 'topCustomers', title: t('reports:breakdowns.topCustomers'), labelHeader: t('reports:headers.customer') },
+        { key: 'expensesByCategory', title: t('reports:breakdowns.expensesByCategory'), labelHeader: t('reports:headers.category') },
+      ],
+    },
+  };
+}
 
 // "Show only: Sales, Product, Inventory, Customer, Supplier, Expenses, All
 // Reports" — the other REPORT_CONFIGS entries (purchases/returns/profit/
@@ -192,16 +234,6 @@ const REPORT_ICONS = {
   all: FiLayers,
 };
 
-const REPORT_DESCRIPTIONS = {
-  sales: 'Revenue, transactions, and daily trends.',
-  products: 'Best-selling products by quantity and revenue.',
-  inventory: 'Stock levels, value, and low-stock alerts.',
-  customers: 'Top customers by spend and order count.',
-  suppliers: 'Purchase totals and outstanding balances.',
-  expenses: 'Spending by category for the period.',
-  all: 'A combined business summary across every area.',
-};
-
 function humanize(key) {
   const result = key.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1');
   return result.charAt(0).toUpperCase() + result.slice(1);
@@ -213,12 +245,14 @@ function renderCell(key, value) {
 }
 
 function BreakdownTable({ title, labelHeader, rows, onExport, canExport }) {
+  const { t } = useTranslation(['reports', 'common']);
+
   if (!rows || rows.length === 0) {
     return (
       <div className="card mb-5">
         <div className="card-header"><span className="card-title">{title}</span></div>
         <div className="card-body">
-          <EmptyState icon={FiBarChart2} title="No data" description="No data for the selected filters." />
+          <EmptyState icon={FiBarChart2} title={t('reports:empty.title')} description={t('reports:empty.description')} />
         </div>
       </div>
     );
@@ -255,6 +289,9 @@ function BreakdownTable({ title, labelHeader, rows, onExport, canExport }) {
 }
 
 function ReportsCenter() {
+  const { t, i18n } = useTranslation(['reports', 'common']);
+  const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
+  const REPORT_CONFIGS = useReportConfigs(t);
   const canExport = usePermission('reports.export');
   const canViewUsers = usePermission('users.view');
   const { company } = useCompany();
@@ -308,7 +345,7 @@ function ReportsCenter() {
     reportService
       .getReport(reportType, params)
       .then(setReport)
-      .catch(() => setError('Failed to load report.'))
+      .catch(() => setError(t('reports:errors.loadFailed')))
       .finally(() => setLoading(false));
   };
 
@@ -356,7 +393,7 @@ function ReportsCenter() {
     try {
       await reportService.exportReportPdf(reportType, buildExportParams(), config.label);
     } catch {
-      setError('Failed to export PDF.');
+      setError(t('reports:errors.exportPdfFailed'));
     } finally {
       setExportingPdf(false);
     }
@@ -367,7 +404,7 @@ function ReportsCenter() {
     try {
       await reportService.exportReportExcel(reportType, buildExportParams(), config.label);
     } catch {
-      setError('Failed to export Excel.');
+      setError(t('reports:errors.exportExcelFailed'));
     } finally {
       setExportingExcel(false);
     }
@@ -378,7 +415,7 @@ function ReportsCenter() {
     try {
       await reportService.exportReportCsv(reportType, buildExportParams(), config.label);
     } catch {
-      setError('Failed to export CSV.');
+      setError(t('reports:errors.exportCsvFailed'));
     } finally {
       setExportingCsv(false);
     }
@@ -398,7 +435,7 @@ function ReportsCenter() {
       else if (format === 'excel') await reportService.exportReportExcel(type, params, cfg.label);
       else await reportService.exportReportCsv(type, params, cfg.label);
     } catch {
-      setError(`Failed to export ${cfg.label}.`);
+      setError(t('reports:errors.exportFailed', { type: cfg.label }));
     }
   };
 
@@ -406,7 +443,7 @@ function ReportsCenter() {
     <div className="reports-page">
       <div className="reports-print-header">
         {company?.logo_path ? (
-          <img src={company.logo_path} alt={company.company_name || 'Company logo'} className="reports-print-logo" />
+          <img src={company.logo_path} alt={company.company_name || t('common:misc.companyLogo')} className="reports-print-logo" />
         ) : (
           <span className="reports-print-mark">{company?.company_name || 'Clix'}</span>
         )}
@@ -415,8 +452,8 @@ function ReportsCenter() {
 
       <div className="page-header">
         <div>
-          <h1 className="page-title">Reports Center</h1>
-          <p className="page-subtitle">Live reports generated directly from current data — no hardcoded values</p>
+          <h1 className="page-title">{t('reports:page.title')}</h1>
+          <p className="page-subtitle">{t('reports:page.subtitle')}</p>
         </div>
         {canExport && (
           <div className="page-actions">
@@ -430,7 +467,7 @@ function ReportsCenter() {
               <FiDownload aria-hidden="true" /> CSV
             </button>
             <button type="button" className="btn btn-secondary" onClick={() => window.print()}>
-              <FiPrinter aria-hidden="true" /> Print
+              <FiPrinter aria-hidden="true" /> {t('reports:actions.print')}
             </button>
           </div>
         )}
@@ -446,31 +483,31 @@ function ReportsCenter() {
               <button type="button" className="reports-type-card-select" onClick={() => setReportType(key)}>
                 <span className="reports-type-card-icon"><Icon aria-hidden="true" /></span>
                 <span className="reports-type-card-title">{cfg.label}</span>
-                <span className="reports-type-card-desc">{REPORT_DESCRIPTIONS[key]}</span>
+                <span className="reports-type-card-desc">{cfg.description}</span>
               </button>
               {cfg.filters.includes('dateFrom') && (
                 <select
                   className="form-control reports-type-card-date no-print"
-                  aria-label={`${cfg.label} date range`}
+                  aria-label={t('reports:actions.dateRangeLabel', { type: cfg.label })}
                   value={active ? datePreset : 'month'}
                   onChange={(e) => { setReportType(key); applyDatePreset(e.target.value); }}
                 >
-                  <option value="today">Today</option>
-                  <option value="week">This Week</option>
-                  <option value="month">This Month</option>
-                  <option value="lastMonth">Last Month</option>
-                  <option value="year">This Year</option>
+                  <option value="today">{t('reports:presets.today')}</option>
+                  <option value="week">{t('reports:presets.week')}</option>
+                  <option value="month">{t('reports:presets.month')}</option>
+                  <option value="lastMonth">{t('reports:presets.lastMonth')}</option>
+                  <option value="year">{t('reports:presets.year')}</option>
                 </select>
               )}
               {canExport && (
                 <div className="reports-type-card-actions no-print">
-                  <button type="button" className="btn btn-ghost btn-icon btn-sm" aria-label={`Export ${cfg.label} as PDF`} onClick={() => quickExport(key, 'pdf')}>
+                  <button type="button" className="btn btn-ghost btn-icon btn-sm" aria-label={t('reports:actions.exportPdfLabel', { type: cfg.label })} onClick={() => quickExport(key, 'pdf')}>
                     <FiFileText aria-hidden="true" />
                   </button>
-                  <button type="button" className="btn btn-ghost btn-icon btn-sm" aria-label={`Export ${cfg.label} as Excel`} onClick={() => quickExport(key, 'excel')}>
+                  <button type="button" className="btn btn-ghost btn-icon btn-sm" aria-label={t('reports:actions.exportExcelLabel', { type: cfg.label })} onClick={() => quickExport(key, 'excel')}>
                     <FiGrid aria-hidden="true" />
                   </button>
-                  <button type="button" className="btn btn-ghost btn-icon btn-sm" aria-label={`Export ${cfg.label} as CSV`} onClick={() => quickExport(key, 'csv')}>
+                  <button type="button" className="btn btn-ghost btn-icon btn-sm" aria-label={t('reports:actions.exportCsvLabel', { type: cfg.label })} onClick={() => quickExport(key, 'csv')}>
                     <FiDownload aria-hidden="true" />
                   </button>
                 </div>
@@ -485,82 +522,82 @@ function ReportsCenter() {
         <div className="card-body reports-filter-bar">
           {config.filters.includes('dateFrom') && (
             <div className="form-group">
-              <label className="form-label" htmlFor="datePreset">Quick Range</label>
+              <label className="form-label" htmlFor="datePreset">{t('reports:filters.quickRange')}</label>
               <select id="datePreset" className="form-control" value={datePreset} onChange={(e) => applyDatePreset(e.target.value)}>
-                <option value="today">Today</option>
-                <option value="yesterday">Yesterday</option>
-                <option value="last7">Last 7 Days</option>
-                <option value="last30">Last 30 Days</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-                <option value="lastMonth">Last Month</option>
-                <option value="year">This Year</option>
-                <option value="custom">Custom</option>
+                <option value="today">{t('reports:presets.today')}</option>
+                <option value="yesterday">{t('reports:presets.yesterday')}</option>
+                <option value="last7">{t('reports:presets.last7')}</option>
+                <option value="last30">{t('reports:presets.last30')}</option>
+                <option value="week">{t('reports:presets.week')}</option>
+                <option value="month">{t('reports:presets.month')}</option>
+                <option value="lastMonth">{t('reports:presets.lastMonth')}</option>
+                <option value="year">{t('reports:presets.year')}</option>
+                <option value="custom">{t('reports:presets.custom')}</option>
               </select>
             </div>
           )}
           {config.filters.includes('dateFrom') && (
             <div className="form-group">
-              <label className="form-label" htmlFor="dateFrom">From</label>
+              <label className="form-label" htmlFor="dateFrom">{t('reports:filters.from')}</label>
               <input id="dateFrom" type="date" className="form-control" value={filters.dateFrom} onChange={(e) => { setDatePreset('custom'); setFilters((prev) => ({ ...prev, dateFrom: e.target.value })); }} />
             </div>
           )}
           {config.filters.includes('dateTo') && (
             <div className="form-group">
-              <label className="form-label" htmlFor="dateTo">To</label>
+              <label className="form-label" htmlFor="dateTo">{t('reports:filters.to')}</label>
               <input id="dateTo" type="date" className="form-control" value={filters.dateTo} onChange={(e) => { setDatePreset('custom'); setFilters((prev) => ({ ...prev, dateTo: e.target.value })); }} />
             </div>
           )}
           {config.filters.includes('branchId') && (
             <div className="form-group">
-              <label className="form-label" htmlFor="branchId">Branch</label>
+              <label className="form-label" htmlFor="branchId">{t('common:labels.branch')}</label>
               <select id="branchId" className="form-control" value={filters.branchId} onChange={(e) => setFilters((prev) => ({ ...prev, branchId: e.target.value }))}>
-                <option value="">All Branches</option>
+                <option value="">{t('common:labels.allBranches')}</option>
                 {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
           )}
           {config.filters.includes('cashierId') && canViewUsers && (
             <div className="form-group">
-              <label className="form-label" htmlFor="cashierId">Cashier</label>
+              <label className="form-label" htmlFor="cashierId">{t('reports:filters.cashier')}</label>
               <select id="cashierId" className="form-control" value={filters.cashierId} onChange={(e) => setFilters((prev) => ({ ...prev, cashierId: e.target.value }))}>
-                <option value="">All Cashiers</option>
+                <option value="">{t('reports:filters.allCashiers')}</option>
                 {cashiers.map((u) => <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>)}
               </select>
             </div>
           )}
           {config.filters.includes('categoryId') && (
             <div className="form-group">
-              <label className="form-label" htmlFor="categoryId">Category</label>
+              <label className="form-label" htmlFor="categoryId">{t('reports:filters.category')}</label>
               <select id="categoryId" className="form-control" value={filters.categoryId} onChange={(e) => setFilters((prev) => ({ ...prev, categoryId: e.target.value }))}>
-                <option value="">All Categories</option>
+                <option value="">{t('reports:filters.allCategories')}</option>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
           )}
           {config.filters.includes('status') && (
             <div className="form-group">
-              <label className="form-label" htmlFor="status">Status</label>
+              <label className="form-label" htmlFor="status">{t('common:labels.status')}</label>
               <select id="status" className="form-control" value={filters.status} onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value }))}>
-                <option value="">All Statuses</option>
+                <option value="">{t('reports:filters.allStatuses')}</option>
                 {config.statusOptions.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
               </select>
             </div>
           )}
           {config.filters.includes('customerId') && (
             <div className="form-group">
-              <label className="form-label" htmlFor="customerId">Customer</label>
+              <label className="form-label" htmlFor="customerId">{t('reports:filters.customer')}</label>
               <select id="customerId" className="form-control" value={filters.customerId} onChange={(e) => setFilters((prev) => ({ ...prev, customerId: e.target.value }))}>
-                <option value="">All Customers</option>
+                <option value="">{t('reports:filters.allCustomers')}</option>
                 {customers.map((c) => <option key={c.id} value={c.id}>{c.first_name} {c.last_name}</option>)}
               </select>
             </div>
           )}
           {config.filters.includes('productId') && (
             <div className="form-group">
-              <label className="form-label" htmlFor="productId">Product</label>
+              <label className="form-label" htmlFor="productId">{t('reports:filters.product')}</label>
               <select id="productId" className="form-control" value={filters.productId} onChange={(e) => setFilters((prev) => ({ ...prev, productId: e.target.value }))}>
-                <option value="">All Products</option>
+                <option value="">{t('reports:filters.allProducts')}</option>
                 {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
@@ -596,10 +633,10 @@ function ReportsCenter() {
             <div className={`grid mb-5 ${trendRows.length > 0 && chartBreakdown ? 'grid-cols-2' : 'grid-cols-1'}`}>
               {trendRows.length > 0 && (
                 <div className="card">
-                  <div className="card-header"><span className="card-title">{reportType === 'profit' ? 'Daily Profit Trend' : 'Sales Trend'}</span></div>
+                  <div className="card-header"><span className="card-title">{reportType === 'profit' ? t('reports:charts.dailyProfitTrend') : t('reports:charts.salesTrend')}</span></div>
                   <div className="card-body">
                     <LineChart
-                      labels={trendRows.map((r) => new Date(r.label).toLocaleDateString('en-TZ', { day: 'numeric', month: 'short' }))}
+                      labels={trendRows.map((r) => new Date(r.label).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' }))}
                       values={trendRows.map((r) => Number(r.value))}
                       valueFormatter={formatCurrency}
                     />
@@ -624,16 +661,16 @@ function ReportsCenter() {
 
           {report?.financialSummary && (
             <div className="card mb-5">
-              <div className="card-header"><span className="card-title">Financial Summary</span></div>
+              <div className="card-header"><span className="card-title">{t('reports:financialSummary.title')}</span></div>
               <div className="card-body">
                 <dl className="reports-financial-summary">
-                  <div><dt>Total Revenue</dt><dd>{formatCurrency(report.financialSummary.totalRevenue)}</dd></div>
-                  <div><dt>Average Daily Sales</dt><dd>{formatCurrency(report.financialSummary.averageDailySales)}</dd></div>
+                  <div><dt>{t('reports:financialSummary.totalRevenue')}</dt><dd>{formatCurrency(report.financialSummary.totalRevenue)}</dd></div>
+                  <div><dt>{t('reports:financialSummary.averageDailySales')}</dt><dd>{formatCurrency(report.financialSummary.averageDailySales)}</dd></div>
                   {report.financialSummary.averageInvoice != null && (
-                    <div><dt>Average Invoice</dt><dd>{formatCurrency(report.financialSummary.averageInvoice)}</dd></div>
+                    <div><dt>{t('reports:financialSummary.averageInvoice')}</dt><dd>{formatCurrency(report.financialSummary.averageInvoice)}</dd></div>
                   )}
-                  <div><dt>Highest Sales Day</dt><dd>{report.financialSummary.highestSalesDay.date} — {formatCurrency(report.financialSummary.highestSalesDay.value)}</dd></div>
-                  <div><dt>Lowest Sales Day</dt><dd>{report.financialSummary.lowestSalesDay.date} — {formatCurrency(report.financialSummary.lowestSalesDay.value)}</dd></div>
+                  <div><dt>{t('reports:financialSummary.highestSalesDay')}</dt><dd>{report.financialSummary.highestSalesDay.date} — {formatCurrency(report.financialSummary.highestSalesDay.value)}</dd></div>
+                  <div><dt>{t('reports:financialSummary.lowestSalesDay')}</dt><dd>{report.financialSummary.lowestSalesDay.date} — {formatCurrency(report.financialSummary.lowestSalesDay.value)}</dd></div>
                 </dl>
               </div>
             </div>
@@ -641,7 +678,7 @@ function ReportsCenter() {
 
           {Array.isArray(report?.financialSummary?.monthlyTrend) && (
             <div className="card mb-5">
-              <div className="card-header"><span className="card-title">Monthly Trend</span></div>
+              <div className="card-header"><span className="card-title">{t('reports:financialSummary.monthlyTrend')}</span></div>
               <div className="card-body">
                 <LineChart
                   labels={report.financialSummary.monthlyTrend.map((m) => m.month)}
@@ -654,7 +691,7 @@ function ReportsCenter() {
 
           {Array.isArray(report?.analysis) && report.analysis.length > 0 && (
             <div className="card mb-5">
-              <div className="card-header"><span className="card-title">Business Analysis</span></div>
+              <div className="card-header"><span className="card-title">{t('reports:analysis.title')}</span></div>
               <div className="card-body">
                 <ul className="reports-analysis-list">
                   {report.analysis.map((line) => <li key={line}>{line}</li>)}
@@ -665,7 +702,7 @@ function ReportsCenter() {
 
           {Array.isArray(report?.recommendations) && report.recommendations.length > 0 && (
             <div className="card mb-5">
-              <div className="card-header"><span className="card-title">Recommendations</span></div>
+              <div className="card-header"><span className="card-title">{t('reports:recommendations.title')}</span></div>
               <div className="card-body">
                 <ul className="reports-recommendations-list">
                   {report.recommendations.map((line) => (

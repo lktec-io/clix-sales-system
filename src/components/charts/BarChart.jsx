@@ -1,5 +1,6 @@
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { useTranslation } from 'react-i18next';
 import { BASE_FONT, useChartTheme } from './chartTheme';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
@@ -11,10 +12,12 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 // current theme's primary color, so a theme switch re-colors the chart
 // even for callers that don't pass an explicit color.
 function BarChart({
-  labels, values, label = 'Value', color, horizontal = false,
+  labels, values, label, color, horizontal = false,
   datasets = null, valueFormatter = (v) => v, height = 260,
 }) {
+  const { t } = useTranslation('common');
   const chartColors = useChartTheme();
+  const resolvedLabel = label ?? t('chart.value');
   const resolvedColor = color || chartColors.primary;
 
   const data = {
@@ -29,7 +32,7 @@ function BarChart({
       }))
       : [
         {
-          label,
+          label: resolvedLabel,
           data: values,
           backgroundColor: resolvedColor,
           borderRadius: 4,

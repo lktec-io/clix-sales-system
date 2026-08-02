@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FiArrowLeft, FiRotateCcw, FiTrash2, FiPackage } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
@@ -17,6 +18,7 @@ import { formatCurrency } from '../../utils/formatCurrency';
 // NULL — already invisible to every other list/search/POS/purchase query
 // in the app, this page is the only place they're still reachable.
 function ArchivedProducts() {
+  const { t, i18n } = useTranslation(['products', 'common']);
   const navigate = useNavigate();
   const toast = useToast();
   const [pendingRestore, setPendingRestore] = useState(null);
@@ -26,15 +28,17 @@ function ArchivedProducts() {
   const fetchArchived = useCallback((params) => productService.listArchivedProducts(params), []);
   const { items, meta, loading, page, setPage, search, setSearch, refetch } = useTable(fetchArchived);
 
+  const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
+
   const handleRestore = async () => {
     setActionError('');
     try {
       await productService.restoreProduct(pendingRestore.id);
-      toast.success(`"${pendingRestore.name}" restored — visible again everywhere.`);
+      toast.success(t('products:archived.restoreSuccess', { name: pendingRestore.name }));
       setPendingRestore(null);
       refetch();
     } catch (err) {
-      setActionError(err.response?.data?.message || 'Failed to restore product.');
+      setActionError(err.response?.data?.message || t('products:archived.restoreError'));
     }
   };
 
@@ -42,11 +46,11 @@ function ArchivedProducts() {
     setActionError('');
     try {
       await productService.permanentlyDeleteProduct(pendingDelete.id);
-      toast.success(`"${pendingDelete.name}" permanently deleted.`);
+      toast.success(t('products:archived.deleteSuccess', { name: pendingDelete.name }));
       setPendingDelete(null);
       refetch();
     } catch (err) {
-      setActionError(err.response?.data?.message || 'Failed to permanently delete product.');
+      setActionError(err.response?.data?.message || t('products:archived.deleteError'));
       setPendingDelete(null);
     }
   };
@@ -54,7 +58,7 @@ function ArchivedProducts() {
   const columns = [
     {
       key: 'name',
-      label: 'Product',
+      label: t('products:columns.product'),
       render: (row) => (
         <div className="flex items-center gap-2">
           <div className="company-logo-preview" style={{ width: 36, height: 36 }}>
@@ -67,18 +71,18 @@ function ArchivedProducts() {
         </div>
       ),
     },
-    { key: 'category_name', label: 'Category' },
-    { key: 'selling_price', label: 'Selling Price', render: (row) => formatCurrency(row.selling_price) },
-    { key: 'deleted_at', label: 'Archived', render: (row) => new Date(row.deleted_at).toLocaleDateString('en-TZ', { dateStyle: 'medium' }) },
+    { key: 'category_name', label: t('products:columns.category') },
+    { key: 'selling_price', label: t('products:columns.sellingPrice'), render: (row) => formatCurrency(row.selling_price) },
+    { key: 'deleted_at', label: t('products:columns.archived'), render: (row) => new Date(row.deleted_at).toLocaleDateString(dateLocale, { dateStyle: 'medium' }) },
     {
       key: 'actions',
       label: '',
       render: (row) => (
         <div className="table-actions">
-          <button type="button" className="btn btn-ghost btn-icon" onClick={() => setPendingRestore(row)} aria-label="Restore product">
+          <button type="button" className="btn btn-ghost btn-icon" onClick={() => setPendingRestore(row)} aria-label={t('products:archived.restoreProduct')}>
             <FiRotateCcw />
           </button>
-          <button type="button" className="btn btn-ghost btn-icon" onClick={() => setPendingDelete(row)} aria-label="Permanently delete product">
+          <button type="button" className="btn btn-ghost btn-icon" onClick={() => setPendingDelete(row)} aria-label={t('products:archived.permanentlyDeleteProduct')}>
             <FiTrash2 />
           </button>
         </div>
@@ -91,10 +95,10 @@ function ArchivedProducts() {
       <div className="page-header">
         <div>
           <button type="button" className="btn btn-ghost btn-sm mb-2" onClick={() => navigate('/products')}>
-            <FiArrowLeft aria-hidden="true" /> Back to Products
+            <FiArrowLeft aria-hidden="true" /> {t('products:archived.backToProducts')}
           </button>
-          <h1 className="page-title">Archived Products</h1>
-          <p className="page-subtitle">Products removed from active use — hidden from POS, search, and purchasing, with their sales history intact</p>
+          <h1 className="page-title">{t('products:archived.title')}</h1>
+          <p className="page-subtitle">{t('products:archived.subtitle')}</p>
         </div>
       </div>
 
@@ -102,9 +106,9 @@ function ArchivedProducts() {
 
       <div className="card">
         <div className="table-toolbar">
-          <SearchInput value={search} onChange={setSearch} placeholder="Search archived products..." />
+          <SearchInput value={search} onChange={setSearch} placeholder={t('products:archived.searchPlaceholder')} />
         </div>
-        <Table columns={columns} rows={items} loading={loading} emptyMessage="No archived products" />
+        <Table columns={columns} rows={items} loading={loading} emptyMessage={t('products:archived.emptyMessage')} />
         <Pagination page={page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={setPage} />
       </div>
 
@@ -112,9 +116,9 @@ function ArchivedProducts() {
         open={Boolean(pendingRestore)}
         onClose={() => setPendingRestore(null)}
         onConfirm={handleRestore}
-        title="Restore product"
-        message={pendingRestore ? `Restore "${pendingRestore.name}"? It will reappear in the Product List, POS, and search immediately.` : ''}
-        confirmLabel="Restore"
+        title={t('products:archived.restoreDialogTitle')}
+        message={pendingRestore ? t('products:archived.restoreDialogMessage', { name: pendingRestore.name }) : ''}
+        confirmLabel={t('products:archived.restoreConfirmLabel')}
         variant="primary"
       />
 
@@ -122,9 +126,9 @@ function ArchivedProducts() {
         open={Boolean(pendingDelete)}
         onClose={() => setPendingDelete(null)}
         onConfirm={handlePermanentDelete}
-        title="Permanently delete product"
-        message={pendingDelete ? `Permanently delete "${pendingDelete.name}"? This cannot be undone. Past sales and purchase records are kept for your reports, but will no longer be linked to this product.` : ''}
-        confirmLabel="Delete Permanently"
+        title={t('products:archived.deleteDialogTitle')}
+        message={pendingDelete ? t('products:archived.deleteDialogMessage', { name: pendingDelete.name }) : ''}
+        confirmLabel={t('products:archived.deleteConfirmLabel')}
         variant="danger"
       />
     </div>

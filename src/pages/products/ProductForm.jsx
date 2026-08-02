@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FiUpload, FiX, FiPlus } from 'react-icons/fi';
 import * as productService from '../../services/productService';
 import * as categoryService from '../../services/categoryService';
@@ -17,6 +18,7 @@ import '../../styles/pages/ProductForm.css';
 // nothing else, so a new item can be created without ever leaving the
 // product form.
 function QuickAddModal({ open, title, onClose, onCreate }) {
+  const { t } = useTranslation(['products', 'common']);
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
@@ -41,7 +43,7 @@ function QuickAddModal({ open, title, onClose, onCreate }) {
       await onCreate({ name: name.trim(), code: code.trim() });
       resetFields();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create.');
+      setError(err.response?.data?.message || t('products:quickAdd.createError'));
     } finally {
       setSubmitting(false);
     }
@@ -55,9 +57,9 @@ function QuickAddModal({ open, title, onClose, onCreate }) {
       size="sm"
       footer={
         <>
-          <button type="button" className="btn btn-secondary" onClick={handleClose}>Cancel</button>
+          <button type="button" className="btn btn-secondary" onClick={handleClose}>{t('products:quickAdd.cancel')}</button>
           <button type="submit" form="quick-add-form" className={`btn btn-primary ${submitting ? 'btn-loading' : ''}`} disabled={submitting}>
-            Create
+            {t('products:quickAdd.create')}
           </button>
         </>
       }
@@ -65,11 +67,11 @@ function QuickAddModal({ open, title, onClose, onCreate }) {
       {error && <div className="alert alert-danger mb-4" role="alert">{error}</div>}
       <form id="quick-add-form" onSubmit={handleSubmit} noValidate>
         <div className="form-group">
-          <label className="form-label form-label-required" htmlFor="quick-add-name">Name</label>
+          <label className="form-label form-label-required" htmlFor="quick-add-name">{t('products:quickAdd.name')}</label>
           <input id="quick-add-name" className="form-control" value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
         <div className="form-group">
-          <label className="form-label form-label-required" htmlFor="quick-add-code">Code</label>
+          <label className="form-label form-label-required" htmlFor="quick-add-code">{t('products:quickAdd.code')}</label>
           <input id="quick-add-code" className="form-control" value={code} onChange={(e) => setCode(e.target.value)} required />
         </div>
       </form>
@@ -78,6 +80,7 @@ function QuickAddModal({ open, title, onClose, onCreate }) {
 }
 
 function ProductForm() {
+  const { t } = useTranslation(['products', 'common']);
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
@@ -155,11 +158,11 @@ function ProductForm() {
     try {
       if (isEdit) {
         await productService.updateProduct(id, payload);
-        toast.success('Product updated.');
+        toast.success(t('products:form.updateSuccess'));
         navigate('/products');
       } else {
         const created = await productService.createProduct(payload);
-        toast.success('Product created.');
+        toast.success(t('products:form.createSuccess'));
         navigate(`/products/${created.id}/edit`, { replace: true });
       }
     } catch (err) {
@@ -168,7 +171,7 @@ function ProductForm() {
         setPriceConfirmRequired(true);
         return;
       }
-      setFormError(err.response?.data?.message || 'Failed to save product.');
+      setFormError(err.response?.data?.message || t('products:form.saveError'));
     }
   };
 
@@ -187,7 +190,7 @@ function ProductForm() {
       const product = await productService.uploadProductImage(id, file);
       setImages(product.images);
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Failed to upload image.');
+      setFormError(err.response?.data?.message || t('products:form.uploadImageError'));
     } finally {
       setUploadingImage(false);
       event.target.value = '';
@@ -223,8 +226,8 @@ function ProductForm() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">{isEdit ? 'Edit Product' : 'New Product'}</h1>
-          <p className="page-subtitle">{isEdit ? 'Update product details' : 'Add a new product to the catalog'}</p>
+          <h1 className="page-title">{isEdit ? t('products:form.editTitle') : t('products:form.newTitle')}</h1>
+          <p className="page-subtitle">{isEdit ? t('products:form.editSubtitle') : t('products:form.newSubtitle')}</p>
         </div>
       </div>
 
@@ -232,31 +235,31 @@ function ProductForm() {
 
       {priceConfirmRequired && (
         <div className="alert alert-warning mb-4" role="alert">
-          <p className="mb-2">Buying price is higher than selling price. This will result in a loss on this product. Continue anyway?</p>
+          <p className="mb-2">{t('products:form.priceWarning')}</p>
           <div className="flex gap-2">
-            <button type="button" className="btn btn-danger btn-sm" onClick={confirmPriceAndSubmit}>Yes, Save Anyway</button>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPriceConfirmRequired(false)}>Cancel</button>
+            <button type="button" className="btn btn-danger btn-sm" onClick={confirmPriceAndSubmit}>{t('products:form.saveAnyway')}</button>
+            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPriceConfirmRequired(false)}>{t('products:form.cancel')}</button>
           </div>
         </div>
       )}
 
       {isEdit && (
         <div className="card mb-5">
-          <div className="card-header"><span className="card-title">Product Images</span></div>
+          <div className="card-header"><span className="card-title">{t('products:form.productImages')}</span></div>
           <div className="card-body">
             <div className="product-image-gallery">
               {images.map((image) => (
                 <div key={image.id} className="product-image-item">
                   <img src={image.image_path} alt="" />
-                  <button type="button" className="product-image-remove" onClick={() => handleRemoveImage(image.id)} aria-label="Remove image">
+                  <button type="button" className="product-image-remove" onClick={() => handleRemoveImage(image.id)} aria-label={t('products:form.removeImage')}>
                     <FiX />
                   </button>
-                  {image.is_primary && <span className="badge badge-info product-image-primary-badge">Primary</span>}
+                  {image.is_primary && <span className="badge badge-info product-image-primary-badge">{t('products:form.primary')}</span>}
                 </div>
               ))}
               <button type="button" className="product-image-add" onClick={() => imageInputRef.current?.click()} disabled={uploadingImage}>
                 {uploadingImage ? <span className="spinner" /> : <FiUpload />}
-                <span>Add Image</span>
+                <span>{t('products:form.addImage')}</span>
               </button>
               <input
                 ref={imageInputRef}
@@ -272,7 +275,7 @@ function ProductForm() {
 
       {isEdit && productMeta && (
         <div className="card mb-5">
-          <div className="card-header"><span className="card-title">QR Code</span></div>
+          <div className="card-header"><span className="card-title">{t('products:form.qrCode')}</span></div>
           <div className="card-body">
             <QRCodeDisplay productId={id} productName={productMeta.name} />
           </div>
@@ -281,84 +284,84 @@ function ProductForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="card mb-5">
-          <div className="card-header"><span className="card-title">Product Details</span></div>
+          <div className="card-header"><span className="card-title">{t('products:form.productDetails')}</span></div>
           <div className="card-body">
             <div className="form-group">
-              <label className="form-label form-label-required" htmlFor="name">Product Name</label>
-              <input id="name" className={`form-control ${errors.name ? 'form-control-error' : ''}`} {...register('name', { required: 'Product name is required' })} />
+              <label className="form-label form-label-required" htmlFor="name">{t('products:form.productName')}</label>
+              <input id="name" className={`form-control ${errors.name ? 'form-control-error' : ''}`} {...register('name', { required: t('products:form.nameRequired') })} />
               {errors.name && <span className="form-error">{errors.name.message}</span>}
             </div>
             <div className="form-row">
               <div className="form-group">
                 <div className="flex items-center justify-between">
-                  <label className="form-label form-label-required" htmlFor="categoryId">Category</label>
+                  <label className="form-label form-label-required" htmlFor="categoryId">{t('products:form.category')}</label>
                   <button type="button" className="btn btn-ghost btn-sm" onClick={() => setCategoryModalOpen(true)}>
-                    <FiPlus aria-hidden="true" /> Add Category
+                    <FiPlus aria-hidden="true" /> {t('products:form.addCategory')}
                   </button>
                 </div>
-                <select id="categoryId" className={`form-control ${errors.categoryId ? 'form-control-error' : ''}`} {...register('categoryId', { required: 'Category is required' })}>
-                  <option value="">Select a category</option>
+                <select id="categoryId" className={`form-control ${errors.categoryId ? 'form-control-error' : ''}`} {...register('categoryId', { required: t('products:form.categoryRequired') })}>
+                  <option value="">{t('products:form.selectCategory')}</option>
                   {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
                 {errors.categoryId && <span className="form-error">{errors.categoryId.message}</span>}
               </div>
               <div className="form-group">
                 <div className="flex items-center justify-between">
-                  <label className="form-label" htmlFor="brandId">Brand (Optional)</label>
+                  <label className="form-label" htmlFor="brandId">{t('products:form.brand')}</label>
                   <button type="button" className="btn btn-ghost btn-sm" onClick={() => setBrandModalOpen(true)}>
-                    <FiPlus aria-hidden="true" /> Add Brand
+                    <FiPlus aria-hidden="true" /> {t('products:form.addBrand')}
                   </button>
                 </div>
                 <select id="brandId" className="form-control" {...register('brandId')}>
-                  <option value="">No brand</option>
+                  <option value="">{t('products:form.noBrand')}</option>
                   {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </div>
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="description">Description</label>
+              <label className="form-label" htmlFor="description">{t('products:form.description')}</label>
               <textarea id="description" className="form-control" {...register('description')} />
             </div>
           </div>
         </div>
 
         <div className="card mb-5">
-          <div className="card-header"><span className="card-title">Pricing &amp; Stock</span></div>
+          <div className="card-header"><span className="card-title">{t('products:form.pricingStock')}</span></div>
           <div className="card-body">
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label form-label-required" htmlFor="buyingPrice">Buying Price</label>
+                <label className="form-label form-label-required" htmlFor="buyingPrice">{t('products:form.buyingPrice')}</label>
                 <input
                   id="buyingPrice"
                   type="number"
                   step="0.01"
                   className={`form-control ${errors.buyingPrice ? 'form-control-error' : ''}`}
-                  {...register('buyingPrice', { required: 'Buying price is required', min: { value: 0, message: 'Must be positive' } })}
+                  {...register('buyingPrice', { required: t('products:form.buyingPriceRequired'), min: { value: 0, message: t('products:form.mustBePositive') } })}
                 />
                 {errors.buyingPrice && <span className="form-error">{errors.buyingPrice.message}</span>}
               </div>
               <div className="form-group">
-                <label className="form-label form-label-required" htmlFor="sellingPrice">Selling Price</label>
+                <label className="form-label form-label-required" htmlFor="sellingPrice">{t('products:form.sellingPrice')}</label>
                 <input
                   id="sellingPrice"
                   type="number"
                   step="0.01"
                   className={`form-control ${errors.sellingPrice ? 'form-control-error' : ''}`}
-                  {...register('sellingPrice', { required: 'Selling price is required', min: { value: 0, message: 'Must be positive' } })}
+                  {...register('sellingPrice', { required: t('products:form.sellingPriceRequired'), min: { value: 0, message: t('products:form.mustBePositive') } })}
                 />
                 {errors.sellingPrice && <span className="form-error">{errors.sellingPrice.message}</span>}
               </div>
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label" htmlFor="minStock">Minimum Stock</label>
+                <label className="form-label" htmlFor="minStock">{t('products:form.minStock')}</label>
                 <input id="minStock" type="number" className="form-control" {...register('minStock')} />
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="status">Status</label>
+                <label className="form-label" htmlFor="status">{t('products:form.status')}</label>
                 <select id="status" className="form-control" {...register('status')}>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                  <option value="active">{t('products:form.active')}</option>
+                  <option value="inactive">{t('products:form.inactive')}</option>
                 </select>
               </div>
             </div>
@@ -366,22 +369,22 @@ function ProductForm() {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/products')}>Cancel</button>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/products')}>{t('products:form.cancel')}</button>
           <button type="submit" className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
-            {isEdit ? 'Save Changes' : 'Create Product'}
+            {isEdit ? t('products:form.saveChanges') : t('products:form.createProduct')}
           </button>
         </div>
       </form>
 
       <QuickAddModal
         open={categoryModalOpen}
-        title="Add Category"
+        title={t('products:quickAdd.addCategoryTitle')}
         onClose={() => setCategoryModalOpen(false)}
         onCreate={handleCreateCategory}
       />
       <QuickAddModal
         open={brandModalOpen}
-        title="Add Brand"
+        title={t('products:quickAdd.addBrandTitle')}
         onClose={() => setBrandModalOpen(false)}
         onCreate={handleCreateBrand}
       />

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import SettingsTabs from '../../components/common/SettingsTabs';
 import Skeleton from '../../components/common/Skeleton';
 import { usePermission } from '../../hooks/usePermission';
@@ -8,6 +9,7 @@ import * as settingsService from '../../services/settingsService';
 import '../../styles/pages/Notifications.css';
 
 function SystemSettings() {
+  const { t } = useTranslation(['settings', 'common']);
   const canManage = usePermission('settings.manage');
   const toast = useToast();
   const [loading, setLoading] = useState(true);
@@ -24,9 +26,9 @@ function SystemSettings() {
     settingsService
       .getSystemSettings()
       .then(reset)
-      .catch(() => setFormError('Failed to load system settings.'))
+      .catch(() => setFormError(t('settings:system.loadError')))
       .finally(() => setLoading(false));
-  }, [reset]);
+  }, [reset, t]);
 
   const onSubmit = async (values) => {
     setFormError('');
@@ -38,9 +40,9 @@ function SystemSettings() {
         receiptQrVerificationEnabled: values.receiptQrVerificationEnabled,
       });
       reset(updated);
-      toast.success('Settings saved successfully.');
+      toast.success(t('settings:system.saveSuccess'));
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Failed to save settings.');
+      setFormError(err.response?.data?.message || t('settings:system.saveError'));
     }
   };
 
@@ -48,8 +50,8 @@ function SystemSettings() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Settings</h1>
-          <p className="page-subtitle">Tax rate, notification email, and receipt preferences</p>
+          <h1 className="page-title">{t('settings:system.pageTitle')}</h1>
+          <p className="page-subtitle">{t('settings:system.pageSubtitle')}</p>
         </div>
       </div>
 
@@ -57,7 +59,7 @@ function SystemSettings() {
 
       {!canManage && (
         <div className="alert alert-info mb-4" role="status">
-          Only Super Administrators can edit system settings. You are viewing this in read-only mode.
+          {t('settings:system.readOnlyNotice')}
         </div>
       )}
       {formError && <div className="alert alert-danger mb-4" role="alert">{formError}</div>}
@@ -73,35 +75,35 @@ function SystemSettings() {
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="card mb-5">
-            <div className="card-header"><span className="card-title">Tax</span></div>
+            <div className="card-header"><span className="card-title">{t('settings:system.taxTitle')}</span></div>
             <div className="card-body">
               <label className="form-switch mb-3">
                 <input type="checkbox" disabled={!canManage} {...register('taxEnabled')} />
-                Enable tax on sales
+                {t('settings:system.taxEnabledLabel')}
               </label>
               <div className="form-group" style={{ maxWidth: 200 }}>
-                <label className="form-label" htmlFor="taxRate">Tax Rate (%)</label>
+                <label className="form-label" htmlFor="taxRate">{t('settings:system.taxRateLabel')}</label>
                 <input id="taxRate" type="number" min="0" max="100" step="0.01" className="form-control" disabled={!canManage} {...register('taxRate')} />
               </div>
             </div>
           </div>
 
           <div className="card mb-5">
-            <div className="card-header"><span className="card-title">Email</span></div>
+            <div className="card-header"><span className="card-title">{t('settings:system.emailTitle')}</span></div>
             <div className="card-body">
               <label className="form-switch">
                 <input type="checkbox" disabled={!canManage} {...register('notificationEmailEnabled')} />
-                Send email notifications (in addition to in-app notifications)
+                {t('settings:system.emailNotificationsLabel')}
               </label>
             </div>
           </div>
 
           <div className="card mb-5">
-            <div className="card-header"><span className="card-title">Receipt</span></div>
+            <div className="card-header"><span className="card-title">{t('settings:system.receiptTitle')}</span></div>
             <div className="card-body">
               <label className="form-switch">
                 <input type="checkbox" disabled={!canManage} {...register('receiptQrVerificationEnabled')} />
-                Print a verification QR code on receipts
+                {t('settings:system.receiptQrLabel')}
               </label>
             </div>
           </div>
@@ -109,7 +111,7 @@ function SystemSettings() {
           {canManage && (
             <div className="form-actions">
               <button type="submit" className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
-                Save Changes
+                {t('common:actions.saveChanges')}
               </button>
             </div>
           )}

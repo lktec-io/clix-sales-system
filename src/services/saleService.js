@@ -1,5 +1,6 @@
 import apiClient from './apiClient';
 import { downloadBlob } from '../utils/exportCsv';
+import i18n from '../i18n';
 
 function openPdfBlob(blob) {
   const url = URL.createObjectURL(blob);
@@ -28,7 +29,7 @@ export async function checkout(payload) {
 // defaults to '80' server-side, matching every receipt printed before this
 // option existed.
 export async function printReceipt(id, size) {
-  const { data } = await apiClient.get(`/sales/${id}/receipt`, { params: { size }, responseType: 'blob' });
+  const { data } = await apiClient.get(`/sales/${id}/receipt`, { params: { size, locale: i18n.language }, responseType: 'blob' });
   openPdfBlob(data);
 }
 
@@ -37,6 +38,6 @@ export async function printReceipt(id, size) {
 // save via the same <a download> pattern the Reports exports use, not
 // another new-tab open a user would have to manually save from.
 export async function downloadReceiptPdf(id, saleNumber, size) {
-  const { data } = await apiClient.get(`/sales/${id}/receipt`, { params: { size }, responseType: 'blob' });
+  const { data } = await apiClient.get(`/sales/${id}/receipt`, { params: { size, locale: i18n.language }, responseType: 'blob' });
   downloadBlob(`${saleNumber || `Receipt-${id}`}.pdf`, data);
 }

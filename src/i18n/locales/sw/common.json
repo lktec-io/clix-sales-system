@@ -96,5 +96,15 @@
   "misc": {
     "companyLogo": "Nembo ya Kampuni",
     "avatar": "Picha ya Wasifu"
+  },
+  "chart": {
+    "total": "Jumla",
+    "other": "Nyingine",
+    "value": "Thamani"
+  },
+  "camera": {
+    "starting": "Inaanzisha Kamera",
+    "turnOffFlashlight": "Zima Tochi",
+    "turnOnFlashlight": "Washa Tochi"
   }
 }

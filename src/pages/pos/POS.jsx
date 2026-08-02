@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FiTrash2, FiCamera, FiPlus, FiMinus, FiClock, FiShoppingCart, FiUserPlus, FiPercent, FiPrinter, FiDownload, FiCheckCircle } from 'react-icons/fi';
 import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
@@ -18,22 +19,23 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { splitFullName } from '../../utils/splitFullName';
 import '../../styles/pages/POS.css';
 
-// Four cashier-facing payment buttons (spec). "Mobile Money" isn't a single
-// backend value — the app still records M-Pesa vs Airtel Money separately
-// for reporting — so it expands into a two-option sub-select on tap instead
-// of collapsing to one generic value.
-const PAYMENT_GROUPS = [
-  { key: 'cash', label: 'Cash', method: 'cash' },
-  { key: 'card', label: 'Card', method: 'card' },
-  { key: 'transfer', label: 'Transfer', method: 'bank_transfer' },
-  { key: 'mobile_money', label: 'Mobile Money', subOptions: [{ method: 'mpesa', label: 'M-Pesa' }, { method: 'airtel_money', label: 'Airtel Money' }] },
-];
-
 function POS() {
+  const { t } = useTranslation(['sales', 'common']);
   const navigate = useNavigate();
   const { user } = useAuth();
   const canOverride = usePermission('sales.manage');
   const toast = useToast();
+
+  // Four cashier-facing payment buttons (spec). "Mobile Money" isn't a single
+  // backend value — the app still records M-Pesa vs Airtel Money separately
+  // for reporting — so it expands into a two-option sub-select on tap instead
+  // of collapsing to one generic value.
+  const PAYMENT_GROUPS = [
+    { key: 'cash', label: t('sales:pos.payment.cash'), method: 'cash' },
+    { key: 'card', label: t('sales:pos.payment.card'), method: 'card' },
+    { key: 'transfer', label: t('sales:pos.payment.transfer'), method: 'bank_transfer' },
+    { key: 'mobile_money', label: t('sales:pos.payment.mobileMoney'), subOptions: [{ method: 'mpesa', label: t('sales:pos.payment.mpesa') }, { method: 'airtel_money', label: t('sales:pos.payment.airtelMoney') }] },
+  ];
 
   const searchInputRef = useRef(null);
   // One idempotency key per checkout attempt — generated once when the
@@ -269,19 +271,19 @@ function POS() {
     try {
       const match = await productService.lookupSellableProduct({ code, branchId });
       if (!match) {
-        toast.error('Product not found');
+        toast.error(t('sales:pos.toast.productNotFound'));
         return;
       }
       addToCart(match);
       setScannerOpen(false);
     } catch {
-      toast.error('Product not found');
+      toast.error(t('sales:pos.toast.productNotFound'));
     }
   };
 
   const handleScannerError = () => {
     setScannerOpen(false);
-    toast.error('Camera unavailable — search or scan with a barcode scanner in the search box instead.');
+    toast.error(t('sales:pos.toast.cameraUnavailable'));
   };
 
   // Enter in the search box: a highlighted (arrow-keyed) result wins
@@ -304,10 +306,10 @@ function POS() {
       if (match) {
         addToCart(match);
       } else {
-        toast.error(`No product found for "${query}".`);
+        toast.error(t('sales:pos.toast.noProductFoundFor', { query }));
       }
     } catch {
-      toast.error('Product lookup failed.');
+      toast.error(t('sales:pos.toast.productLookupFailed'));
     }
   };
 
@@ -338,7 +340,7 @@ function POS() {
   const submitQuickCustomer = async () => {
     setQuickCustomerError('');
     if (!quickCustomerName.trim() || !quickCustomerPhone.trim()) {
-      setQuickCustomerError('Name and phone are required.');
+      setQuickCustomerError(t('sales:pos.toast.nameAndPhoneRequired'));
       return;
     }
     setSavingQuickCustomer(true);
@@ -348,9 +350,9 @@ function POS() {
       setCustomers((prev) => [...prev, created]);
       setCustomerId(String(created.id));
       setQuickCustomerOpen(false);
-      toast.success(`${quickCustomerName.trim()} added and selected.`);
+      toast.success(t('sales:pos.toast.customerAddedAndSelected', { name: quickCustomerName.trim() }));
     } catch (err) {
-      setQuickCustomerError(err.response?.data?.message || 'Failed to add customer.');
+      setQuickCustomerError(err.response?.data?.message || t('sales:pos.toast.failedToAddCustomer'));
     } finally {
       setSavingQuickCustomer(false);
     }
@@ -395,12 +397,12 @@ function POS() {
       // per the "one consistent design language" requirement.
       setLastSale(sale);
     } catch (err) {
-      setCheckoutError(err.response?.data?.message || 'Checkout failed. Please try again.');
+      setCheckoutError(err.response?.data?.message || t('sales:pos.toast.checkoutFailed'));
     } finally {
       setIsCheckingOut(false);
       isCheckingOutRef.current = false;
     }
-  }, [cart, branchId, customerId, paymentMethod, total]);
+  }, [cart, branchId, customerId, paymentMethod, total, t]);
 
   // A real modal blocks the page underneath it, so — unlike the previous
   // non-modal tray — it can't just dismiss itself the moment the cashier
@@ -425,7 +427,7 @@ function POS() {
     try {
       await saleService.printReceipt(lastSale.id);
     } catch {
-      toast.error('Failed to open the receipt.');
+      toast.error(t('sales:pos.toast.failedToOpenReceipt'));
     } finally {
       setReceiptBusy('');
     }
@@ -437,7 +439,7 @@ function POS() {
     try {
       await saleService.downloadReceiptPdf(lastSale.id, lastSale.sale_number);
     } catch {
-      toast.error('Failed to download the receipt.');
+      toast.error(t('sales:pos.toast.failedToDownloadReceipt'));
     } finally {
       setReceiptBusy('');
     }
@@ -495,7 +497,7 @@ function POS() {
           <div className="pos-catalog-toolbar-row">
             {!user?.branch_id ? (
               <select className="form-control pos-branch-select" value={branchId} onChange={(e) => setBranchId(e.target.value)}>
-                <option value="">Select a branch to sell from</option>
+                <option value="">{t('sales:pos.selectBranchPlaceholder')}</option>
                 {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             ) : (
@@ -506,21 +508,21 @@ function POS() {
               value={search}
               onChange={setSearch}
               onKeyDown={handleSearchKeyDown}
-              placeholder="Scan or search by name, barcode, or SKU (F2)"
+              placeholder={t('sales:pos.searchPlaceholder')}
             />
             <button type="button" className="btn btn-secondary" onClick={() => setScannerOpen(true)}>
-              <FiCamera aria-hidden="true" /> Scan Barcode
+              <FiCamera aria-hidden="true" /> {t('sales:pos.scanBarcode')}
             </button>
             <button type="button" className="btn btn-ghost" onClick={() => navigate('/pos/sales')}>
-              <FiClock aria-hidden="true" /> Sale History
+              <FiClock aria-hidden="true" /> {t('sales:pos.saleHistory')}
             </button>
           </div>
         </div>
 
         {!branchId ? (
-          <div className="pos-scan-empty">Select a branch to view sellable products.</div>
+          <div className="pos-scan-empty">{t('sales:pos.selectBranchToView')}</div>
         ) : productsLoading ? (
-          <div className="flex items-center justify-center p-6"><span className="spinner" aria-label="Loading" /></div>
+          <div className="flex items-center justify-center p-6"><span className="spinner" aria-label={t('common:state.loading')} /></div>
         ) : (
           <div className="pos-product-grid">
             {products.map((product, index) => {
@@ -537,26 +539,29 @@ function POS() {
                   <span className="pos-product-name">{product.name}</span>
                   <span className="pos-product-code">{product.code}</span>
                   <span className="pos-product-price">{formatCurrency(product.selling_price)}</span>
-                  <span className="pos-product-stock">{product.available_quantity} in stock{inCartQty ? ` · ${inCartQty} in cart` : ''}</span>
+                  <span className="pos-product-stock">
+                    {t('sales:pos.inStock', { count: product.available_quantity })}
+                    {inCartQty ? ` · ${t('sales:pos.inCart', { count: inCartQty })}` : ''}
+                  </span>
                 </button>
               );
             })}
-            {products.length === 0 && <div className="pos-scan-empty">No sellable products found.</div>}
+            {products.length === 0 && <div className="pos-scan-empty">{t('sales:pos.noProductsFound')}</div>}
           </div>
         )}
       </div>
 
       <div className="pos-cart">
         <div className="pos-cart-header">
-          <span className="card-title">Cart ({cart.length})</span>
+          <span className="card-title">{t('sales:pos.cart', { count: cart.length })}</span>
           {cart.length > 0 && (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setClearCartConfirmOpen(true)}>Clear Cart</button>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setClearCartConfirmOpen(true)}>{t('sales:pos.clearCart')}</button>
           )}
         </div>
 
         <div className="pos-cart-items">
           {cart.length === 0 ? (
-            <EmptyState icon={FiShoppingCart} title="Cart is empty" description="Scan or search for a product to begin." />
+            <EmptyState icon={FiShoppingCart} title={t('sales:pos.cartEmptyTitle')} description={t('sales:pos.cartEmptyDescription')} />
           ) : (
             cart.map((line) => {
               const lineTotal = line.quantity * line.unitPrice - (Number(line.discountAmount) || 0);
@@ -571,7 +576,7 @@ function POS() {
                       className="pos-cart-line-name"
                       onClick={() => selectLine(line.productId)}
                       aria-pressed={isSelected}
-                      title="Select (Delete key removes)"
+                      title={t('sales:pos.selectLineTitle')}
                     >
                       {line.name}
                     </button>
@@ -581,27 +586,27 @@ function POS() {
                           type="button"
                           className="btn btn-ghost btn-icon"
                           onClick={() => toggleDiscountEditor(line.productId)}
-                          aria-label={`Adjust price or discount for ${line.name}`}
-                          title="Manager: adjust price / discount"
+                          aria-label={t('sales:pos.adjustPriceDiscountAria', { name: line.name })}
+                          title={t('sales:pos.adjustPriceDiscountTitle')}
                         >
                           <FiPercent />
                         </button>
                       )}
-                      <button type="button" className="btn btn-ghost btn-icon" onClick={() => removeLine(line.productId)} aria-label={`Remove ${line.name}`}>
+                      <button type="button" className="btn btn-ghost btn-icon" onClick={() => removeLine(line.productId)} aria-label={t('sales:pos.removeItemAria', { name: line.name })}>
                         <FiTrash2 />
                       </button>
                     </div>
                   </div>
                   <div className="pos-cart-line-controls">
                     <div className="pos-cart-line-field">
-                      <label htmlFor={`qty-${line.productId}`}>Qty</label>
+                      <label htmlFor={`qty-${line.productId}`}>{t('sales:pos.qty')}</label>
                       <div className="pos-qty-stepper">
                         <button
                           type="button"
                           className="btn btn-ghost btn-icon pos-qty-stepper-btn"
                           onClick={() => setLineQuantity(line, line.quantity - 1)}
                           disabled={line.quantity <= 1}
-                          aria-label={`Decrease quantity of ${line.name}`}
+                          aria-label={t('sales:pos.decreaseQtyAria', { name: line.name })}
                         >
                           <FiMinus />
                         </button>
@@ -619,7 +624,7 @@ function POS() {
                           className="btn btn-ghost btn-icon pos-qty-stepper-btn"
                           onClick={() => setLineQuantity(line, line.quantity + 1)}
                           disabled={line.quantity >= line.availableQuantity}
-                          aria-label={`Increase quantity of ${line.name}`}
+                          aria-label={t('sales:pos.increaseQtyAria', { name: line.name })}
                         >
                           <FiPlus />
                         </button>
@@ -631,7 +636,7 @@ function POS() {
                   {canOverride && isExpanded && (
                     <div className="pos-cart-line-override">
                       <div className="pos-cart-line-field">
-                        <label htmlFor={`price-${line.productId}`}>Unit Price</label>
+                        <label htmlFor={`price-${line.productId}`}>{t('sales:pos.unitPrice')}</label>
                         <input
                           id={`price-${line.productId}`}
                           type="number"
@@ -643,7 +648,7 @@ function POS() {
                         />
                       </div>
                       <div className="pos-cart-line-field">
-                        <label htmlFor={`discount-${line.productId}`}>Discount</label>
+                        <label htmlFor={`discount-${line.productId}`}>{t('sales:pos.discount')}</label>
                         <input
                           id={`discount-${line.productId}`}
                           type="number"
@@ -665,13 +670,13 @@ function POS() {
         <div className="pos-cart-footer">
           <div className="form-group">
             <div className="flex items-center justify-between">
-              <label className="form-label" htmlFor="pos-customer" style={{ margin: 0 }}>Customer (Optional)</label>
+              <label className="form-label" htmlFor="pos-customer" style={{ margin: 0 }}>{t('sales:pos.customerOptional')}</label>
               <button type="button" className="btn btn-ghost btn-sm" onClick={openQuickCustomer}>
-                <FiUserPlus aria-hidden="true" /> Quick Add
+                <FiUserPlus aria-hidden="true" /> {t('sales:pos.quickAdd')}
               </button>
             </div>
             <select id="pos-customer" className="form-control" value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
-              <option value="">Walk-in customer</option>
+              <option value="">{t('sales:pos.walkInCustomer')}</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.first_name} {c.last_name}{c.business_name ? ` (${c.business_name})` : ''}
@@ -681,15 +686,15 @@ function POS() {
           </div>
 
           <div>
-            <div className="pos-totals-row"><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
+            <div className="pos-totals-row"><span>{t('sales:pos.subtotal')}</span><span>{formatCurrency(subtotal)}</span></div>
             {discountTotal > 0 && (
-              <div className="pos-totals-row"><span>Discount</span><span>-{formatCurrency(discountTotal)}</span></div>
+              <div className="pos-totals-row"><span>{t('sales:pos.discount')}</span><span>-{formatCurrency(discountTotal)}</span></div>
             )}
-            <div className="pos-totals-row pos-totals-row-total"><span>Total</span><span>{formatCurrency(total)}</span></div>
+            <div className="pos-totals-row pos-totals-row-total"><span>{t('sales:pos.total')}</span><span>{formatCurrency(total)}</span></div>
           </div>
 
           <div>
-            <span className="form-label" style={{ margin: 0 }}>Payment Method</span>
+            <span className="form-label" style={{ margin: 0 }}>{t('sales:pos.paymentMethod')}</span>
             <div className="pos-payment-groups">
               {PAYMENT_GROUPS.map((group) => {
                 const isActive = group.subOptions ? isMobileMoneyMethod : paymentMethod === group.method;
@@ -721,7 +726,7 @@ function POS() {
             )}
             {isMobileMoneyMethod && !mobileMoneyOpen && (
               <p className="text-xs text-secondary mt-1">
-                {PAYMENT_GROUPS.find((g) => g.key === 'mobile_money').subOptions.find((o) => o.method === paymentMethod)?.label} selected
+                {PAYMENT_GROUPS.find((g) => g.key === 'mobile_money').subOptions.find((o) => o.method === paymentMethod)?.label} {t('sales:pos.selected')}
               </p>
             )}
           </div>
@@ -734,12 +739,12 @@ function POS() {
             disabled={!canCheckout}
             onClick={handleCheckout}
           >
-            Complete Sale
+            {t('sales:pos.completeSale')}
           </button>
         </div>
       </div>
 
-      <Modal open={scannerOpen} onClose={() => setScannerOpen(false)} title="Scan Barcode" size="sm">
+      <Modal open={scannerOpen} onClose={() => setScannerOpen(false)} title={t('sales:pos.scanBarcodeModalTitle')} size="sm">
         <QRScanner onScan={handleScan} onError={handleScannerError} />
       </Modal>
 
@@ -747,33 +752,33 @@ function POS() {
         open={clearCartConfirmOpen}
         onClose={() => setClearCartConfirmOpen(false)}
         onConfirm={clearCart}
-        title="Clear cart"
-        message={`Remove all ${cart.length} item${cart.length === 1 ? '' : 's'} from the cart? This cannot be undone.`}
-        confirmLabel="Clear Cart"
+        title={t('sales:pos.clearCartTitle')}
+        message={t('sales:pos.clearCartMessage', { count: cart.length })}
+        confirmLabel={t('sales:pos.clearCartConfirm')}
       />
 
       <Modal
         open={quickCustomerOpen}
         onClose={() => setQuickCustomerOpen(false)}
-        title="Quick Add Customer"
+        title={t('sales:pos.quickAddCustomerTitle')}
         size="sm"
         footer={
           <>
-            <button type="button" className="btn btn-secondary" onClick={() => setQuickCustomerOpen(false)}>Cancel</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setQuickCustomerOpen(false)}>{t('common:actions.cancel')}</button>
             <button
               type="button"
               className={`btn btn-primary ${savingQuickCustomer ? 'btn-loading' : ''}`}
               disabled={savingQuickCustomer}
               onClick={submitQuickCustomer}
             >
-              Add &amp; Select
+              {t('sales:pos.addAndSelect')}
             </button>
           </>
         }
       >
         {quickCustomerError && <div className="alert alert-danger mb-4" role="alert">{quickCustomerError}</div>}
         <div className="form-group">
-          <label className="form-label form-label-required" htmlFor="quick-customer-name">Full Name</label>
+          <label className="form-label form-label-required" htmlFor="quick-customer-name">{t('sales:pos.fullName')}</label>
           <input
             id="quick-customer-name"
             className="form-control"
@@ -783,7 +788,7 @@ function POS() {
           />
         </div>
         <div className="form-group">
-          <label className="form-label form-label-required" htmlFor="quick-customer-phone">Phone Number</label>
+          <label className="form-label form-label-required" htmlFor="quick-customer-phone">{t('sales:pos.phoneNumber')}</label>
           <input
             id="quick-customer-phone"
             className="form-control"
@@ -793,7 +798,7 @@ function POS() {
         </div>
       </Modal>
 
-      <Modal open={Boolean(lastSale)} onClose={dismissReceipt} title="Sale Completed" size="sm">
+      <Modal open={Boolean(lastSale)} onClose={dismissReceipt} title={t('sales:pos.saleCompleted')} size="sm">
         {lastSale && (
           <div className="pos-receipt-modal-body">
             <FiCheckCircle className="pos-receipt-modal-icon" aria-hidden="true" />
@@ -801,13 +806,13 @@ function POS() {
             <div className="pos-receipt-modal-total">{formatCurrency(lastSale.total_amount)}</div>
             <div className="pos-receipt-modal-actions">
               <button type="button" className={`btn btn-secondary ${receiptBusy === 'print' ? 'btn-loading' : ''}`} disabled={!!receiptBusy} onClick={handlePrintReceipt}>
-                <FiPrinter aria-hidden="true" /> Print
+                <FiPrinter aria-hidden="true" /> {t('sales:detail.print')}
               </button>
               <button type="button" className={`btn btn-secondary ${receiptBusy === 'download' ? 'btn-loading' : ''}`} disabled={!!receiptBusy} onClick={handleDownloadReceipt}>
-                <FiDownload aria-hidden="true" /> Download PDF
+                <FiDownload aria-hidden="true" /> {t('sales:detail.downloadPdf')}
               </button>
               <button type="button" className="btn btn-primary" onClick={dismissReceipt}>
-                New Sale
+                {t('sales:pos.newSale')}
               </button>
             </div>
           </div>

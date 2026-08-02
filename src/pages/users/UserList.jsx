@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FiPlus, FiEdit2, FiTrash2, FiUserCheck, FiUserX } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
@@ -21,6 +22,7 @@ const STATUS_BADGE = {
 };
 
 function UserList() {
+  const { t } = useTranslation(['settings', 'common']);
   const navigate = useNavigate();
   const canCreate = usePermission('users.create');
   const canEdit = usePermission('users.edit');
@@ -34,28 +36,30 @@ function UserList() {
   const fetchUsers = useCallback((params) => userService.listUsers(params), []);
   const { items, meta, loading, page, setPage, search, setSearch, refetch } = useTable(fetchUsers);
 
+  const statusLabel = (status) => t(`settings:users.statusLabels.${status}`);
+
   const handleToggleStatus = async (user) => {
     setActionError('');
     const nextStatus = user.status === 'active' ? 'suspended' : 'active';
     try {
       await userService.changeUserStatus(user.id, nextStatus);
-      toast.success(nextStatus === 'active' ? 'User activated.' : 'User suspended.');
+      toast.success(nextStatus === 'active' ? t('settings:users.activateSuccess') : t('settings:users.suspendSuccess'));
       refetch();
     } catch (err) {
-      setActionError(err.response?.data?.message || 'Failed to update status.');
+      setActionError(err.response?.data?.message || t('settings:users.statusUpdateError'));
     }
   };
 
   const handleDelete = async () => {
     await userService.deleteUser(pendingDelete.id);
-    toast.success('User deleted.');
+    toast.success(t('settings:users.deleteSuccess'));
     refetch();
   };
 
   const columns = [
     {
       key: 'name',
-      label: 'Name',
+      label: t('settings:users.columns.name'),
       render: (row) => (
         <div className="flex items-center gap-2">
           <span className="navbar-user-avatar" style={{ width: 28, height: 28, fontSize: 'var(--font-size-xs)' }}>
@@ -65,15 +69,15 @@ function UserList() {
         </div>
       ),
     },
-    { key: 'username', label: 'Username' },
-    { key: 'email', label: 'Email' },
-    { key: 'phone', label: 'Phone' },
-    { key: 'role_name', label: 'Role' },
-    { key: 'branch_name', label: 'Branch', render: (row) => row.branch_name || '—' },
+    { key: 'username', label: t('settings:users.columns.username') },
+    { key: 'email', label: t('common:labels.email') },
+    { key: 'phone', label: t('common:labels.phone') },
+    { key: 'role_name', label: t('settings:users.columns.role') },
+    { key: 'branch_name', label: t('settings:users.columns.branch'), render: (row) => row.branch_name || '—' },
     {
       key: 'status',
-      label: 'Status',
-      render: (row) => <span className={`badge ${STATUS_BADGE[row.status]}`}>{row.status}</span>,
+      label: t('common:labels.status'),
+      render: (row) => <span className={`badge ${STATUS_BADGE[row.status]}`}>{statusLabel(row.status)}</span>,
     },
     {
       key: 'actions',
@@ -81,7 +85,7 @@ function UserList() {
       render: (row) => (
         <div className="table-actions">
           {canEdit && (
-            <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/settings/users/${row.id}/edit`)} aria-label="Edit user">
+            <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/settings/users/${row.id}/edit`)} aria-label={t('settings:users.editAria')}>
               <FiEdit2 />
             </button>
           )}
@@ -90,13 +94,13 @@ function UserList() {
               type="button"
               className="btn btn-ghost btn-icon"
               onClick={() => handleToggleStatus(row)}
-              aria-label={row.status === 'active' ? 'Suspend user' : 'Activate user'}
+              aria-label={row.status === 'active' ? t('settings:users.suspendAria') : t('settings:users.activateAria')}
             >
               {row.status === 'active' ? <FiUserX /> : <FiUserCheck />}
             </button>
           )}
           {canDelete && (
-            <button type="button" className="btn btn-ghost btn-icon" onClick={() => setPendingDelete(row)} aria-label="Delete user">
+            <button type="button" className="btn btn-ghost btn-icon" onClick={() => setPendingDelete(row)} aria-label={t('settings:users.deleteAria')}>
               <FiTrash2 />
             </button>
           )}
@@ -109,13 +113,13 @@ function UserList() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Users</h1>
-          <p className="page-subtitle">Manage staff accounts, roles and branch assignments</p>
+          <h1 className="page-title">{t('settings:users.pageTitle')}</h1>
+          <p className="page-subtitle">{t('settings:users.pageSubtitle')}</p>
         </div>
         {canCreate && (
           <div className="page-actions">
             <button type="button" className="btn btn-primary" onClick={() => navigate('/settings/users/new')}>
-              <FiPlus aria-hidden="true" /> New User
+              <FiPlus aria-hidden="true" /> {t('settings:users.newUser')}
             </button>
           </div>
         )}
@@ -131,12 +135,12 @@ function UserList() {
 
       <div className="card">
         <div className="table-toolbar">
-          <SearchInput value={search} onChange={setSearch} placeholder="Search by name, email, username..." />
+          <SearchInput value={search} onChange={setSearch} placeholder={t('settings:users.searchPlaceholder')} />
           <ViewToggle view={view} onChange={setView} />
         </div>
 
         {view === 'list' ? (
-          <Table columns={columns} rows={items} loading={loading} emptyMessage="No users found" />
+          <Table columns={columns} rows={items} loading={loading} emptyMessage={t('settings:users.emptyMessage')} />
         ) : (
           <div className="management-grid">
             {items.map((row) => (
@@ -145,7 +149,7 @@ function UserList() {
                   <span className="navbar-user-avatar" style={{ width: 44, height: 44, fontSize: 'var(--font-size-md)' }}>
                     {row.first_name.charAt(0).toUpperCase()}
                   </span>
-                  <span className={`badge ${STATUS_BADGE[row.status]}`}>{row.status}</span>
+                  <span className={`badge ${STATUS_BADGE[row.status]}`}>{statusLabel(row.status)}</span>
                 </div>
                 <div>
                   <div className="management-grid-card-title">{row.first_name} {row.last_name}</div>
@@ -153,12 +157,12 @@ function UserList() {
                 </div>
                 <div className="management-grid-card-body">
                   <span>{row.role_name}</span>
-                  <span>{row.branch_name || 'No branch assigned'}</span>
+                  <span>{row.branch_name || t('settings:users.noBranchAssigned')}</span>
                 </div>
                 <div className="management-grid-card-footer">
                   <div className="table-actions">
                     {canEdit && (
-                      <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/settings/users/${row.id}/edit`)} aria-label="Edit user">
+                      <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/settings/users/${row.id}/edit`)} aria-label={t('settings:users.editAria')}>
                         <FiEdit2 />
                       </button>
                     )}
@@ -167,13 +171,13 @@ function UserList() {
                         type="button"
                         className="btn btn-ghost btn-icon"
                         onClick={() => handleToggleStatus(row)}
-                        aria-label={row.status === 'active' ? 'Suspend user' : 'Activate user'}
+                        aria-label={row.status === 'active' ? t('settings:users.suspendAria') : t('settings:users.activateAria')}
                       >
                         {row.status === 'active' ? <FiUserX /> : <FiUserCheck />}
                       </button>
                     )}
                     {canDelete && (
-                      <button type="button" className="btn btn-ghost btn-icon" onClick={() => setPendingDelete(row)} aria-label="Delete user">
+                      <button type="button" className="btn btn-ghost btn-icon" onClick={() => setPendingDelete(row)} aria-label={t('settings:users.deleteAria')}>
                         <FiTrash2 />
                       </button>
                     )}
@@ -183,7 +187,7 @@ function UserList() {
             ))}
             {!loading && items.length === 0 && (
               <div className="text-sm text-secondary" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-8)' }}>
-                No users found
+                {t('settings:users.emptyMessage')}
               </div>
             )}
           </div>
@@ -196,9 +200,9 @@ function UserList() {
         open={Boolean(pendingDelete)}
         onClose={() => setPendingDelete(null)}
         onConfirm={handleDelete}
-        title="Delete user"
-        message={pendingDelete ? `Delete "${pendingDelete.first_name} ${pendingDelete.last_name}"? This cannot be undone.` : ''}
-        confirmLabel="Delete"
+        title={t('settings:users.deleteTitle')}
+        message={pendingDelete ? t('settings:users.deleteMessage', { name: `${pendingDelete.first_name} ${pendingDelete.last_name}` }) : ''}
+        confirmLabel={t('common:actions.delete')}
       />
     </div>
   );

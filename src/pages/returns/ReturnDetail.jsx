@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FiArrowLeft, FiCheck, FiX } from 'react-icons/fi';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import PageSkeleton from '../../components/common/PageSkeleton';
@@ -14,26 +15,8 @@ const STATUS_BADGE = {
   rejected: 'badge-danger',
 };
 
-const REASON_LABELS = {
-  damaged: 'Damaged Product',
-  wrong_item: 'Wrong Product Issued',
-  changed_mind: 'Customer Changed Mind',
-  expired: 'Expired Product',
-  other: 'Other',
-};
-
-const REFUND_METHOD_LABELS = {
-  cash: 'Cash',
-  mpesa: 'M-Pesa',
-  airtel_money: 'Airtel Money',
-  bank_transfer: 'Bank Transfer',
-};
-
-function formatDateTime(isoString) {
-  return new Date(isoString).toLocaleString('en-TZ', { dateStyle: 'medium', timeStyle: 'short' });
-}
-
 function ReturnDetail() {
+  const { t, i18n } = useTranslation(['returns', 'common']);
   const { id } = useParams();
   const navigate = useNavigate();
   const canApprove = usePermission('returns.approve');
@@ -41,6 +24,35 @@ function ReturnDetail() {
   const [returnRecord, setReturnRecord] = useState(null);
   const [dialog, setDialog] = useState(null);
   const [actionError, setActionError] = useState('');
+
+  const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
+  const formatDateTime = (isoString) => new Date(isoString).toLocaleString(dateLocale, { dateStyle: 'medium', timeStyle: 'short' });
+
+  const REASON_LABELS = {
+    damaged: t('returns:reasons.damaged'),
+    wrong_item: t('returns:reasons.wrongItem'),
+    changed_mind: t('returns:reasons.changedMind'),
+    expired: t('returns:reasons.expired'),
+    other: t('returns:reasons.other'),
+  };
+
+  const STATUS_LABELS = {
+    pending: t('returns:status.pending'),
+    approved: t('returns:status.approved'),
+    rejected: t('returns:status.rejected'),
+  };
+
+  const REFUND_METHOD_LABELS = {
+    cash: t('returns:refundMethod.cash'),
+    mpesa: t('returns:refundMethod.mpesa'),
+    airtel_money: t('returns:refundMethod.airtelMoney'),
+    bank_transfer: t('returns:refundMethod.bankTransfer'),
+  };
+
+  const REFUND_STATUS_LABELS = {
+    refunded: t('returns:refundStatus.refunded'),
+    pending: t('returns:refundStatus.pending'),
+  };
 
   const loadReturn = useCallback(() => {
     returnService.getReturn(id).then(setReturnRecord);
@@ -58,10 +70,10 @@ function ReturnDetail() {
     setActionError('');
     try {
       await returnService.approveReturn(returnRecord.id);
-      toast.success('Return approved.');
+      toast.success(t('returns:detail.toast.approved'));
       loadReturn();
     } catch (err) {
-      setActionError(err.response?.data?.message || 'Failed to approve return.');
+      setActionError(err.response?.data?.message || t('returns:detail.toast.approveFailed'));
     }
   };
 
@@ -69,10 +81,10 @@ function ReturnDetail() {
     setActionError('');
     try {
       await returnService.rejectReturn(returnRecord.id);
-      toast.success('Return rejected.');
+      toast.success(t('returns:detail.toast.rejected'));
       loadReturn();
     } catch (err) {
-      setActionError(err.response?.data?.message || 'Failed to reject return.');
+      setActionError(err.response?.data?.message || t('returns:detail.toast.rejectFailed'));
     }
   };
 
@@ -83,20 +95,20 @@ function ReturnDetail() {
       <div className="page-header">
         <div>
           <button type="button" className="btn btn-ghost btn-sm mb-2" onClick={() => navigate('/returns')}>
-            <FiArrowLeft aria-hidden="true" /> Back to Returns
+            <FiArrowLeft aria-hidden="true" /> {t('returns:detail.backToReturns')}
           </button>
           <h1 className="page-title">{returnRecord.return_number}</h1>
           <p className="page-subtitle">
-            Against sale {returnRecord.sale_number} · {returnRecord.branch_name} · {formatDateTime(returnRecord.created_at)}
+            {t('returns:detail.againstSale', { saleNumber: returnRecord.sale_number })} · {returnRecord.branch_name} · {formatDateTime(returnRecord.created_at)}
           </p>
         </div>
         {canApprove && isPending && (
           <div className="page-actions">
             <button type="button" className="btn btn-danger" onClick={() => setDialog('reject')}>
-              <FiX aria-hidden="true" /> Reject
+              <FiX aria-hidden="true" /> {t('returns:detail.reject')}
             </button>
             <button type="button" className="btn btn-primary" onClick={() => setDialog('approve')}>
-              <FiCheck aria-hidden="true" /> Approve
+              <FiCheck aria-hidden="true" /> {t('returns:detail.approve')}
             </button>
           </div>
         )}
@@ -108,26 +120,26 @@ function ReturnDetail() {
         <div className="card-body">
           <div className="form-row">
             <div>
-              <span className="text-xs text-secondary">Status</span>
-              <div><span className={`badge ${STATUS_BADGE[returnRecord.status] || 'badge-neutral'}`}>{returnRecord.status}</span></div>
+              <span className="text-xs text-secondary">{t('returns:detail.status')}</span>
+              <div><span className={`badge ${STATUS_BADGE[returnRecord.status] || 'badge-neutral'}`}>{STATUS_LABELS[returnRecord.status] || returnRecord.status}</span></div>
             </div>
             <div>
-              <span className="text-xs text-secondary">Reason</span>
+              <span className="text-xs text-secondary">{t('returns:detail.reason')}</span>
               <div className="text-sm">{REASON_LABELS[returnRecord.reason] || returnRecord.reason}</div>
             </div>
             <div>
-              <span className="text-xs text-secondary">Customer</span>
+              <span className="text-xs text-secondary">{t('returns:detail.customer')}</span>
               <div className="text-sm">
-                {returnRecord.customer_first_name ? `${returnRecord.customer_first_name} ${returnRecord.customer_last_name}` : 'Walk-in'}
+                {returnRecord.customer_first_name ? `${returnRecord.customer_first_name} ${returnRecord.customer_last_name}` : t('returns:detail.walkIn')}
               </div>
             </div>
             <div>
-              <span className="text-xs text-secondary">Requested By</span>
+              <span className="text-xs text-secondary">{t('returns:detail.requestedBy')}</span>
               <div className="text-sm">{returnRecord.created_by_first_name} {returnRecord.created_by_last_name}</div>
             </div>
             {returnRecord.approved_by_first_name && (
               <div>
-                <span className="text-xs text-secondary">{returnRecord.status === 'rejected' ? 'Rejected By' : 'Approved By'}</span>
+                <span className="text-xs text-secondary">{returnRecord.status === 'rejected' ? t('returns:detail.rejectedBy') : t('returns:detail.approvedBy')}</span>
                 <div className="text-sm">{returnRecord.approved_by_first_name} {returnRecord.approved_by_last_name}</div>
               </div>
             )}
@@ -136,11 +148,11 @@ function ReturnDetail() {
       </div>
 
       <div className="card mb-5">
-        <div className="card-header"><span className="card-title">Returned Items</span></div>
+        <div className="card-header"><span className="card-title">{t('returns:detail.returnedItems')}</span></div>
         <div className="table-wrapper">
           <table className="table">
             <thead>
-              <tr><th>Product</th><th>Quantity</th><th>Unit Price</th></tr>
+              <tr><th>{t('returns:columns.product')}</th><th>{t('returns:columns.quantity')}</th><th>{t('returns:columns.unitPrice')}</th></tr>
             </thead>
             <tbody>
               {returnRecord.items.map((item) => (
@@ -156,20 +168,20 @@ function ReturnDetail() {
       </div>
 
       <div className="card">
-        <div className="card-header"><span className="card-title">Refund</span></div>
+        <div className="card-header"><span className="card-title">{t('returns:detail.refund')}</span></div>
         <div className="card-body">
           <div className="form-row">
             <div>
-              <span className="text-xs text-secondary">Refund Amount</span>
+              <span className="text-xs text-secondary">{t('returns:detail.refundAmount')}</span>
               <div className="text-sm font-semibold">{formatCurrency(returnRecord.refund_amount)}</div>
             </div>
             <div>
-              <span className="text-xs text-secondary">Refund Method</span>
+              <span className="text-xs text-secondary">{t('returns:detail.refundMethod')}</span>
               <div className="text-sm">{REFUND_METHOD_LABELS[returnRecord.refund_method] || returnRecord.refund_method}</div>
             </div>
             <div>
-              <span className="text-xs text-secondary">Refund Status</span>
-              <div><span className={`badge ${returnRecord.refund_status === 'refunded' ? 'badge-success' : 'badge-warning'}`}>{returnRecord.refund_status}</span></div>
+              <span className="text-xs text-secondary">{t('returns:detail.refundStatus')}</span>
+              <div><span className={`badge ${returnRecord.refund_status === 'refunded' ? 'badge-success' : 'badge-warning'}`}>{REFUND_STATUS_LABELS[returnRecord.refund_status] || returnRecord.refund_status}</span></div>
             </div>
           </div>
         </div>
@@ -179,18 +191,18 @@ function ReturnDetail() {
         open={dialog === 'approve'}
         onClose={() => setDialog(null)}
         onConfirm={handleApprove}
-        title="Approve Return"
-        message="Approving will restore stock for the returned items and mark the refund as issued."
-        confirmLabel="Approve"
+        title={t('returns:detail.approveDialogTitle')}
+        message={t('returns:detail.approveDialogMessage')}
+        confirmLabel={t('returns:detail.approveConfirm')}
         variant="primary"
       />
       <ConfirmDialog
         open={dialog === 'reject'}
         onClose={() => setDialog(null)}
         onConfirm={handleReject}
-        title="Reject Return"
-        message="Rejecting this return will not move any stock or issue a refund. This cannot be undone."
-        confirmLabel="Reject"
+        title={t('returns:detail.rejectDialogTitle')}
+        message={t('returns:detail.rejectDialogMessage')}
+        confirmLabel={t('returns:detail.rejectConfirm')}
         variant="danger"
       />
     </div>

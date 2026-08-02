@@ -1,1 +1,152 @@
-{}
+{
+  "page": {
+    "title": "Kituo cha Ripoti",
+    "subtitle": "Ripoti za moja kwa moja zinazotengenezwa kutoka kwa data ya sasa — hakuna thamani zilizowekwa mapema"
+  },
+  "actions": {
+    "print": "Chapisha",
+    "dateRangeLabel": "Kipindi cha tarehe cha {{type}}",
+    "exportPdfLabel": "Hamisha {{type}} kama PDF",
+    "exportExcelLabel": "Hamisha {{type}} kama Excel",
+    "exportCsvLabel": "Hamisha {{type}} kama CSV"
+  },
+  "types": {
+    "sales": "Mauzo",
+    "suppliers": "Wasambazaji",
+    "customers": "Wateja",
+    "inventory": "Hesabu ya Bidhaa",
+    "products": "Bidhaa",
+    "purchases": "Manunuzi",
+    "returns": "Marejesho",
+    "expenses": "Matumizi",
+    "profit": "Faida",
+    "branches": "Matawi",
+    "users": "Watumiaji",
+    "all": "Ripoti Zote"
+  },
+  "descriptions": {
+    "sales": "Mapato, miamala, na mwelekeo wa kila siku.",
+    "suppliers": "Jumla ya manunuzi na salio linalodaiwa.",
+    "customers": "Wateja bora kwa matumizi na idadi ya oda.",
+    "inventory": "Kiwango cha hesabu, thamani, na tahadhari za bidhaa chache.",
+    "products": "Bidhaa zinazouzwa zaidi kwa idadi na mapato.",
+    "purchases": "Jumla ya manunuzi na salio linalodaiwa.",
+    "returns": "Bidhaa zilizorejeshwa na jumla ya marejesho ya fedha.",
+    "expenses": "Matumizi kwa aina kwa kipindi husika.",
+    "profit": "Mapato, gharama za bidhaa zilizouzwa na faida halisi.",
+    "branches": "Ulinganisho wa utendaji kati ya matawi.",
+    "users": "Akaunti za watumiaji kwa jukumu, tawi na hali.",
+    "all": "Muhtasari wa jumla wa biashara katika maeneo yote."
+  },
+  "summary": {
+    "totalSales": "Jumla ya Mauzo",
+    "totalRevenue": "Jumla ya Mapato",
+    "totalDiscount": "Jumla ya Punguzo",
+    "averageSale": "Wastani wa Mauzo",
+    "totalRecords": "Jumla ya Rekodi",
+    "totalValue": "Jumla ya Thamani",
+    "lowStock": "Bidhaa Chache",
+    "outOfStock": "Bidhaa Zilizoisha",
+    "totalPurchases": "Jumla ya Manunuzi",
+    "totalAmount": "Jumla ya Kiasi",
+    "totalReturns": "Jumla ya Marejesho",
+    "totalRefund": "Jumla ya Fedha Zilizorejeshwa",
+    "totalExpenses": "Jumla ya Matumizi",
+    "salesRevenue": "Mapato ya Mauzo",
+    "cogs": "Gharama za Bidhaa Zilizouzwa",
+    "grossProfit": "Faida Ghafi",
+    "expenses": "Matumizi",
+    "netProfit": "Faida Halisi",
+    "totalUsers": "Jumla ya Watumiaji",
+    "activeUsers": "Hai",
+    "suspendedUsers": "Waliosimamishwa",
+    "lockedUsers": "Waliofungwa"
+  },
+  "breakdowns": {
+    "byDay": "Kwa Siku",
+    "byBranch": "Kwa Tawi",
+    "supplierBalances": "Salio la Wasambazaji",
+    "topCustomers": "Wateja Bora",
+    "byCategory": "Kwa Aina",
+    "topProducts": "Bidhaa Bora",
+    "bySupplier": "Kwa Msambazaji",
+    "byReason": "Kwa Sababu",
+    "branchComparison": "Ulinganisho wa Matawi",
+    "byRole": "Kwa Jukumu",
+    "salesByDay": "Mauzo kwa Siku",
+    "salesByBranch": "Mauzo kwa Tawi",
+    "expensesByCategory": "Matumizi kwa Aina"
+  },
+  "headers": {
+    "date": "Tarehe",
+    "branch": "Tawi",
+    "supplier": "Msambazaji",
+    "customer": "Mteja",
+    "category": "Aina",
+    "product": "Bidhaa",
+    "reason": "Sababu",
+    "role": "Jukumu"
+  },
+  "filters": {
+    "quickRange": "Kipindi cha Haraka",
+    "from": "Kuanzia",
+    "to": "Hadi",
+    "cashier": "Muuzaji",
+    "allCashiers": "Wauzaji Wote",
+    "category": "Aina",
+    "allCategories": "Aina Zote",
+    "allStatuses": "Hali Zote",
+    "customer": "Mteja",
+    "allCustomers": "Wateja Wote",
+    "product": "Bidhaa",
+    "allProducts": "Bidhaa Zote"
+  },
+  "presets": {
+    "today": "Leo",
+    "yesterday": "Jana",
+    "last7": "Siku 7 Zilizopita",
+    "last30": "Siku 30 Zilizopita",
+    "week": "Wiki Hii",
+    "month": "Mwezi Huu",
+    "lastMonth": "Mwezi Uliopita",
+    "year": "Mwaka Huu",
+    "custom": "Maalum"
+  },
+  "statusOptions": {
+    "pending": "Inasubiri",
+    "received": "Imepokelewa",
+    "cancelled": "Imeghairiwa",
+    "approved": "Imeidhinishwa",
+    "rejected": "Imekataliwa"
+  },
+  "charts": {
+    "dailyProfitTrend": "Mwelekeo wa Faida ya Kila Siku",
+    "salesTrend": "Mwelekeo wa Mauzo"
+  },
+  "financialSummary": {
+    "title": "Muhtasari wa Kifedha",
+    "totalRevenue": "Jumla ya Mapato",
+    "averageDailySales": "Wastani wa Mauzo ya Kila Siku",
+    "averageInvoice": "Wastani wa Ankara",
+    "highestSalesDay": "Siku Yenye Mauzo Zaidi",
+    "lowestSalesDay": "Siku Yenye Mauzo Machache",
+    "monthlyTrend": "Mwelekeo wa Kila Mwezi"
+  },
+  "analysis": {
+    "title": "Uchambuzi wa Biashara"
+  },
+  "recommendations": {
+    "title": "Mapendekezo"
+  },
+  "empty": {
+    "title": "Hakuna data",
+    "description": "Hakuna data kwa vichujio vilivyochaguliwa."
+  },
+  "errors": {
+    "loadFailed": "Imeshindwa kupakia ripoti.",
+    "exportPdfFailed": "Imeshindwa kuhamisha PDF.",
+    "exportExcelFailed": "Imeshindwa kuhamisha Excel.",
+    "exportCsvFailed": "Imeshindwa kuhamisha CSV.",
+    "exportFailed": "Imeshindwa kuhamisha {{type}}."
+  }
+}

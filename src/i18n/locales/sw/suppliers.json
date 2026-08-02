@@ -1,1 +1,78 @@
-{}
+{
+  "list": {
+    "title": "Wasambazaji",
+    "subtitle": "Simamia wasambazaji na historia yao ya manunuzi",
+    "newSupplier": "Msambazaji Mpya",
+    "searchPlaceholder": "Tafuta kwa jina, simu, barua pepe...",
+    "emptyMessage": "Hakuna wasambazaji waliopatikana",
+    "viewSupplier": "Angalia msambazaji",
+    "editSupplier": "Hariri msambazaji",
+    "deleteSupplier": "Futa msambazaji",
+    "activateSupplier": "Amilisha msambazaji",
+    "deactivateSupplier": "Zima msambazaji",
+    "updateSuccess": "Msambazaji amesasishwa.",
+    "createSuccess": "Msambazaji ameundwa.",
+    "saveError": "Imeshindwa kuhifadhi msambazaji.",
+    "activateSuccess": "Msambazaji ameamilishwa.",
+    "deactivateSuccess": "Msambazaji amezimwa.",
+    "statusUpdateError": "Imeshindwa kusasisha hali ya msambazaji.",
+    "deleteSuccess": "Msambazaji amefutwa kabisa.",
+    "deleteError": "Imeshindwa kufuta msambazaji.",
+    "tinLabel": "TIN: {{tin}}",
+    "editModalTitle": "Hariri Msambazaji",
+    "newModalTitle": "Msambazaji Mpya",
+    "saveChanges": "Hifadhi Mabadiliko",
+    "createSupplier": "Unda Msambazaji",
+    "deleteDialogTitle": "Futa Msambazaji?",
+    "deleteDialogMessage": "Hatua hii haiwezi kutenduliwa.",
+    "deleteConfirmLabel": "Futa"
+  },
+  "columns": {
+    "supplierName": "Jina la Msambazaji",
+    "phone": "Simu",
+    "email": "Barua Pepe",
+    "status": "Hali"
+  },
+  "form": {
+    "nameLabel": "Jina la Msambazaji",
+    "nameRequired": "Jina la msambazaji linahitajika.",
+    "phoneLabel": "Namba ya Simu",
+    "phoneRequired": "Namba ya simu inahitajika.",
+    "emailLabel": "Barua Pepe",
+    "emailInvalid": "Barua pepe si sahihi.",
+    "addressLabel": "Anwani",
+    "notesLabel": "Maelezo Zaidi"
+  },
+  "detail": {
+    "backToSuppliers": "Rudi kwenye Wasambazaji",
+    "noPhoneOnFile": "Hakuna namba ya simu iliyowekwa",
+    "recordPayment": "Rekodi Malipo",
+    "totalPurchased": "Jumla ya Manunuzi",
+    "totalPaid": "Jumla Iliyolipwa",
+    "outstandingBalance": "Salio Linalodaiwa",
+    "purchaseHistory": "Historia ya Manunuzi",
+    "emptyMessage": "Hakuna manunuzi yaliyorekodiwa bado",
+    "paymentModalTitle": "Rekodi Malipo",
+    "savePayment": "Hifadhi Malipo",
+    "cancel": "Ghairi",
+    "outstandingBalanceLine": "Salio linalodaiwa: {{amount}}",
+    "amountLabel": "Kiasi",
+    "amountRequired": "Kiasi kinahitajika",
+    "mustBePositive": "Lazima kiwe chanya",
+    "paymentMethodLabel": "Njia ya Malipo",
+    "paymentSuccess": "Malipo yamerekodiwa.",
+    "paymentError": "Imeshindwa kurekodi malipo."
+  },
+  "detailColumns": {
+    "purchaseNumber": "Namba ya Manunuzi",
+    "date": "Tarehe",
+    "amount": "Kiasi",
+    "status": "Hali"
+  },
+  "paymentMethods": {
+    "cash": "Fedha Taslimu",
+    "mpesa": "M-Pesa",
+    "airtel_money": "Airtel Money",
+    "bank_transfer": "Uhamisho wa Benki"
+  }
+}

@@ -1,1 +1,76 @@
-{}
+{
+  "overview": {
+    "title": "Hesabu ya Bidhaa",
+    "subtitle": "Kiwango cha hesabu ya sasa katika matawi yote",
+    "movementHistory": "Historia ya Mwendo",
+    "searchPlaceholder": "Tafuta kwa jina la bidhaa au msimbo...",
+    "lowStock": "Hesabu Ndogo",
+    "outOfStock": "Haipo Stoo",
+    "inStock": "Ipo Stoo",
+    "emptyMessage": "Hakuna rekodi za hesabu ya bidhaa zilizopatikana",
+    "adjustStock": "Rekebisha hesabu",
+    "adjustmentSuccess": "Marekebisho ya hesabu yamerekodiwa.",
+    "adjustmentError": "Imeshindwa kurekodi marekebisho."
+  },
+  "kpi": {
+    "totalProducts": "Jumla ya Bidhaa",
+    "inventoryValue": "Thamani ya Hesabu ya Bidhaa",
+    "lowStock": "Hesabu Ndogo",
+    "outOfStock": "Haipo Stoo"
+  },
+  "columns": {
+    "product": "Bidhaa",
+    "branch": "Tawi",
+    "currentStock": "Hesabu ya Sasa",
+    "available": "Inayopatikana",
+    "minStock": "Hesabu ya Chini",
+    "stockValue": "Thamani ya Hesabu",
+    "level": "Kiwango"
+  },
+  "modal": {
+    "title": "Rekebisha Hesabu",
+    "saveAdjustment": "Hifadhi Marekebisho",
+    "cancel": "Ghairi",
+    "atBranch": "katika {{branch}}",
+    "currentStock": "hesabu ya sasa: {{stock}}",
+    "quantityChangeLabel": "Mabadiliko ya Idadi (tumia namba hasi kuondoa hesabu)",
+    "quantityRequired": "Idadi inahitajika",
+    "cannotBeZero": "Haiwezi kuwa sifuri",
+    "reason": "Sababu",
+    "description": "Maelezo"
+  },
+  "reasons": {
+    "damaged": "Imeharibika",
+    "expired": "Imepitwa na Wakati",
+    "lost": "Imepotea",
+    "correction": "Marekebisho",
+    "initial_count": "Hesabu ya Awali",
+    "system_error": "Hitilafu ya Mfumo"
+  },
+  "movements": {
+    "backToInventory": "Rudi kwenye Hesabu ya Bidhaa",
+    "title": "Mwendo wa Bidhaa",
+    "subtitle": "Kumbukumbu kamili ya kila mabadiliko ya hesabu",
+    "allMovementTypes": "Aina Zote za Mwendo",
+    "emptyMessage": "Hakuna mwendo wa bidhaa uliorekodiwa bado"
+  },
+  "movementColumns": {
+    "date": "Tarehe",
+    "product": "Bidhaa",
+    "branch": "Tawi",
+    "type": "Aina",
+    "change": "Mabadiliko",
+    "resultingStock": "Hesabu Iliyobaki",
+    "by": "Na"
+  },
+  "movementTypes": {
+    "purchase": "Ununuzi",
+    "sale": "Mauzo",
+    "return": "Marejesho",
+    "transfer_out": "Uhamisho wa Kutoka",
+    "transfer_in": "Uhamisho wa Kuingia",
+    "adjustment": "Marekebisho",
+    "opening_balance": "Hesabu ya Ufunguzi",
+    "manual_correction": "Marekebisho ya Mkono"
+  }
+}

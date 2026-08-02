@@ -1,4 +1,5 @@
 import { formatCurrency } from '../utils/formatCurrency.js';
+import { t } from '../i18n/index.js';
 
 // Single source of truth for "what a report contains" — title, summary
 // labels, and breakdown-table definitions — shared by both the PDF and
@@ -7,93 +8,106 @@ import { formatCurrency } from '../utils/formatCurrency.js';
 // REPORT_CONFIGS (presentation labels only, not business logic — the
 // underlying data always comes from the same unmodified
 // reportService.getReport() every consumer uses).
+//
+// Locale-aware: buildReportConfigs(locale) below builds this same shape
+// from backend/i18n/dictionaries.js so the server-rendered PDF/Excel/CSV
+// headers match whichever language the request asked for — English keys
+// stay hardcoded here only as the object's structural keys (report type,
+// summary metric, breakdown key), never as the displayed label text.
 export const MONEY_KEYS = new Set([
   'value', 'totalRevenue', 'totalAmount', 'totalDiscount', 'averageSale', 'totalValue',
   'salesRevenue', 'expenses', 'totalExpenses', 'net', 'cogs', 'grossProfit', 'netProfit', 'totalRefund',
   'totalPurchased', 'totalPaid', 'outstandingBalance',
 ]);
 
-export const REPORT_CONFIGS = {
-  sales: {
-    title: 'Sales',
-    summaryLabels: { totalSales: 'Total Sales', totalRevenue: 'Total Revenue', totalDiscount: 'Total Discount', averageSale: 'Average Sale' },
-    breakdowns: [{ key: 'byDay', title: 'By Day', labelHeader: 'Date' }, { key: 'byBranch', title: 'By Branch', labelHeader: 'Branch' }],
-  },
-  customers: {
-    title: 'Customers',
-    summaryLabels: null,
-    breakdowns: [{ key: 'topCustomers', title: 'Top Customers', labelHeader: 'Customer' }],
-  },
-  inventory: {
-    title: 'Inventory',
-    summaryLabels: { totalRecords: 'Total Records', totalValue: 'Total Value', lowStock: 'Low Stock', outOfStock: 'Out of Stock' },
-    breakdowns: [{ key: 'byCategory', title: 'By Category', labelHeader: 'Category' }],
-  },
-  products: {
-    title: 'Products',
-    summaryLabels: null,
-    breakdowns: [{ key: 'topProducts', title: 'Top Products', labelHeader: 'Product' }],
-  },
-  purchases: {
-    title: 'Purchases',
-    summaryLabels: { totalPurchases: 'Total Purchases', totalAmount: 'Total Amount' },
-    breakdowns: [{ key: 'bySupplier', title: 'By Supplier', labelHeader: 'Supplier' }],
-  },
-  returns: {
-    title: 'Returns',
-    summaryLabels: { totalReturns: 'Total Returns', totalRefund: 'Total Refund' },
-    breakdowns: [{ key: 'byReason', title: 'By Reason', labelHeader: 'Reason' }],
-  },
-  expenses: {
-    title: 'Expenses',
-    summaryLabels: { totalExpenses: 'Total Expenses', totalAmount: 'Total Amount' },
-    breakdowns: [{ key: 'byCategory', title: 'By Category', labelHeader: 'Category' }],
-  },
-  profit: {
-    title: 'Profit',
-    summaryLabels: {
-      salesRevenue: 'Sales Revenue', totalRevenue: 'Total Revenue',
-      cogs: 'Cost of Goods Sold', grossProfit: 'Gross Profit', expenses: 'Expenses', netProfit: 'Net Profit',
+function buildReportConfigs(locale) {
+  const rt = (key) => t(locale, `reportTypes.${key}`);
+  const sl = (key) => t(locale, `summaryLabels.${key}`);
+  const bd = (key) => t(locale, `breakdowns.${key}`);
+  const bh = (key) => t(locale, `breakdownHeaders.${key}`);
+
+  return {
+    sales: {
+      title: rt('sales'),
+      summaryLabels: { totalSales: sl('totalSales'), totalRevenue: sl('totalRevenue'), totalDiscount: sl('totalDiscount'), averageSale: sl('averageSale') },
+      breakdowns: [{ key: 'byDay', title: bd('byDay'), labelHeader: bh('date') }, { key: 'byBranch', title: bd('byBranch'), labelHeader: bh('branch') }],
     },
-    breakdowns: [{ key: 'byDay', title: 'By Day', labelHeader: 'Date' }],
-  },
-  branches: {
-    title: 'Branches',
-    summaryLabels: null,
-    breakdowns: [{ key: 'byBranch', title: 'Branch Comparison', labelHeader: 'Branch' }],
-  },
-  suppliers: {
-    title: 'Suppliers',
-    summaryLabels: null,
-    breakdowns: [{ key: 'bySupplier', title: 'Supplier Balances', labelHeader: 'Supplier' }],
-  },
-  users: {
-    title: 'Users',
-    summaryLabels: { totalUsers: 'Total Users', activeUsers: 'Active', suspendedUsers: 'Suspended', lockedUsers: 'Locked' },
-    breakdowns: [{ key: 'byRole', title: 'By Role', labelHeader: 'Role' }, { key: 'byBranch', title: 'By Branch', labelHeader: 'Branch' }],
-  },
-  // The business-summary report — report.service.js's buildAllReport()
-  // flattens sales/products/customers/expenses/profit into this same
-  // { summary, ...arrays } shape every other report already uses, so
-  // nothing here (or in the PDF/Excel/CSV renderers) needs special-casing
-  // beyond naming which flattened keys to show. report.analysis (a plain
-  // string array, not a breakdown table) is handled separately by each
-  // renderer since it isn't tabular.
-  all: {
-    title: 'All Reports',
-    summaryLabels: {
-      totalSales: 'Total Sales', totalRevenue: 'Total Revenue', totalExpenses: 'Total Expenses',
-      netProfit: 'Net Profit',
+    customers: {
+      title: rt('customers'),
+      summaryLabels: null,
+      breakdowns: [{ key: 'topCustomers', title: bd('topCustomers'), labelHeader: bh('customer') }],
     },
-    breakdowns: [
-      { key: 'salesByDay', title: 'Sales By Day', labelHeader: 'Date' },
-      { key: 'salesByBranch', title: 'Sales By Branch', labelHeader: 'Branch' },
-      { key: 'topProducts', title: 'Top Products', labelHeader: 'Product' },
-      { key: 'topCustomers', title: 'Top Customers', labelHeader: 'Customer' },
-      { key: 'expensesByCategory', title: 'Expenses By Category', labelHeader: 'Category' },
-    ],
-  },
-};
+    inventory: {
+      title: rt('inventory'),
+      summaryLabels: { totalRecords: sl('totalRecords'), totalValue: sl('totalValue'), lowStock: sl('lowStock'), outOfStock: sl('outOfStock') },
+      breakdowns: [{ key: 'byCategory', title: bd('byCategory'), labelHeader: bh('category') }],
+    },
+    products: {
+      title: rt('products'),
+      summaryLabels: null,
+      breakdowns: [{ key: 'topProducts', title: bd('topProducts'), labelHeader: bh('product') }],
+    },
+    purchases: {
+      title: rt('purchases'),
+      summaryLabels: { totalPurchases: sl('totalPurchases'), totalAmount: sl('totalAmount') },
+      breakdowns: [{ key: 'bySupplier', title: bd('bySupplier'), labelHeader: bh('supplier') }],
+    },
+    returns: {
+      title: rt('returns'),
+      summaryLabels: { totalReturns: sl('totalReturns'), totalRefund: sl('totalRefund') },
+      breakdowns: [{ key: 'byReason', title: bd('byReason'), labelHeader: bh('reason') }],
+    },
+    expenses: {
+      title: rt('expenses'),
+      summaryLabels: { totalExpenses: sl('totalExpenses'), totalAmount: sl('totalAmount') },
+      breakdowns: [{ key: 'byCategory', title: bd('byCategory'), labelHeader: bh('category') }],
+    },
+    profit: {
+      title: rt('profit'),
+      summaryLabels: {
+        salesRevenue: sl('salesRevenue'), totalRevenue: sl('totalRevenue'),
+        cogs: sl('cogs'), grossProfit: sl('grossProfit'), expenses: sl('expenses'), netProfit: sl('netProfit'),
+      },
+      breakdowns: [{ key: 'byDay', title: bd('byDay'), labelHeader: bh('date') }],
+    },
+    branches: {
+      title: rt('branches'),
+      summaryLabels: null,
+      breakdowns: [{ key: 'byBranch', title: bd('branchComparison'), labelHeader: bh('branch') }],
+    },
+    suppliers: {
+      title: rt('suppliers'),
+      summaryLabels: null,
+      breakdowns: [{ key: 'bySupplier', title: bd('supplierBalances'), labelHeader: bh('supplier') }],
+    },
+    users: {
+      title: rt('users'),
+      summaryLabels: { totalUsers: sl('totalUsers'), activeUsers: sl('activeUsers'), suspendedUsers: sl('suspendedUsers'), lockedUsers: sl('lockedUsers') },
+      breakdowns: [{ key: 'byRole', title: bd('byRole'), labelHeader: bh('role') }, { key: 'byBranch', title: bd('byBranch'), labelHeader: bh('branch') }],
+    },
+    // The business-summary report — report.service.js's buildAllReport()
+    // flattens sales/products/customers/expenses/profit into this same
+    // { summary, ...arrays } shape every other report already uses, so
+    // nothing here (or in the PDF/Excel/CSV renderers) needs special-casing
+    // beyond naming which flattened keys to show. report.analysis (a plain
+    // string array, not a breakdown table) is handled separately by each
+    // renderer since it isn't tabular.
+    all: {
+      title: rt('all'),
+      summaryLabels: {
+        totalSales: sl('totalSales'), totalRevenue: sl('totalRevenue'), totalExpenses: sl('totalExpenses'),
+        netProfit: sl('netProfit'),
+      },
+      breakdowns: [
+        { key: 'salesByDay', title: bd('salesByDay'), labelHeader: bh('date') },
+        { key: 'salesByBranch', title: bd('salesByBranch'), labelHeader: bh('branch') },
+        { key: 'topProducts', title: bd('topProducts'), labelHeader: bh('product') },
+        { key: 'topCustomers', title: bd('topCustomers'), labelHeader: bh('customer') },
+        { key: 'expensesByCategory', title: bd('expensesByCategory'), labelHeader: bh('category') },
+      ],
+    },
+  };
+}
 
 export function humanize(key) {
   // Handles both camelCase keys (most breakdown columns) and snake_case
@@ -113,14 +127,16 @@ export function formatCell(key, value) {
 // Falls back to a generic, fully-derived layout for any report type not
 // explicitly configured above (every other type reportService already
 // supports, just not exposed as a pill in the Reports UI) — humanized
-// labels, one table per array-valued field on the report.
-export function resolveConfig(type, report) {
-  const known = REPORT_CONFIGS[type];
+// labels, one table per array-valued field on the report. `locale`
+// defaults to English so every existing call site that doesn't pass one
+// keeps behaving exactly as before.
+export function resolveConfig(type, report, locale = 'en') {
+  const known = buildReportConfigs(locale)[type];
   if (known) return known;
 
   const breakdowns = Object.keys(report)
     .filter((key) => key !== 'summary' && Array.isArray(report[key]))
-    .map((key) => ({ key, title: humanize(key), labelHeader: 'Name' }));
+    .map((key) => ({ key, title: humanize(key), labelHeader: t(locale, 'breakdownHeaders.name') }));
 
   return {
     title: humanize(type),
@@ -132,9 +148,10 @@ export function resolveConfig(type, report) {
 // "Sales_Report_2026-07-15.pdf", not "sales-report.pdf" — one function so
 // the download's actual filename (frontend downloadBlob's `download`
 // attribute wins over whatever Content-Disposition suggests) and the
-// header both agree.
-export function buildReportFilename(type, report, extension) {
-  const { title } = resolveConfig(type, report);
+// header both agree. The filename itself always stays derived from the
+// title text — a Kiswahili title just produces a Kiswahili filename.
+export function buildReportFilename(type, report, extension, locale = 'en') {
+  const { title } = resolveConfig(type, report, locale);
   const datePart = new Date().toISOString().slice(0, 10);
   return `${title.replace(/\s+/g, '_')}_Report_${datePart}.${extension}`;
 }

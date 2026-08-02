@@ -96,5 +96,15 @@
   "misc": {
     "companyLogo": "Company logo",
     "avatar": "Avatar"
+  },
+  "chart": {
+    "total": "Total",
+    "other": "Other",
+    "value": "Value"
+  },
+  "camera": {
+    "starting": "Starting camera",
+    "turnOffFlashlight": "Turn off flashlight",
+    "turnOnFlashlight": "Turn on flashlight"
   }
 }

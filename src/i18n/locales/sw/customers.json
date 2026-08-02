@@ -1,1 +1,73 @@
-{}
+{
+  "list": {
+    "title": "Wateja",
+    "subtitle": "Simamia wateja na historia yao ya manunuzi/marejesho",
+    "newCustomer": "Mteja Mpya",
+    "searchPlaceholder": "Tafuta kwa jina, namba ya simu, msimbo...",
+    "emptyMessage": "Hakuna wateja waliopatikana",
+    "viewCustomerAria": "Angalia mteja",
+    "editCustomerAria": "Hariri mteja",
+    "activateCustomerAria": "Wezesha mteja",
+    "deactivateCustomerAria": "Zima mteja",
+    "deleteCustomerAria": "Futa mteja",
+    "editModalTitle": "Hariri Mteja",
+    "createModalTitle": "Mteja Mpya",
+    "saveChanges": "Hifadhi Mabadiliko",
+    "createButton": "Unda Mteja",
+    "deleteConfirmTitle": "Futa Mteja?",
+    "deleteConfirmMessage": "Hatua hii haiwezi kutenduliwa.",
+    "deleteConfirmLabel": "Futa",
+    "toast": {
+      "updated": "Mteja amesasishwa.",
+      "registered": "Mteja amesajiliwa.",
+      "saveFailed": "Imeshindikana kuhifadhi mteja.",
+      "activated": "Mteja amewezeshwa.",
+      "deactivated": "Mteja amezimwa.",
+      "statusUpdateFailed": "Imeshindikana kusasisha hali ya mteja.",
+      "deleted": "Mteja amefutwa kabisa.",
+      "deleteFailed": "Imeshindikana kufuta mteja."
+    }
+  },
+  "detail": {
+    "backToCustomers": "Rudi kwenye Wateja",
+    "totalOrders": "Jumla ya Oda",
+    "totalSpent": "Jumla Iliyotumika",
+    "totalReturns": "Jumla ya Marejesho",
+    "purchaseHistory": "Historia ya Manunuzi",
+    "returnHistory": "Historia ya Marejesho",
+    "noPurchases": "Hakuna manunuzi yaliyorekodiwa bado",
+    "noReturns": "Hakuna marejesho yaliyorekodiwa bado"
+  },
+  "columns": {
+    "code": "Msimbo",
+    "customer": "Mteja",
+    "phone": "Simu",
+    "type": "Aina",
+    "status": "Hali",
+    "saleNumber": "Namba ya Uzo",
+    "date": "Tarehe",
+    "amount": "Kiasi",
+    "returnNumber": "Namba ya Marejesho",
+    "reason": "Sababu",
+    "refund": "Kurejesha Pesa"
+  },
+  "types": {
+    "walkIn": "Mteja wa Mtaani",
+    "retail": "Rejareja",
+    "wholesale": "Jumla",
+    "vip": "VIP",
+    "business": "Biashara"
+  },
+  "form": {
+    "fullName": "Jina Kamili",
+    "phone": "Namba ya Simu",
+    "email": "Barua Pepe",
+    "address": "Anwani",
+    "notes": "Maelezo"
+  },
+  "validation": {
+    "fullNameRequired": "Jina la mteja linahitajika.",
+    "phoneRequired": "Namba ya simu inahitajika.",
+    "invalidEmail": "Barua pepe si sahihi."
+  }
+}

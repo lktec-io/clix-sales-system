@@ -1,4 +1,5 @@
 import { resolveConfig, humanize, formatCell } from './reportConfig.js';
+import { t } from '../i18n/index.js';
 
 // UTF-8 BOM so Excel (which otherwise guesses the wrong encoding for
 // non-ASCII characters) opens the exported file cleanly.
@@ -22,21 +23,22 @@ function rowsToCsv(rows, columns, headerLabels) {
 // Whole-report export (summary + every breakdown, each as its own labeled
 // section) — distinct from the frontend's existing per-breakdown-table CSV
 // button, which stays as a quick one-table-at-a-time option.
-export function buildReportCsv(type, report, { dateFrom, dateTo, company, generatedByName } = {}) {
-  const config = resolveConfig(type, report);
-  const dateRangeLabel = dateFrom && dateTo ? `${dateFrom} to ${dateTo}` : 'All time';
+export function buildReportCsv(type, report, { dateFrom, dateTo, company, generatedByName, locale = 'en' } = {}) {
+  const config = resolveConfig(type, report, locale);
+  const dateRangeLabel = dateFrom && dateTo ? `${dateFrom} to ${dateTo}` : t(locale, 'common.allTime');
+  const dateLocale = locale === 'sw' ? 'sw-TZ' : 'en-TZ';
   const sections = [
     csvEscape(company?.company_name || 'Clix Sales System'),
-    csvEscape(`${config.title} Report`),
-    `Date Range,${csvEscape(dateRangeLabel)}`,
-    `Generated,${csvEscape(new Date().toLocaleString('en-TZ', { dateStyle: 'medium', timeStyle: 'short' }))}`,
-    ...(generatedByName ? [`Prepared By,${csvEscape(generatedByName)}`] : []),
+    csvEscape(`${config.title} ${t(locale, 'common.report')}`),
+    `${t(locale, 'common.dateRange')},${csvEscape(dateRangeLabel)}`,
+    `${t(locale, 'common.generated')},${csvEscape(new Date().toLocaleString(dateLocale, { dateStyle: 'medium', timeStyle: 'short' }))}`,
+    ...(generatedByName ? [`${t(locale, 'common.preparedBy')},${csvEscape(generatedByName)}`] : []),
     '',
   ];
 
   if (report.summary && config.summaryLabels) {
-    sections.push('Executive Summary');
-    sections.push('Metric,Value');
+    sections.push(t(locale, 'common.executiveSummary'));
+    sections.push(`${t(locale, 'common.metric')},${t(locale, 'common.value')}`);
     Object.entries(config.summaryLabels).forEach(([key, label]) => {
       sections.push(`${csvEscape(label)},${csvEscape(formatCell(key, report.summary[key]))}`);
     });
@@ -45,33 +47,37 @@ export function buildReportCsv(type, report, { dateFrom, dateTo, company, genera
 
   if (report.financialSummary) {
     const fs = report.financialSummary;
-    sections.push('Financial Summary');
-    sections.push('Metric,Value');
-    sections.push(`Total Revenue,${csvEscape(formatCell('totalRevenue', fs.totalRevenue))}`);
-    sections.push(`Average Daily Sales,${csvEscape(formatCell('totalRevenue', fs.averageDailySales))}`);
+    sections.push(t(locale, 'common.financialSummary'));
+    sections.push(`${t(locale, 'common.metric')},${t(locale, 'common.value')}`);
+    sections.push(`${t(locale, 'financialSummary.totalRevenue')},${csvEscape(formatCell('totalRevenue', fs.totalRevenue))}`);
+    sections.push(`${t(locale, 'financialSummary.averageDailySales')},${csvEscape(formatCell('totalRevenue', fs.averageDailySales))}`);
     if (fs.averageInvoice != null) {
-      sections.push(`Average Invoice,${csvEscape(formatCell('totalRevenue', fs.averageInvoice))}`);
+      sections.push(`${t(locale, 'financialSummary.averageInvoice')},${csvEscape(formatCell('totalRevenue', fs.averageInvoice))}`);
     }
-    sections.push(`Highest Sales Day,${csvEscape(`${fs.highestSalesDay.date} (${formatCell('totalRevenue', fs.highestSalesDay.value)})`)}`);
-    sections.push(`Lowest Sales Day,${csvEscape(`${fs.lowestSalesDay.date} (${formatCell('totalRevenue', fs.lowestSalesDay.value)})`)}`);
+    sections.push(`${t(locale, 'financialSummary.highestSalesDay')},${csvEscape(`${fs.highestSalesDay.date} (${formatCell('totalRevenue', fs.highestSalesDay.value)})`)}`);
+    sections.push(`${t(locale, 'financialSummary.lowestSalesDay')},${csvEscape(`${fs.lowestSalesDay.date} (${formatCell('totalRevenue', fs.lowestSalesDay.value)})`)}`);
     sections.push('');
 
     if (Array.isArray(fs.monthlyTrend)) {
-      sections.push('Monthly Trend');
-      sections.push('Month,Revenue');
+      sections.push(t(locale, 'common.monthlyTrend'));
+      sections.push(`${t(locale, 'common.month')},${t(locale, 'common.revenue')}`);
       fs.monthlyTrend.forEach(({ month, value }) => sections.push(`${csvEscape(month)},${csvEscape(formatCell('totalRevenue', value))}`));
       sections.push('');
     }
   }
 
+  // report.analysis/report.recommendations are dynamically-generated English
+  // business-insight sentences (reportAnalysis.js) — not static UI chrome —
+  // so they render as authored (English) regardless of locale; only the
+  // section headings around them are translated.
   if (Array.isArray(report.analysis) && report.analysis.length > 0) {
-    sections.push('Business Analysis');
+    sections.push(t(locale, 'common.businessAnalysis'));
     report.analysis.forEach((line) => sections.push(csvEscape(line)));
     sections.push('');
   }
 
   if (Array.isArray(report.recommendations) && report.recommendations.length > 0) {
-    sections.push('Recommendations');
+    sections.push(t(locale, 'common.recommendations'));
     report.recommendations.forEach((line) => sections.push(csvEscape(line)));
     sections.push('');
   }
@@ -80,7 +86,7 @@ export function buildReportCsv(type, report, { dateFrom, dateTo, company, genera
     const rows = report[key];
     sections.push(breakdownTitle);
     if (!rows || rows.length === 0) {
-      sections.push('No data for the selected filters.');
+      sections.push(t(locale, 'common.noDataForFilters'));
       sections.push('');
       return;
     }

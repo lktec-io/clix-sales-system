@@ -18,6 +18,23 @@ function LanguageProvider({ children }) {
   const toast = useToast();
   const [language, setLanguageState] = useState(readInitialLanguage);
 
+  // Once the authenticated user's server-stored preference is known, it
+  // wins over whatever localStorage guessed on this device — this is what
+  // makes the language follow the account across devices/browsers, with
+  // localStorage only acting as the pre-login / offline-first guess.
+  // Derived during render (not an effect) per React's "adjusting state when
+  // a prop changes" pattern — the same approach Sidebar.jsx uses for its
+  // mobile-drawer stagger replay — rather than setState-in-effect, which
+  // triggers an extra cascading render.
+  const serverLanguage = isAuthenticated && LANGUAGE_CODES.includes(user?.preferred_language) ? user.preferred_language : null;
+  const [prevServerLanguage, setPrevServerLanguage] = useState(serverLanguage);
+  if (serverLanguage !== prevServerLanguage) {
+    setPrevServerLanguage(serverLanguage);
+    if (serverLanguage && serverLanguage !== language) {
+      setLanguageState(serverLanguage);
+    }
+  }
+
   // useLayoutEffect (not useEffect) — mirrors ThemeProvider's data-theme
   // handling: applies before the browser paints, so a reload never flashes
   // one language before swapping to the persisted one.
@@ -29,16 +46,6 @@ function LanguageProvider({ children }) {
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, language);
   }, [language]);
-
-  // Once the authenticated user's server-stored preference is known, it
-  // wins over whatever localStorage guessed on this device — this is what
-  // makes the language follow the account across devices/browsers, with
-  // localStorage only acting as the pre-login / offline-first guess.
-  useEffect(() => {
-    if (isAuthenticated && user?.preferred_language && LANGUAGE_CODES.includes(user.preferred_language)) {
-      setLanguageState((current) => (current === user.preferred_language ? current : user.preferred_language));
-    }
-  }, [isAuthenticated, user?.preferred_language]);
 
   const setLanguage = useCallback(async (next) => {
     if (!LANGUAGE_CODES.includes(next)) return;

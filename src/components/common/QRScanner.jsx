@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode, Html5QrcodeScannerState, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { FiZap } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import '../../styles/components/QRScanner.css';
 
 const ELEMENT_ID = 'qr-scanner-viewport';
@@ -88,6 +89,7 @@ function playBeep() {
 // deduplicated and beeped/flashed) — callers decide whether it's JSON
 // (self-printed QR) or a plain barcode string.
 function QRScanner({ onScan, onError }) {
+  const { t } = useTranslation('common');
   const scannerRef = useRef(null);
   const lastScanRef = useRef({ text: null, time: 0 });
   const zoomFeatureRef = useRef(null);
@@ -246,7 +248,7 @@ function QRScanner({ onScan, onError }) {
       <div id={ELEMENT_ID} className="qr-scanner-viewport" />
       {status === 'starting' && (
         <div className="flex items-center justify-center p-4">
-          <span className="spinner" aria-label="Starting camera" />
+          <span className="spinner" aria-label={t('camera.starting')} />
         </div>
       )}
       {(zoomInfo || torchSupported) && (
@@ -270,7 +272,7 @@ function QRScanner({ onScan, onError }) {
               type="button"
               className={`qr-scanner-torch-btn ${torchOn ? 'qr-scanner-torch-btn-active' : ''}`}
               onClick={handleToggleTorch}
-              aria-label={torchOn ? 'Turn off flashlight' : 'Turn on flashlight'}
+              aria-label={torchOn ? t('camera.turnOffFlashlight') : t('camera.turnOnFlashlight')}
               aria-pressed={torchOn}
             >
               <FiZap />

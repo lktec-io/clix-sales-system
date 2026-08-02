@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { FiEdit3, FiClock, FiBox, FiDollarSign, FiAlertTriangle, FiXCircle } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
@@ -14,16 +15,10 @@ import * as inventoryService from '../../services/inventoryService';
 import * as branchService from '../../services/branchService';
 import { formatCurrency, formatNumber } from '../../utils/formatCurrency';
 
-const REASONS = [
-  { value: 'damaged', label: 'Damaged' },
-  { value: 'expired', label: 'Expired' },
-  { value: 'lost', label: 'Lost' },
-  { value: 'correction', label: 'Correction' },
-  { value: 'initial_count', label: 'Initial Count' },
-  { value: 'system_error', label: 'System Error' },
-];
+const REASONS = ['damaged', 'expired', 'lost', 'correction', 'initial_count', 'system_error'];
 
 function InventoryOverview() {
+  const { t } = useTranslation(['inventory', 'common']);
   const canAdjust = usePermission('inventory.adjust');
   const toast = useToast();
 
@@ -64,35 +59,35 @@ function InventoryOverview() {
         description: values.description,
       });
       setAdjustingRow(null);
-      toast.success('Stock adjustment recorded.');
+      toast.success(t('inventory:overview.adjustmentSuccess'));
       refetch();
       inventoryService.getInventorySummary().then(setSummary);
     } catch (err) {
-      setModalError(err.response?.data?.message || 'Failed to record adjustment.');
+      setModalError(err.response?.data?.message || t('inventory:overview.adjustmentError'));
     }
   };
 
   const columns = [
-    { key: 'product_name', label: 'Product', render: (row) => <div>{row.product_name}<div className="text-xs text-secondary">{row.product_code}</div></div> },
-    { key: 'branch_name', label: 'Branch' },
-    { key: 'quantity', label: 'Current Stock', render: (row) => formatNumber(row.quantity) },
-    { key: 'available_quantity', label: 'Available', render: (row) => formatNumber(row.available_quantity) },
-    { key: 'min_stock', label: 'Min Stock', render: (row) => formatNumber(row.min_stock) },
-    { key: 'stock_value', label: 'Stock Value', render: (row) => formatCurrency(row.stock_value) },
+    { key: 'product_name', label: t('inventory:columns.product'), render: (row) => <div>{row.product_name}<div className="text-xs text-secondary">{row.product_code}</div></div> },
+    { key: 'branch_name', label: t('inventory:columns.branch') },
+    { key: 'quantity', label: t('inventory:columns.currentStock'), render: (row) => formatNumber(row.quantity) },
+    { key: 'available_quantity', label: t('inventory:columns.available'), render: (row) => formatNumber(row.available_quantity) },
+    { key: 'min_stock', label: t('inventory:columns.minStock'), render: (row) => formatNumber(row.min_stock) },
+    { key: 'stock_value', label: t('inventory:columns.stockValue'), render: (row) => formatCurrency(row.stock_value) },
     {
       key: 'level',
-      label: 'Level',
+      label: t('inventory:columns.level'),
       render: (row) => {
-        if (row.quantity === 0) return <span className="badge badge-danger">Out of Stock</span>;
-        if (row.quantity <= row.min_stock) return <span className="badge badge-warning">Low Stock</span>;
-        return <span className="badge badge-success">In Stock</span>;
+        if (row.quantity === 0) return <span className="badge badge-danger">{t('inventory:overview.outOfStock')}</span>;
+        if (row.quantity <= row.min_stock) return <span className="badge badge-warning">{t('inventory:overview.lowStock')}</span>;
+        return <span className="badge badge-success">{t('inventory:overview.inStock')}</span>;
       },
     },
     {
       key: 'actions',
       label: '',
       render: (row) => canAdjust && (
-        <button type="button" className="btn btn-ghost btn-icon" onClick={() => openAdjust(row)} aria-label="Adjust stock">
+        <button type="button" className="btn btn-ghost btn-icon" onClick={() => openAdjust(row)} aria-label={t('inventory:overview.adjustStock')}>
           <FiEdit3 />
         </button>
       ),
@@ -103,57 +98,57 @@ function InventoryOverview() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Inventory</h1>
-          <p className="page-subtitle">Current stock levels across branches</p>
+          <h1 className="page-title">{t('inventory:overview.title')}</h1>
+          <p className="page-subtitle">{t('inventory:overview.subtitle')}</p>
         </div>
         <div className="page-actions">
           <Link to="/inventory/movements" className="btn btn-secondary">
-            <FiClock aria-hidden="true" /> Movement History
+            <FiClock aria-hidden="true" /> {t('inventory:overview.movementHistory')}
           </Link>
         </div>
       </div>
 
       {summary && (
         <div className="grid grid-cols-4 mb-5">
-          <KPICard icon={FiBox} label="Total Products" value={summary.totalProducts} formatter={formatNumber} />
-          <KPICard icon={FiDollarSign} label="Inventory Value" value={summary.totalValue} formatter={(v) => formatCurrency(v)} />
-          <KPICard icon={FiAlertTriangle} label="Low Stock" value={summary.lowStock} formatter={formatNumber} />
-          <KPICard icon={FiXCircle} label="Out of Stock" value={summary.outOfStock} formatter={formatNumber} />
+          <KPICard icon={FiBox} label={t('inventory:kpi.totalProducts')} value={summary.totalProducts} formatter={formatNumber} />
+          <KPICard icon={FiDollarSign} label={t('inventory:kpi.inventoryValue')} value={summary.totalValue} formatter={(v) => formatCurrency(v)} />
+          <KPICard icon={FiAlertTriangle} label={t('inventory:kpi.lowStock')} value={summary.lowStock} formatter={formatNumber} />
+          <KPICard icon={FiXCircle} label={t('inventory:kpi.outOfStock')} value={summary.outOfStock} formatter={formatNumber} />
         </div>
       )}
 
       <div className="card">
         <div className="table-toolbar">
-          <SearchInput value={search} onChange={setSearch} placeholder="Search by product name or code..." />
+          <SearchInput value={search} onChange={setSearch} placeholder={t('inventory:overview.searchPlaceholder')} />
           <div className="flex flex-wrap items-center gap-3">
             <select className="form-control" value={filters.branchId || ''} onChange={(e) => setFilters((prev) => ({ ...prev, branchId: e.target.value || undefined }))}>
-              <option value="">All Branches</option>
+              <option value="">{t('common:labels.allBranches')}</option>
               {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
             <label className="form-checkbox">
               <input type="checkbox" checked={Boolean(filters.lowStock)} onChange={(e) => setFilters((prev) => ({ ...prev, lowStock: e.target.checked || undefined }))} />
-              Low Stock
+              {t('inventory:overview.lowStock')}
             </label>
             <label className="form-checkbox">
               <input type="checkbox" checked={Boolean(filters.outOfStock)} onChange={(e) => setFilters((prev) => ({ ...prev, outOfStock: e.target.checked || undefined }))} />
-              Out of Stock
+              {t('inventory:overview.outOfStock')}
             </label>
           </div>
         </div>
-        <Table columns={columns} rows={items} loading={loading} emptyMessage="No inventory records found" />
+        <Table columns={columns} rows={items} loading={loading} emptyMessage={t('inventory:overview.emptyMessage')} />
         <Pagination page={page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={setPage} />
       </div>
 
       <Modal
         open={Boolean(adjustingRow)}
         onClose={() => setAdjustingRow(null)}
-        title="Adjust Stock"
+        title={t('inventory:modal.title')}
         size="sm"
         footer={
           <>
-            <button type="button" className="btn btn-secondary" onClick={() => setAdjustingRow(null)}>Cancel</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setAdjustingRow(null)}>{t('inventory:modal.cancel')}</button>
             <button type="submit" form="adjustment-form" className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
-              Save Adjustment
+              {t('inventory:modal.saveAdjustment')}
             </button>
           </>
         }
@@ -161,30 +156,32 @@ function InventoryOverview() {
         {adjustingRow && (
           <>
             <p className="text-sm mb-4">
-              <strong>{adjustingRow.product_name}</strong> at {adjustingRow.branch_name} — current stock: {formatNumber(adjustingRow.quantity)}
+              <strong>{adjustingRow.product_name}</strong>{' '}
+              {t('inventory:modal.atBranch', { branch: adjustingRow.branch_name })} —{' '}
+              {t('inventory:modal.currentStock', { stock: formatNumber(adjustingRow.quantity) })}
             </p>
             {modalError && <div className="alert alert-danger mb-4" role="alert">{modalError}</div>}
             <form id="adjustment-form" onSubmit={handleSubmit(onSubmitAdjustment)} noValidate>
               <div className="form-group">
                 <label className="form-label form-label-required" htmlFor="quantityChange">
-                  Quantity Change (use a negative number to remove stock)
+                  {t('inventory:modal.quantityChangeLabel')}
                 </label>
                 <input
                   id="quantityChange"
                   type="number"
                   className={`form-control ${errors.quantityChange ? 'form-control-error' : ''}`}
-                  {...register('quantityChange', { required: 'Quantity is required', validate: (v) => Number(v) !== 0 || 'Cannot be zero' })}
+                  {...register('quantityChange', { required: t('inventory:modal.quantityRequired'), validate: (v) => Number(v) !== 0 || t('inventory:modal.cannotBeZero') })}
                 />
                 {errors.quantityChange && <span className="form-error">{errors.quantityChange.message}</span>}
               </div>
               <div className="form-group">
-                <label className="form-label form-label-required" htmlFor="reason">Reason</label>
+                <label className="form-label form-label-required" htmlFor="reason">{t('inventory:modal.reason')}</label>
                 <select id="reason" className="form-control" {...register('reason')}>
-                  {REASONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+                  {REASONS.map((r) => <option key={r} value={r}>{t(`inventory:reasons.${r}`)}</option>)}
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="description">Description</label>
+                <label className="form-label" htmlFor="description">{t('inventory:modal.description')}</label>
                 <textarea id="description" className="form-control" {...register('description')} />
               </div>
             </form>

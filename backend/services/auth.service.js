@@ -219,7 +219,7 @@ export async function forgotPassword({ email, frontendUrl = env.frontendUrl }) {
   await passwordResetRepository.create({ userId: user.id, tokenHash, expiresAt });
 
   const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
-  const { subject, html, template } = passwordResetEmail(resetUrl);
+  const { subject, html, template } = passwordResetEmail(resetUrl, user.preferred_language);
   await sendMail({ to: user.email, subject, html, template });
 }
 

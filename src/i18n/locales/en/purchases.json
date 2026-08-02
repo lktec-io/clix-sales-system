@@ -1,1 +1,101 @@
-{}
+{
+  "list": {
+    "title": "Purchases",
+    "subtitle": "Purchase orders received from suppliers",
+    "importExcel": "Import Excel",
+    "newPurchase": "New Purchase",
+    "searchPlaceholder": "Search by purchase number...",
+    "emptyMessage": "No purchases recorded yet",
+    "viewPurchase": "View purchase"
+  },
+  "columns": {
+    "purchaseNumber": "Purchase #",
+    "supplier": "Supplier",
+    "branch": "Branch",
+    "amount": "Amount",
+    "date": "Date",
+    "status": "Status"
+  },
+  "statusOptions": {
+    "pending": "Pending",
+    "received": "Received",
+    "cancelled": "Cancelled"
+  },
+  "itemColumns": {
+    "product": "Product",
+    "quantity": "Quantity",
+    "buyingPrice": "Buying Price",
+    "lineTotal": "Line Total"
+  },
+  "form": {
+    "newTitle": "New Purchase",
+    "newSubtitle": "Receive stock from a supplier — inventory updates automatically on save",
+    "detailsTitle": "Purchase Details",
+    "supplierLabel": "Supplier",
+    "supplierRequired": "Supplier is required",
+    "selectSupplier": "Select a supplier",
+    "branchLabel": "Receiving Branch",
+    "branchRequired": "Branch is required",
+    "selectBranch": "Select a branch",
+    "itemsTitle": "Items",
+    "addLine": "Add Line",
+    "selectProduct": "Select product",
+    "removeLine": "Remove line",
+    "totalLabel": "Total",
+    "savePurchase": "Save Purchase",
+    "createSuccess": "Purchase recorded.",
+    "createError": "Failed to record purchase."
+  },
+  "detail": {
+    "backToPurchases": "Back to Purchases",
+    "itemsTitle": "Items",
+    "totalLabel": "Total"
+  },
+  "import": {
+    "title": "Import Purchases from Excel",
+    "instructions": "Download the template, fill in your products, and upload it here. Nothing is imported until you review and confirm the preview.",
+    "branchLabel": "Receiving Branch",
+    "selectBranch": "Select a branch",
+    "downloadTemplate": "Download Template",
+    "uploadTemplate": "Upload Filled Template",
+    "selectBranchHint": "Select a branch before uploading.",
+    "downloadError": "Failed to download the template.",
+    "readFileError": "Failed to read the uploaded file.",
+    "importError": "Failed to import the file.",
+    "rowsCount": "{{count}} rows",
+    "validCount": "{{count}} valid",
+    "invalidCount": "{{count}} invalid",
+    "duplicateCount": "{{count}} duplicate",
+    "newProductsCount": "{{count}} new products",
+    "productUpdatesCount": "{{count}} product updates",
+    "columnRow": "Row",
+    "columnProduct": "Product",
+    "columnCategory": "Category",
+    "columnSupplier": "Supplier",
+    "columnQty": "Qty",
+    "columnBuyingPrice": "Buying Price",
+    "columnAction": "Action",
+    "columnStatus": "Status",
+    "columnNotes": "Notes",
+    "actionUpdate": "Update",
+    "actionCreate": "Create",
+    "rowStatus": {
+      "valid": "Valid",
+      "invalid": "Invalid",
+      "duplicate": "Duplicate"
+    },
+    "startOver": "Start Over",
+    "confirmImport_one": "Confirm Import ({{count}} row)",
+    "confirmImport_other": "Confirm Import ({{count}} rows)",
+    "importComplete": "Import Complete",
+    "rowsImported": "{{count}} imported",
+    "productsCreated": "{{count}} products created",
+    "productsUpdated": "{{count}} products updated",
+    "rowsSkipped": "{{count}} skipped",
+    "purchaseOrdersCreated": "{{count}} purchase order(s)",
+    "errorsTitle": "Errors",
+    "warningsTitle": "Warnings",
+    "rowMessage": "Row {{row}}: {{message}}",
+    "done": "Done"
+  }
+}

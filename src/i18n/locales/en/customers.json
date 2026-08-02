@@ -1,1 +1,73 @@
-{}
+{
+  "list": {
+    "title": "Customers",
+    "subtitle": "Manage customers and their purchase/return history",
+    "newCustomer": "New Customer",
+    "searchPlaceholder": "Search by name, phone, code...",
+    "emptyMessage": "No customers found",
+    "viewCustomerAria": "View customer",
+    "editCustomerAria": "Edit customer",
+    "activateCustomerAria": "Activate customer",
+    "deactivateCustomerAria": "Deactivate customer",
+    "deleteCustomerAria": "Delete customer",
+    "editModalTitle": "Edit Customer",
+    "createModalTitle": "New Customer",
+    "saveChanges": "Save Changes",
+    "createButton": "Create Customer",
+    "deleteConfirmTitle": "Delete Customer?",
+    "deleteConfirmMessage": "This action cannot be undone.",
+    "deleteConfirmLabel": "Delete",
+    "toast": {
+      "updated": "Customer updated.",
+      "registered": "Customer registered.",
+      "saveFailed": "Failed to save customer.",
+      "activated": "Customer activated.",
+      "deactivated": "Customer deactivated.",
+      "statusUpdateFailed": "Failed to update customer status.",
+      "deleted": "Customer permanently deleted.",
+      "deleteFailed": "Failed to delete customer."
+    }
+  },
+  "detail": {
+    "backToCustomers": "Back to Customers",
+    "totalOrders": "Total Orders",
+    "totalSpent": "Total Spent",
+    "totalReturns": "Total Returns",
+    "purchaseHistory": "Purchase History",
+    "returnHistory": "Return History",
+    "noPurchases": "No purchases recorded yet",
+    "noReturns": "No returns recorded yet"
+  },
+  "columns": {
+    "code": "Code",
+    "customer": "Customer",
+    "phone": "Phone",
+    "type": "Type",
+    "status": "Status",
+    "saleNumber": "Sale #",
+    "date": "Date",
+    "amount": "Amount",
+    "returnNumber": "Return #",
+    "reason": "Reason",
+    "refund": "Refund"
+  },
+  "types": {
+    "walkIn": "Walk In",
+    "retail": "Retail",
+    "wholesale": "Wholesale",
+    "vip": "VIP",
+    "business": "Business"
+  },
+  "form": {
+    "fullName": "Full Name",
+    "phone": "Phone Number",
+    "email": "Email",
+    "address": "Address",
+    "notes": "Notes"
+  },
+  "validation": {
+    "fullNameRequired": "Customer name is required.",
+    "phoneRequired": "Phone number is required.",
+    "invalidEmail": "Invalid email."
+  }
+}

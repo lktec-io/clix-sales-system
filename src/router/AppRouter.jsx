@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AuthLayout from '../layouts/AuthLayout';
 import MainLayout from '../layouts/MainLayout';
 import ErrorLayout from '../layouts/ErrorLayout';
@@ -48,9 +49,10 @@ const NotFound404 = lazy(() => import('../pages/errors/NotFound404'));
 const Forbidden403 = lazy(() => import('../pages/errors/Forbidden403'));
 
 function RouteFallback() {
+  const { t } = useTranslation('common');
   return (
     <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
-      <span className="spinner" aria-label="Loading" />
+      <span className="spinner" aria-label={t('state.loading')} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import PDFDocument from 'pdfkit';
 import QRCode from 'qrcode';
 import { formatCurrency } from '../utils/formatCurrency.js';
 import { logger } from '../config/logger.js';
+import { t } from '../i18n/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOADS_ROOT = path.join(__dirname, '..', 'uploads');
@@ -22,14 +23,6 @@ const COLOR_WHITE = '#FFFFFF';
 const COLOR_GRAY = '#64748B';
 const COLOR_LIGHT_GRAY = '#F1F5F9';
 const COLOR_BORDER = '#E2E8F0';
-
-const PAYMENT_METHOD_LABELS = {
-  cash: 'Cash',
-  mpesa: 'M-Pesa',
-  airtel_money: 'Airtel Money',
-  bank_transfer: 'Bank Transfer',
-  card: 'Card',
-};
 
 // Three real paper shapes, not one narrow layout stretched or squeezed —
 // 58mm/80mm are true thermal roll widths, A4 is a full page for a
@@ -84,21 +77,21 @@ async function buildVerificationQrBuffer(sale) {
 // layout — the Discount column only renders when at least one line
 // actually has a discount, so an ordinary undiscounted sale doesn't waste
 // a column of dashes across every row.
-function drawItemsTable(doc, items, { margin, contentWidth, fontScale }) {
+function drawItemsTable(doc, items, { margin, contentWidth, fontScale, locale }) {
   const hasDiscount = items.some((item) => Number(item.discount_amount) > 0);
   const columns = hasDiscount
     ? [
-      { key: 'name', label: 'Product', width: 0.40 },
-      { key: 'qty', label: 'Qty', width: 0.10 },
-      { key: 'price', label: 'Price', width: 0.18 },
-      { key: 'discount', label: 'Disc.', width: 0.14 },
-      { key: 'total', label: 'Total', width: 0.18 },
+      { key: 'name', label: t(locale, 'receipt.product'), width: 0.40 },
+      { key: 'qty', label: t(locale, 'receipt.qty'), width: 0.10 },
+      { key: 'price', label: t(locale, 'receipt.price'), width: 0.18 },
+      { key: 'discount', label: t(locale, 'receipt.disc'), width: 0.14 },
+      { key: 'total', label: t(locale, 'receipt.total'), width: 0.18 },
     ]
     : [
-      { key: 'name', label: 'Product', width: 0.46 },
-      { key: 'qty', label: 'Qty', width: 0.12 },
-      { key: 'price', label: 'Price', width: 0.20 },
-      { key: 'total', label: 'Total', width: 0.22 },
+      { key: 'name', label: t(locale, 'receipt.product'), width: 0.46 },
+      { key: 'qty', label: t(locale, 'receipt.qty'), width: 0.12 },
+      { key: 'price', label: t(locale, 'receipt.price'), width: 0.20 },
+      { key: 'total', label: t(locale, 'receipt.total'), width: 0.22 },
     ];
 
   const headerHeight = mm(5) * fontScale;
@@ -167,8 +160,9 @@ function totalsRow(doc, label, value, { contentWidth, margin, fontScale, bold = 
 // three; default stays 80mm, matching every receipt printed before this
 // redesign. qrVerificationEnabled defaults false — an existing install's
 // receipt is unchanged until an admin opts in via System Settings.
-export async function buildReceiptPdf(sale, company, sizeKey = '80', qrVerificationEnabled = false) {
+export async function buildReceiptPdf(sale, company, sizeKey = '80', qrVerificationEnabled = false, locale = 'en') {
   const { width: pageWidth, margin, fontScale } = resolvePageSize(sizeKey);
+  const dateLocale = locale === 'sw' ? 'sw-TZ' : 'en-TZ';
   // A4's own real height; the two thermal widths use the same fixed
   // length pdfkit needs a concrete page size for — a true continuous roll
   // has no fixed height, this is just tall enough for a typical receipt.
@@ -205,42 +199,42 @@ export async function buildReceiptPdf(sale, company, sizeKey = '80', qrVerificat
   doc.moveDown(0.4);
 
   doc.fontSize(8 * fontScale).font('Helvetica').fillColor(COLOR_NAVY);
-  doc.text(`Receipt: ${sale.sale_number}`, { width: contentWidth });
-  doc.text(`Date: ${new Date(sale.created_at).toLocaleString('en-TZ', { dateStyle: 'medium', timeStyle: 'short' })}`, { width: contentWidth });
-  doc.text(`Branch: ${sale.branch_name}`, { width: contentWidth });
-  doc.text(`Cashier: ${sale.cashier_first_name} ${sale.cashier_last_name}`, { width: contentWidth });
-  doc.text(`Customer: ${sale.customer_first_name ? `${sale.customer_first_name} ${sale.customer_last_name}` : 'Walk-in'}`, { width: contentWidth });
+  doc.text(`${t(locale, 'receipt.receipt')}: ${sale.sale_number}`, { width: contentWidth });
+  doc.text(`${t(locale, 'receipt.date')}: ${new Date(sale.created_at).toLocaleString(dateLocale, { dateStyle: 'medium', timeStyle: 'short' })}`, { width: contentWidth });
+  doc.text(`${t(locale, 'receipt.branch')}: ${sale.branch_name}`, { width: contentWidth });
+  doc.text(`${t(locale, 'receipt.cashier')}: ${sale.cashier_first_name} ${sale.cashier_last_name}`, { width: contentWidth });
+  doc.text(`${t(locale, 'receipt.customer')}: ${sale.customer_first_name ? `${sale.customer_first_name} ${sale.customer_last_name}` : t(locale, 'receipt.walkIn')}`, { width: contentWidth });
 
   doc.moveDown(0.3);
   doc.moveTo(margin, doc.y).lineTo(margin + contentWidth, doc.y).strokeColor(COLOR_BORDER).stroke();
   doc.moveDown(0.4);
 
-  drawItemsTable(doc, sale.items, { pageWidth, margin, contentWidth, fontScale });
+  drawItemsTable(doc, sale.items, { pageWidth, margin, contentWidth, fontScale, locale });
 
   const taxAmount = Number(sale.tax_amount) || 0;
-  totalsRow(doc, 'Subtotal', formatCurrency(sale.subtotal), { contentWidth, margin, fontScale });
+  totalsRow(doc, t(locale, 'receipt.subtotal'), formatCurrency(sale.subtotal), { contentWidth, margin, fontScale });
   if (Number(sale.discount_amount) > 0) {
-    totalsRow(doc, 'Discount', `-${formatCurrency(sale.discount_amount)}`, { contentWidth, margin, fontScale });
+    totalsRow(doc, t(locale, 'receipt.discount'), `-${formatCurrency(sale.discount_amount)}`, { contentWidth, margin, fontScale });
   }
   if (taxAmount > 0) {
-    totalsRow(doc, 'Tax', formatCurrency(taxAmount), { contentWidth, margin, fontScale });
+    totalsRow(doc, t(locale, 'receipt.tax'), formatCurrency(taxAmount), { contentWidth, margin, fontScale });
   }
-  totalsRow(doc, 'Grand Total', formatCurrency(sale.total_amount), { contentWidth, margin, fontScale, bold: true, color: COLOR_GREEN });
+  totalsRow(doc, t(locale, 'receipt.grandTotal'), formatCurrency(sale.total_amount), { contentWidth, margin, fontScale, bold: true, color: COLOR_GREEN });
 
   doc.moveDown(0.2);
   doc.moveTo(margin, doc.y).lineTo(margin + contentWidth, doc.y).strokeColor(COLOR_BORDER).stroke();
   doc.moveDown(0.3);
 
-  const methodLabels = [...new Set(sale.payments.map((p) => PAYMENT_METHOD_LABELS[p.payment_method] || p.payment_method))];
-  totalsRow(doc, 'Payment Method', methodLabels.join(', '), { contentWidth, margin, fontScale });
+  const methodLabels = [...new Set(sale.payments.map((p) => t(locale, `paymentMethods.${p.payment_method}`) || p.payment_method))];
+  totalsRow(doc, t(locale, 'receipt.paymentMethod'), methodLabels.join(', '), { contentWidth, margin, fontScale });
 
   const cashPayment = sale.payments.find((p) => p.payment_method === 'cash');
   if (cashPayment) {
-    totalsRow(doc, 'Cash Received', formatCurrency(cashPayment.amount), { contentWidth, margin, fontScale });
+    totalsRow(doc, t(locale, 'receipt.cashReceived'), formatCurrency(cashPayment.amount), { contentWidth, margin, fontScale });
   }
   const totalPaid = sale.payments.reduce((sum, payment) => sum + Number(payment.amount), 0);
   const balance = totalPaid - Number(sale.total_amount);
-  totalsRow(doc, 'Balance', formatCurrency(Math.abs(balance)), { contentWidth, margin, fontScale });
+  totalsRow(doc, t(locale, 'receipt.balance'), formatCurrency(Math.abs(balance)), { contentWidth, margin, fontScale });
 
   if (qrVerificationEnabled) {
     try {
@@ -250,7 +244,7 @@ export async function buildReceiptPdf(sale, company, sizeKey = '80', qrVerificat
       doc.image(verificationQr, margin + (contentWidth - qrSize) / 2, doc.y, { width: qrSize });
       doc.y += qrSize + mm(1);
       doc.fontSize(6 * fontScale).font('Helvetica').fillColor(COLOR_GRAY)
-        .text('Scan to verify this receipt', { width: contentWidth, align: 'center' });
+        .text(t(locale, 'receipt.scanToVerify'), { width: contentWidth, align: 'center' });
     } catch (err) {
       logger.warn('Receipt PDF: failed to generate verification QR, omitting it', { error: err.message });
     }
@@ -262,10 +256,10 @@ export async function buildReceiptPdf(sale, company, sizeKey = '80', qrVerificat
   doc.moveDown(0.4);
 
   doc.fontSize(8 * fontScale).font('Helvetica-Bold').fillColor(COLOR_NAVY)
-    .text(company?.receipt_footer || 'Thank you for your business!', { width: contentWidth, align: 'center' });
+    .text(company?.receipt_footer || t(locale, 'receipt.thankYou'), { width: contentWidth, align: 'center' });
   doc.moveDown(0.2);
   doc.fontSize(6.5 * fontScale).font('Helvetica').fillColor(COLOR_GRAY)
-    .text(`Powered by ${company?.company_name || 'Clix Sales System'}`, { width: contentWidth, align: 'center' });
+    .text(t(locale, 'receipt.poweredBy', { company: company?.company_name || 'Clix Sales System' }), { width: contentWidth, align: 'center' });
 
   doc.end();
 

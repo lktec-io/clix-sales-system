@@ -1,1 +1,45 @@
-{}
+{
+  "list": {
+    "title": "Matumizi",
+    "subtitle": "Fuatilia matumizi ya uendeshaji wa matawi",
+    "newExpense": "Tumizi Jipya",
+    "totalFiltered": "Jumla (matokeo yaliyochujwa)",
+    "searchPlaceholder": "Tafuta kwa maelezo...",
+    "allCategories": "Aina Zote",
+    "emptyMessage": "Hakuna matumizi yaliyorekodiwa bado",
+    "editExpense": "Hariri tumizi",
+    "deleteExpense": "Futa tumizi",
+    "editModalTitle": "Hariri Tumizi",
+    "newModalTitle": "Tumizi Jipya",
+    "recordExpense": "Rekodi Tumizi",
+    "updateSuccess": "Tumizi limesasishwa.",
+    "createSuccess": "Tumizi limerekodiwa.",
+    "saveError": "Imeshindwa kuhifadhi tumizi.",
+    "deleteSuccess": "Tumizi limefutwa.",
+    "deleteError": "Imeshindwa kufuta tumizi.",
+    "deleteDialogTitle": "Futa Tumizi",
+    "deleteDialogMessage": "Futa tumizi hili la {{category}} la {{amount}}? Hatua hii haiwezi kutenduliwa."
+  },
+  "columns": {
+    "date": "Tarehe",
+    "category": "Aina",
+    "description": "Maelezo",
+    "branch": "Tawi",
+    "recordedBy": "Aliyerekodi",
+    "amount": "Kiasi"
+  },
+  "form": {
+    "categoryLabel": "Aina ya Tumizi",
+    "categoryRequired": "Aina ya tumizi inahitajika",
+    "selectCategory": "Chagua aina ya tumizi",
+    "branchLabel": "Tawi",
+    "branchRequired": "Tawi linahitajika",
+    "selectBranch": "Chagua tawi",
+    "amountLabel": "Kiasi",
+    "amountRequired": "Kiasi kinahitajika",
+    "amountPositive": "Kiasi lazima kiwe zaidi ya sifuri",
+    "dateLabel": "Tarehe",
+    "dateRequired": "Tarehe inahitajika",
+    "descriptionLabel": "Maelezo"
+  }
+}

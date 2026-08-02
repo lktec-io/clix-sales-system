@@ -4,6 +4,7 @@ import * as saleService from '../services/sale.service.js';
 import * as receiptService from '../services/receipt.service.js';
 import * as companyService from '../services/company.service.js';
 import * as systemSettingsService from '../services/systemSettings.service.js';
+import { resolveLocale } from '../i18n/index.js';
 
 export const list = asyncHandler(async (req, res) => {
   const { items, meta } = await saleService.listSales(req.query, req.user);
@@ -26,7 +27,7 @@ export const receipt = asyncHandler(async (req, res) => {
     companyService.getProfile(),
     systemSettingsService.getSettings(),
   ]);
-  const pdf = await receiptService.buildReceiptPdf(sale, company, req.query.size, receiptQrVerificationEnabled);
+  const pdf = await receiptService.buildReceiptPdf(sale, company, req.query.size, receiptQrVerificationEnabled, resolveLocale(req.query.locale));
 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `inline; filename="${sale.sale_number}.pdf"`);

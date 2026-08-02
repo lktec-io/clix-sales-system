@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { FiUpload } from 'react-icons/fi';
 import { usePermission } from '../../hooks/usePermission';
 import { useToast } from '../../hooks/useToast';
@@ -22,6 +23,7 @@ const EMPTY_FORM = {
 };
 
 function CompanySettings() {
+  const { t } = useTranslation(['settings', 'common']);
   const canManage = usePermission('company.manage');
   const toast = useToast();
   const { updateCompany: updateCompanyBrand } = useCompany();
@@ -60,7 +62,7 @@ function CompanySettings() {
           setLogoPath(profile.logo_path || null);
         }
       } catch {
-        if (!cancelled) setFormError('Failed to load company profile.');
+        if (!cancelled) setFormError(t('settings:company.loadError'));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -70,6 +72,7 @@ function CompanySettings() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- t is only used inside the catch's error message; including it would re-run this whole data fetch on every language switch
   }, [reset]);
 
   const onSubmit = async (values) => {
@@ -77,9 +80,9 @@ function CompanySettings() {
     try {
       const profile = await companyService.updateCompany(values);
       updateCompanyBrand(profile);
-      toast.success('Company profile saved successfully.');
+      toast.success(t('settings:company.saveSuccess'));
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Failed to save company profile.');
+      setFormError(err.response?.data?.message || t('settings:company.saveError'));
     }
   };
 
@@ -96,9 +99,9 @@ function CompanySettings() {
       // Navbar, Reports) immediately — they all read from this same
       // CompanyContext, which otherwise only fetches once at app mount.
       updateCompanyBrand(profile);
-      toast.success('Logo updated successfully.');
+      toast.success(t('settings:company.logoUploadSuccess'));
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Failed to upload logo.');
+      setFormError(err.response?.data?.message || t('settings:company.logoUploadError'));
     } finally {
       setUploadingLogo(false);
       event.target.value = '';
@@ -113,8 +116,8 @@ function CompanySettings() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Settings</h1>
-          <p className="page-subtitle">Business profile used across receipts, reports and the login page</p>
+          <h1 className="page-title">{t('settings:company.pageTitle')}</h1>
+          <p className="page-subtitle">{t('settings:company.pageSubtitle')}</p>
         </div>
       </div>
 
@@ -122,7 +125,7 @@ function CompanySettings() {
 
       {!canManage && (
         <div className="alert alert-info mb-4" role="status">
-          Only Super Administrators can edit company settings. You are viewing this in read-only mode.
+          {t('settings:company.readOnlyNotice')}
         </div>
       )}
 
@@ -135,7 +138,7 @@ function CompanySettings() {
       <div className="card mb-5">
         <div className="card-body flex items-center gap-4">
           <div className="company-logo-preview">
-            {logoPath ? <img src={logoPath} alt="Company logo" /> : <span className="company-logo-placeholder">No Logo</span>}
+            {logoPath ? <img src={logoPath} alt={t('settings:company.logoAlt')} /> : <span className="company-logo-placeholder">{t('settings:company.noLogo')}</span>}
           </div>
           {canManage && (
             <div>
@@ -152,9 +155,9 @@ function CompanySettings() {
                 disabled={uploadingLogo}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <FiUpload aria-hidden="true" /> Upload Logo
+                <FiUpload aria-hidden="true" /> {t('settings:company.uploadLogo')}
               </button>
-              <p className="form-help mt-2">JPG, PNG or WEBP, up to 2MB.</p>
+              <p className="form-help mt-2">{t('settings:company.logoHint')}</p>
             </div>
           )}
         </div>
@@ -163,48 +166,48 @@ function CompanySettings() {
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="card mb-5">
           <div className="card-header">
-            <span className="card-title">Business Identity</span>
+            <span className="card-title">{t('settings:company.businessIdentity')}</span>
           </div>
           <div className="card-body">
             <div className="form-group">
-              <label className="form-label form-label-required" htmlFor="companyName">Company Name</label>
+              <label className="form-label form-label-required" htmlFor="companyName">{t('settings:company.companyName')}</label>
               <input
                 id="companyName"
                 className={`form-control ${errors.companyName ? 'form-control-error' : ''}`}
                 disabled={!canManage}
-                {...register('companyName', { required: 'Company name is required' })}
+                {...register('companyName', { required: t('settings:company.companyNameRequired') })}
               />
               {errors.companyName && <span className="form-error">{errors.companyName.message}</span>}
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="receiptFooter">Receipt Footer</label>
-              <textarea id="receiptFooter" className="form-control" disabled={!canManage} placeholder="e.g. Thank you for your business!" {...register('receiptFooter')} />
-              <p className="form-help mt-1">Printed at the bottom of every sales receipt.</p>
+              <label className="form-label" htmlFor="receiptFooter">{t('settings:company.receiptFooter')}</label>
+              <textarea id="receiptFooter" className="form-control" disabled={!canManage} placeholder={t('settings:company.receiptFooterPlaceholder')} {...register('receiptFooter')} />
+              <p className="form-help mt-1">{t('settings:company.receiptFooterHint')}</p>
             </div>
           </div>
         </div>
 
         <div className="card mb-5">
           <div className="card-header">
-            <span className="card-title">Address</span>
+            <span className="card-title">{t('settings:company.addressTitle')}</span>
           </div>
           <div className="card-body">
             <div className="form-group">
-              <label className="form-label" htmlFor="address">Physical Address</label>
+              <label className="form-label" htmlFor="address">{t('settings:company.physicalAddress')}</label>
               <input id="address" className="form-control" disabled={!canManage} {...register('address')} />
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label" htmlFor="region">Region</label>
+                <label className="form-label" htmlFor="region">{t('settings:company.region')}</label>
                 <input id="region" className="form-control" disabled={!canManage} {...register('region')} />
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="district">District</label>
+                <label className="form-label" htmlFor="district">{t('settings:company.district')}</label>
                 <input id="district" className="form-control" disabled={!canManage} {...register('district')} />
               </div>
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="street">Street</label>
+              <label className="form-label" htmlFor="street">{t('settings:company.street')}</label>
               <input id="street" className="form-control" disabled={!canManage} {...register('street')} />
             </div>
           </div>
@@ -212,22 +215,22 @@ function CompanySettings() {
 
         <div className="card mb-5">
           <div className="card-header">
-            <span className="card-title">Contact</span>
+            <span className="card-title">{t('settings:company.contactTitle')}</span>
           </div>
           <div className="card-body">
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label" htmlFor="phone">Phone Number</label>
+                <label className="form-label" htmlFor="phone">{t('common:labels.phone')}</label>
                 <input id="phone" className="form-control" disabled={!canManage} {...register('phone')} />
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="email">Email</label>
+                <label className="form-label" htmlFor="email">{t('common:labels.email')}</label>
                 <input
                   id="email"
                   type="email"
                   className={`form-control ${errors.email ? 'form-control-error' : ''}`}
                   disabled={!canManage}
-                  {...register('email', { pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email address' } })}
+                  {...register('email', { pattern: { value: /^\S+@\S+\.\S+$/, message: t('settings:company.invalidEmail') } })}
                 />
                 {errors.email && <span className="form-error">{errors.email.message}</span>}
               </div>
@@ -238,7 +241,7 @@ function CompanySettings() {
         {canManage && (
           <div className="form-actions">
             <button type="submit" className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
-              Save Changes
+              {t('settings:company.saveChanges')}
             </button>
           </div>
         )}

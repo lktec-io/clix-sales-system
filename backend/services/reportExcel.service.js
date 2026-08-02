@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { logger } from '../config/logger.js';
 import { resolveConfig, humanize, MONEY_KEYS } from './reportConfig.js';
+import { t } from '../i18n/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOADS_ROOT = path.join(__dirname, '..', 'uploads');
@@ -35,7 +36,7 @@ function isDateLabelColumn(key) {
 // installed. Deliberately not attempted with a fake substitute; the
 // on-screen preview and the PDF export (drawBarChart, native pdfkit
 // vectors) are where this report's chart actually lives.
-function addSummarySheet(workbook, { config, dateRangeLabel, company, generatedByName, filtersLabel, branchLabel, report }) {
+function addSummarySheet(workbook, { config, dateRangeLabel, company, generatedByName, filtersLabel, branchLabel, report, locale }) {
   const sheet = workbook.addWorksheet('Summary');
   sheet.properties.defaultColWidth = 16;
   sheet.getColumn(1).width = 26;
@@ -60,7 +61,7 @@ function addSummarySheet(workbook, { config, dateRangeLabel, company, generatedB
 
   sheet.mergeCells(`A${row}:D${row}`);
   const titleCell = sheet.getCell(`A${row}`);
-  titleCell.value = `${config.title} Report`;
+  titleCell.value = `${config.title} ${t(locale, 'common.report')}`;
   titleCell.font = { bold: true, size: 18, color: { argb: COLOR_NAVY } };
   row += 1;
 
@@ -68,28 +69,29 @@ function addSummarySheet(workbook, { config, dateRangeLabel, company, generatedB
   sheet.getCell(`A${row}`).font = { italic: true, color: { argb: COLOR_MUTED } };
   row += 1;
 
-  sheet.getCell(`A${row}`).value = `Generated: ${new Date().toLocaleString('en-TZ', { dateStyle: 'medium', timeStyle: 'short' })}`;
+  const dateLocale = locale === 'sw' ? 'sw-TZ' : 'en-TZ';
+  sheet.getCell(`A${row}`).value = `${t(locale, 'common.generated')}: ${new Date().toLocaleString(dateLocale, { dateStyle: 'medium', timeStyle: 'short' })}`;
   sheet.getCell(`A${row}`).font = { size: 9, color: { argb: COLOR_MUTED } };
   row += 1;
   if (generatedByName) {
-    sheet.getCell(`A${row}`).value = `Prepared By: ${generatedByName}`;
+    sheet.getCell(`A${row}`).value = `${t(locale, 'common.preparedBy')}: ${generatedByName}`;
     sheet.getCell(`A${row}`).font = { size: 9, color: { argb: COLOR_MUTED } };
     row += 1;
   }
   if (branchLabel) {
-    sheet.getCell(`A${row}`).value = `Branch: ${branchLabel}`;
+    sheet.getCell(`A${row}`).value = `${t(locale, 'common.branch')}: ${branchLabel}`;
     sheet.getCell(`A${row}`).font = { size: 9, color: { argb: COLOR_MUTED } };
     row += 1;
   }
   if (filtersLabel) {
-    sheet.getCell(`A${row}`).value = `Filters: ${filtersLabel}`;
+    sheet.getCell(`A${row}`).value = `${t(locale, 'common.filters')}: ${filtersLabel}`;
     sheet.getCell(`A${row}`).font = { size: 9, color: { argb: COLOR_MUTED } };
     row += 1;
   }
   row += 1;
 
   if (report.summary && config.summaryLabels) {
-    sheet.getCell(`A${row}`).value = 'Executive Summary';
+    sheet.getCell(`A${row}`).value = t(locale, 'common.executiveSummary');
     sheet.getCell(`A${row}`).font = { bold: true, size: 13, color: { argb: COLOR_NAVY } };
     row += 1;
     Object.entries(config.summaryLabels).forEach(([key, label]) => {
@@ -109,15 +111,15 @@ function addSummarySheet(workbook, { config, dateRangeLabel, company, generatedB
 
   if (report.financialSummary) {
     const fs2 = report.financialSummary;
-    sheet.getCell(`A${row}`).value = 'Financial Summary';
+    sheet.getCell(`A${row}`).value = t(locale, 'common.financialSummary');
     sheet.getCell(`A${row}`).font = { bold: true, size: 13, color: { argb: COLOR_NAVY } };
     row += 1;
     const financialRows = [
-      ['Total Revenue', fs2.totalRevenue, true],
-      ['Average Daily Sales', fs2.averageDailySales, true],
-      ...(fs2.averageInvoice != null ? [['Average Invoice', fs2.averageInvoice, true]] : []),
-      ['Highest Sales Day', `${fs2.highestSalesDay.date} (${fs2.highestSalesDay.value.toLocaleString()})`, false],
-      ['Lowest Sales Day', `${fs2.lowestSalesDay.date} (${fs2.lowestSalesDay.value.toLocaleString()})`, false],
+      [t(locale, 'financialSummary.totalRevenue'), fs2.totalRevenue, true],
+      [t(locale, 'financialSummary.averageDailySales'), fs2.averageDailySales, true],
+      ...(fs2.averageInvoice != null ? [[t(locale, 'financialSummary.averageInvoice'), fs2.averageInvoice, true]] : []),
+      [t(locale, 'financialSummary.highestSalesDay'), `${fs2.highestSalesDay.date} (${fs2.highestSalesDay.value.toLocaleString()})`, false],
+      [t(locale, 'financialSummary.lowestSalesDay'), `${fs2.lowestSalesDay.date} (${fs2.lowestSalesDay.value.toLocaleString()})`, false],
     ];
     financialRows.forEach(([label, value, isMoney]) => {
       sheet.getCell(`A${row}`).value = label;
@@ -130,7 +132,7 @@ function addSummarySheet(workbook, { config, dateRangeLabel, company, generatedB
     row += 1;
 
     if (Array.isArray(fs2.monthlyTrend)) {
-      sheet.getCell(`A${row}`).value = 'Monthly Trend';
+      sheet.getCell(`A${row}`).value = t(locale, 'common.monthlyTrend');
       sheet.getCell(`A${row}`).font = { bold: true, size: 12, color: { argb: COLOR_NAVY } };
       row += 1;
       fs2.monthlyTrend.forEach(({ month, value }) => {
@@ -144,8 +146,12 @@ function addSummarySheet(workbook, { config, dateRangeLabel, company, generatedB
     }
   }
 
+  // report.analysis/report.recommendations are dynamically-generated English
+  // business-insight sentences (reportAnalysis.js) — not static UI chrome —
+  // so they render as authored (English) regardless of locale; only the
+  // section headings around them are translated.
   if (Array.isArray(report.analysis) && report.analysis.length > 0) {
-    sheet.getCell(`A${row}`).value = 'Business Analysis';
+    sheet.getCell(`A${row}`).value = t(locale, 'common.businessAnalysis');
     sheet.getCell(`A${row}`).font = { bold: true, size: 13, color: { argb: COLOR_NAVY } };
     row += 1;
     report.analysis.forEach((line) => {
@@ -157,7 +163,7 @@ function addSummarySheet(workbook, { config, dateRangeLabel, company, generatedB
   }
 
   if (Array.isArray(report.recommendations) && report.recommendations.length > 0) {
-    sheet.getCell(`A${row}`).value = 'Recommendations';
+    sheet.getCell(`A${row}`).value = t(locale, 'common.recommendations');
     sheet.getCell(`A${row}`).font = { bold: true, size: 13, color: { argb: COLOR_NAVY } };
     row += 1;
     report.recommendations.forEach((line) => {
@@ -184,7 +190,7 @@ function safeSheetName(title, usedNames) {
   return name;
 }
 
-function addBreakdownSheet(workbook, { title, labelHeader }, rows, usedNames) {
+function addBreakdownSheet(workbook, { title, labelHeader }, rows, usedNames, locale) {
   const sheet = workbook.addWorksheet(safeSheetName(title, usedNames));
 
   const titleCell = sheet.getCell('A1');
@@ -193,7 +199,7 @@ function addBreakdownSheet(workbook, { title, labelHeader }, rows, usedNames) {
   sheet.mergeCells('A1:D1');
 
   if (!rows || rows.length === 0) {
-    sheet.getCell('A3').value = 'No data for the selected filters.';
+    sheet.getCell('A3').value = t(locale, 'common.noDataForFilters');
     sheet.getCell('A3').font = { italic: true, color: { argb: COLOR_MUTED } };
     return;
   }
@@ -231,7 +237,7 @@ function addBreakdownSheet(workbook, { title, labelHeader }, rows, usedNames) {
       cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_EMERALD } };
       cell.font = { bold: true, color: { argb: COLOR_WHITE } };
     }
-    sheet.getCell(currentRow, 1).value = 'Grand Total';
+    sheet.getCell(currentRow, 1).value = t(locale, 'common.grandTotal');
     const totalCell = sheet.getCell(currentRow, totalColIndex + 1);
     totalCell.value = runningTotal;
     totalCell.numFmt = '"TZS" #,##0.00';
@@ -249,19 +255,19 @@ function addBreakdownSheet(workbook, { title, labelHeader }, rows, usedNames) {
   });
 }
 
-export async function buildReportExcel(type, report, { dateFrom, dateTo, company, generatedByName, filtersLabel, branchLabel } = {}) {
-  const config = resolveConfig(type, report);
-  const dateRangeLabel = dateFrom && dateTo ? `${dateFrom} to ${dateTo}` : 'All time';
+export async function buildReportExcel(type, report, { dateFrom, dateTo, company, generatedByName, filtersLabel, branchLabel, locale = 'en' } = {}) {
+  const config = resolveConfig(type, report, locale);
+  const dateRangeLabel = dateFrom && dateTo ? `${dateFrom} to ${dateTo}` : t(locale, 'common.allTime');
 
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'Clix Sales System';
   workbook.created = new Date();
 
-  addSummarySheet(workbook, { config, dateRangeLabel, company, generatedByName, filtersLabel, branchLabel, report });
+  addSummarySheet(workbook, { config, dateRangeLabel, company, generatedByName, filtersLabel, branchLabel, report, locale });
 
   const usedNames = new Set(['Summary']);
   config.breakdowns.forEach((breakdown) => {
-    addBreakdownSheet(workbook, breakdown, report[breakdown.key], usedNames);
+    addBreakdownSheet(workbook, breakdown, report[breakdown.key], usedNames, locale);
   });
 
   return workbook;

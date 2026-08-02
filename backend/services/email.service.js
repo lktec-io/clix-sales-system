@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
 import { pool } from '../config/db.js';
+import { t } from '../i18n/index.js';
 
 let transporter = null;
 
@@ -51,14 +52,14 @@ export async function sendMail({ to, subject, html, template }) {
   }
 }
 
-export function passwordResetEmail(resetUrl) {
+export function passwordResetEmail(resetUrl, locale = 'en') {
   return {
-    subject: 'Reset your Clix Sales System password',
+    subject: t(locale, 'email.passwordResetSubject'),
     template: 'password-reset',
     html: `
-      <p>You requested a password reset for your Clix Sales System account.</p>
-      <p><a href="${resetUrl}">Click here to reset your password</a>. This link expires in 30 minutes.</p>
-      <p>If you did not request this, you can safely ignore this email.</p>
+      <p>${t(locale, 'email.passwordResetIntro')}</p>
+      <p><a href="${resetUrl}">${t(locale, 'email.passwordResetLink')}</a>. ${t(locale, 'email.passwordResetExpiry')}</p>
+      <p>${t(locale, 'email.passwordResetIgnore')}</p>
     `,
   };
 }

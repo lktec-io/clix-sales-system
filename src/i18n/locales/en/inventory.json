@@ -1,1 +1,76 @@
-{}
+{
+  "overview": {
+    "title": "Inventory",
+    "subtitle": "Current stock levels across branches",
+    "movementHistory": "Movement History",
+    "searchPlaceholder": "Search by product name or code...",
+    "lowStock": "Low Stock",
+    "outOfStock": "Out of Stock",
+    "inStock": "In Stock",
+    "emptyMessage": "No inventory records found",
+    "adjustStock": "Adjust stock",
+    "adjustmentSuccess": "Stock adjustment recorded.",
+    "adjustmentError": "Failed to record adjustment."
+  },
+  "kpi": {
+    "totalProducts": "Total Products",
+    "inventoryValue": "Inventory Value",
+    "lowStock": "Low Stock",
+    "outOfStock": "Out of Stock"
+  },
+  "columns": {
+    "product": "Product",
+    "branch": "Branch",
+    "currentStock": "Current Stock",
+    "available": "Available",
+    "minStock": "Min Stock",
+    "stockValue": "Stock Value",
+    "level": "Level"
+  },
+  "modal": {
+    "title": "Adjust Stock",
+    "saveAdjustment": "Save Adjustment",
+    "cancel": "Cancel",
+    "atBranch": "at {{branch}}",
+    "currentStock": "current stock: {{stock}}",
+    "quantityChangeLabel": "Quantity Change (use a negative number to remove stock)",
+    "quantityRequired": "Quantity is required",
+    "cannotBeZero": "Cannot be zero",
+    "reason": "Reason",
+    "description": "Description"
+  },
+  "reasons": {
+    "damaged": "Damaged",
+    "expired": "Expired",
+    "lost": "Lost",
+    "correction": "Correction",
+    "initial_count": "Initial Count",
+    "system_error": "System Error"
+  },
+  "movements": {
+    "backToInventory": "Back to Inventory",
+    "title": "Stock Movements",
+    "subtitle": "Full audit trail of every stock change",
+    "allMovementTypes": "All Movement Types",
+    "emptyMessage": "No stock movements recorded yet"
+  },
+  "movementColumns": {
+    "date": "Date",
+    "product": "Product",
+    "branch": "Branch",
+    "type": "Type",
+    "change": "Change",
+    "resultingStock": "Resulting Stock",
+    "by": "By"
+  },
+  "movementTypes": {
+    "purchase": "Purchase",
+    "sale": "Sale",
+    "return": "Return",
+    "transfer_out": "Transfer Out",
+    "transfer_in": "Transfer In",
+    "adjustment": "Adjustment",
+    "opening_balance": "Opening Balance",
+    "manual_correction": "Manual Correction"
+  }
+}

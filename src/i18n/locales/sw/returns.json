@@ -1,1 +1,118 @@
-{}
+{
+  "list": {
+    "title": "Marejesho",
+    "subtitle": "Marejesho na kurejesha pesa kwa wateja dhidi ya mauzo yaliyokamilika",
+    "newReturn": "Marejesho Mapya",
+    "searchPlaceholder": "Tafuta kwa namba ya marejesho au uzo...",
+    "emptyMessage": "Hakuna marejesho yaliyorekodiwa bado",
+    "viewReturnAria": "Angalia marejesho",
+    "walkIn": "Mteja wa Mtaani"
+  },
+  "form": {
+    "title": "Marejesho Mapya",
+    "subtitle": "Tafuta uzo halisi, chagua bidhaa za kurejesha, kisha weka sababu na njia ya kurejesha pesa",
+    "locateSale": "Tafuta Uzo Halisi",
+    "saleQueryLabel": "Namba ya Risiti, Barcode, au Jina la Bidhaa",
+    "saleQueryPlaceholder": "mfano SAL-2026-000001, barcode, au jina la bidhaa",
+    "findSale": "Tafuta Uzo",
+    "searchPrompt": "Tafuta namba ya uzo ili kuanza.",
+    "changeSale": "Badilisha Uzo",
+    "returnItemAria": "Rejesha {{name}}",
+    "returnDetails": "Maelezo ya Marejesho",
+    "reason": "Sababu",
+    "refundMethod": "Njia ya Kurejesha Pesa",
+    "cancel": "Ghairi",
+    "approveReturn": "Idhinisha Marejesho",
+    "submitRequest": "Wasilisha Ombi la Marejesho",
+    "walkIn": "Mteja wa Mtaani",
+    "reasons": {
+      "damaged": "Bidhaa Imeharibika",
+      "wrongItem": "Bidhaa Isiyo Sahihi Ilitolewa",
+      "changedMind": "Mteja Amebadilisha Nia",
+      "expired": "Bidhaa Imeisha Muda",
+      "other": "Nyingine"
+    },
+    "refundMethods": {
+      "cash": "Taslimu",
+      "mpesa": "M-Pesa",
+      "airtelMoney": "Airtel Money",
+      "bankTransfer": "Uhamisho wa Benki"
+    },
+    "toast": {
+      "selectAtLeastOneItem": "Chagua angalau bidhaa moja ya kurejesha",
+      "approvedSuccess": "Marejesho yameidhinishwa — hesabu ya bidhaa na ripoti zimesasishwa.",
+      "submittedSuccess": "Ombi la marejesho limewasilishwa kwa idhini.",
+      "createFailed": "Imeshindikana kuunda ombi la marejesho."
+    }
+  },
+  "detail": {
+    "backToReturns": "Rudi kwenye Marejesho",
+    "againstSale": "Dhidi ya uzo {{saleNumber}}",
+    "reject": "Kataa",
+    "approve": "Idhinisha",
+    "status": "Hali",
+    "reason": "Sababu",
+    "customer": "Mteja",
+    "walkIn": "Mteja wa Mtaani",
+    "requestedBy": "Iliombwa Na",
+    "approvedBy": "Iliidhinishwa Na",
+    "rejectedBy": "Ilikataliwa Na",
+    "returnedItems": "Bidhaa Zilizorejeshwa",
+    "refund": "Kurejesha Pesa",
+    "refundAmount": "Kiasi cha Kurejeshwa",
+    "refundMethod": "Njia ya Kurejesha Pesa",
+    "refundStatus": "Hali ya Kurejesha Pesa",
+    "approveDialogTitle": "Idhinisha Marejesho",
+    "approveDialogMessage": "Kuidhinisha kutarejesha hesabu ya bidhaa zilizorejeshwa na kuweka alama kuwa pesa zimerejeshwa.",
+    "approveConfirm": "Idhinisha",
+    "rejectDialogTitle": "Kataa Marejesho",
+    "rejectDialogMessage": "Kukataa hakutahamisha hesabu ya bidhaa wala kurejesha pesa. Hatua hii haiwezi kutenduliwa.",
+    "rejectConfirm": "Kataa",
+    "toast": {
+      "approved": "Marejesho yameidhinishwa.",
+      "approveFailed": "Imeshindikana kuidhinisha marejesho.",
+      "rejected": "Marejesho yamekataliwa.",
+      "rejectFailed": "Imeshindikana kukataa marejesho."
+    }
+  },
+  "columns": {
+    "returnNumber": "Namba ya Marejesho",
+    "originalSale": "Uzo Halisi",
+    "customer": "Mteja",
+    "reason": "Sababu",
+    "refund": "Kurejesha Pesa",
+    "date": "Tarehe",
+    "status": "Hali",
+    "product": "Bidhaa",
+    "quantity": "Idadi",
+    "soldQty": "Idadi Iliyouzwa",
+    "currentStock": "Hesabu ya Sasa",
+    "returnQty": "Idadi ya Kurejesha",
+    "unitPrice": "Bei ya Kipimo",
+    "saleNumber": "Namba ya Uzo",
+    "amount": "Kiasi",
+    "branch": "Tawi"
+  },
+  "reasons": {
+    "damaged": "Bidhaa Imeharibika",
+    "wrongItem": "Bidhaa Isiyo Sahihi Ilitolewa",
+    "changedMind": "Amebadilisha Nia",
+    "expired": "Bidhaa Imeisha Muda",
+    "other": "Nyingine"
+  },
+  "status": {
+    "pending": "Inasubiri",
+    "approved": "Imeidhinishwa",
+    "rejected": "Imekataliwa"
+  },
+  "refundMethod": {
+    "cash": "Taslimu",
+    "mpesa": "M-Pesa",
+    "airtelMoney": "Airtel Money",
+    "bankTransfer": "Uhamisho wa Benki"
+  },
+  "refundStatus": {
+    "refunded": "Imerejeshwa",
+    "pending": "Inasubiri"
+  }
+}

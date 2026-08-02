@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FiPlus, FiEdit2, FiToggleLeft, FiToggleRight, FiMapPin } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
@@ -14,6 +15,7 @@ import '../../styles/pages/Notifications.css';
 import '../../styles/components/ViewToggle.css';
 
 function BranchList() {
+  const { t } = useTranslation(['settings', 'common']);
   const navigate = useNavigate();
   const canCreate = usePermission('branches.create');
   const canEdit = usePermission('branches.edit');
@@ -29,27 +31,27 @@ function BranchList() {
     const nextStatus = branch.status === 'active' ? 'inactive' : 'active';
     try {
       await branchService.changeBranchStatus(branch.id, nextStatus);
-      toast.success(nextStatus === 'active' ? 'Branch activated.' : 'Branch deactivated.');
+      toast.success(nextStatus === 'active' ? t('settings:branches.activateSuccess') : t('settings:branches.deactivateSuccess'));
       refetch();
     } catch (err) {
-      setActionError(err.response?.data?.message || 'Failed to update branch status.');
+      setActionError(err.response?.data?.message || t('settings:branches.statusUpdateError'));
     }
   };
 
   const columns = [
-    { key: 'name', label: 'Branch Name' },
-    { key: 'code', label: 'Code' },
+    { key: 'name', label: t('settings:branches.columns.name') },
+    { key: 'code', label: t('settings:branches.columns.code') },
     {
       key: 'manager',
-      label: 'Manager',
+      label: t('settings:branches.columns.manager'),
       render: (row) => (row.manager_first_name ? `${row.manager_first_name} ${row.manager_last_name}` : '—'),
     },
-    { key: 'phone', label: 'Phone', render: (row) => row.phone || '—' },
-    { key: 'region', label: 'Region', render: (row) => row.region || '—' },
+    { key: 'phone', label: t('settings:branches.columns.phone'), render: (row) => row.phone || '—' },
+    { key: 'region', label: t('settings:branches.columns.region'), render: (row) => row.region || '—' },
     {
       key: 'status',
-      label: 'Status',
-      render: (row) => <span className={`badge ${row.status === 'active' ? 'badge-success' : 'badge-neutral'}`}>{row.status}</span>,
+      label: t('common:labels.status'),
+      render: (row) => <span className={`badge ${row.status === 'active' ? 'badge-success' : 'badge-neutral'}`}>{row.status === 'active' ? t('common:labels.active') : t('common:labels.inactive')}</span>,
     },
     {
       key: 'actions',
@@ -57,7 +59,7 @@ function BranchList() {
       render: (row) => (
         <div className="table-actions">
           {canEdit && (
-            <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/settings/branches/${row.id}/edit`)} aria-label="Edit branch">
+            <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/settings/branches/${row.id}/edit`)} aria-label={t('settings:branches.editAria')}>
               <FiEdit2 />
             </button>
           )}
@@ -66,7 +68,7 @@ function BranchList() {
               type="button"
               className="btn btn-ghost btn-icon"
               onClick={() => handleToggleStatus(row)}
-              aria-label={row.status === 'active' ? 'Deactivate branch' : 'Activate branch'}
+              aria-label={row.status === 'active' ? t('settings:branches.deactivateAria') : t('settings:branches.activateAria')}
             >
               {row.status === 'active' ? <FiToggleRight /> : <FiToggleLeft />}
             </button>
@@ -80,13 +82,13 @@ function BranchList() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Branches</h1>
-          <p className="page-subtitle">Manage store locations, managers and contact details</p>
+          <h1 className="page-title">{t('settings:branches.pageTitle')}</h1>
+          <p className="page-subtitle">{t('settings:branches.pageSubtitle')}</p>
         </div>
         {canCreate && (
           <div className="page-actions">
             <button type="button" className="btn btn-primary" onClick={() => navigate('/settings/branches/new')}>
-              <FiPlus aria-hidden="true" /> New Branch
+              <FiPlus aria-hidden="true" /> {t('settings:branches.newBranch')}
             </button>
           </div>
         )}
@@ -98,12 +100,12 @@ function BranchList() {
 
       <div className="card">
         <div className="table-toolbar">
-          <SearchInput value={search} onChange={setSearch} placeholder="Search by name, code, region..." />
+          <SearchInput value={search} onChange={setSearch} placeholder={t('settings:branches.searchPlaceholder')} />
           <ViewToggle view={view} onChange={setView} />
         </div>
 
         {view === 'list' ? (
-          <Table columns={columns} rows={items} loading={loading} emptyMessage="No branches found" />
+          <Table columns={columns} rows={items} loading={loading} emptyMessage={t('settings:branches.emptyMessage')} />
         ) : (
           <div className="management-grid">
             {items.map((row) => (
@@ -112,28 +114,28 @@ function BranchList() {
                   <div className="management-grid-card-media">
                     <FiMapPin aria-hidden="true" />
                   </div>
-                  <span className={`badge ${row.status === 'active' ? 'badge-success' : 'badge-neutral'}`}>{row.status}</span>
+                  <span className={`badge ${row.status === 'active' ? 'badge-success' : 'badge-neutral'}`}>{row.status === 'active' ? t('common:labels.active') : t('common:labels.inactive')}</span>
                 </div>
                 <div>
                   <div className="management-grid-card-title">{row.name}</div>
                   <div className="management-grid-card-subtitle">{row.code}</div>
                 </div>
                 <div className="management-grid-card-body">
-                  <span>{row.manager_first_name ? `${row.manager_first_name} ${row.manager_last_name}` : 'No manager assigned'}</span>
+                  <span>{row.manager_first_name ? `${row.manager_first_name} ${row.manager_last_name}` : t('settings:branches.noManagerAssigned')}</span>
                   <span>{row.phone || '—'}</span>
                   <span>{row.region || '—'}</span>
                 </div>
                 {canEdit && (
                   <div className="management-grid-card-footer">
                     <div className="table-actions">
-                      <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/settings/branches/${row.id}/edit`)} aria-label="Edit branch">
+                      <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/settings/branches/${row.id}/edit`)} aria-label={t('settings:branches.editAria')}>
                         <FiEdit2 />
                       </button>
                       <button
                         type="button"
                         className="btn btn-ghost btn-icon"
                         onClick={() => handleToggleStatus(row)}
-                        aria-label={row.status === 'active' ? 'Deactivate branch' : 'Activate branch'}
+                        aria-label={row.status === 'active' ? t('settings:branches.deactivateAria') : t('settings:branches.activateAria')}
                       >
                         {row.status === 'active' ? <FiToggleRight /> : <FiToggleLeft />}
                       </button>
@@ -144,7 +146,7 @@ function BranchList() {
             ))}
             {!loading && items.length === 0 && (
               <div className="text-sm text-secondary" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-8)' }}>
-                No branches found
+                {t('settings:branches.emptyMessage')}
               </div>
             )}
           </div>

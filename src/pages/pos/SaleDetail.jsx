@@ -1,22 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FiArrowLeft, FiPrinter, FiDownload, FiPlusCircle } from 'react-icons/fi';
 import PageSkeleton from '../../components/common/PageSkeleton';
 import * as saleService from '../../services/saleService';
 import { formatCurrency } from '../../utils/formatCurrency';
 import '../../styles/pages/POS.css';
-
-const PAYMENT_METHOD_LABELS = {
-  cash: 'Cash',
-  mpesa: 'M-Pesa',
-  airtel_money: 'Airtel Money',
-  bank_transfer: 'Bank Transfer',
-  card: 'Card',
-};
-
-function formatDateTime(isoString) {
-  return new Date(isoString).toLocaleString('en-TZ', { dateStyle: 'medium', timeStyle: 'short' });
-}
 
 const RECEIPT_SIZES = [
   { value: '58', label: '58mm' },
@@ -25,10 +14,22 @@ const RECEIPT_SIZES = [
 ];
 
 function SaleDetail() {
+  const { t, i18n } = useTranslation(['sales', 'common']);
   const { id } = useParams();
   const navigate = useNavigate();
   const [sale, setSale] = useState(null);
   const [receiptSize, setReceiptSize] = useState('80');
+
+  const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
+  const formatDateTime = (isoString) => new Date(isoString).toLocaleString(dateLocale, { dateStyle: 'medium', timeStyle: 'short' });
+
+  const PAYMENT_METHOD_LABELS = {
+    cash: t('sales:payment.cash'),
+    mpesa: t('sales:payment.mpesa'),
+    airtel_money: t('sales:payment.airtelMoney'),
+    bank_transfer: t('sales:payment.bankTransfer'),
+    card: t('sales:payment.card'),
+  };
 
   useEffect(() => {
     saleService.getSale(id).then(setSale);
@@ -46,12 +47,12 @@ function SaleDetail() {
       <div className="page-header">
         <div>
           <button type="button" className="btn btn-ghost btn-sm mb-2" onClick={() => navigate('/pos/sales')}>
-            <FiArrowLeft aria-hidden="true" /> Back to Sale History
+            <FiArrowLeft aria-hidden="true" /> {t('sales:detail.backToHistory')}
           </button>
           <h1 className="page-title">{sale.sale_number}</h1>
           <p className="page-subtitle">
-            {sale.branch_name} · {formatDateTime(sale.created_at)} · Cashier: {sale.cashier_first_name} {sale.cashier_last_name}
-            {sale.customer_first_name ? ` · Customer: ${sale.customer_first_name} ${sale.customer_last_name}` : ' · Walk-in customer'}
+            {sale.branch_name} · {formatDateTime(sale.created_at)} · {t('sales:detail.cashier')}: {sale.cashier_first_name} {sale.cashier_last_name}
+            {sale.customer_first_name ? ` · ${t('sales:detail.customer')}: ${sale.customer_first_name} ${sale.customer_last_name}` : ` · ${t('sales:detail.walkInCustomer')}`}
           </p>
         </div>
         <div className="page-actions">
@@ -60,18 +61,18 @@ function SaleDetail() {
             style={{ width: 90 }}
             value={receiptSize}
             onChange={(e) => setReceiptSize(e.target.value)}
-            aria-label="Receipt paper size"
+            aria-label={t('sales:detail.receiptPaperSizeAria')}
           >
-            {RECEIPT_SIZES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            {RECEIPT_SIZES.map((option) => <option key={option.value} value={option.value}>{t(`sales:receiptSizes.${option.value}`)}</option>)}
           </select>
           <button type="button" className="btn btn-secondary" onClick={() => saleService.printReceipt(sale.id, receiptSize)}>
-            <FiPrinter aria-hidden="true" /> Print
+            <FiPrinter aria-hidden="true" /> {t('sales:detail.print')}
           </button>
           <button type="button" className="btn btn-secondary" onClick={() => saleService.downloadReceiptPdf(sale.id, sale.sale_number, receiptSize)}>
-            <FiDownload aria-hidden="true" /> Download PDF
+            <FiDownload aria-hidden="true" /> {t('sales:detail.downloadPdf')}
           </button>
           <button type="button" className="btn btn-primary" onClick={() => navigate('/pos')}>
-            <FiPlusCircle aria-hidden="true" /> New Sale
+            <FiPlusCircle aria-hidden="true" /> {t('sales:detail.newSale')}
           </button>
         </div>
       </div>
@@ -81,16 +82,16 @@ function SaleDetail() {
       )}
 
       <div className="card mb-5">
-        <div className="card-header"><span className="card-title">Items</span></div>
+        <div className="card-header"><span className="card-title">{t('sales:detail.items')}</span></div>
         <div className="table-wrapper">
           <table className="table">
             <thead>
               <tr>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Discount</th>
-                <th>Line Total</th>
+                <th>{t('sales:columns.product')}</th>
+                <th>{t('sales:columns.quantity')}</th>
+                <th>{t('sales:columns.unitPrice')}</th>
+                <th>{t('sales:columns.discount')}</th>
+                <th>{t('sales:columns.lineTotal')}</th>
               </tr>
             </thead>
             <tbody>
@@ -108,29 +109,29 @@ function SaleDetail() {
         </div>
         <div className="card-footer flex justify-end">
           <div style={{ minWidth: 240 }}>
-            <div className="pos-totals-row"><span>Subtotal</span><span>{formatCurrency(sale.subtotal)}</span></div>
+            <div className="pos-totals-row"><span>{t('sales:detail.subtotal')}</span><span>{formatCurrency(sale.subtotal)}</span></div>
             {Number(sale.discount_amount) > 0 && (
-              <div className="pos-totals-row"><span>Discount</span><span>-{formatCurrency(sale.discount_amount)}</span></div>
+              <div className="pos-totals-row"><span>{t('sales:detail.discount')}</span><span>-{formatCurrency(sale.discount_amount)}</span></div>
             )}
-            <div className="pos-totals-row pos-totals-row-total"><span>Total</span><span>{formatCurrency(sale.total_amount)}</span></div>
+            <div className="pos-totals-row pos-totals-row-total"><span>{t('sales:detail.total')}</span><span>{formatCurrency(sale.total_amount)}</span></div>
           </div>
         </div>
       </div>
 
       {sale.profit && (
         <div className="card mb-5">
-          <div className="card-header"><span className="card-title">Profit</span></div>
+          <div className="card-header"><span className="card-title">{t('sales:detail.profit')}</span></div>
           <div className="card-body flex" style={{ gap: 'var(--space-6)', flexWrap: 'wrap' }}>
             <div>
-              <div className="text-xs text-secondary">Cost</div>
+              <div className="text-xs text-secondary">{t('sales:detail.cost')}</div>
               <div className="text-sm font-semibold">{formatCurrency(sale.profit.cost)}</div>
             </div>
             <div>
-              <div className="text-xs text-secondary">Gross Profit</div>
+              <div className="text-xs text-secondary">{t('sales:detail.grossProfit')}</div>
               <div className="text-sm font-semibold">{formatCurrency(sale.profit.grossProfit)}</div>
             </div>
             <div>
-              <div className="text-xs text-secondary">Margin</div>
+              <div className="text-xs text-secondary">{t('sales:detail.margin')}</div>
               <div className="text-sm font-semibold">{sale.profit.marginPercent.toFixed(1)}%</div>
             </div>
           </div>
@@ -138,14 +139,14 @@ function SaleDetail() {
       )}
 
       <div className="card">
-        <div className="card-header"><span className="card-title">Payments</span></div>
+        <div className="card-header"><span className="card-title">{t('sales:detail.payments')}</span></div>
         <div className="table-wrapper">
           <table className="table">
             <thead>
               <tr>
-                <th>Method</th>
-                <th>Amount</th>
-                <th>Reference</th>
+                <th>{t('sales:columns.method')}</th>
+                <th>{t('sales:columns.amount')}</th>
+                <th>{t('sales:columns.reference')}</th>
               </tr>
             </thead>
             <tbody>
@@ -160,7 +161,7 @@ function SaleDetail() {
           </table>
         </div>
         <div className="card-footer flex justify-end">
-          <span className="text-sm font-semibold">{balance >= 0 ? 'Change' : 'Balance Due'}: {formatCurrency(Math.abs(balance))}</span>
+          <span className="text-sm font-semibold">{balance >= 0 ? t('sales:detail.change') : t('sales:detail.balanceDue')}: {formatCurrency(Math.abs(balance))}</span>
         </div>
       </div>
     </div>

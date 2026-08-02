@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { FiPlus, FiEdit2, FiEye, FiToggleLeft, FiToggleRight, FiUser, FiTrash2 } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
@@ -16,22 +17,23 @@ import * as customerService from '../../services/customerService';
 import { splitFullName } from '../../utils/splitFullName';
 import '../../styles/components/ViewToggle.css';
 
-const CUSTOMER_TYPE_LABELS = {
-  walk_in: 'Walk In',
-  retail: 'Retail',
-  wholesale: 'Wholesale',
-  vip: 'VIP',
-  business: 'Business',
-};
-
 const DEFAULT_VALUES = { fullName: '', phone: '', email: '', address: '', notes: '' };
 
 function CustomerList() {
+  const { t } = useTranslation(['customers', 'common']);
   const navigate = useNavigate();
   const canCreate = usePermission('customers.create');
   const canEdit = usePermission('customers.edit');
   const canDelete = usePermission('customers.delete');
   const toast = useToast();
+
+  const CUSTOMER_TYPE_LABELS = {
+    walk_in: t('customers:types.walkIn'),
+    retail: t('customers:types.retail'),
+    wholesale: t('customers:types.wholesale'),
+    vip: t('customers:types.vip'),
+    business: t('customers:types.business'),
+  };
 
   const fetchCustomers = useCallback((params) => customerService.listCustomers(params), []);
   const { items, meta, loading, page, setPage, search, setSearch, refetch } = useTable(fetchCustomers);
@@ -77,15 +79,15 @@ function CustomerList() {
     try {
       if (editing) {
         await customerService.updateCustomer(editing.id, payload);
-        toast.success('Customer updated.');
+        toast.success(t('customers:list.toast.updated'));
       } else {
         await customerService.createCustomer(payload);
-        toast.success('Customer registered.');
+        toast.success(t('customers:list.toast.registered'));
       }
       setModalOpen(false);
       refetch();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save customer.');
+      setError(err.response?.data?.message || t('customers:list.toast.saveFailed'));
     }
   };
 
@@ -94,28 +96,28 @@ function CustomerList() {
     const nextStatus = customer.status === 'active' ? 'inactive' : 'active';
     try {
       await customerService.changeCustomerStatus(customer.id, nextStatus);
-      toast.success(nextStatus === 'active' ? 'Customer activated.' : 'Customer deactivated.');
+      toast.success(nextStatus === 'active' ? t('customers:list.toast.activated') : t('customers:list.toast.deactivated'));
       refetch();
     } catch (err) {
-      setActionError(err.response?.data?.message || 'Failed to update customer status.');
+      setActionError(err.response?.data?.message || t('customers:list.toast.statusUpdateFailed'));
     }
   };
 
   const handleDelete = async () => {
     try {
       await customerService.deleteCustomer(pendingDelete.id);
-      toast.success('Customer permanently deleted.');
+      toast.success(t('customers:list.toast.deleted'));
       refetch();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to delete customer.');
+      toast.error(err.response?.data?.message || t('customers:list.toast.deleteFailed'));
     }
   };
 
   const columns = [
-    { key: 'customer_code', label: 'Code' },
+    { key: 'customer_code', label: t('customers:columns.code') },
     {
       key: 'name',
-      label: 'Customer',
+      label: t('customers:columns.customer'),
       render: (row) => (
         <div>
           {row.first_name} {row.last_name}
@@ -123,31 +125,31 @@ function CustomerList() {
         </div>
       ),
     },
-    { key: 'phone', label: 'Phone' },
-    { key: 'customer_type', label: 'Type', render: (row) => CUSTOMER_TYPE_LABELS[row.customer_type] || row.customer_type },
+    { key: 'phone', label: t('customers:columns.phone') },
+    { key: 'customer_type', label: t('customers:columns.type'), render: (row) => CUSTOMER_TYPE_LABELS[row.customer_type] || row.customer_type },
     {
       key: 'status',
-      label: 'Status',
-      render: (row) => <span className={`badge ${row.status === 'active' ? 'badge-success' : 'badge-neutral'}`}>{row.status}</span>,
+      label: t('customers:columns.status'),
+      render: (row) => <span className={`badge ${row.status === 'active' ? 'badge-success' : 'badge-neutral'}`}>{row.status === 'active' ? t('common:labels.active') : t('common:labels.inactive')}</span>,
     },
     {
       key: 'actions',
       label: '',
       render: (row) => (
         <div className="table-actions">
-          <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/customers/${row.id}`)} aria-label="View customer">
+          <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/customers/${row.id}`)} aria-label={t('customers:list.viewCustomerAria')}>
             <FiEye />
           </button>
           {canEdit && (
             <>
-              <button type="button" className="btn btn-ghost btn-icon" onClick={() => openEdit(row)} aria-label="Edit customer">
+              <button type="button" className="btn btn-ghost btn-icon" onClick={() => openEdit(row)} aria-label={t('customers:list.editCustomerAria')}>
                 <FiEdit2 />
               </button>
               <button
                 type="button"
                 className="btn btn-ghost btn-icon"
                 onClick={() => handleToggleStatus(row)}
-                aria-label={row.status === 'active' ? 'Deactivate customer' : 'Activate customer'}
+                aria-label={row.status === 'active' ? t('customers:list.deactivateCustomerAria') : t('customers:list.activateCustomerAria')}
               >
                 {row.status === 'active' ? <FiToggleRight /> : <FiToggleLeft />}
               </button>
@@ -158,7 +160,7 @@ function CustomerList() {
               type="button"
               className="btn btn-ghost btn-icon"
               onClick={() => setPendingDelete(row)}
-              aria-label="Delete customer"
+              aria-label={t('customers:list.deleteCustomerAria')}
             >
               <FiTrash2 />
             </button>
@@ -172,13 +174,13 @@ function CustomerList() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Customers</h1>
-          <p className="page-subtitle">Manage customers and their purchase/return history</p>
+          <h1 className="page-title">{t('customers:list.title')}</h1>
+          <p className="page-subtitle">{t('customers:list.subtitle')}</p>
         </div>
         {canCreate && (
           <div className="page-actions">
             <button type="button" className="btn btn-primary" onClick={openCreate}>
-              <FiPlus aria-hidden="true" /> New Customer
+              <FiPlus aria-hidden="true" /> {t('customers:list.newCustomer')}
             </button>
           </div>
         )}
@@ -188,12 +190,12 @@ function CustomerList() {
 
       <div className="card">
         <div className="table-toolbar">
-          <SearchInput value={search} onChange={setSearch} placeholder="Search by name, phone, code..." />
+          <SearchInput value={search} onChange={setSearch} placeholder={t('customers:list.searchPlaceholder')} />
           <ViewToggle view={view} onChange={setView} />
         </div>
 
         {view === 'list' ? (
-          <Table columns={columns} rows={items} loading={loading} emptyMessage="No customers found" />
+          <Table columns={columns} rows={items} loading={loading} emptyMessage={t('customers:list.emptyMessage')} />
         ) : (
           <div className="management-grid">
             {items.map((row) => (
@@ -202,7 +204,7 @@ function CustomerList() {
                   <div className="management-grid-card-media">
                     <FiUser aria-hidden="true" />
                   </div>
-                  <span className={`badge ${row.status === 'active' ? 'badge-success' : 'badge-neutral'}`}>{row.status}</span>
+                  <span className={`badge ${row.status === 'active' ? 'badge-success' : 'badge-neutral'}`}>{row.status === 'active' ? t('common:labels.active') : t('common:labels.inactive')}</span>
                 </div>
                 <div>
                   <div className="management-grid-card-title">{row.first_name} {row.last_name}</div>
@@ -213,26 +215,26 @@ function CustomerList() {
                   <span>{CUSTOMER_TYPE_LABELS[row.customer_type] || row.customer_type}</span>
                 </div>
                 <div className="management-grid-card-footer">
-                  <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/customers/${row.id}`)} aria-label="View customer">
+                  <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/customers/${row.id}`)} aria-label={t('customers:list.viewCustomerAria')}>
                     <FiEye />
                   </button>
                   {canEdit && (
                     <div className="table-actions">
-                      <button type="button" className="btn btn-ghost btn-icon" onClick={() => openEdit(row)} aria-label="Edit customer">
+                      <button type="button" className="btn btn-ghost btn-icon" onClick={() => openEdit(row)} aria-label={t('customers:list.editCustomerAria')}>
                         <FiEdit2 />
                       </button>
                       <button
                         type="button"
                         className="btn btn-ghost btn-icon"
                         onClick={() => handleToggleStatus(row)}
-                        aria-label={row.status === 'active' ? 'Deactivate customer' : 'Activate customer'}
+                        aria-label={row.status === 'active' ? t('customers:list.deactivateCustomerAria') : t('customers:list.activateCustomerAria')}
                       >
                         {row.status === 'active' ? <FiToggleRight /> : <FiToggleLeft />}
                       </button>
                     </div>
                   )}
                   {canDelete && (
-                    <button type="button" className="btn btn-ghost btn-icon" onClick={() => setPendingDelete(row)} aria-label="Delete customer">
+                    <button type="button" className="btn btn-ghost btn-icon" onClick={() => setPendingDelete(row)} aria-label={t('customers:list.deleteCustomerAria')}>
                       <FiTrash2 />
                     </button>
                   )}
@@ -241,7 +243,7 @@ function CustomerList() {
             ))}
             {!loading && items.length === 0 && (
               <div className="text-sm text-secondary" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-8)' }}>
-                No customers found
+                {t('customers:list.emptyMessage')}
               </div>
             )}
           </div>
@@ -253,13 +255,13 @@ function CustomerList() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editing ? 'Edit Customer' : 'New Customer'}
+        title={editing ? t('customers:list.editModalTitle') : t('customers:list.createModalTitle')}
         size="md"
         footer={
           <>
-            <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>{t('common:actions.cancel')}</button>
             <button type="submit" form="customer-form" className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
-              {editing ? 'Save Changes' : 'Create Customer'}
+              {editing ? t('customers:list.saveChanges') : t('customers:list.createButton')}
             </button>
           </>
         }
@@ -274,9 +276,9 @@ function CustomerList() {
         open={Boolean(pendingDelete)}
         onClose={() => setPendingDelete(null)}
         onConfirm={handleDelete}
-        title="Delete Customer?"
-        message="This action cannot be undone."
-        confirmLabel="Delete"
+        title={t('customers:list.deleteConfirmTitle')}
+        message={t('customers:list.deleteConfirmMessage')}
+        confirmLabel={t('customers:list.deleteConfirmLabel')}
       />
     </div>
   );
