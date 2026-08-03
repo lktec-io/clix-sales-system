@@ -4,10 +4,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   FiSearch, FiBell, FiChevronDown, FiCheck, FiCheckCircle, FiTrash2, FiUser, FiLogOut, FiInbox, FiSettings,
-  FiInfo, FiAlertTriangle, FiAlertCircle,
+  FiInfo, FiAlertTriangle, FiAlertCircle, FiGlobe,
 } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
 import { useCompany } from '../../hooks/useCompany';
+import { useLanguage } from '../../hooks/useLanguage';
 import { useDebounce } from '../../hooks/useDebounce';
 import * as searchService from '../../services/searchService';
 import * as notificationService from '../../services/notificationService';
@@ -160,12 +161,14 @@ function Navbar({ onMenuClick, isOpen }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { company } = useCompany();
+  const { language, setLanguage, languages } = useLanguage();
   const { query, setQuery, results, open, setOpen } = useGlobalSearch();
   const searchRef = useRef(null);
   const notifications = useNotifications();
   const notificationsRef = useRef(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
 
   // en-TZ/sw-TZ pick the same Gregorian calendar and Tanzanian conventions
   // (24-hour clock, day/month order) either way — only weekday/month *names*
@@ -177,6 +180,15 @@ function Navbar({ onMenuClick, isOpen }) {
   const initial = user ? user.first_name.charAt(0).toUpperCase() : 'U';
   const branchLabel = user?.branch_name || t('allBranches');
 
+  // Closing the user panel always collapses its language submenu too, so
+  // it never reopens pre-expanded next time — one helper used by every
+  // close path (outside click, Logout, picking a language) instead of
+  // repeating the pair of setState calls at each call site.
+  const closeUserMenu = () => {
+    setUserMenuOpen(false);
+    setLanguageMenuOpen(false);
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -186,7 +198,7 @@ function Navbar({ onMenuClick, isOpen }) {
         notifications.setOpen(false);
       }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-        setUserMenuOpen(false);
+        closeUserMenu();
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -210,9 +222,14 @@ function Navbar({ onMenuClick, isOpen }) {
   }, []);
 
   const handleLogout = async () => {
-    setUserMenuOpen(false);
+    closeUserMenu();
     await logout();
     navigate(ROUTES.LOGIN, { replace: true });
+  };
+
+  const handleSelectLanguage = (code) => {
+    setLanguage(code); // instant, in-memory switch — LanguageProvider handles persistence
+    closeUserMenu();
   };
 
   const users = results?.users || [];
@@ -419,17 +436,58 @@ function Navbar({ onMenuClick, isOpen }) {
                   <button
                     type="button"
                     className="navbar-user-panel-item"
-                    onClick={() => { setUserMenuOpen(false); navigate('/profile'); }}
+                    onClick={() => { closeUserMenu(); navigate('/profile'); }}
                   >
                     <FiUser aria-hidden="true" /> {t('user.profile')}
                   </button>
                   <button
                     type="button"
                     className="navbar-user-panel-item"
-                    onClick={() => { setUserMenuOpen(false); navigate('/settings/company'); }}
+                    onClick={() => { closeUserMenu(); navigate('/settings/company'); }}
                   >
                     <FiSettings aria-hidden="true" /> {t('user.settings')}
                   </button>
+
+                  <button
+                    type="button"
+                    className="navbar-user-panel-item"
+                    aria-haspopup="true"
+                    aria-expanded={languageMenuOpen}
+                    aria-label={t('user.languageAria')}
+                    onClick={() => setLanguageMenuOpen((prev) => !prev)}
+                  >
+                    <FiGlobe aria-hidden="true" /> {t('user.language')}
+                    <FiChevronDown className={`navbar-language-caret ${languageMenuOpen ? 'is-open' : ''}`} aria-hidden="true" />
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {languageMenuOpen && (
+                      <motion.div
+                        className="navbar-language-submenu"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.18, ease: 'easeOut' }}
+                      >
+                        {languages.map((option) => {
+                          const isActive = language === option.code;
+                          return (
+                            <button
+                              key={option.code}
+                              type="button"
+                              className={`navbar-language-option ${isActive ? 'navbar-language-option-active' : ''}`}
+                              aria-pressed={isActive}
+                              onClick={() => handleSelectLanguage(option.code)}
+                            >
+                              <span className="navbar-language-flag" aria-hidden="true">{option.flag}</span>
+                              <span className="navbar-language-label">{option.label}</span>
+                              {isActive && <FiCheck className="navbar-language-check" aria-hidden="true" />}
+                            </button>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   <div className="navbar-user-panel-divider" />
                   <button type="button" className="navbar-user-panel-item navbar-user-panel-item-danger" onClick={handleLogout}>
                     <FiLogOut aria-hidden="true" /> {t('user.logout')}

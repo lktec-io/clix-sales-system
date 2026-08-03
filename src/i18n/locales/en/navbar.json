@@ -11,6 +11,8 @@
     "defaultName": "User",
     "profile": "Profile",
     "settings": "Settings",
+    "language": "Language",
+    "languageAria": "Change language",
     "logout": "Logout"
   },
   "themePicker": {
