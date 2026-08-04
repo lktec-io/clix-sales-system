@@ -13,8 +13,8 @@ const DEFAULTS = {
   receipt_qr_verification_enabled: 'false',
 };
 
-export async function getSettings() {
-  const rows = await systemSettingsRepository.findAll();
+export async function getSettings(tenantId) {
+  const rows = await systemSettingsRepository.findAll(tenantId);
   const map = new Map(rows.map((row) => [row.setting_key, row.setting_value]));
 
   return {
@@ -25,20 +25,22 @@ export async function getSettings() {
   };
 }
 
-export async function updateSettings(data, userId) {
-  await systemSettingsRepository.upsert('tax_enabled', String(Boolean(data.taxEnabled)), 'boolean', userId);
-  await systemSettingsRepository.upsert('tax_rate', String(Number(data.taxRate) || 0), 'number', userId);
+export async function updateSettings(data, userId, tenantId) {
+  await systemSettingsRepository.upsert(tenantId, 'tax_enabled', String(Boolean(data.taxEnabled)), 'boolean', userId);
+  await systemSettingsRepository.upsert(tenantId, 'tax_rate', String(Number(data.taxRate) || 0), 'number', userId);
   await systemSettingsRepository.upsert(
+    tenantId,
     'notification_email_enabled',
     String(Boolean(data.notificationEmailEnabled)),
     'boolean',
     userId,
   );
   await systemSettingsRepository.upsert(
+    tenantId,
     'receipt_qr_verification_enabled',
     String(Boolean(data.receiptQrVerificationEnabled)),
     'boolean',
     userId,
   );
-  return getSettings();
+  return getSettings(tenantId);
 }

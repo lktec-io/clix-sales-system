@@ -10,17 +10,17 @@ export const list = asyncHandler(async (req, res) => {
 });
 
 export const getById = asyncHandler(async (req, res) => {
-  const purchase = await purchaseService.getPurchase(Number(req.params.id));
+  const purchase = await purchaseService.getPurchase(Number(req.params.id), req.user.tenantId);
   return success(res, { data: purchase });
 });
 
 export const create = asyncHandler(async (req, res) => {
-  const purchase = await purchaseService.createPurchase(req.body, req.user.id);
+  const purchase = await purchaseService.createPurchase(req.body, req.user.id, req.user.tenantId);
   return success(res, { message: 'Purchase recorded and inventory updated', data: purchase, status: 201 });
 });
 
 export const addPayment = asyncHandler(async (req, res) => {
-  await purchaseService.addPayment(req.body, req.user.id);
+  await purchaseService.addPayment(req.body, req.user.id, req.user.tenantId);
   return success(res, { message: 'Payment recorded', status: 201 });
 });
 
@@ -39,11 +39,11 @@ export const previewImport = asyncHandler(async (req, res) => {
   // populated regardless of whether Cloudinary is configured — unlike the
   // image uploader, there's no disk-storage path to fall back to here.
   const rawRows = await purchaseImportService.parseImportFile(req.file.buffer);
-  const { rows, summary } = await purchaseImportService.validateRows(rawRows);
+  const { rows, summary } = await purchaseImportService.validateRows(rawRows, req.user.tenantId);
   return success(res, { data: { rows, summary } });
 });
 
 export const commitImport = asyncHandler(async (req, res) => {
-  const result = await purchaseImportService.commitImport(req.body.rows, { branchId: Number(req.body.branchId) }, req.user.id);
+  const result = await purchaseImportService.commitImport(req.body.rows, { branchId: Number(req.body.branchId) }, req.user.id, req.user.tenantId);
   return success(res, { message: 'Import complete', data: result, status: 201 });
 });

@@ -12,7 +12,7 @@ export const list = asyncHandler(async (req, res) => {
 });
 
 export const getById = asyncHandler(async (req, res) => {
-  const sale = await saleService.getSale(Number(req.params.id), req.user);
+  const sale = await saleService.getSale(Number(req.params.id), req.user.tenantId, req.user);
   return success(res, { data: sale });
 });
 
@@ -22,10 +22,10 @@ export const checkout = asyncHandler(async (req, res) => {
 });
 
 export const receipt = asyncHandler(async (req, res) => {
-  const sale = await saleService.getSale(Number(req.params.id));
+  const sale = await saleService.getSale(Number(req.params.id), req.user.tenantId);
   const [company, { receiptQrVerificationEnabled }] = await Promise.all([
-    companyService.getProfile(),
-    systemSettingsService.getSettings(),
+    companyService.getProfile(req.user.tenantId),
+    systemSettingsService.getSettings(req.user.tenantId),
   ]);
   const pdf = await receiptService.buildReceiptPdf(sale, company, req.query.size, receiptQrVerificationEnabled, resolveLocale(req.query.locale));
 

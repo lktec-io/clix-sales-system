@@ -55,8 +55,8 @@ async function deleteOldQrFile(oldQrPath) {
   });
 }
 
-export async function getForProduct(productId) {
-  const product = await productRepository.findById(productId);
+export async function getForProduct(productId, tenantId) {
+  const product = await productRepository.findById(productId, tenantId);
   if (!product) throw new ApiError(404, 'Product not found');
 
   const existing = await qrCodeRepository.findByProductId(productId);
@@ -64,11 +64,11 @@ export async function getForProduct(productId) {
 
   // Row missing, or its image is gone — regenerate instead of serving (or
   // 500ing on) a broken reference.
-  return generate(productId);
+  return generate(productId, tenantId);
 }
 
-export async function generate(productId) {
-  const product = await productRepository.findById(productId);
+export async function generate(productId, tenantId) {
+  const product = await productRepository.findById(productId, tenantId);
   if (!product) throw new ApiError(404, 'Product not found');
 
   logger.info('Generating QR...', { productId });
@@ -137,8 +137,8 @@ async function writeQrToDisk(buffer, productId, uniqueSuffix) {
 // bytes. Goes through getForProduct() first so a missing/stale image is
 // regenerated before anything tries to read it; PDF generation never has
 // to know about storage backends or handle ENOENT itself.
-export async function getQrImageBuffer(productId) {
-  const qr = await getForProduct(productId);
+export async function getQrImageBuffer(productId, tenantId) {
+  const qr = await getForProduct(productId, tenantId);
 
   if (qr.qr_path.startsWith('http')) {
     const response = await fetch(qr.qr_path);

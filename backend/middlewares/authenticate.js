@@ -2,6 +2,7 @@ import { verifyAccessToken } from '../utils/tokenUtils.js';
 import { ApiError } from '../utils/apiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { logger } from '../config/logger.js';
+import { resolveTenant } from './tenantContext.js';
 
 export const authenticate = asyncHandler(async (req, res, next) => {
   const header = req.headers.authorization || '';
@@ -11,10 +12,9 @@ export const authenticate = asyncHandler(async (req, res, next) => {
     throw new ApiError(401, 'Authentication required');
   }
 
+  let payload;
   try {
-    const payload = verifyAccessToken(token);
-    req.user = { id: payload.sub, roleId: payload.roleId, role: payload.role, branchId: payload.branchId };
-    return next();
+    payload = verifyAccessToken(token);
   } catch (err) {
     // The client only ever sees the generic message below; the specific
     // jsonwebtoken reason (TokenExpiredError vs JsonWebTokenError vs a
@@ -27,4 +27,15 @@ export const authenticate = asyncHandler(async (req, res, next) => {
     });
     throw new ApiError(401, 'Invalid or expired access token');
   }
+
+  // Deliberately outside the try/catch above — a suspended/invalid tenant
+  // (resolveTenant, tenantContext.js) is a real, distinct 403, not a token
+  // problem, and must never be reported to the client as "Invalid or
+  // expired access token". tenant_id reaches the app ONLY from this signed
+  // JWT claim, never from client-supplied request data.
+  const tenant = await resolveTenant(payload.tenantId);
+
+  req.user = { id: payload.sub, tenantId: tenant.id, roleId: payload.roleId, role: payload.role, branchId: payload.branchId };
+  req.tenantId = tenant.id;
+  return next();
 });

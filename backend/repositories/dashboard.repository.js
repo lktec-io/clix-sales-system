@@ -1,18 +1,12 @@
 import { pool } from '../config/db.js';
+import { buildScope } from '../utils/tenantScope.js';
 
-// branchIds: null (Super Admin, unrestricted) or an array of accessible branch IDs.
-function branchFilter(column, branchIds) {
-  if (!branchIds) return { clause: '', params: [] };
-  if (branchIds.length === 0) return { clause: `AND 1 = 0`, params: [] }; // no accessible branches -> no rows
-  return { clause: `AND ${column} IN (?)`, params: [branchIds] };
-}
-
-export async function getKpis(branchIds) {
-  const sales = branchFilter('branch_id', branchIds);
-  const expenses = branchFilter('branch_id', branchIds);
-  const inventory = branchFilter('i.branch_id', branchIds);
-  const transfers = branchFilter('destination_branch_id', branchIds);
-  const purchases = branchFilter('branch_id', branchIds);
+export async function getKpis(tenantId, branchIds) {
+  const sales = buildScope({ tenantId, branchIds });
+  const expenses = buildScope({ tenantId, branchIds });
+  const inventory = buildScope({ tenantId, tenantColumn: 'i.tenant_id', branchIds, branchColumn: 'i.branch_id' });
+  const transfers = buildScope({ tenantId, branchIds, branchColumn: 'destination_branch_id' });
+  const purchases = buildScope({ tenantId, branchIds });
 
   const [[todaySales]] = await pool.query(
     `SELECT COALESCE(SUM(total_amount), 0) AS value FROM sales
@@ -26,7 +20,7 @@ export async function getKpis(branchIds) {
     sales.params,
   );
 
-  const salesAliased = branchFilter('s.branch_id', branchIds);
+  const salesAliased = buildScope({ tenantId, tenantColumn: 's.tenant_id', branchIds, branchColumn: 's.branch_id' });
   // LEFT JOIN + COALESCE onto sale_items.buying_price_snapshot (see the 015
   // migration) — a sold product can be permanently deleted later; without
   // this fallback today's/this month's profit would understate cost the
@@ -46,13 +40,16 @@ export async function getKpis(branchIds) {
   );
 
   const [[totalCustomers]] = await pool.query(
-    "SELECT COUNT(*) AS value FROM customers WHERE deleted_at IS NULL AND status = 'active'",
+    "SELECT COUNT(*) AS value FROM customers WHERE tenant_id = ? AND deleted_at IS NULL AND status = 'active'",
+    [tenantId],
   );
   const [[totalSuppliers]] = await pool.query(
-    "SELECT COUNT(*) AS value FROM suppliers WHERE deleted_at IS NULL AND status = 'active'",
+    "SELECT COUNT(*) AS value FROM suppliers WHERE tenant_id = ? AND deleted_at IS NULL AND status = 'active'",
+    [tenantId],
   );
   const [[totalProducts]] = await pool.query(
-    "SELECT COUNT(*) AS value FROM products WHERE deleted_at IS NULL AND status = 'active'",
+    "SELECT COUNT(*) AS value FROM products WHERE tenant_id = ? AND deleted_at IS NULL AND status = 'active'",
+    [tenantId],
   );
 
   const [[inventoryValue]] = await pool.query(
@@ -136,9 +133,9 @@ const SALES_TREND_RANGES = {
   },
 };
 
-export async function getSalesTrend(branchIds, range = 'week') {
+export async function getSalesTrend(tenantId, branchIds, range = 'week') {
   const config = SALES_TREND_RANGES[range] || SALES_TREND_RANGES.week;
-  const filter = branchFilter('branch_id', branchIds);
+  const filter = buildScope({ tenantId, branchIds });
   const [rows] = await pool.query(
     `SELECT ${config.bucket} AS date, COALESCE(SUM(total_amount), 0) AS value, COUNT(*) AS count
      FROM sales
@@ -149,8 +146,8 @@ export async function getSalesTrend(branchIds, range = 'week') {
   return rows;
 }
 
-export async function getRevenueTrend(branchIds) {
-  const salesFilter = branchFilter('branch_id', branchIds);
+export async function getRevenueTrend(tenantId, branchIds) {
+  const salesFilter = buildScope({ tenantId, branchIds });
   const [rows] = await pool.query(
     `SELECT DATE(created_at) AS date, COALESCE(SUM(total_amount), 0) AS value
      FROM sales WHERE status = 'completed' AND created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY) ${salesFilter.clause}
@@ -160,8 +157,8 @@ export async function getRevenueTrend(branchIds) {
   return rows;
 }
 
-export async function getExpenseTrend(branchIds) {
-  const filter = branchFilter('branch_id', branchIds);
+export async function getExpenseTrend(tenantId, branchIds) {
+  const filter = buildScope({ tenantId, branchIds });
   const [rows] = await pool.query(
     `SELECT expense_date AS date, COALESCE(SUM(amount), 0) AS value
      FROM expenses
@@ -172,8 +169,8 @@ export async function getExpenseTrend(branchIds) {
   return rows;
 }
 
-export async function getProfitTrend(branchIds) {
-  const filter = branchFilter('s.branch_id', branchIds);
+export async function getProfitTrend(tenantId, branchIds) {
+  const filter = buildScope({ tenantId, tenantColumn: 's.tenant_id', branchIds, branchColumn: 's.branch_id' });
   const [rows] = await pool.query(
     `SELECT DATE_FORMAT(s.created_at, '%Y-%m') AS month,
             COALESCE(SUM(si.line_total - (si.quantity * COALESCE(p.buying_price, si.buying_price_snapshot))), 0) AS value
@@ -204,8 +201,8 @@ export async function getProfitTrend(branchIds) {
 // grouped-column violation. Same rows, same order, same values as before;
 // only where the image subquery's reference to the id resolves from has
 // changed.
-export async function getTopProducts(branchIds, limit = 5) {
-  const filter = branchFilter('s.branch_id', branchIds);
+export async function getTopProducts(tenantId, branchIds, limit = 5) {
+  const filter = buildScope({ tenantId, tenantColumn: 's.tenant_id', branchIds, branchColumn: 's.branch_id' });
   const [rows] = await pool.query(
     `SELECT agg.id, agg.name, agg.quantity, agg.revenue,
             (SELECT pi.image_path FROM product_images pi
@@ -226,8 +223,8 @@ export async function getTopProducts(branchIds, limit = 5) {
   return rows;
 }
 
-export async function getBranchPerformance(branchIds) {
-  const filter = branchFilter('b.id', branchIds);
+export async function getBranchPerformance(tenantId, branchIds) {
+  const filter = buildScope({ tenantId, tenantColumn: 'b.tenant_id', branchIds, branchColumn: 'b.id' });
   const [rows] = await pool.query(
     `SELECT b.id, b.name, COALESCE(SUM(s.total_amount), 0) AS value
      FROM branches b
@@ -240,8 +237,8 @@ export async function getBranchPerformance(branchIds) {
   return rows;
 }
 
-export async function getInventorySummary(branchIds) {
-  const filter = branchFilter('i.branch_id', branchIds);
+export async function getInventorySummary(tenantId, branchIds) {
+  const filter = buildScope({ tenantId, tenantColumn: 'i.tenant_id', branchIds, branchColumn: 'i.branch_id' });
   const [[row]] = await pool.query(
     `SELECT
        SUM(CASE WHEN i.quantity = 0 THEN 1 ELSE 0 END) AS outOfStock,
@@ -276,8 +273,8 @@ const PAYMENT_METHOD_LABELS = {
   card: 'Card',
 };
 
-export async function getPaymentStatus(branchIds) {
-  const filter = branchFilter('s.branch_id', branchIds);
+export async function getPaymentStatus(tenantId, branchIds) {
+  const filter = buildScope({ tenantId, tenantColumn: 's.tenant_id', branchIds, branchColumn: 's.branch_id' });
   const [rows] = await pool.query(
     `SELECT sp.payment_method, COALESCE(SUM(sp.amount), 0) AS value
      FROM sale_payments sp
@@ -294,9 +291,9 @@ export async function getPaymentStatus(branchIds) {
   return Array.from(totals, ([name, value]) => ({ name, value }));
 }
 
-export async function getRevenueVsExpenses(branchIds) {
-  const salesFilter = branchFilter('branch_id', branchIds);
-  const expenseFilter = branchFilter('branch_id', branchIds);
+export async function getRevenueVsExpenses(tenantId, branchIds) {
+  const salesFilter = buildScope({ tenantId, branchIds });
+  const expenseFilter = buildScope({ tenantId, branchIds });
   const [rows] = await pool.query(
     `SELECT date, SUM(revenue) AS revenue, SUM(expenses) AS expenses FROM (
        SELECT DATE(created_at) AS date, COALESCE(SUM(total_amount), 0) AS revenue, 0 AS expenses
@@ -324,12 +321,15 @@ export async function getRevenueVsExpenses(branchIds) {
 // 003_create_settings_sessions.sql) — a real proxy for "currently signed
 // in", not literal live presence, since there is no heartbeat/presence
 // tracking in this schema.
-export async function getSystemStatus() {
+export async function getSystemStatus(tenantId) {
   const [[lastBackup]] = await pool.query(
     'SELECT created_at, status FROM system_backups ORDER BY created_at DESC LIMIT 1',
   );
   const [[onlineUsers]] = await pool.query(
-    'SELECT COUNT(DISTINCT user_id) AS value FROM sessions WHERE revoked_at IS NULL AND expires_at > NOW()',
+    `SELECT COUNT(DISTINCT s.user_id) AS value FROM sessions s
+     JOIN users u ON u.id = s.user_id
+     WHERE u.tenant_id = ? AND s.revoked_at IS NULL AND s.expires_at > NOW()`,
+    [tenantId],
   );
   return {
     lastBackupAt: lastBackup?.created_at || null,

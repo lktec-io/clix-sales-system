@@ -1,7 +1,7 @@
 import { pool } from '../config/db.js';
 
 const BASE_SELECT = `
-  SELECT u.id, u.first_name, u.last_name, u.gender, u.phone, u.email, u.username,
+  SELECT u.id, u.tenant_id, u.first_name, u.last_name, u.gender, u.phone, u.email, u.username,
          u.password_hash, u.role_id, u.branch_id, u.avatar_path, u.preferred_language, u.status,
          u.failed_login_attempts, u.locked_until, u.last_login_at,
          u.created_at, u.updated_at, u.deleted_at,
@@ -11,6 +11,15 @@ const BASE_SELECT = `
   JOIN roles r ON r.id = u.role_id
   LEFT JOIN branches b ON b.id = u.branch_id
 `;
+
+// Login/refresh is the one lookup that must NOT be tenant-scoped — the
+// tenant isn't known yet at that point (identifying which tenant a login
+// belongs to is the whole point of this query). Every other repository
+// function below that touches more than one row (findAll) or performs a
+// uniqueness check (findConflict) IS tenant-scoped, since users.email/
+// username/phone became composite-unique per (tenant_id, x) in
+// 019_scope_unique_keys_to_tenant.sql — two different tenants may now
+// legitimately share the same email.
 
 export async function findByEmailOrUsername(identifier) {
   const [rows] = await pool.query(
@@ -25,11 +34,11 @@ export async function findById(id) {
   return rows[0] || null;
 }
 
-export async function create({ firstName, lastName, gender, phone, email, username, passwordHash, roleId, branchId, status }) {
+export async function create({ tenantId, firstName, lastName, gender, phone, email, username, passwordHash, roleId, branchId, status }) {
   const [result] = await pool.query(
-    `INSERT INTO users (first_name, last_name, gender, phone, email, username, password_hash, role_id, branch_id, status)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [firstName, lastName, gender || null, phone, email, username, passwordHash, roleId, branchId || null, status || 'active'],
+    `INSERT INTO users (tenant_id, first_name, last_name, gender, phone, email, username, password_hash, role_id, branch_id, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [tenantId, firstName, lastName, gender || null, phone, email, username, passwordHash, roleId, branchId || null, status || 'active'],
   );
   return findById(result.insertId);
 }
@@ -56,19 +65,22 @@ export async function updatePasswordHash(id, passwordHash) {
   await pool.query('UPDATE users SET password_hash = ? WHERE id = ?', [passwordHash, id]);
 }
 
-export async function findConflict({ email, username, phone }, excludeId = null) {
+// tenantId-scoped since email/username/phone are only unique *within* a
+// tenant (019_scope_unique_keys_to_tenant.sql) — a different tenant already
+// using the same email is not a conflict.
+export async function findConflict(tenantId, { email, username, phone }, excludeId = null) {
   const [rows] = await pool.query(
     `SELECT id, email, username, phone FROM users
-     WHERE deleted_at IS NULL AND (email = ? OR username = ? OR phone = ?) ${excludeId ? 'AND id <> ?' : ''}
+     WHERE tenant_id = ? AND deleted_at IS NULL AND (email = ? OR username = ? OR phone = ?) ${excludeId ? 'AND id <> ?' : ''}
      LIMIT 1`,
-    excludeId ? [email, username, phone, excludeId] : [email, username, phone],
+    excludeId ? [tenantId, email, username, phone, excludeId] : [tenantId, email, username, phone],
   );
   return rows[0] || null;
 }
 
-export async function findAll({ page = 1, limit = 20, search, roleId, branchId, status }) {
-  const conditions = ['u.deleted_at IS NULL'];
-  const params = [];
+export async function findAll({ tenantId, page = 1, limit = 20, search, roleId, branchId, status }) {
+  const conditions = ['u.tenant_id = ?', 'u.deleted_at IS NULL'];
+  const params = [tenantId];
 
   if (search) {
     conditions.push('(u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR u.username LIKE ? OR u.phone LIKE ?)');
@@ -103,11 +115,14 @@ export async function findAll({ page = 1, limit = 20, search, roleId, branchId, 
   return { rows, total: countRows[0].total };
 }
 
-export async function update(id, { firstName, lastName, gender, phone, email, username, roleId, branchId, userId }) {
+// tenantId guards the WHERE clause as defense-in-depth (id alone is already
+// a unique PK regardless of tenant) — mirrors the pattern used everywhere
+// else a tenant-owned row is mutated by id.
+export async function update(id, tenantId, { firstName, lastName, gender, phone, email, username, roleId, branchId, userId }) {
   await pool.query(
     `UPDATE users SET first_name = ?, last_name = ?, gender = ?, phone = ?, email = ?, username = ?,
-       role_id = ?, branch_id = ?, updated_by = ? WHERE id = ?`,
-    [firstName, lastName, gender || null, phone, email, username, roleId, branchId || null, userId, id],
+       role_id = ?, branch_id = ?, updated_by = ? WHERE id = ? AND tenant_id = ?`,
+    [firstName, lastName, gender || null, phone, email, username, roleId, branchId || null, userId, id, tenantId],
   );
   return findById(id);
 }

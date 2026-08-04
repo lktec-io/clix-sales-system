@@ -1,13 +1,14 @@
 import { pool } from '../config/db.js';
+import { buildScope } from '../utils/tenantScope.js';
 
-export async function findById(id) {
+export async function findById(id, tenantId) {
   const [rows] = await pool.query(
     `SELECT po.*, s.name AS supplier_name, b.name AS branch_name
      FROM purchase_orders po
      JOIN suppliers s ON s.id = po.supplier_id
      JOIN branches b ON b.id = po.branch_id
-     WHERE po.id = ? LIMIT 1`,
-    [id],
+     WHERE po.id = ? AND po.tenant_id = ? LIMIT 1`,
+    [id, tenantId],
   );
   if (!rows[0]) return null;
 
@@ -26,13 +27,7 @@ export async function findById(id) {
   return { ...rows[0], items };
 }
 
-function branchFilter(branchIds) {
-  if (!branchIds) return { clause: '', params: [] };
-  if (branchIds.length === 0) return { clause: 'AND 1 = 0', params: [] };
-  return { clause: 'AND po.branch_id IN (?)', params: [branchIds] };
-}
-
-export async function findAll({ page = 1, limit = 20, search, supplierId, branchId, status, branchIds }) {
+export async function findAll({ tenantId, page = 1, limit = 20, search, supplierId, branchId, status, branchIds }) {
   const conditions = ['1 = 1'];
   const params = [];
 
@@ -53,7 +48,7 @@ export async function findAll({ page = 1, limit = 20, search, supplierId, branch
     params.push(status);
   }
 
-  const scope = branchFilter(branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 'po.tenant_id', branchIds, branchColumn: 'po.branch_id' });
   const whereClause = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const offset = (page - 1) * limit;
   const allParams = [...params, ...scope.params];
@@ -73,11 +68,11 @@ export async function findAll({ page = 1, limit = 20, search, supplierId, branch
   return { rows, total: countRows[0].total };
 }
 
-export async function createOrder({ purchaseNumber, supplierId, branchId, totalAmount, userId }, connection) {
+export async function createOrder({ tenantId, purchaseNumber, supplierId, branchId, totalAmount, userId }, connection) {
   const [result] = await connection.query(
-    `INSERT INTO purchase_orders (purchase_number, supplier_id, branch_id, total_amount, status, created_by, updated_by)
-     VALUES (?, ?, ?, ?, 'received', ?, ?)`,
-    [purchaseNumber, supplierId, branchId, totalAmount, userId, userId],
+    `INSERT INTO purchase_orders (tenant_id, purchase_number, supplier_id, branch_id, total_amount, status, created_by, updated_by)
+     VALUES (?, ?, ?, ?, ?, 'received', ?, ?)`,
+    [tenantId, purchaseNumber, supplierId, branchId, totalAmount, userId, userId],
   );
   return result.insertId;
 }

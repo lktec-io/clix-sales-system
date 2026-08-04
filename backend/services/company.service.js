@@ -9,8 +9,8 @@ import { resolveUploadedFileUrl, deleteUploadedFile } from '../middlewares/uploa
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOADS_ROOT = path.join(__dirname, '..', 'uploads');
 
-export async function getProfile() {
-  return companyRepository.get();
+export async function getProfile(tenantId) {
+  return companyRepository.get(tenantId);
 }
 
 // A field the current form doesn't render at all (e.g. after the Settings
@@ -25,10 +25,11 @@ function preserveIfOmitted(newValue, existingValue, fallback = null) {
   return existingValue ?? fallback;
 }
 
-export async function upsertProfile(data, userId) {
-  const existing = await companyRepository.get();
+export async function upsertProfile(data, userId, tenantId) {
+  const existing = await companyRepository.get(tenantId);
 
   const payload = {
+    tenantId,
     companyName: data.companyName,
     businessType: preserveIfOmitted(data.businessType, existing?.business_type),
     tinNumber: preserveIfOmitted(data.tinNumber, existing?.tin_number),
@@ -54,17 +55,17 @@ export async function upsertProfile(data, userId) {
     return companyRepository.insert({ ...payload, logoPath: null });
   }
 
-  return companyRepository.update(existing.id, payload);
+  return companyRepository.update(existing.id, tenantId, payload);
 }
 
-export async function updateLogo(file, userId) {
-  const existing = await companyRepository.get();
+export async function updateLogo(file, userId, tenantId) {
+  const existing = await companyRepository.get(tenantId);
   if (!existing) {
     throw new ApiError(400, 'Create the company profile before uploading a logo');
   }
 
   const logoPath = resolveUploadedFileUrl(file, 'logo');
-  const updated = await companyRepository.updateLogoPath(existing.id, logoPath);
+  const updated = await companyRepository.updateLogoPath(existing.id, tenantId, logoPath);
 
   if (existing.logo_path) {
     if (existing.logo_path.startsWith('/uploads/')) {

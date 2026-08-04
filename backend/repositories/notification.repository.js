@@ -5,16 +5,24 @@ import { pool } from '../config/db.js';
 // race to mark read/unread for each other. notifyBranchManagement() is how
 // callers reach "everyone who should know" without a NULL-user broadcast
 // row that would make per-user read-state meaningless.
-export async function notifyBranchManagement(branchId, { type = 'info', category, title, message, referenceType, referenceId }) {
+//
+// tenantId is required — without it, since `roles` is a shared/global
+// table, the Super Administrator clause would previously match every
+// tenant's Super Admin, not just this one's, and notify them about another
+// tenant's sale/purchase/expense. u.tenant_id = ? closes that off; the
+// Manager clause was already implicitly branch-scoped, but branches
+// themselves are tenant-owned, so this is a defense-in-depth addition there
+// too, not a behavior change for the existing single-tenant install.
+export async function notifyBranchManagement(tenantId, branchId, { type = 'info', category, title, message, referenceType, referenceId }) {
   await pool.query(
     `INSERT INTO notifications (user_id, type, category, title, message, reference_type, reference_id)
      SELECT u.id, ?, ?, ?, ?, ?, ?
      FROM users u JOIN roles r ON r.id = u.role_id
-     WHERE u.status = 'active' AND (
+     WHERE u.status = 'active' AND u.tenant_id = ? AND (
        r.name = 'Super Administrator'
        OR (r.name = 'Manager' AND (u.branch_id = ? OR u.id IN (SELECT user_id FROM user_branches WHERE branch_id = ?)))
      )`,
-    [type, category, title, message, referenceType || null, referenceId || null, branchId, branchId],
+    [type, category, title, message, referenceType || null, referenceId || null, tenantId, branchId, branchId],
   );
 }
 

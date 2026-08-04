@@ -1,14 +1,10 @@
 import { pool } from '../config/db.js';
+import { buildScope } from '../utils/tenantScope.js';
 
 // Every report accepts a resolved { dateFrom, dateTo } (service layer fills
-// in a default range) and an optional branchIds scope (null = unrestricted).
-function branchFilter(column, branchIds) {
-  if (!branchIds) return { clause: '', params: [] };
-  if (branchIds.length === 0) return { clause: 'AND 1 = 0', params: [] };
-  return { clause: `AND ${column} IN (?)`, params: [branchIds] };
-}
-
-export async function salesReport({ dateFrom, dateTo, branchId, cashierId, customerId, productId, branchIds }) {
+// in a default range), a required tenantId, and an optional branchIds scope
+// (null = unrestricted within the tenant).
+export async function salesReport({ tenantId, dateFrom, dateTo, branchId, cashierId, customerId, productId, branchIds }) {
   const conditions = ["s.status = 'completed'", 's.created_at >= ?', 's.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
   const params = [dateFrom, dateTo];
   if (branchId) { conditions.push('s.branch_id = ?'); params.push(branchId); }
@@ -18,7 +14,7 @@ export async function salesReport({ dateFrom, dateTo, branchId, cashierId, custo
     conditions.push('EXISTS (SELECT 1 FROM sale_items si WHERE si.sale_id = s.id AND si.product_id = ?)');
     params.push(productId);
   }
-  const scope = branchFilter('s.branch_id', branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 's.tenant_id', branchIds, branchColumn: 's.branch_id' });
   const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const allParams = [...params, ...scope.params];
 
@@ -60,12 +56,12 @@ export async function salesReport({ dateFrom, dateTo, branchId, cashierId, custo
   };
 }
 
-export async function inventoryReport({ branchId, categoryId, branchIds }) {
+export async function inventoryReport({ tenantId, branchId, categoryId, branchIds }) {
   const conditions = ['p.deleted_at IS NULL'];
   const params = [];
   if (branchId) { conditions.push('i.branch_id = ?'); params.push(branchId); }
   if (categoryId) { conditions.push('p.category_id = ?'); params.push(categoryId); }
-  const scope = branchFilter('i.branch_id', branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 'i.tenant_id', branchIds, branchColumn: 'i.branch_id' });
   const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const allParams = [...params, ...scope.params];
 
@@ -97,7 +93,7 @@ export async function inventoryReport({ branchId, categoryId, branchIds }) {
   };
 }
 
-export async function purchasesReport({ dateFrom, dateTo, branchId, supplierId, status, productId, branchIds }) {
+export async function purchasesReport({ tenantId, dateFrom, dateTo, branchId, supplierId, status, productId, branchIds }) {
   const conditions = ['po.created_at >= ?', 'po.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
   const params = [dateFrom, dateTo];
   if (branchId) { conditions.push('po.branch_id = ?'); params.push(branchId); }
@@ -107,7 +103,7 @@ export async function purchasesReport({ dateFrom, dateTo, branchId, supplierId, 
     conditions.push('EXISTS (SELECT 1 FROM purchase_items pi WHERE pi.purchase_order_id = po.id AND pi.product_id = ?)');
     params.push(productId);
   }
-  const scope = branchFilter('po.branch_id', branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 'po.tenant_id', branchIds, branchColumn: 'po.branch_id' });
   const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const allParams = [...params, ...scope.params];
 
@@ -132,12 +128,12 @@ export async function purchasesReport({ dateFrom, dateTo, branchId, supplierId, 
   };
 }
 
-export async function expensesReport({ dateFrom, dateTo, branchId, categoryId, branchIds }) {
+export async function expensesReport({ tenantId, dateFrom, dateTo, branchId, categoryId, branchIds }) {
   const conditions = ['e.deleted_at IS NULL', 'e.expense_date >= ?', 'e.expense_date <= ?'];
   const params = [dateFrom, dateTo];
   if (branchId) { conditions.push('e.branch_id = ?'); params.push(branchId); }
   if (categoryId) { conditions.push('e.expense_category_id = ?'); params.push(categoryId); }
-  const scope = branchFilter('e.branch_id', branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 'e.tenant_id', branchIds, branchColumn: 'e.branch_id' });
   const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const allParams = [...params, ...scope.params];
 
@@ -164,11 +160,11 @@ export async function expensesReport({ dateFrom, dateTo, branchId, categoryId, b
 // Profit = sales revenue - cost of goods sold - expenses.
 // Purchases aren't subtracted directly — they become inventory (an asset);
 // COGS at the moment of sale is what actually reduces profit.
-export async function profitReport({ dateFrom, dateTo, branchId, branchIds }) {
+export async function profitReport({ tenantId, dateFrom, dateTo, branchId, branchIds }) {
   const salesConditions = ["s.status = 'completed'", 's.created_at >= ?', 's.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
   const salesParams = [dateFrom, dateTo];
   if (branchId) { salesConditions.push('s.branch_id = ?'); salesParams.push(branchId); }
-  const salesScope = branchFilter('s.branch_id', branchIds);
+  const salesScope = buildScope({ tenantId, tenantColumn: 's.tenant_id', branchIds, branchColumn: 's.branch_id' });
   const salesWhere = `WHERE ${salesConditions.join(' AND ')} ${salesScope.clause}`;
   const salesAllParams = [...salesParams, ...salesScope.params];
 
@@ -191,7 +187,7 @@ export async function profitReport({ dateFrom, dateTo, branchId, branchIds }) {
   const expenseConditions = ['e.deleted_at IS NULL', 'e.expense_date >= ?', 'e.expense_date <= ?'];
   const expenseParams = [dateFrom, dateTo];
   if (branchId) { expenseConditions.push('e.branch_id = ?'); expenseParams.push(branchId); }
-  const expenseScope = branchFilter('e.branch_id', branchIds);
+  const expenseScope = buildScope({ tenantId, tenantColumn: 'e.tenant_id', branchIds, branchColumn: 'e.branch_id' });
   const [[expenseRow]] = await pool.query(
     `SELECT COALESCE(SUM(e.amount), 0) AS total FROM expenses e
      WHERE ${expenseConditions.join(' AND ')} ${expenseScope.clause}`,
@@ -221,8 +217,8 @@ export async function profitReport({ dateFrom, dateTo, branchId, branchIds }) {
   };
 }
 
-export async function branchesReport({ dateFrom, dateTo, branchIds }) {
-  const scope = branchFilter('b.id', branchIds);
+export async function branchesReport({ tenantId, dateFrom, dateTo, branchIds }) {
+  const scope = buildScope({ tenantId, tenantColumn: 'b.tenant_id', branchIds, branchColumn: 'b.id' });
   const [rows] = await pool.query(
     `SELECT b.id, b.name AS label,
        COALESCE((SELECT SUM(s.total_amount) FROM sales s
@@ -247,12 +243,12 @@ export async function branchesReport({ dateFrom, dateTo, branchIds }) {
   return { byBranch };
 }
 
-export async function productsReport({ dateFrom, dateTo, branchId, categoryId, branchIds, limit = 20 }) {
+export async function productsReport({ tenantId, dateFrom, dateTo, branchId, categoryId, branchIds, limit = 20 }) {
   const conditions = ["s.status = 'completed'", 's.created_at >= ?', 's.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
   const params = [dateFrom, dateTo];
   if (branchId) { conditions.push('s.branch_id = ?'); params.push(branchId); }
   if (categoryId) { conditions.push('p.category_id = ?'); params.push(categoryId); }
-  const scope = branchFilter('s.branch_id', branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 's.tenant_id', branchIds, branchColumn: 's.branch_id' });
   const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const allParams = [...params, ...scope.params];
 
@@ -287,11 +283,11 @@ export async function productsReport({ dateFrom, dateTo, branchId, categoryId, b
   return { topProducts: topProducts.map((row) => ({ ...row, quantity: Number(row.quantity), value: Number(row.value) })) };
 }
 
-export async function customersReport({ dateFrom, dateTo, branchId, branchIds, limit = 20 }) {
+export async function customersReport({ tenantId, dateFrom, dateTo, branchId, branchIds, limit = 20 }) {
   const conditions = ["s.status = 'completed'", 's.customer_id IS NOT NULL', 's.created_at >= ?', 's.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
   const params = [dateFrom, dateTo];
   if (branchId) { conditions.push('s.branch_id = ?'); params.push(branchId); }
-  const scope = branchFilter('s.branch_id', branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 's.tenant_id', branchIds, branchColumn: 's.branch_id' });
   const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const allParams = [...params, ...scope.params];
 
@@ -308,14 +304,15 @@ export async function customersReport({ dateFrom, dateTo, branchId, branchIds, l
   return { topCustomers: topCustomers.map((row) => ({ ...row, orders: Number(row.orders), value: Number(row.value) })) };
 }
 
-export async function suppliersReport() {
+export async function suppliersReport(tenantId) {
   const [rows] = await pool.query(
     `SELECT s.id, s.name AS label,
             COALESCE((SELECT SUM(po.total_amount) FROM purchase_orders po WHERE po.supplier_id = s.id AND po.status != 'cancelled'), 0) AS totalPurchased,
             COALESCE((SELECT SUM(sp.amount) FROM supplier_payments sp WHERE sp.supplier_id = s.id), 0) AS totalPaid
      FROM suppliers s
-     WHERE s.deleted_at IS NULL
+     WHERE s.deleted_at IS NULL AND s.tenant_id = ?
      ORDER BY totalPurchased DESC`,
+    [tenantId],
   );
 
   const bySupplier = rows.map((row) => ({
@@ -328,7 +325,7 @@ export async function suppliersReport() {
   return { bySupplier };
 }
 
-export async function returnsReport({ dateFrom, dateTo, branchId, status, customerId, productId, branchIds }) {
+export async function returnsReport({ tenantId, dateFrom, dateTo, branchId, status, customerId, productId, branchIds }) {
   const conditions = ['r.created_at >= ?', 'r.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
   const params = [dateFrom, dateTo];
   if (branchId) { conditions.push('s.branch_id = ?'); params.push(branchId); }
@@ -338,7 +335,7 @@ export async function returnsReport({ dateFrom, dateTo, branchId, status, custom
     conditions.push('EXISTS (SELECT 1 FROM return_items ri JOIN sale_items si ON si.id = ri.sale_item_id WHERE ri.return_id = r.id AND si.product_id = ?)');
     params.push(productId);
   }
-  const scope = branchFilter('s.branch_id', branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 'r.tenant_id', branchIds, branchColumn: 's.branch_id' });
   const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const allParams = [...params, ...scope.params];
 
@@ -362,9 +359,9 @@ export async function returnsReport({ dateFrom, dateTo, branchId, status, custom
   };
 }
 
-export async function transfersReport({ dateFrom, dateTo, branchId, branchIds }) {
-  const conditions = ['t.created_at >= ?', 't.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
-  const params = [dateFrom, dateTo];
+export async function transfersReport({ tenantId, dateFrom, dateTo, branchId, branchIds }) {
+  const conditions = ['t.created_at >= ?', 't.created_at < DATE_ADD(?, INTERVAL 1 DAY)', 't.tenant_id = ?'];
+  const params = [dateFrom, dateTo, tenantId];
   if (branchId) { conditions.push('(t.source_branch_id = ? OR t.destination_branch_id = ?)'); params.push(branchId, branchId); }
   const scope = (() => {
     if (!branchIds) return { clause: '', params: [] };
@@ -391,11 +388,11 @@ export async function transfersReport({ dateFrom, dateTo, branchId, branchIds })
   };
 }
 
-export async function usersReport({ dateFrom, dateTo, branchId, branchIds }) {
+export async function usersReport({ tenantId, dateFrom, dateTo, branchId, branchIds }) {
   const conditions = ['u.deleted_at IS NULL', 'u.created_at >= ?', 'u.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
   const params = [dateFrom, dateTo];
   if (branchId) { conditions.push('u.branch_id = ?'); params.push(branchId); }
-  const scope = branchFilter('u.branch_id', branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 'u.tenant_id', branchIds, branchColumn: 'u.branch_id' });
   const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const allParams = [...params, ...scope.params];
 

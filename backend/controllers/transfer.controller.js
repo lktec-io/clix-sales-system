@@ -8,7 +8,7 @@ export const list = asyncHandler(async (req, res) => {
 });
 
 export const getById = asyncHandler(async (req, res) => {
-  const transfer = await transferService.getTransfer(Number(req.params.id));
+  const transfer = await transferService.getTransfer(Number(req.params.id), req.user.tenantId);
   return success(res, { data: transfer });
 });
 

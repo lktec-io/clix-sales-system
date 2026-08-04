@@ -36,6 +36,7 @@ export async function listSales(query, user) {
   const branchIds = await getAccessibleBranchIds(user);
 
   const { rows, total } = await saleRepository.findAll({
+    tenantId: user.tenantId,
     page,
     limit,
     search: query.search,
@@ -78,8 +79,8 @@ async function withProfitVisibility(sale, user) {
   return { ...sale, profit: computeProfit(sale.items) };
 }
 
-export async function getSale(id, user) {
-  const sale = await saleRepository.findById(id);
+export async function getSale(id, tenantId, user) {
+  const sale = await saleRepository.findById(id, tenantId);
   if (!sale) throw new ApiError(404, 'Sale not found');
   return withProfitVisibility(sale, user);
 }
@@ -99,19 +100,19 @@ export async function checkout(data, actorId, user) {
   // relied on as a last-resort UNIQUE-constraint catch, so a resubmission
   // never even re-runs the stock checks.
   if (data.idempotencyKey) {
-    const existingSaleId = await saleRepository.findByIdempotencyKey(data.idempotencyKey);
+    const existingSaleId = await saleRepository.findByIdempotencyKey(data.idempotencyKey, user.tenantId);
     if (existingSaleId) {
-      return withProfitVisibility(await saleRepository.findById(existingSaleId), user);
+      return withProfitVisibility(await saleRepository.findById(existingSaleId, user.tenantId), user);
     }
   }
 
   const branchId = Number(data.branchId);
-  const branch = await branchRepository.findById(branchId);
+  const branch = await branchRepository.findById(branchId, user.tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
   await assertBranchAccess(user, branchId);
 
   if (data.customerId) {
-    const customer = await customerRepository.findById(data.customerId);
+    const customer = await customerRepository.findById(data.customerId, user.tenantId);
     if (!customer) throw new ApiError(400, 'Selected customer does not exist');
   }
 
@@ -124,7 +125,7 @@ export async function checkout(data, actorId, user) {
   const preparedItems = [];
 
   for (const item of data.items) {
-    const product = await productRepository.findById(item.productId);
+    const product = await productRepository.findById(item.productId, user.tenantId);
     if (!product || product.status !== 'active') {
       throw new ApiError(400, `Product ${item.productId} is not available for sale`);
     }
@@ -134,7 +135,7 @@ export async function checkout(data, actorId, user) {
       throw new ApiError(403, `Price override for "${product.name}" requires manager approval`);
     }
 
-    const available = await inventoryRepository.getAvailableQuantity(item.productId, branchId);
+    const available = await inventoryRepository.getAvailableQuantity(item.productId, branchId, user.tenantId);
     if (item.quantity > available) {
       throw new ApiError(422, `Cannot sell more than available stock for "${product.name}" (available: ${available})`);
     }
@@ -174,7 +175,7 @@ export async function checkout(data, actorId, user) {
   const totalPaid = data.payments.reduce((sum, payment) => sum + Number(payment.amount), 0);
   if (totalPaid < totalAmount) throw new ApiError(422, 'Total paid must cover the sale total');
 
-  const saleNumber = await generateCode('SALE', 'SAL', { padLength: 6 });
+  const saleNumber = await generateCode('SALE', 'SAL', { tenantId: user.tenantId, padLength: 6 });
 
   const connection = await pool.getConnection();
   try {
@@ -182,6 +183,7 @@ export async function checkout(data, actorId, user) {
 
     const saleId = await saleRepository.createSale(
       {
+        tenantId: user.tenantId,
         saleNumber,
         idempotencyKey: data.idempotencyKey,
         branchId,
@@ -213,6 +215,7 @@ export async function checkout(data, actorId, user) {
 
       const movement = await inventoryRepository.recordMovement(
         {
+          tenantId: user.tenantId,
           productId: item.productId,
           branchId,
           movementType: 'sale',
@@ -241,6 +244,7 @@ export async function checkout(data, actorId, user) {
     await connection.commit();
 
     await activityLogRepository.create({
+      tenantId: user.tenantId,
       userId: actorId,
       branchId,
       description: `Sale "${saleNumber}" completed (${preparedItems.length} item${preparedItems.length === 1 ? '' : 's'}, ${formatCurrency(totalAmount)})`,
@@ -248,7 +252,7 @@ export async function checkout(data, actorId, user) {
       referenceId: saleId,
     });
 
-    await notificationRepository.notifyBranchManagement(branchId, {
+    await notificationRepository.notifyBranchManagement(user.tenantId, branchId, {
       type: 'success',
       category: 'sale_completed',
       title: 'Sale completed',
@@ -261,7 +265,7 @@ export async function checkout(data, actorId, user) {
     // previous/new stock recordMovement() observed inside that same
     // transaction — never notifies about a stock dip that ended up rolled back.
     for (const crossing of lowStockCrossings) {
-      await notificationRepository.notifyBranchManagement(branchId, {
+      await notificationRepository.notifyBranchManagement(user.tenantId, branchId, {
         type: 'warning',
         category: 'low_stock',
         title: 'Low stock alert',
@@ -271,7 +275,7 @@ export async function checkout(data, actorId, user) {
       });
     }
 
-    return withProfitVisibility(await saleRepository.findById(saleId), user);
+    return withProfitVisibility(await saleRepository.findById(saleId, user.tenantId), user);
   } catch (err) {
     await connection.rollback();
     // Two requests carrying the same idempotencyKey can both pass the
@@ -282,9 +286,9 @@ export async function checkout(data, actorId, user) {
     // whichever sale the winner just created — from the client's point of
     // view, its checkout still succeeds.
     if (err.code === 'ER_DUP_ENTRY' && data.idempotencyKey && err.sqlMessage?.includes('idempotency_key')) {
-      const existingSaleId = await saleRepository.findByIdempotencyKey(data.idempotencyKey);
+      const existingSaleId = await saleRepository.findByIdempotencyKey(data.idempotencyKey, user.tenantId);
       if (existingSaleId) {
-        return withProfitVisibility(await saleRepository.findById(existingSaleId), user);
+        return withProfitVisibility(await saleRepository.findById(existingSaleId, user.tenantId), user);
       }
     }
     throw err;

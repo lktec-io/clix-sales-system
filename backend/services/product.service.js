@@ -14,11 +14,12 @@ import { getAccessibleBranchIds } from '../utils/branchScope.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOADS_ROOT = path.join(__dirname, '..', 'uploads');
 
-export async function listProducts(query) {
+export async function listProducts(query, tenantId) {
   const page = Number(query.page) || 1;
   const limit = Math.min(Number(query.limit) || 20, 100);
 
   const { rows, total } = await productRepository.findAll({
+    tenantId,
     page,
     limit,
     search: query.search,
@@ -30,8 +31,8 @@ export async function listProducts(query) {
   return { items: rows, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } };
 }
 
-export async function getProduct(id) {
-  const product = await productRepository.findById(id);
+export async function getProduct(id, tenantId) {
+  const product = await productRepository.findById(id, tenantId);
   if (!product) throw new ApiError(404, 'Product not found');
   return product;
 }
@@ -48,6 +49,7 @@ export async function getSellableProducts(query, user) {
   }
 
   return productRepository.findSellable({
+    tenantId: user.tenantId,
     branchId,
     search: query.search,
     categoryId: query.categoryId ? Number(query.categoryId) : undefined,
@@ -69,7 +71,7 @@ export async function getSellableProductByCode(query, user) {
     throw new ApiError(403, 'You do not have access to this branch');
   }
 
-  return productRepository.findSellableByCode({ code: query.code.trim(), branchId });
+  return productRepository.findSellableByCode({ tenantId: user.tenantId, code: query.code.trim(), branchId });
 }
 
 function assertPriceSanity(data) {
@@ -82,22 +84,22 @@ function assertPriceSanity(data) {
   }
 }
 
-export async function createProduct(data, actorId) {
-  const category = await categoryRepository.findById(data.categoryId);
+export async function createProduct(data, actorId, tenantId) {
+  const category = await categoryRepository.findById(data.categoryId, tenantId);
   if (!category) throw new ApiError(400, 'Selected category does not exist');
 
   // Brand is optional — only validated (must reference a real row) when
   // the caller actually sent one, not required to be present at all.
   if (data.brandId) {
-    const brand = await brandRepository.findById(data.brandId);
+    const brand = await brandRepository.findById(data.brandId, tenantId);
     if (!brand) throw new ApiError(400, 'Selected brand does not exist');
   }
 
   assertPriceSanity(data);
 
-  const code = await generateCode(`PRODUCT_${category.code}`, category.code);
+  const code = await generateCode(`PRODUCT_${category.code}`, category.code, { tenantId });
 
-  const product = await productRepository.create({ ...data, code, userId: actorId });
+  const product = await productRepository.create({ ...data, code, userId: actorId, tenantId });
   await activityLogRepository.create({
     userId: actorId,
     branchId: null,
@@ -108,21 +110,21 @@ export async function createProduct(data, actorId) {
   return product;
 }
 
-export async function updateProduct(id, data, actorId) {
-  const existing = await productRepository.findById(id);
+export async function updateProduct(id, data, actorId, tenantId) {
+  const existing = await productRepository.findById(id, tenantId);
   if (!existing) throw new ApiError(404, 'Product not found');
 
-  const category = await categoryRepository.findById(data.categoryId);
+  const category = await categoryRepository.findById(data.categoryId, tenantId);
   if (!category) throw new ApiError(400, 'Selected category does not exist');
 
   if (data.brandId) {
-    const brand = await brandRepository.findById(data.brandId);
+    const brand = await brandRepository.findById(data.brandId, tenantId);
     if (!brand) throw new ApiError(400, 'Selected brand does not exist');
   }
 
   assertPriceSanity(data);
 
-  const product = await productRepository.update(id, { ...data, userId: actorId });
+  const product = await productRepository.update(id, tenantId, { ...data, userId: actorId });
   await activityLogRepository.create({
     userId: actorId,
     branchId: null,
@@ -133,9 +135,9 @@ export async function updateProduct(id, data, actorId) {
   return product;
 }
 
-export async function bulkUpdateStatus(ids, status, actorId) {
+export async function bulkUpdateStatus(ids, status, actorId, tenantId) {
   if (!ids?.length) throw new ApiError(400, 'No products selected');
-  await productRepository.bulkUpdateStatus(ids, status, actorId);
+  await productRepository.bulkUpdateStatus(ids, tenantId, status, actorId);
 }
 
 // Best-effort cleanup of a product's uploaded image files before the row
@@ -170,8 +172,8 @@ async function cleanupProductImageFiles(images) {
 // the delete itself (see its comment). Once the schema is confirmed
 // compatible, the actual delete is one all-or-nothing transaction — if any
 // step fails, nothing about the product or its related rows changes.
-export async function deleteProduct(id, actorId) {
-  const existing = await productRepository.findById(id);
+export async function deleteProduct(id, actorId, tenantId) {
+  const existing = await productRepository.findById(id, tenantId);
   if (!existing) throw new ApiError(404, 'Product not found');
 
   const hadHistory = await productRepository.hasTransactionHistory(id);
@@ -210,19 +212,19 @@ export async function deleteProduct(id, actorId) {
   return { archived: false };
 }
 
-export async function listArchivedProducts(query) {
+export async function listArchivedProducts(query, tenantId) {
   const page = Number(query.page) || 1;
   const limit = Math.min(Number(query.limit) || 20, 100);
 
-  const { rows, total } = await productRepository.findAllArchived({ page, limit, search: query.search });
+  const { rows, total } = await productRepository.findAllArchived({ tenantId, page, limit, search: query.search });
   return { items: rows, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } };
 }
 
-export async function restoreProduct(id, actorId) {
-  const existing = await productRepository.findArchivedById(id);
+export async function restoreProduct(id, actorId, tenantId) {
+  const existing = await productRepository.findArchivedById(id, tenantId);
   if (!existing) throw new ApiError(404, 'Archived product not found');
 
-  const restored = await productRepository.restore(id, actorId);
+  const restored = await productRepository.restore(id, tenantId, actorId);
   await activityLogRepository.create({
     userId: actorId,
     branchId: null,
@@ -237,8 +239,8 @@ export async function restoreProduct(id, actorId) {
 // no longer creates new archives — see its comment) — same safe purge as
 // the main delete flow, just reading from the archived-only lookup so it
 // only ever acts on a product that's already soft-deleted.
-export async function permanentlyDeleteProduct(id, actorId) {
-  const existing = await productRepository.findArchivedById(id);
+export async function permanentlyDeleteProduct(id, actorId, tenantId) {
+  const existing = await productRepository.findArchivedById(id, tenantId);
   if (!existing) throw new ApiError(404, 'Archived product not found');
 
   await productRepository.ensureProductDeletionSchema();
@@ -268,17 +270,20 @@ export async function permanentlyDeleteProduct(id, actorId) {
   });
 }
 
-export async function addImage(productId, file, isPrimary) {
-  const product = await productRepository.findById(productId);
+export async function addImage(productId, file, isPrimary, tenantId) {
+  const product = await productRepository.findById(productId, tenantId);
   if (!product) throw new ApiError(404, 'Product not found');
 
   const imagePath = resolveUploadedFileUrl(file, 'products');
   const shouldBePrimary = isPrimary || product.images.length === 0;
   await productRepository.addImage(productId, imagePath, shouldBePrimary);
-  return productRepository.findById(productId);
+  return productRepository.findById(productId, tenantId);
 }
 
-export async function removeImage(productId, imageId) {
+export async function removeImage(productId, imageId, tenantId) {
+  const product = await productRepository.findById(productId, tenantId);
+  if (!product) throw new ApiError(404, 'Product not found');
+
   const image = await productRepository.findImageById(imageId);
   if (!image || image.product_id !== productId) {
     throw new ApiError(404, 'Image not found');
@@ -297,5 +302,5 @@ export async function removeImage(productId, imageId) {
     });
   }
 
-  return productRepository.findById(productId);
+  return productRepository.findById(productId, tenantId);
 }

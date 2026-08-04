@@ -10,8 +10,8 @@ const BASE_SELECT = `
   LEFT JOIN brands b ON b.id = p.brand_id
 `;
 
-export async function findById(id) {
-  const [rows] = await pool.query(`${BASE_SELECT} WHERE p.id = ? AND p.deleted_at IS NULL LIMIT 1`, [id]);
+export async function findById(id, tenantId) {
+  const [rows] = await pool.query(`${BASE_SELECT} WHERE p.id = ? AND p.tenant_id = ? AND p.deleted_at IS NULL LIMIT 1`, [id, tenantId]);
   if (!rows[0]) return null;
 
   const [images] = await pool.query(
@@ -21,8 +21,8 @@ export async function findById(id) {
   return { ...rows[0], images };
 }
 
-export async function findByCode(code) {
-  const [rows] = await pool.query('SELECT id, code FROM products WHERE code = ? AND deleted_at IS NULL LIMIT 1', [code]);
+export async function findByCode(code, tenantId) {
+  const [rows] = await pool.query('SELECT id, code FROM products WHERE code = ? AND tenant_id = ? AND deleted_at IS NULL LIMIT 1', [code, tenantId]);
   return rows[0] || null;
 }
 
@@ -30,9 +30,9 @@ export async function findByCode(code) {
 // their stock at one specific branch. Kept separate from findAll() (which
 // backs the Products admin list and has a different shape/purpose) and from
 // inventory.repository's findAll() (which backs the Inventory admin list).
-export async function findSellable({ branchId, search, categoryId, limit = 60 }) {
-  const conditions = ["p.deleted_at IS NULL", "p.status = 'active'"];
-  const params = [];
+export async function findSellable({ tenantId, branchId, search, categoryId, limit = 60 }) {
+  const conditions = ["p.deleted_at IS NULL", "p.status = 'active'", 'p.tenant_id = ?'];
+  const params = [tenantId];
 
   if (search) {
     conditions.push('(p.name LIKE ? OR p.code LIKE ?)');
@@ -72,7 +72,7 @@ export async function findSellable({ branchId, search, categoryId, limit = 60 })
 // case-insensitive, so a plain `p.code = ?` on a trimmed input stays index-
 // backed — wrapping the column itself in TRIM()/LOWER() would defeat that
 // index and turn every scan into a full table scan as the catalog grows.
-export async function findSellableByCode({ code, branchId }) {
+export async function findSellableByCode({ tenantId, code, branchId }) {
   const [rows] = await pool.query(
     `SELECT p.id, p.name, p.code, p.selling_price, p.category_id, c.name AS category_name,
             p.brand_id, b.name AS brand_name,
@@ -81,16 +81,16 @@ export async function findSellableByCode({ code, branchId }) {
      JOIN categories c ON c.id = p.category_id
      LEFT JOIN brands b ON b.id = p.brand_id
      LEFT JOIN inventory i ON i.product_id = p.id AND i.branch_id = ?
-     WHERE p.deleted_at IS NULL AND p.status = 'active' AND p.code = ?
+     WHERE p.deleted_at IS NULL AND p.status = 'active' AND p.code = ? AND p.tenant_id = ?
      LIMIT 1`,
-    [branchId, code],
+    [branchId, code, tenantId],
   );
   return rows[0] || null;
 }
 
-export async function findAll({ page = 1, limit = 20, search, categoryId, brandId, status }) {
-  const conditions = ['p.deleted_at IS NULL'];
-  const params = [];
+export async function findAll({ tenantId, page = 1, limit = 20, search, categoryId, brandId, status }) {
+  const conditions = ['p.deleted_at IS NULL', 'p.tenant_id = ?'];
+  const params = [tenantId];
 
   if (search) {
     conditions.push('(p.name LIKE ? OR p.code LIKE ?)');
@@ -125,9 +125,9 @@ export async function findAll({ page = 1, limit = 20, search, categoryId, brandI
 // The Archived Products page's list — the mirror image of findAll()'s
 // "deleted_at IS NULL": everything currently archived, newest-archived
 // first so a Super Admin cleaning up sees their own recent actions on top.
-export async function findAllArchived({ page = 1, limit = 20, search }) {
-  const conditions = ['p.deleted_at IS NOT NULL'];
-  const params = [];
+export async function findAllArchived({ tenantId, page = 1, limit = 20, search }) {
+  const conditions = ['p.deleted_at IS NOT NULL', 'p.tenant_id = ?'];
+  const params = [tenantId];
 
   if (search) {
     conditions.push('(p.name LIKE ? OR p.code LIKE ?)');
@@ -147,8 +147,8 @@ export async function findAllArchived({ page = 1, limit = 20, search }) {
   return { rows, total: countRows[0].total };
 }
 
-export async function findArchivedById(id) {
-  const [rows] = await pool.query(`${BASE_SELECT} WHERE p.id = ? AND p.deleted_at IS NOT NULL LIMIT 1`, [id]);
+export async function findArchivedById(id, tenantId) {
+  const [rows] = await pool.query(`${BASE_SELECT} WHERE p.id = ? AND p.tenant_id = ? AND p.deleted_at IS NOT NULL LIMIT 1`, [id, tenantId]);
   if (!rows[0]) return null;
 
   const [images] = await pool.query(
@@ -158,9 +158,9 @@ export async function findArchivedById(id) {
   return { ...rows[0], images };
 }
 
-export async function restore(id, userId) {
-  await pool.query('UPDATE products SET deleted_at = NULL, updated_by = ? WHERE id = ?', [userId, id]);
-  return findById(id);
+export async function restore(id, tenantId, userId) {
+  await pool.query('UPDATE products SET deleted_at = NULL, updated_by = ? WHERE id = ? AND tenant_id = ?', [userId, id, tenantId]);
+  return findById(id, tenantId);
 }
 
 async function columnExists(connection, tableName, columnName) {
@@ -349,35 +349,35 @@ export async function purgeProduct({ id, name, code, buyingPrice }, connection) 
 
 export async function create(data) {
   const [result] = await pool.query(
-    `INSERT INTO products (name, code, category_id, brand_id, description, buying_price, selling_price, min_stock, status, created_by, updated_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO products (tenant_id, name, code, category_id, brand_id, description, buying_price, selling_price, min_stock, status, created_by, updated_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-      data.name, data.code, data.categoryId, data.brandId || null, data.description || null,
+      data.tenantId, data.name, data.code, data.categoryId, data.brandId || null, data.description || null,
       data.buyingPrice, data.sellingPrice, data.minStock || 0, data.status || 'active',
       data.userId, data.userId,
     ],
   );
-  return findById(result.insertId);
+  return findById(result.insertId, data.tenantId);
 }
 
-export async function update(id, data) {
+export async function update(id, tenantId, data) {
   await pool.query(
     `UPDATE products SET name = ?, category_id = ?, brand_id = ?, description = ?,
-       buying_price = ?, selling_price = ?, min_stock = ?, status = ?, updated_by = ? WHERE id = ?`,
+       buying_price = ?, selling_price = ?, min_stock = ?, status = ?, updated_by = ? WHERE id = ? AND tenant_id = ?`,
     [
       data.name, data.categoryId, data.brandId || null, data.description || null,
-      data.buyingPrice, data.sellingPrice, data.minStock || 0, data.status, data.userId, id,
+      data.buyingPrice, data.sellingPrice, data.minStock || 0, data.status, data.userId, id, tenantId,
     ],
   );
-  return findById(id);
+  return findById(id, tenantId);
 }
 
-export async function bulkUpdateStatus(ids, status, userId) {
-  await pool.query('UPDATE products SET status = ?, updated_by = ? WHERE id IN (?)', [status, userId, ids]);
+export async function bulkUpdateStatus(ids, tenantId, status, userId) {
+  await pool.query('UPDATE products SET status = ?, updated_by = ? WHERE id IN (?) AND tenant_id = ?', [status, userId, ids, tenantId]);
 }
 
-export async function softDelete(id, userId) {
-  await pool.query('UPDATE products SET deleted_at = NOW(), updated_by = ? WHERE id = ?', [userId, id]);
+export async function softDelete(id, tenantId, userId) {
+  await pool.query('UPDATE products SET deleted_at = NOW(), updated_by = ? WHERE id = ? AND tenant_id = ?', [userId, id, tenantId]);
 }
 
 // No longer a gate on whether delete is allowed (purgeProduct() above

@@ -96,6 +96,10 @@ async function main() {
 
   const passwordHash = await hashPassword(password);
   const user = await userRepository.create({
+    // This script bootstraps the Super Admin for the single default
+    // installation (tenant 1, seeded by migration 017) — self-registration
+    // in a future phase is what will ever create a second tenant.
+    tenantId: 1,
     firstName,
     lastName,
     phone,

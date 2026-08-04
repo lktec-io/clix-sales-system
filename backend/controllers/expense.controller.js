@@ -4,7 +4,7 @@ import * as expenseService from '../services/expense.service.js';
 import * as expenseCategoryRepository from '../repositories/expenseCategory.repository.js';
 
 export const listCategories = asyncHandler(async (req, res) => {
-  const categories = await expenseCategoryRepository.findAllActive();
+  const categories = await expenseCategoryRepository.findAllActive(req.user.tenantId);
   return success(res, { data: categories });
 });
 
@@ -14,7 +14,7 @@ export const list = asyncHandler(async (req, res) => {
 });
 
 export const getById = asyncHandler(async (req, res) => {
-  const expense = await expenseService.getExpense(Number(req.params.id));
+  const expense = await expenseService.getExpense(Number(req.params.id), req.user.tenantId);
   return success(res, { data: expense });
 });
 

@@ -1,4 +1,5 @@
 import { pool } from '../config/db.js';
+import { buildScope } from '../utils/tenantScope.js';
 
 const BASE_SELECT = `
   SELECT e.*, ec.name AS category_name, b.name AS branch_name,
@@ -9,18 +10,12 @@ const BASE_SELECT = `
   LEFT JOIN users u ON u.id = e.paid_by
 `;
 
-export async function findById(id) {
-  const [rows] = await pool.query(`${BASE_SELECT} WHERE e.id = ? AND e.deleted_at IS NULL LIMIT 1`, [id]);
+export async function findById(id, tenantId) {
+  const [rows] = await pool.query(`${BASE_SELECT} WHERE e.id = ? AND e.tenant_id = ? AND e.deleted_at IS NULL LIMIT 1`, [id, tenantId]);
   return rows[0] || null;
 }
 
-function branchFilter(branchIds) {
-  if (!branchIds) return { clause: '', params: [] };
-  if (branchIds.length === 0) return { clause: 'AND 1 = 0', params: [] };
-  return { clause: 'AND e.branch_id IN (?)', params: [branchIds] };
-}
-
-export async function findAll({ page = 1, limit = 20, search, categoryId, branchId, dateFrom, dateTo, branchIds }) {
+export async function findAll({ tenantId, page = 1, limit = 20, search, categoryId, branchId, dateFrom, dateTo, branchIds }) {
   const conditions = ['e.deleted_at IS NULL'];
   const params = [];
 
@@ -45,7 +40,7 @@ export async function findAll({ page = 1, limit = 20, search, categoryId, branch
     params.push(dateTo);
   }
 
-  const scope = branchFilter(branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 'e.tenant_id', branchIds, branchColumn: 'e.branch_id' });
   const whereClause = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const offset = (page - 1) * limit;
   const allParams = [...params, ...scope.params];
@@ -63,24 +58,24 @@ export async function findAll({ page = 1, limit = 20, search, categoryId, branch
   return { rows, total: countRows[0].total, totalAmount: Number(totalAmount) };
 }
 
-export async function create({ expenseCategoryId, branchId, amount, description, expenseDate, userId }) {
+export async function create({ tenantId, expenseCategoryId, branchId, amount, description, expenseDate, userId }) {
   const [result] = await pool.query(
-    `INSERT INTO expenses (expense_category_id, branch_id, amount, description, paid_by, expense_date, status, created_by, updated_by)
-     VALUES (?, ?, ?, ?, ?, ?, 'approved', ?, ?)`,
-    [expenseCategoryId, branchId, amount, description || null, userId, expenseDate, userId, userId],
+    `INSERT INTO expenses (tenant_id, expense_category_id, branch_id, amount, description, paid_by, expense_date, status, created_by, updated_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'approved', ?, ?)`,
+    [tenantId, expenseCategoryId, branchId, amount, description || null, userId, expenseDate, userId, userId],
   );
-  return findById(result.insertId);
+  return findById(result.insertId, tenantId);
 }
 
-export async function update(id, { expenseCategoryId, branchId, amount, description, expenseDate, userId }) {
+export async function update(id, tenantId, { expenseCategoryId, branchId, amount, description, expenseDate, userId }) {
   await pool.query(
     `UPDATE expenses SET expense_category_id = ?, branch_id = ?, amount = ?, description = ?, expense_date = ?, updated_by = ?
-     WHERE id = ?`,
-    [expenseCategoryId, branchId, amount, description || null, expenseDate, userId, id],
+     WHERE id = ? AND tenant_id = ?`,
+    [expenseCategoryId, branchId, amount, description || null, expenseDate, userId, id, tenantId],
   );
-  return findById(id);
+  return findById(id, tenantId);
 }
 
-export async function softDelete(id, userId) {
-  await pool.query('UPDATE expenses SET deleted_at = NOW(), updated_by = ? WHERE id = ?', [userId, id]);
+export async function softDelete(id, tenantId, userId) {
+  await pool.query('UPDATE expenses SET deleted_at = NOW(), updated_by = ? WHERE id = ? AND tenant_id = ?', [userId, id, tenantId]);
 }

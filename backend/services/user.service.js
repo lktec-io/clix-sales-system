@@ -11,8 +11,21 @@ function sanitize(user) {
   return safe;
 }
 
-async function assertNoConflict({ email, username, phone }, excludeId = null) {
-  const conflict = await userRepository.findConflict({ email, username, phone }, excludeId);
+// findById() is intentionally NOT tenant-scoped at the repository level (it
+// also serves the login/token-refresh path, where the tenant is derived
+// FROM this lookup, not known ahead of it). Every admin-facing entry point
+// below resolves the target user first, then verifies it belongs to the
+// caller's tenant before proceeding — returning the same 404 a genuinely
+// nonexistent id would, so a numeric-id guess can't distinguish "wrong
+// tenant" from "doesn't exist" (no cross-tenant enumeration signal).
+async function findOwnedUser(id, tenantId) {
+  const user = await userRepository.findById(id);
+  if (!user || user.tenant_id !== tenantId) throw new ApiError(404, 'User not found');
+  return user;
+}
+
+async function assertNoConflict(tenantId, { email, username, phone }, excludeId = null) {
+  const conflict = await userRepository.findConflict(tenantId, { email, username, phone }, excludeId);
   if (!conflict) return;
 
   if (conflict.email === email) throw new ApiError(409, 'A user with this email already exists');
@@ -20,11 +33,12 @@ async function assertNoConflict({ email, username, phone }, excludeId = null) {
   throw new ApiError(409, 'A user with this phone number already exists');
 }
 
-export async function listUsers(query) {
+export async function listUsers(query, tenantId) {
   const page = Number(query.page) || 1;
   const limit = Math.min(Number(query.limit) || 20, 100);
 
   const { rows, total } = await userRepository.findAll({
+    tenantId,
     page,
     limit,
     search: query.search,
@@ -39,21 +53,21 @@ export async function listUsers(query) {
   };
 }
 
-export async function getUser(id) {
-  const user = await userRepository.findById(id);
-  if (!user) throw new ApiError(404, 'User not found');
+export async function getUser(id, tenantId) {
+  const user = await findOwnedUser(id, tenantId);
   const branchIds = await userRepository.getBranchIds(id);
   return { ...sanitize(user), branchIds };
 }
 
-export async function createUser(data, actorId) {
-  await assertNoConflict({ email: data.email, username: data.username, phone: data.phone });
+export async function createUser(data, actorId, tenantId) {
+  await assertNoConflict(tenantId, { email: data.email, username: data.username, phone: data.phone });
 
   const role = await roleRepository.findById(data.roleId);
   if (!role) throw new ApiError(400, 'Selected role does not exist');
 
   const passwordHash = await hashPassword(data.password);
   const user = await userRepository.create({
+    tenantId,
     firstName: data.firstName,
     lastName: data.lastName,
     gender: data.gender,
@@ -78,19 +92,18 @@ export async function createUser(data, actorId) {
     referenceId: user.id,
   });
 
-  return getUser(user.id);
+  return getUser(user.id, tenantId);
 }
 
-export async function updateUser(id, data, actorId) {
-  const existing = await userRepository.findById(id);
-  if (!existing) throw new ApiError(404, 'User not found');
+export async function updateUser(id, data, actorId, tenantId) {
+  await findOwnedUser(id, tenantId);
 
-  await assertNoConflict({ email: data.email, username: data.username, phone: data.phone }, id);
+  await assertNoConflict(tenantId, { email: data.email, username: data.username, phone: data.phone }, id);
 
   const role = await roleRepository.findById(data.roleId);
   if (!role) throw new ApiError(400, 'Selected role does not exist');
 
-  await userRepository.update(id, {
+  await userRepository.update(id, tenantId, {
     firstName: data.firstName,
     lastName: data.lastName,
     gender: data.gender,
@@ -114,16 +127,15 @@ export async function updateUser(id, data, actorId) {
     referenceId: id,
   });
 
-  return getUser(id);
+  return getUser(id, tenantId);
 }
 
-export async function changeStatus(id, status, actorId) {
+export async function changeStatus(id, status, actorId, tenantId) {
   if (id === actorId) {
     throw new ApiError(400, 'You cannot change the status of your own account');
   }
 
-  const existing = await userRepository.findById(id);
-  if (!existing) throw new ApiError(404, 'User not found');
+  const existing = await findOwnedUser(id, tenantId);
 
   const user = await userRepository.updateStatus(id, status, actorId);
   await activityLogRepository.create({
@@ -137,9 +149,8 @@ export async function changeStatus(id, status, actorId) {
   return sanitize(user);
 }
 
-export async function adminResetPassword(id, newPassword, actorId) {
-  const existing = await userRepository.findById(id);
-  if (!existing) throw new ApiError(404, 'User not found');
+export async function adminResetPassword(id, newPassword, actorId, tenantId) {
+  const existing = await findOwnedUser(id, tenantId);
 
   const passwordHash = await hashPassword(newPassword);
   await userRepository.updatePasswordHash(id, passwordHash);
@@ -152,13 +163,12 @@ export async function adminResetPassword(id, newPassword, actorId) {
   });
 }
 
-export async function deleteUser(id, actorId) {
+export async function deleteUser(id, actorId, tenantId) {
   if (id === actorId) {
     throw new ApiError(400, 'You cannot delete your own account');
   }
 
-  const existing = await userRepository.findById(id);
-  if (!existing) throw new ApiError(404, 'User not found');
+  const existing = await findOwnedUser(id, tenantId);
 
   await userRepository.softDelete(id, actorId);
   await activityLogRepository.create({
@@ -170,9 +180,8 @@ export async function deleteUser(id, actorId) {
   });
 }
 
-export async function updateAvatar(id, file) {
-  const existing = await userRepository.findById(id);
-  if (!existing) throw new ApiError(404, 'User not found');
+export async function updateAvatar(id, file, tenantId) {
+  await findOwnedUser(id, tenantId);
 
   const avatarPath = resolveUploadedFileUrl(file, 'avatars');
   const user = await userRepository.updateAvatarPath(id, avatarPath);

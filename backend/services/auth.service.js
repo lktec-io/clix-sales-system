@@ -22,6 +22,7 @@ import * as passwordResetRepository from '../repositories/passwordReset.reposito
 import * as activityLogRepository from '../repositories/activityLog.repository.js';
 import * as permissionRepository from '../repositories/permission.repository.js';
 import { sendMail, passwordResetEmail } from './email.service.js';
+import { resolveTenant } from '../middlewares/tenantContext.js';
 
 const BCRYPT_ROUNDS = 12;
 
@@ -76,7 +77,7 @@ async function issueTokensForUser(user, { rememberMe, ipAddress, userAgent, devi
   // on every request, so a permission revoked mid-session still takes
   // effect within that cache window instead of only at token expiry.
   const accessToken = signAccessToken({
-    sub: user.id, roleId: user.role_id, role: user.role_name, branchId: user.branch_id, permissions,
+    sub: user.id, tenantId: user.tenant_id, roleId: user.role_id, role: user.role_name, branchId: user.branch_id, permissions,
   });
 
   return { accessToken, refreshToken, refreshExpiresAt };
@@ -95,6 +96,12 @@ export async function login({ identifier, password, rememberMe, ipAddress, userA
   if (user.locked_until && new Date(user.locked_until) > new Date()) {
     throw new ApiError(403, 'This account is temporarily locked due to repeated failed login attempts. Try again later.');
   }
+
+  // Rejects login outright for a suspended tenant, rather than issuing a
+  // token that would only fail on the user's very next request (see
+  // authenticate.js, which runs this exact same check for every subsequent
+  // request from the resulting token).
+  await resolveTenant(user.tenant_id);
 
   const passwordMatches = await bcrypt.compare(password, user.password_hash);
   if (!passwordMatches) {
@@ -140,6 +147,7 @@ export async function refresh({ refreshToken }) {
   if (!user || user.status !== 'active') {
     throw new ApiError(401, 'Invalid or expired session. Please log in again.');
   }
+  await resolveTenant(user.tenant_id);
 
   // Rotate: revoke the presented refresh token, issue a new one on the same session.
   await refreshTokenRepository.revoke(storedToken.id);
@@ -163,7 +171,7 @@ export async function refresh({ refreshToken }) {
   // still doesn't trust this claim directly.
   const userWithPermissions = await withPermissions(user);
   const accessToken = signAccessToken({
-    sub: user.id, roleId: user.role_id, role: user.role_name, branchId: user.branch_id, permissions: userWithPermissions.permissions,
+    sub: user.id, tenantId: user.tenant_id, roleId: user.role_id, role: user.role_name, branchId: user.branch_id, permissions: userWithPermissions.permissions,
   });
 
   return { accessToken, refreshToken: newRefreshToken, user: userWithPermissions };

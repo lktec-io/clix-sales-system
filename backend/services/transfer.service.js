@@ -30,6 +30,7 @@ export async function listTransfers(query, user) {
   const branchIds = await getAccessibleBranchIds(user);
 
   const { rows, total } = await transferRepository.findAll({
+    tenantId: user.tenantId,
     page,
     limit,
     search: query.search,
@@ -41,8 +42,8 @@ export async function listTransfers(query, user) {
   return { items: rows, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } };
 }
 
-export async function getTransfer(id) {
-  const transfer = await transferRepository.findById(id);
+export async function getTransfer(id, tenantId) {
+  const transfer = await transferRepository.findById(id, tenantId);
   if (!transfer) throw new ApiError(404, 'Transfer not found');
   return transfer;
 }
@@ -56,10 +57,10 @@ export async function createTransfer(data, actorId, user) {
     throw new ApiError(400, 'Source and destination branch must be different');
   }
 
-  const sourceBranch = await branchRepository.findById(data.sourceBranchId);
+  const sourceBranch = await branchRepository.findById(data.sourceBranchId, user.tenantId);
   if (!sourceBranch) throw new ApiError(400, 'Source branch does not exist');
 
-  const destinationBranch = await branchRepository.findById(data.destinationBranchId);
+  const destinationBranch = await branchRepository.findById(data.destinationBranchId, user.tenantId);
   if (!destinationBranch) throw new ApiError(400, 'Destination branch does not exist');
 
   await assertBranchAccess(user, data.sourceBranchId);
@@ -67,23 +68,23 @@ export async function createTransfer(data, actorId, user) {
   if (!data.items?.length) throw new ApiError(400, 'Add at least one product to the transfer');
 
   for (const item of data.items) {
-    const product = await productRepository.findById(item.productId);
+    const product = await productRepository.findById(item.productId, user.tenantId);
     if (!product) throw new ApiError(400, `Product ${item.productId} does not exist`);
 
-    const available = await inventoryRepository.getAvailableQuantity(item.productId, data.sourceBranchId);
+    const available = await inventoryRepository.getAvailableQuantity(item.productId, data.sourceBranchId, user.tenantId);
     if (item.quantity > available) {
       throw new ApiError(422, `Cannot transfer more than available stock for "${product.name}" (available: ${available})`);
     }
   }
 
-  const transferNumber = await generateCode('TRANSFER', 'TRF', { padLength: 6 });
+  const transferNumber = await generateCode('TRANSFER', 'TRF', { tenantId: user.tenantId, padLength: 6 });
 
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
 
     const transferId = await transferRepository.createRequest(
-      { transferNumber, sourceBranchId: data.sourceBranchId, destinationBranchId: data.destinationBranchId, requestedBy: actorId },
+      { tenantId: user.tenantId, transferNumber, sourceBranchId: data.sourceBranchId, destinationBranchId: data.destinationBranchId, requestedBy: actorId },
       connection,
     );
 
@@ -94,6 +95,7 @@ export async function createTransfer(data, actorId, user) {
     await connection.commit();
 
     await activityLogRepository.create({
+      tenantId: user.tenantId,
       userId: actorId,
       branchId: data.sourceBranchId,
       description: `Transfer "${transferNumber}" requested from "${sourceBranch.name}" to "${destinationBranch.name}"`,
@@ -101,7 +103,7 @@ export async function createTransfer(data, actorId, user) {
       referenceId: transferId,
     });
 
-    return transferRepository.findById(transferId);
+    return transferRepository.findById(transferId, user.tenantId);
   } catch (err) {
     await connection.rollback();
     throw err;
@@ -117,7 +119,7 @@ export async function createTransfer(data, actorId, user) {
 // transfer can never leave stock deducted from one branch without landing at
 // the other.
 export async function approveTransfer(id, actorId, user) {
-  const transfer = await transferRepository.findById(id);
+  const transfer = await transferRepository.findById(id, user.tenantId);
   if (!transfer) throw new ApiError(404, 'Transfer not found');
   if (transfer.status !== 'pending') throw new ApiError(400, 'Only pending transfers can be approved');
 
@@ -132,6 +134,7 @@ export async function approveTransfer(id, actorId, user) {
     for (const item of transfer.items) {
       const outMovement = await inventoryRepository.recordMovement(
         {
+          tenantId: user.tenantId,
           productId: item.product_id,
           branchId: transfer.source_branch_id,
           movementType: 'transfer_out',
@@ -151,6 +154,7 @@ export async function approveTransfer(id, actorId, user) {
 
       await inventoryRepository.recordMovement(
         {
+          tenantId: user.tenantId,
           productId: item.product_id,
           branchId: transfer.destination_branch_id,
           movementType: 'transfer_in',
@@ -169,6 +173,7 @@ export async function approveTransfer(id, actorId, user) {
     await connection.commit();
 
     await activityLogRepository.create({
+      tenantId: user.tenantId,
       userId: actorId,
       branchId: transfer.destination_branch_id,
       description: `Transfer "${transfer.transfer_number}" approved: stock moved from "${transfer.source_branch_name}" to "${transfer.destination_branch_name}"`,
@@ -176,7 +181,7 @@ export async function approveTransfer(id, actorId, user) {
       referenceId: id,
     });
 
-    await notificationRepository.notifyBranchManagement(transfer.destination_branch_id, {
+    await notificationRepository.notifyBranchManagement(user.tenantId, transfer.destination_branch_id, {
       type: 'success',
       category: 'transfer_completed',
       title: 'Transfer completed',
@@ -186,7 +191,7 @@ export async function approveTransfer(id, actorId, user) {
     });
 
     for (const crossing of lowStockCrossings) {
-      await notificationRepository.notifyBranchManagement(transfer.source_branch_id, {
+      await notificationRepository.notifyBranchManagement(user.tenantId, transfer.source_branch_id, {
         type: 'warning',
         category: 'low_stock',
         title: 'Low stock alert',
@@ -196,7 +201,7 @@ export async function approveTransfer(id, actorId, user) {
       });
     }
 
-    return transferRepository.findById(id);
+    return transferRepository.findById(id, user.tenantId);
   } catch (err) {
     await connection.rollback();
     throw err;
@@ -206,7 +211,7 @@ export async function approveTransfer(id, actorId, user) {
 }
 
 export async function rejectTransfer(id, actorId, user) {
-  const transfer = await transferRepository.findById(id);
+  const transfer = await transferRepository.findById(id, user.tenantId);
   if (!transfer) throw new ApiError(404, 'Transfer not found');
   if (transfer.status !== 'pending') throw new ApiError(400, 'Only pending transfers can be rejected');
 
@@ -216,6 +221,7 @@ export async function rejectTransfer(id, actorId, user) {
   if (!updated) throw new ApiError(409, 'Transfer was already processed');
 
   await activityLogRepository.create({
+    tenantId: user.tenantId,
     userId: actorId,
     branchId: transfer.source_branch_id,
     description: `Transfer "${transfer.transfer_number}" rejected`,
@@ -223,5 +229,5 @@ export async function rejectTransfer(id, actorId, user) {
     referenceId: id,
   });
 
-  return transferRepository.findById(id);
+  return transferRepository.findById(id, user.tenantId);
 }

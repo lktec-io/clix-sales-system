@@ -8,7 +8,7 @@ export const list = asyncHandler(async (req, res) => {
 });
 
 export const getById = asyncHandler(async (req, res) => {
-  const returnRecord = await returnService.getReturn(Number(req.params.id));
+  const returnRecord = await returnService.getReturn(Number(req.params.id), req.user.tenantId);
   return success(res, { data: returnRecord });
 });
 

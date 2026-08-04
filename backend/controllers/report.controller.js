@@ -23,18 +23,18 @@ export const getReport = asyncHandler(async (req, res) => {
 // the ones the Reports UI actually exposes as filter inputs. Branch is
 // resolved separately (see buildExportContext) since the report header
 // prints it as its own labelled line, not folded into this generic string.
-async function buildFiltersLabel(query, locale) {
+async function buildFiltersLabel(query, locale, tenantId) {
   const parts = [];
   if (query.categoryId) {
-    const category = await categoryRepository.findById(Number(query.categoryId));
+    const category = await categoryRepository.findById(Number(query.categoryId), tenantId);
     if (category) parts.push(`${t(locale, 'breakdownHeaders.category')}: ${category.name}`);
   }
   if (query.customerId) {
-    const customer = await customerRepository.findById(Number(query.customerId));
+    const customer = await customerRepository.findById(Number(query.customerId), tenantId);
     if (customer) parts.push(`${t(locale, 'breakdownHeaders.customer')}: ${customer.first_name} ${customer.last_name}`);
   }
   if (query.productId) {
-    const product = await productRepository.findById(Number(query.productId));
+    const product = await productRepository.findById(Number(query.productId), tenantId);
     if (product) parts.push(`${t(locale, 'breakdownHeaders.product')}: ${product.name}`);
   }
   if (query.cashierId) {
@@ -51,10 +51,10 @@ async function buildFiltersLabel(query, locale) {
 
 async function buildExportContext(req, locale) {
   const [company, generatedBy, filtersLabel, branch] = await Promise.all([
-    companyRepository.get(),
+    companyRepository.get(req.user.tenantId),
     userRepository.findById(req.user.id),
-    buildFiltersLabel(req.query, locale),
-    req.query.branchId ? branchRepository.findById(Number(req.query.branchId)) : null,
+    buildFiltersLabel(req.query, locale, req.user.tenantId),
+    req.query.branchId ? branchRepository.findById(Number(req.query.branchId), req.user.tenantId) : null,
   ]);
   return {
     company,

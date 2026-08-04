@@ -30,20 +30,20 @@ async function safely(label, fn, fallback) {
 }
 
 const CHART_HANDLERS = {
-  'sales-trend': (branchIds, query) => safely('sales-trend', () => dashboardRepository.getSalesTrend(branchIds, query.range), []),
-  'revenue-trend': (branchIds) => safely('revenue-trend', () => dashboardRepository.getRevenueTrend(branchIds), []),
-  'expense-trend': (branchIds) => safely('expense-trend', () => dashboardRepository.getExpenseTrend(branchIds), []),
-  'profit-trend': (branchIds) => safely('profit-trend', () => dashboardRepository.getProfitTrend(branchIds), []),
-  'top-products': (branchIds) => safely('top-products', () => dashboardRepository.getTopProducts(branchIds), []),
-  'branch-performance': (branchIds) => safely('branch-performance', () => dashboardRepository.getBranchPerformance(branchIds), []),
-  'inventory-summary': (branchIds) => safely('inventory-summary', () => dashboardRepository.getInventorySummary(branchIds), EMPTY_INVENTORY_SUMMARY),
-  'payment-status': (branchIds) => safely('payment-status', () => dashboardRepository.getPaymentStatus(branchIds), []),
-  'revenue-vs-expenses': (branchIds) => safely('revenue-vs-expenses', () => dashboardRepository.getRevenueVsExpenses(branchIds), []),
+  'sales-trend': (tenantId, branchIds, query) => safely('sales-trend', () => dashboardRepository.getSalesTrend(tenantId, branchIds, query.range), []),
+  'revenue-trend': (tenantId, branchIds) => safely('revenue-trend', () => dashboardRepository.getRevenueTrend(tenantId, branchIds), []),
+  'expense-trend': (tenantId, branchIds) => safely('expense-trend', () => dashboardRepository.getExpenseTrend(tenantId, branchIds), []),
+  'profit-trend': (tenantId, branchIds) => safely('profit-trend', () => dashboardRepository.getProfitTrend(tenantId, branchIds), []),
+  'top-products': (tenantId, branchIds) => safely('top-products', () => dashboardRepository.getTopProducts(tenantId, branchIds), []),
+  'branch-performance': (tenantId, branchIds) => safely('branch-performance', () => dashboardRepository.getBranchPerformance(tenantId, branchIds), []),
+  'inventory-summary': (tenantId, branchIds) => safely('inventory-summary', () => dashboardRepository.getInventorySummary(tenantId, branchIds), EMPTY_INVENTORY_SUMMARY),
+  'payment-status': (tenantId, branchIds) => safely('payment-status', () => dashboardRepository.getPaymentStatus(tenantId, branchIds), []),
+  'revenue-vs-expenses': (tenantId, branchIds) => safely('revenue-vs-expenses', () => dashboardRepository.getRevenueVsExpenses(tenantId, branchIds), []),
 };
 
 export async function getKpis(user) {
   const branchIds = await getAccessibleBranchIds(user);
-  return safely('kpis', () => dashboardRepository.getKpis(branchIds), EMPTY_KPIS);
+  return safely('kpis', () => dashboardRepository.getKpis(user.tenantId, branchIds), EMPTY_KPIS);
 }
 
 export async function getChart(user, type, query = {}) {
@@ -52,12 +52,12 @@ export async function getChart(user, type, query = {}) {
     throw new ApiError(400, `Unknown chart type "${type}"`);
   }
   const branchIds = await getAccessibleBranchIds(user);
-  return handler(branchIds, query);
+  return handler(user.tenantId, branchIds, query);
 }
 
-export async function getSystemStatus() {
+export async function getSystemStatus(tenantId) {
   const cloudinaryConnected = Boolean(env.cloudinary.cloudName && env.cloudinary.apiKey && env.cloudinary.apiSecret);
-  const result = await safely('system-status', () => dashboardRepository.getSystemStatus(), null);
+  const result = await safely('system-status', () => dashboardRepository.getSystemStatus(tenantId), null);
   if (!result) {
     // The queries themselves failed — that's a real signal, not a reason to
     // pretend everything is fine, so databaseConnected reflects it honestly.
@@ -73,6 +73,6 @@ export async function getSystemStatus() {
   };
 }
 
-export async function getActivity(limit = 20) {
-  return safely('activity', () => activityLogRepository.findRecent(limit), []);
+export async function getActivity(tenantId, limit = 20) {
+  return safely('activity', () => activityLogRepository.findRecent(tenantId, limit), []);
 }

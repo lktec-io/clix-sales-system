@@ -140,7 +140,7 @@ function toNumber(value) {
 // barcode). Runs identically at preview time and again at commit time —
 // commit never trusts the client-echoed preview rows as still accurate,
 // since a supplier/product could change between the two calls.
-export async function validateRows(rawRows) {
+export async function validateRows(rawRows, tenantId) {
   const seen = new Map();
   const results = [];
 
@@ -185,18 +185,18 @@ export async function validateRows(rawRows) {
 
     let supplierRecord = null;
     if (raw.supplier) {
-      supplierRecord = await supplierRepository.findByName(raw.supplier);
+      supplierRecord = await supplierRepository.findByName(raw.supplier, tenantId);
       if (!supplierRecord) errors.push(`Unknown supplier "${raw.supplier}"`);
     }
 
     let categoryRecord = null;
     if (raw.category) {
-      categoryRecord = await categoryRepository.findByNameCaseInsensitive(raw.category);
+      categoryRecord = await categoryRepository.findByNameCaseInsensitive(raw.category, tenantId);
       if (!categoryRecord) warnings.push(`Category "${raw.category}" will be created`);
     }
 
     const explicitCode = raw.sku || raw.barcode || null;
-    const matchedProduct = explicitCode ? await productRepository.findByCode(explicitCode) : null;
+    const matchedProduct = explicitCode ? await productRepository.findByCode(explicitCode, tenantId) : null;
 
     // Flags accidental double-entry within the same file — still imported
     // (a second, genuinely separate purchase line for the same product in
@@ -246,13 +246,13 @@ export async function validateRows(rawRows) {
   return { rows: results, summary };
 }
 
-async function generateUniqueCategoryCode(name) {
+async function generateUniqueCategoryCode(name, tenantId) {
   const base = name.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4) || 'CAT';
   let code = base;
   let suffix = 1;
   // Sequential, not concurrent — safe against races because the whole
   // import runs one supplier group at a time, one row at a time.
-  while (await categoryRepository.findByCode(code)) {
+  while (await categoryRepository.findByCode(code, tenantId)) {
     suffix += 1;
     code = `${base}${suffix}`;
   }
@@ -268,20 +268,20 @@ async function generateUniqueCategoryCode(name) {
 // colliding on the UNIQUE name/code constraint. Rows are processed strictly
 // sequentially (no concurrency within one import), so this in-memory cache
 // is authoritative and never goes stale mid-run.
-async function ensureCategory(name, actorId, connection, categoryCache) {
+async function ensureCategory(name, actorId, tenantId, connection, categoryCache) {
   const key = name.toLowerCase();
   if (categoryCache.has(key)) return categoryCache.get(key);
 
-  const existing = await categoryRepository.findByNameCaseInsensitive(name);
+  const existing = await categoryRepository.findByNameCaseInsensitive(name, tenantId);
   if (existing) {
     categoryCache.set(key, existing);
     return existing;
   }
 
-  const code = await generateUniqueCategoryCode(name);
+  const code = await generateUniqueCategoryCode(name, tenantId);
   const [result] = await connection.query(
-    "INSERT INTO categories (name, code, status, created_by, updated_by) VALUES (?, ?, 'active', ?, ?)",
-    [name, code, actorId, actorId],
+    "INSERT INTO categories (tenant_id, name, code, status, created_by, updated_by) VALUES (?, ?, ?, 'active', ?, ?)",
+    [tenantId, name, code, actorId, actorId],
   );
   const created = { id: result.insertId, name, code };
   categoryCache.set(key, created);
@@ -296,12 +296,12 @@ async function ensureCategory(name, actorId, connection, categoryCache) {
 // single bad row (an unexpected DB error slipping past pre-validation)
 // rolls back only that row's writes and is recorded as skipped — the rest
 // of the group's rows, and every other supplier's group, still commit.
-export async function commitImport(rawRows, { branchId }, actorId) {
-  const branch = await branchRepository.findById(branchId);
+export async function commitImport(rawRows, { branchId }, actorId, tenantId) {
+  const branch = await branchRepository.findById(branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
   if (!rawRows?.length) throw new ApiError(400, 'No rows to import');
 
-  const { rows: revalidated } = await validateRows(rawRows);
+  const { rows: revalidated } = await validateRows(rawRows, tenantId);
 
   const errors = [];
   const warnings = [];
@@ -328,7 +328,7 @@ export async function commitImport(rawRows, { branchId }, actorId) {
   });
 
   for (const [supplierId, supplierRows] of bySupplier) {
-    const supplier = await supplierRepository.findById(supplierId);
+    const supplier = await supplierRepository.findById(supplierId, tenantId);
     if (!supplier) {
       supplierRows.forEach((row) => {
         errors.push({ row: row.rowNumber, message: 'Supplier no longer exists' });
@@ -351,7 +351,7 @@ export async function commitImport(rawRows, { branchId }, actorId) {
           let categoryId = row.categoryId;
           let categoryCode = row.categoryCode;
           if (!categoryId) {
-            const category = await ensureCategory(row.category, actorId, connection, categoryCache);
+            const category = await ensureCategory(row.category, actorId, tenantId, connection, categoryCache);
             categoryId = category.id;
             categoryCode = category.code;
           }
@@ -359,16 +359,16 @@ export async function commitImport(rawRows, { branchId }, actorId) {
           let productId = row.productId;
           if (productId) {
             await connection.query(
-              'UPDATE products SET buying_price = ?, selling_price = ?, min_stock = ?, updated_by = ? WHERE id = ?',
-              [row.buyingPrice, row.sellingPrice, row.minStock, actorId, productId],
+              'UPDATE products SET buying_price = ?, selling_price = ?, min_stock = ?, updated_by = ? WHERE id = ? AND tenant_id = ?',
+              [row.buyingPrice, row.sellingPrice, row.minStock, actorId, productId, tenantId],
             );
             groupUpdated += 1;
           } else {
-            const code = row.sku || row.barcode || await generateCode(`PRODUCT_${categoryCode}`, categoryCode);
+            const code = row.sku || row.barcode || await generateCode(`PRODUCT_${categoryCode}`, categoryCode, { tenantId });
             const [result] = await connection.query(
-              `INSERT INTO products (name, code, category_id, brand_id, description, buying_price, selling_price, min_stock, status, created_by, updated_by)
-               VALUES (?, ?, ?, NULL, ?, ?, ?, ?, 'active', ?, ?)`,
-              [row.productName, code, categoryId, row.description, row.buyingPrice, row.sellingPrice, row.minStock, actorId, actorId],
+              `INSERT INTO products (tenant_id, name, code, category_id, brand_id, description, buying_price, selling_price, min_stock, status, created_by, updated_by)
+               VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?, 'active', ?, ?)`,
+              [tenantId, row.productName, code, categoryId, row.description, row.buyingPrice, row.sellingPrice, row.minStock, actorId, actorId],
             );
             productId = result.insertId;
             groupCreated += 1;
@@ -388,10 +388,10 @@ export async function commitImport(rawRows, { branchId }, actorId) {
         continue;
       }
 
-      const purchaseNumber = await generateCode('PURCHASE', 'PUR', { padLength: 6 });
+      const purchaseNumber = await generateCode('PURCHASE', 'PUR', { tenantId, padLength: 6 });
       const totalAmount = succeededItems.reduce((sum, item) => sum + item.quantity * item.buyingPrice, 0);
       const orderId = await purchaseRepository.createOrder(
-        { purchaseNumber, supplierId, branchId, totalAmount, userId: actorId },
+        { tenantId, purchaseNumber, supplierId, branchId, totalAmount, userId: actorId },
         connection,
       );
 
@@ -403,6 +403,7 @@ export async function commitImport(rawRows, { branchId }, actorId) {
         );
         await inventoryRepository.recordMovement(
           {
+            tenantId,
             productId: item.productId,
             branchId,
             movementType: 'purchase',
@@ -423,6 +424,7 @@ export async function commitImport(rawRows, { branchId }, actorId) {
       purchaseOrdersCreated += 1;
 
       await activityLogRepository.create({
+        tenantId,
         userId: actorId,
         branchId,
         description: `Purchase "${purchaseNumber}" imported from Excel (${succeededItems.length} item${succeededItems.length === 1 ? '' : 's'}) from "${supplier.name}"`,
@@ -430,7 +432,7 @@ export async function commitImport(rawRows, { branchId }, actorId) {
         referenceId: orderId,
       });
 
-      await notificationRepository.notifyBranchManagement(branchId, {
+      await notificationRepository.notifyBranchManagement(tenantId, branchId, {
         type: 'success',
         category: 'purchase_completed',
         title: 'Purchase imported',

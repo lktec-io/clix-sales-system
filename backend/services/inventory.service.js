@@ -11,6 +11,7 @@ export async function listInventory(query, user) {
   const branchIds = await getAccessibleBranchIds(user);
 
   const { rows, total } = await inventoryRepository.findAll({
+    tenantId: user.tenantId,
     page,
     limit,
     search: query.search,
@@ -25,7 +26,7 @@ export async function listInventory(query, user) {
 
 export async function getSummary(user) {
   const branchIds = await getAccessibleBranchIds(user);
-  return inventoryRepository.getSummary(branchIds);
+  return inventoryRepository.getSummary(user.tenantId, branchIds);
 }
 
 export async function listMovements(query, user) {
@@ -34,6 +35,7 @@ export async function listMovements(query, user) {
   const branchIds = await getAccessibleBranchIds(user);
 
   const { rows, total } = await inventoryRepository.findMovements({
+    tenantId: user.tenantId,
     page,
     limit,
     productId: query.productId ? Number(query.productId) : undefined,
@@ -53,15 +55,16 @@ async function assertBranchAccess(user, branchId) {
 }
 
 export async function createAdjustment(data, user) {
-  const product = await productRepository.findById(data.productId);
+  const product = await productRepository.findById(data.productId, user.tenantId);
   if (!product) throw new ApiError(404, 'Product not found');
 
-  const branch = await branchRepository.findById(data.branchId);
+  const branch = await branchRepository.findById(data.branchId, user.tenantId);
   if (!branch) throw new ApiError(404, 'Branch not found');
 
   await assertBranchAccess(user, data.branchId);
 
   const { movementId, previousStock, newStock } = await inventoryRepository.recordMovement({
+    tenantId: user.tenantId,
     productId: data.productId,
     branchId: data.branchId,
     movementType: 'adjustment',
@@ -72,6 +75,7 @@ export async function createAdjustment(data, user) {
   });
 
   await inventoryRepository.createAdjustmentRecord({
+    tenantId: user.tenantId,
     productId: data.productId,
     branchId: data.branchId,
     movementId,

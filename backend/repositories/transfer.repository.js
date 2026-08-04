@@ -1,6 +1,6 @@
 import { pool } from '../config/db.js';
 
-export async function findById(id) {
+export async function findById(id, tenantId) {
   const [rows] = await pool.query(
     `SELECT t.*, sb.name AS source_branch_name, db.name AS destination_branch_name,
             ru.first_name AS requested_by_first_name, ru.last_name AS requested_by_last_name,
@@ -10,8 +10,8 @@ export async function findById(id) {
      JOIN branches db ON db.id = t.destination_branch_id
      JOIN users ru ON ru.id = t.requested_by
      LEFT JOIN users au ON au.id = t.approved_by
-     WHERE t.id = ? LIMIT 1`,
-    [id],
+     WHERE t.id = ? AND t.tenant_id = ? LIMIT 1`,
+    [id, tenantId],
   );
   if (!rows[0]) return null;
 
@@ -30,9 +30,9 @@ function branchFilter(branchIds) {
   return { clause: 'AND (t.source_branch_id IN (?) OR t.destination_branch_id IN (?))', params: [branchIds, branchIds] };
 }
 
-export async function findAll({ page = 1, limit = 20, search, status, branchId, branchIds }) {
-  const conditions = ['1 = 1'];
-  const params = [];
+export async function findAll({ tenantId, page = 1, limit = 20, search, status, branchId, branchIds }) {
+  const conditions = ['t.tenant_id = ?'];
+  const params = [tenantId];
 
   if (search) {
     conditions.push('t.transfer_number LIKE ?');
@@ -69,11 +69,11 @@ export async function findAll({ page = 1, limit = 20, search, status, branchId, 
   return { rows, total: countRows[0].total };
 }
 
-export async function createRequest({ transferNumber, sourceBranchId, destinationBranchId, requestedBy }, connection) {
+export async function createRequest({ tenantId, transferNumber, sourceBranchId, destinationBranchId, requestedBy }, connection) {
   const [result] = await connection.query(
-    `INSERT INTO stock_transfer_requests (transfer_number, source_branch_id, destination_branch_id, status, requested_by)
-     VALUES (?, ?, ?, 'pending', ?)`,
-    [transferNumber, sourceBranchId, destinationBranchId, requestedBy],
+    `INSERT INTO stock_transfer_requests (tenant_id, transfer_number, source_branch_id, destination_branch_id, status, requested_by)
+     VALUES (?, ?, ?, ?, 'pending', ?)`,
+    [tenantId, transferNumber, sourceBranchId, destinationBranchId, requestedBy],
   );
   return result.insertId;
 }

@@ -43,6 +43,7 @@ export async function getReport(type, query, user) {
 
   const { dateFrom, dateTo } = defaultDateRange();
   const filters = {
+    tenantId: user.tenantId,
     dateFrom: query.dateFrom || dateFrom,
     dateTo: query.dateTo || dateTo,
     branchId: query.branchId ? Number(query.branchId) : undefined,
@@ -82,7 +83,7 @@ export async function getReport(type, query, user) {
     case 'branches': report = await reportRepository.branchesReport(filters); break;
     case 'products': report = await reportRepository.productsReport(filters); break;
     case 'customers': report = await reportRepository.customersReport(filters); break;
-    case 'suppliers': report = await reportRepository.suppliersReport(filters); break;
+    case 'suppliers': report = await reportRepository.suppliersReport(filters.tenantId); break;
     case 'returns': report = await reportRepository.returnsReport(filters); break;
     case 'transfers': report = await reportRepository.transfersReport(filters); break;
     case 'users': report = await reportRepository.usersReport(filters); break;

@@ -13,11 +13,11 @@ export const getChart = asyncHandler(async (req, res) => {
 });
 
 export const getActivity = asyncHandler(async (req, res) => {
-  const activity = await dashboardService.getActivity(Number(req.query.limit) || 20);
+  const activity = await dashboardService.getActivity(req.user.tenantId, Number(req.query.limit) || 20);
   return success(res, { data: activity });
 });
 
 export const getSystemStatus = asyncHandler(async (req, res) => {
-  const status = await dashboardService.getSystemStatus();
+  const status = await dashboardService.getSystemStatus(req.user.tenantId);
   return success(res, { data: status });
 });

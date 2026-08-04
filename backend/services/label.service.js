@@ -98,7 +98,7 @@ function drawLabel(doc, { x, y, width, height, logoPath, product, qrImageBuffer 
   doc.image(qrImageBuffer, qrX, cursorY, { width: qrSize, height: qrSize });
 }
 
-export async function buildLabelsPdf(productIds, branchName, sizeKey, company) {
+export async function buildLabelsPdf(productIds, branchName, sizeKey, company, tenantId) {
   if (!productIds?.length) throw new ApiError(400, 'Select at least one product');
 
   const size = LABEL_SIZES[sizeKey] || LABEL_SIZES.medium;
@@ -115,10 +115,10 @@ export async function buildLabelsPdf(productIds, branchName, sizeKey, company) {
   doc.on('data', (chunk) => chunks.push(chunk));
 
   for (let i = 0; i < productIds.length; i += 1) {
-    const product = await productRepository.findById(productIds[i]);
+    const product = await productRepository.findById(productIds[i], tenantId);
     if (!product) continue;
 
-    const qrImageBuffer = await qrCodeService.getQrImageBuffer(product.id);
+    const qrImageBuffer = await qrCodeService.getQrImageBuffer(product.id, tenantId);
 
     const positionInPage = i % perPage;
     if (positionInPage === 0) doc.addPage();

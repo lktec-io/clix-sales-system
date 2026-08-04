@@ -17,6 +17,7 @@ export async function listPurchases(query, user) {
   const branchIds = await getAccessibleBranchIds(user);
 
   const { rows, total } = await purchaseRepository.findAll({
+    tenantId: user.tenantId,
     page, limit, search: query.search,
     supplierId: query.supplierId ? Number(query.supplierId) : undefined,
     branchId: query.branchId ? Number(query.branchId) : undefined,
@@ -27,8 +28,8 @@ export async function listPurchases(query, user) {
   return { items: rows, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } };
 }
 
-export async function getPurchase(id) {
-  const purchase = await purchaseRepository.findById(id);
+export async function getPurchase(id, tenantId) {
+  const purchase = await purchaseRepository.findById(id, tenantId);
   if (!purchase) throw new ApiError(404, 'Purchase not found');
   return purchase;
 }
@@ -39,21 +40,21 @@ export async function getPurchase(id) {
 // no partial purchase, no partial stock increment. recordMovement() is
 // passed this transaction's own connection so it participates in the same
 // unit of work instead of committing independently.
-export async function createPurchase(data, actorId) {
-  const supplier = await supplierRepository.findById(data.supplierId);
+export async function createPurchase(data, actorId, tenantId) {
+  const supplier = await supplierRepository.findById(data.supplierId, tenantId);
   if (!supplier) throw new ApiError(400, 'Selected supplier does not exist');
 
-  const branch = await branchRepository.findById(data.branchId);
+  const branch = await branchRepository.findById(data.branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
 
   if (!data.items?.length) throw new ApiError(400, 'Add at least one product to the purchase');
 
   for (const item of data.items) {
-    const product = await productRepository.findById(item.productId);
+    const product = await productRepository.findById(item.productId, tenantId);
     if (!product) throw new ApiError(400, `Product ${item.productId} does not exist`);
   }
 
-  const purchaseNumber = await generateCode('PURCHASE', 'PUR', { padLength: 6 });
+  const purchaseNumber = await generateCode('PURCHASE', 'PUR', { tenantId, padLength: 6 });
   const totalAmount = data.items.reduce((sum, item) => sum + item.quantity * item.buyingPrice, 0);
 
   const connection = await pool.getConnection();
@@ -61,7 +62,7 @@ export async function createPurchase(data, actorId) {
     await connection.beginTransaction();
 
     const orderId = await purchaseRepository.createOrder(
-      { purchaseNumber, supplierId: data.supplierId, branchId: data.branchId, totalAmount, userId: actorId },
+      { tenantId, purchaseNumber, supplierId: data.supplierId, branchId: data.branchId, totalAmount, userId: actorId },
       connection,
     );
 
@@ -74,6 +75,7 @@ export async function createPurchase(data, actorId) {
 
       await inventoryRepository.recordMovement(
         {
+          tenantId,
           productId: item.productId,
           branchId: data.branchId,
           movementType: 'purchase',
@@ -89,6 +91,7 @@ export async function createPurchase(data, actorId) {
     await connection.commit();
 
     await activityLogRepository.create({
+      tenantId,
       userId: actorId,
       branchId: data.branchId,
       description: `Purchase "${purchaseNumber}" received from "${supplier.name}"`,
@@ -96,7 +99,7 @@ export async function createPurchase(data, actorId) {
       referenceId: orderId,
     });
 
-    await notificationRepository.notifyBranchManagement(data.branchId, {
+    await notificationRepository.notifyBranchManagement(tenantId, data.branchId, {
       type: 'success',
       category: 'purchase_completed',
       title: 'Purchase received',
@@ -105,7 +108,7 @@ export async function createPurchase(data, actorId) {
       referenceId: orderId,
     });
 
-    return purchaseRepository.findById(orderId);
+    return purchaseRepository.findById(orderId, tenantId);
   } catch (err) {
     await connection.rollback();
     throw err;
@@ -114,8 +117,8 @@ export async function createPurchase(data, actorId) {
   }
 }
 
-export async function addPayment(data, actorId) {
-  const supplier = await supplierRepository.findById(data.supplierId);
+export async function addPayment(data, actorId, tenantId) {
+  const supplier = await supplierRepository.findById(data.supplierId, tenantId);
   if (!supplier) throw new ApiError(404, 'Supplier not found');
 
   await purchaseRepository.addPayment({
@@ -128,6 +131,7 @@ export async function addPayment(data, actorId) {
   });
 
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: null,
     description: `Payment recorded for supplier "${supplier.name}"`,

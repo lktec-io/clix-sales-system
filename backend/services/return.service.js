@@ -22,6 +22,7 @@ export async function listReturns(query, user) {
   const branchIds = await getAccessibleBranchIds(user);
 
   const { rows, total } = await returnRepository.findAll({
+    tenantId: user.tenantId,
     page,
     limit,
     search: query.search,
@@ -32,8 +33,8 @@ export async function listReturns(query, user) {
   return { items: rows, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } };
 }
 
-export async function getReturn(id) {
-  const returnRecord = await returnRepository.findById(id);
+export async function getReturn(id, tenantId) {
+  const returnRecord = await returnRepository.findById(id, tenantId);
   if (!returnRecord) throw new ApiError(404, 'Return not found');
   return returnRecord;
 }
@@ -42,7 +43,7 @@ export async function getReturn(id) {
 // until a Manager/Super Admin approves it, the same two-step shape Transfers
 // established in Phase 15.
 export async function createReturn(data, actorId, user) {
-  const sale = await saleRepository.findById(data.saleId);
+  const sale = await saleRepository.findById(data.saleId, user.tenantId);
   if (!sale) throw new ApiError(400, 'Original sale does not exist');
   if (sale.status !== 'completed') throw new ApiError(400, 'Cannot return items from a voided sale');
 
@@ -67,7 +68,7 @@ export async function createReturn(data, actorId, user) {
     preparedItems.push({ saleItemId: item.saleItemId, quantity: item.quantity });
   }
 
-  const returnNumber = await generateCode('RETURN', 'RET', { padLength: 6 });
+  const returnNumber = await generateCode('RETURN', 'RET', { tenantId: user.tenantId, padLength: 6 });
 
   const connection = await pool.getConnection();
   try {
@@ -75,6 +76,7 @@ export async function createReturn(data, actorId, user) {
 
     const returnId = await returnRepository.createRequest(
       {
+        tenantId: user.tenantId,
         returnNumber,
         saleId: sale.id,
         customerId: data.customerId || sale.customer_id,
@@ -93,6 +95,7 @@ export async function createReturn(data, actorId, user) {
     await connection.commit();
 
     await activityLogRepository.create({
+      tenantId: user.tenantId,
       userId: actorId,
       branchId: sale.branch_id,
       description: `Return "${returnNumber}" requested against sale "${sale.sale_number}"`,
@@ -100,7 +103,7 @@ export async function createReturn(data, actorId, user) {
       referenceId: returnId,
     });
 
-    return returnRepository.findById(returnId);
+    return returnRepository.findById(returnId, user.tenantId);
   } catch (err) {
     await connection.rollback();
     throw err;
@@ -114,7 +117,7 @@ export async function createReturn(data, actorId, user) {
 // type 'return', positive quantity change) sharing the connection with the
 // status update, the same transactional shape Purchases/Transfers/POS use.
 export async function approveReturn(id, actorId, user) {
-  const returnRecord = await returnRepository.findById(id);
+  const returnRecord = await returnRepository.findById(id, user.tenantId);
   if (!returnRecord) throw new ApiError(404, 'Return not found');
   if (returnRecord.status !== 'pending') throw new ApiError(400, 'Only pending returns can be approved');
 
@@ -135,6 +138,7 @@ export async function approveReturn(id, actorId, user) {
 
       await inventoryRepository.recordMovement(
         {
+          tenantId: user.tenantId,
           productId: item.product_id,
           branchId: returnRecord.branch_id,
           movementType: 'return',
@@ -156,6 +160,7 @@ export async function approveReturn(id, actorId, user) {
     await connection.commit();
 
     await activityLogRepository.create({
+      tenantId: user.tenantId,
       userId: actorId,
       branchId: returnRecord.branch_id,
       description: `Return "${returnRecord.return_number}" approved: stock restored, refund of ${formatCurrency(returnRecord.refund_amount)} issued`,
@@ -163,7 +168,7 @@ export async function approveReturn(id, actorId, user) {
       referenceId: id,
     });
 
-    await notificationRepository.notifyBranchManagement(returnRecord.branch_id, {
+    await notificationRepository.notifyBranchManagement(user.tenantId, returnRecord.branch_id, {
       type: 'info',
       category: 'return_processed',
       title: 'Return processed',
@@ -172,7 +177,7 @@ export async function approveReturn(id, actorId, user) {
       referenceId: id,
     });
 
-    return returnRepository.findById(id);
+    return returnRepository.findById(id, user.tenantId);
   } catch (err) {
     await connection.rollback();
     throw err;
@@ -182,7 +187,7 @@ export async function approveReturn(id, actorId, user) {
 }
 
 export async function rejectReturn(id, actorId, user) {
-  const returnRecord = await returnRepository.findById(id);
+  const returnRecord = await returnRepository.findById(id, user.tenantId);
   if (!returnRecord) throw new ApiError(404, 'Return not found');
   if (returnRecord.status !== 'pending') throw new ApiError(400, 'Only pending returns can be rejected');
 
@@ -192,6 +197,7 @@ export async function rejectReturn(id, actorId, user) {
   if (!updated) throw new ApiError(409, 'Return was already processed');
 
   await activityLogRepository.create({
+    tenantId: user.tenantId,
     userId: actorId,
     branchId: returnRecord.branch_id,
     description: `Return "${returnRecord.return_number}" rejected`,
@@ -199,5 +205,5 @@ export async function rejectReturn(id, actorId, user) {
     referenceId: id,
   });
 
-  return returnRepository.findById(id);
+  return returnRepository.findById(id, user.tenantId);
 }

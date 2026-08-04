@@ -16,17 +16,17 @@ export const listAllPermissions = asyncHandler(async (req, res) => {
 });
 
 export const create = asyncHandler(async (req, res) => {
-  const role = await roleService.createRole(req.body, req.user.id);
+  const role = await roleService.createRole(req.body, req.user.id, req.user.tenantId);
   return success(res, { message: 'Role created', data: role, status: 201 });
 });
 
 export const update = asyncHandler(async (req, res) => {
-  const role = await roleService.updateRole(Number(req.params.id), req.body, req.user.id);
+  const role = await roleService.updateRole(Number(req.params.id), req.body, req.user.id, req.user.tenantId);
   return success(res, { message: 'Role updated', data: role });
 });
 
 export const remove = asyncHandler(async (req, res) => {
-  await roleService.deleteRole(Number(req.params.id), req.user.id);
+  await roleService.deleteRole(Number(req.params.id), req.user.id, req.user.tenantId);
   return success(res, { message: 'Role deleted' });
 });
 
@@ -36,6 +36,6 @@ export const getPermissions = asyncHandler(async (req, res) => {
 });
 
 export const setPermissions = asyncHandler(async (req, res) => {
-  await roleService.setRolePermissions(Number(req.params.id), req.body.permissionIds, req.user.id);
+  await roleService.setRolePermissions(Number(req.params.id), req.body.permissionIds, req.user.id, req.user.tenantId);
   return success(res, { message: 'Role permissions updated' });
 });

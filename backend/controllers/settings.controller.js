@@ -5,12 +5,12 @@ import * as backupService from '../services/backup.service.js';
 import * as expenseCategoryService from '../services/expenseCategory.service.js';
 
 export const getSystemSettings = asyncHandler(async (req, res) => {
-  const settings = await systemSettingsService.getSettings();
+  const settings = await systemSettingsService.getSettings(req.user.tenantId);
   return success(res, { data: settings });
 });
 
 export const updateSystemSettings = asyncHandler(async (req, res) => {
-  const settings = await systemSettingsService.updateSettings(req.body, req.user.id);
+  const settings = await systemSettingsService.updateSettings(req.body, req.user.id, req.user.tenantId);
   return success(res, { message: 'Settings updated', data: settings });
 });
 
@@ -30,21 +30,21 @@ export const downloadBackup = asyncHandler(async (req, res) => {
 });
 
 export const listExpenseCategories = asyncHandler(async (req, res) => {
-  const { items, meta } = await expenseCategoryService.listExpenseCategories(req.query);
+  const { items, meta } = await expenseCategoryService.listExpenseCategories(req.query, req.user.tenantId);
   return success(res, { data: { items, meta } });
 });
 
 export const createExpenseCategory = asyncHandler(async (req, res) => {
-  const category = await expenseCategoryService.createExpenseCategory(req.body, req.user.id);
+  const category = await expenseCategoryService.createExpenseCategory(req.body, req.user.id, req.user.tenantId);
   return success(res, { message: 'Expense category created', data: category, status: 201 });
 });
 
 export const updateExpenseCategory = asyncHandler(async (req, res) => {
-  const category = await expenseCategoryService.updateExpenseCategory(Number(req.params.id), req.body, req.user.id);
+  const category = await expenseCategoryService.updateExpenseCategory(Number(req.params.id), req.body, req.user.id, req.user.tenantId);
   return success(res, { message: 'Expense category updated', data: category });
 });
 
 export const deleteExpenseCategory = asyncHandler(async (req, res) => {
-  await expenseCategoryService.deleteExpenseCategory(Number(req.params.id), req.user.id);
+  await expenseCategoryService.deleteExpenseCategory(Number(req.params.id), req.user.id, req.user.tenantId);
   return success(res, { message: 'Expense category deleted' });
 });

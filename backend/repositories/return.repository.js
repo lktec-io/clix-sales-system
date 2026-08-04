@@ -1,6 +1,6 @@
 import { pool } from '../config/db.js';
 
-export async function findById(id) {
+export async function findById(id, tenantId) {
   const [rows] = await pool.query(
     `SELECT r.*, s.sale_number, s.branch_id, b.name AS branch_name,
             c.first_name AS customer_first_name, c.last_name AS customer_last_name,
@@ -12,8 +12,8 @@ export async function findById(id) {
      LEFT JOIN customers c ON c.id = r.customer_id
      LEFT JOIN users cu ON cu.id = r.created_by
      LEFT JOIN users au ON au.id = r.approved_by
-     WHERE r.id = ? LIMIT 1`,
-    [id],
+     WHERE r.id = ? AND r.tenant_id = ? LIMIT 1`,
+    [id, tenantId],
   );
   if (!rows[0]) return null;
 
@@ -40,9 +40,9 @@ function branchFilter(branchIds) {
   return { clause: 'AND s.branch_id IN (?)', params: [branchIds] };
 }
 
-export async function findAll({ page = 1, limit = 20, search, status, branchIds }) {
-  const conditions = ['1 = 1'];
-  const params = [];
+export async function findAll({ tenantId, page = 1, limit = 20, search, status, branchIds }) {
+  const conditions = ['r.tenant_id = ?'];
+  const params = [tenantId];
 
   if (search) {
     conditions.push('(r.return_number LIKE ? OR s.sale_number LIKE ?)');
@@ -80,13 +80,13 @@ export async function findAll({ page = 1, limit = 20, search, status, branchIds 
 }
 
 export async function createRequest(
-  { returnNumber, saleId, customerId, reason, refundAmount, refundMethod, createdBy },
+  { tenantId, returnNumber, saleId, customerId, reason, refundAmount, refundMethod, createdBy },
   connection,
 ) {
   const [result] = await connection.query(
-    `INSERT INTO returns (return_number, sale_id, customer_id, reason, status, refund_amount, refund_method, refund_status, created_by)
-     VALUES (?, ?, ?, ?, 'pending', ?, ?, 'pending', ?)`,
-    [returnNumber, saleId, customerId || null, reason, refundAmount, refundMethod, createdBy],
+    `INSERT INTO returns (tenant_id, return_number, sale_id, customer_id, reason, status, refund_amount, refund_method, refund_status, created_by)
+     VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, 'pending', ?)`,
+    [tenantId, returnNumber, saleId, customerId || null, reason, refundAmount, refundMethod, createdBy],
   );
   return result.insertId;
 }

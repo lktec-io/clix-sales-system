@@ -1,12 +1,16 @@
 import { pool } from '../config/db.js';
 import { ApiError } from '../utils/apiError.js';
+import { buildScope } from '../utils/tenantScope.js';
 
 // The single source of truth for stock mutation — every future phase that
 // changes stock (Purchases, POS, Transfers, Returns, manual Adjustments)
 // calls this instead of touching the `inventory` table directly. Accepts an
 // optional external connection so it can participate in a caller's larger
 // transaction (e.g. POS checkout: sale + payment + inventory in one unit);
-// when called standalone it manages its own transaction.
+// when called standalone it manages its own transaction. tenantId is
+// required — every row this writes (inventory, inventory_movements) carries
+// its own tenant_id column, and product_id/branch_id alone are no longer
+// enough to identify a unique inventory row once a second tenant exists.
 export async function recordMovement(data, externalConnection = null) {
   const connection = externalConnection || (await pool.getConnection());
   const managesOwnTransaction = !externalConnection;
@@ -17,16 +21,17 @@ export async function recordMovement(data, externalConnection = null) {
     const selectForUpdate = `
       SELECT i.*, COALESCE(i.min_stock, p.min_stock) AS effective_min_stock
       FROM inventory i JOIN products p ON p.id = i.product_id
-      WHERE i.product_id = ? AND i.branch_id = ? FOR UPDATE
+      WHERE i.product_id = ? AND i.branch_id = ? AND i.tenant_id = ? FOR UPDATE
     `;
-    let [rows] = await connection.query(selectForUpdate, [data.productId, data.branchId]);
+    let [rows] = await connection.query(selectForUpdate, [data.productId, data.branchId, data.tenantId]);
 
     if (!rows[0]) {
-      await connection.query('INSERT INTO inventory (product_id, branch_id, quantity) VALUES (?, ?, 0)', [
+      await connection.query('INSERT INTO inventory (tenant_id, product_id, branch_id, quantity) VALUES (?, ?, ?, 0)', [
+        data.tenantId,
         data.productId,
         data.branchId,
       ]);
-      [rows] = await connection.query(selectForUpdate, [data.productId, data.branchId]);
+      [rows] = await connection.query(selectForUpdate, [data.productId, data.branchId, data.tenantId]);
     }
 
     const inventoryRow = rows[0];
@@ -42,10 +47,10 @@ export async function recordMovement(data, externalConnection = null) {
 
     const [movementResult] = await connection.query(
       `INSERT INTO inventory_movements
-         (product_id, branch_id, movement_type, quantity_change, previous_stock, new_stock, reference_type, reference_id, user_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (tenant_id, product_id, branch_id, movement_type, quantity_change, previous_stock, new_stock, reference_type, reference_id, user_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        data.productId, data.branchId, data.movementType, data.quantityChange,
+        data.tenantId, data.productId, data.branchId, data.movementType, data.quantityChange,
         previousStock, newStock, data.referenceType || null, data.referenceId || null, data.userId,
       ],
     );
@@ -70,25 +75,19 @@ export async function recordMovement(data, externalConnection = null) {
   }
 }
 
-function branchFilter(branchIds) {
-  if (!branchIds) return { clause: '', params: [] };
-  if (branchIds.length === 0) return { clause: 'AND 1 = 0', params: [] };
-  return { clause: 'AND i.branch_id IN (?)', params: [branchIds] };
-}
-
 // Used by Transfers to fail fast on "cannot transfer more than available
 // stock" before opening a transaction. recordMovement()'s own negative-stock
 // guard remains the authoritative check at the moment stock actually moves.
-export async function getAvailableQuantity(productId, branchId) {
+export async function getAvailableQuantity(productId, branchId, tenantId) {
   const [rows] = await pool.query(
-    'SELECT quantity, reserved_quantity FROM inventory WHERE product_id = ? AND branch_id = ? LIMIT 1',
-    [productId, branchId],
+    'SELECT quantity, reserved_quantity FROM inventory WHERE product_id = ? AND branch_id = ? AND tenant_id = ? LIMIT 1',
+    [productId, branchId, tenantId],
   );
   if (!rows[0]) return 0;
   return rows[0].quantity - rows[0].reserved_quantity;
 }
 
-export async function findAll({ page = 1, limit = 20, search, branchId, lowStock, outOfStock, branchIds }) {
+export async function findAll({ tenantId, page = 1, limit = 20, search, branchId, lowStock, outOfStock, branchIds }) {
   const conditions = ['p.deleted_at IS NULL'];
   const params = [];
 
@@ -107,7 +106,7 @@ export async function findAll({ page = 1, limit = 20, search, branchId, lowStock
     conditions.push('i.quantity > 0 AND i.quantity <= COALESCE(i.min_stock, p.min_stock)');
   }
 
-  const scope = branchFilter(branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 'i.tenant_id', branchIds, branchColumn: 'i.branch_id' });
   const whereClause = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const offset = (page - 1) * limit;
   const allParams = [...params, ...scope.params];
@@ -136,8 +135,8 @@ export async function findAll({ page = 1, limit = 20, search, branchId, lowStock
   return { rows, total: countRows[0].total };
 }
 
-export async function getSummary(branchIds) {
-  const scope = branchFilter(branchIds);
+export async function getSummary(tenantId, branchIds) {
+  const scope = buildScope({ tenantId, tenantColumn: 'i.tenant_id', branchIds, branchColumn: 'i.branch_id' });
   const [[row]] = await pool.query(
     `SELECT
        COUNT(*) AS totalProducts,
@@ -157,7 +156,7 @@ export async function getSummary(branchIds) {
   };
 }
 
-export async function findMovements({ page = 1, limit = 20, productId, branchId, movementType, branchIds }) {
+export async function findMovements({ tenantId, page = 1, limit = 20, productId, branchId, movementType, branchIds }) {
   const conditions = ['1 = 1'];
   const params = [];
 
@@ -174,8 +173,8 @@ export async function findMovements({ page = 1, limit = 20, productId, branchId,
     params.push(movementType);
   }
 
-  const scope = branchFilter(branchIds);
-  const whereClause = `WHERE ${conditions.join(' AND ')} ${scope.clause.replace('i.branch_id', 'm.branch_id')}`;
+  const scope = buildScope({ tenantId, tenantColumn: 'm.tenant_id', branchIds, branchColumn: 'm.branch_id' });
+  const whereClause = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const offset = (page - 1) * limit;
   const allParams = [...params, ...scope.params];
 
@@ -197,11 +196,11 @@ export async function findMovements({ page = 1, limit = 20, productId, branchId,
   return { rows, total: countRows[0].total };
 }
 
-export async function createAdjustmentRecord({ productId, branchId, movementId, reason, description, userId }) {
+export async function createAdjustmentRecord({ tenantId, productId, branchId, movementId, reason, description, userId }) {
   const [result] = await pool.query(
-    `INSERT INTO inventory_adjustments (product_id, branch_id, movement_id, reason, description, created_by)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [productId, branchId, movementId, reason, description || null, userId],
+    `INSERT INTO inventory_adjustments (tenant_id, product_id, branch_id, movement_id, reason, description, created_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [tenantId, productId, branchId, movementId, reason, description || null, userId],
   );
   return result.insertId;
 }

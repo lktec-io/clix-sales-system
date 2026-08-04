@@ -98,7 +98,7 @@ export const uploadProfileAvatar = asyncHandler(async (req, res) => {
   if (!req.file) {
     throw new ApiError(400, 'No avatar file uploaded');
   }
-  const user = await userService.updateAvatar(req.user.id, req.file);
+  const user = await userService.updateAvatar(req.user.id, req.file, req.user.tenantId);
   return success(res, { message: 'Avatar updated', data: user });
 });
 

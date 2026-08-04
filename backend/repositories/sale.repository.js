@@ -1,16 +1,17 @@
 import { pool } from '../config/db.js';
+import { buildScope } from '../utils/tenantScope.js';
 
 // Looked up BEFORE opening a checkout transaction — a client-resubmitted
 // (double-click, retried network request) checkout carrying the same key
 // as one that already succeeded returns the existing sale id instead of
 // creating a second one.
-export async function findByIdempotencyKey(key) {
+export async function findByIdempotencyKey(key, tenantId) {
   if (!key) return null;
-  const [rows] = await pool.query('SELECT id FROM sales WHERE idempotency_key = ? LIMIT 1', [key]);
+  const [rows] = await pool.query('SELECT id FROM sales WHERE idempotency_key = ? AND tenant_id = ? LIMIT 1', [key, tenantId]);
   return rows[0]?.id || null;
 }
 
-export async function findById(id) {
+export async function findById(id, tenantId) {
   const [rows] = await pool.query(
     `SELECT s.*, b.name AS branch_name,
             c.first_name AS customer_first_name, c.last_name AS customer_last_name, c.customer_code,
@@ -19,8 +20,8 @@ export async function findById(id) {
      JOIN branches b ON b.id = s.branch_id
      LEFT JOIN customers c ON c.id = s.customer_id
      JOIN users u ON u.id = s.cashier_id
-     WHERE s.id = ? LIMIT 1`,
-    [id],
+     WHERE s.id = ? AND s.tenant_id = ? LIMIT 1`,
+    [id, tenantId],
   );
   if (!rows[0]) return null;
 
@@ -48,13 +49,7 @@ export async function findById(id) {
   return { ...rows[0], items, payments };
 }
 
-function branchFilter(branchIds) {
-  if (!branchIds) return { clause: '', params: [] };
-  if (branchIds.length === 0) return { clause: 'AND 1 = 0', params: [] };
-  return { clause: 'AND s.branch_id IN (?)', params: [branchIds] };
-}
-
-export async function findAll({ page = 1, limit = 20, search, branchId, customerId, status, branchIds }) {
+export async function findAll({ tenantId, page = 1, limit = 20, search, branchId, customerId, status, branchIds }) {
   const conditions = ['1 = 1'];
   const params = [];
 
@@ -84,7 +79,7 @@ export async function findAll({ page = 1, limit = 20, search, branchId, customer
     params.push(status);
   }
 
-  const scope = branchFilter(branchIds);
+  const scope = buildScope({ tenantId, tenantColumn: 's.tenant_id', branchIds, branchColumn: 's.branch_id' });
   const whereClause = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
   const offset = (page - 1) * limit;
   const allParams = [...params, ...scope.params];
@@ -108,13 +103,13 @@ export async function findAll({ page = 1, limit = 20, search, branchId, customer
 }
 
 export async function createSale(
-  { saleNumber, idempotencyKey, branchId, customerId, cashierId, subtotal, discountAmount, taxAmount, totalAmount, notes },
+  { tenantId, saleNumber, idempotencyKey, branchId, customerId, cashierId, subtotal, discountAmount, taxAmount, totalAmount, notes },
   connection,
 ) {
   const [result] = await connection.query(
-    `INSERT INTO sales (sale_number, idempotency_key, branch_id, customer_id, cashier_id, subtotal, discount_amount, tax_amount, total_amount, notes, status)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'completed')`,
-    [saleNumber, idempotencyKey || null, branchId, customerId || null, cashierId, subtotal, discountAmount, taxAmount, totalAmount, notes || null],
+    `INSERT INTO sales (tenant_id, sale_number, idempotency_key, branch_id, customer_id, cashier_id, subtotal, discount_amount, tax_amount, total_amount, notes, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'completed')`,
+    [tenantId, saleNumber, idempotencyKey || null, branchId, customerId || null, cashierId, subtotal, discountAmount, taxAmount, totalAmount, notes || null],
   );
   return result.insertId;
 }
