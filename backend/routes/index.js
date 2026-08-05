@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { success } from '../utils/apiResponse.js';
 import authRoutes from './auth.routes.js';
+import tenantRoutes from './tenant.routes.js';
 import companyRoutes from './company.routes.js';
 import userRoutes from './user.routes.js';
 import branchRoutes from './branch.routes.js';
@@ -32,6 +33,7 @@ router.get('/health', (req, res) => {
 });
 
 router.use('/auth', authRoutes);
+router.use('/tenants', tenantRoutes);
 router.use('/company', companyRoutes);
 router.use('/users', userRoutes);
 router.use('/branches', branchRoutes);

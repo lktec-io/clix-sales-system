@@ -5,22 +5,23 @@ export async function get(tenantId) {
   return rows[0] || null;
 }
 
-export async function insert(data) {
-  const [result] = await pool.query(
+export async function insert(data, connection = pool) {
+  const [result] = await connection.query(
     `INSERT INTO company_settings
-      (tenant_id, company_name, business_type, tin_number, vrn, registration_number, address, region, district, street,
+      (tenant_id, company_name, business_type, tin_number, vrn, registration_number, address, region, district, country, street,
        phone, alt_phone, email, website, logo_path, currency, timezone, receipt_footer, description, status,
        created_by, updated_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.tenantId, data.companyName, data.businessType, data.tinNumber, data.vrn, data.registrationNumber,
-      data.address, data.region, data.district, data.street,
+      data.address, data.region, data.district, data.country || null, data.street,
       data.phone, data.altPhone, data.email, data.website, data.logoPath,
       data.currency, data.timezone, data.receiptFooter, data.description, data.status,
       data.userId, data.userId,
     ],
   );
-  return findById(result.insertId, data.tenantId);
+  const [rows] = await connection.query('SELECT * FROM company_settings WHERE id = ? AND tenant_id = ? LIMIT 1', [result.insertId, data.tenantId]);
+  return rows[0];
 }
 
 export async function update(id, tenantId, data) {

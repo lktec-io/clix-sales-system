@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as authService from '../services/authService';
+import * as tenantService from '../services/tenantService';
 import { setAccessToken, clearAccessToken } from '../utils/tokenStorage';
 import { setOnSessionExpired } from '../services/apiClient';
 import { AuthContext } from './authContextInstance';
@@ -56,6 +57,19 @@ function AuthProvider({ children }) {
     return result.user;
   }, []);
 
+  // Self-registration auto-login — the backend returns the identical
+  // { accessToken, user } shape /auth/login does (same issueTokensForUser()
+  // call, same refresh cookie), so this is a near-copy of login() above,
+  // not new logic.
+  const register = useCallback(async (payload) => {
+    restoreSupersededRef.current = true;
+    const result = await tenantService.register(payload);
+    setAccessToken(result.accessToken);
+    setUser(result.user);
+    setSessionExpired(false);
+    return result.user;
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await authService.logout();
@@ -83,12 +97,13 @@ function AuthProvider({ children }) {
       initializing,
       sessionExpired,
       login,
+      register,
       logout,
       acknowledgeSessionExpired,
       hasPermission,
       updateUser,
     }),
-    [user, initializing, sessionExpired, login, logout, acknowledgeSessionExpired, hasPermission, updateUser],
+    [user, initializing, sessionExpired, login, register, logout, acknowledgeSessionExpired, hasPermission, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

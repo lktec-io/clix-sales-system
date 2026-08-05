@@ -5,6 +5,7 @@ import { FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle } from 'reac
 import KPICard from '../../components/dashboard/KPICard';
 import ChartCard from '../../components/dashboard/ChartCard';
 import DashboardHero from '../../components/dashboard/DashboardHero';
+import TrialCard from '../../components/dashboard/TrialCard';
 import QuickActions from '../../components/dashboard/QuickActions';
 import SalesTrendCard from '../../components/dashboard/SalesTrendCard';
 import TopProductsCard from '../../components/dashboard/TopProductsCard';
@@ -130,6 +131,10 @@ function Dashboard() {
       {error && <div className="alert alert-danger mb-4" role="alert">{error}</div>}
 
       <motion.div variants={STAGGER_CONTAINER} initial="hidden" animate="show">
+        <motion.div variants={STAGGER_ITEM}>
+          <TrialCard />
+        </motion.div>
+
         <motion.div className="kpi-grid" variants={KPI_CARD_STAGGER}>
           {KPI_DEFS.map(({ key, label, icon, formatter, subtitle, accent }) => (
             <motion.div key={key} variants={KPI_CARD_ITEM}>

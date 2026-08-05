@@ -222,3 +222,71 @@
 .low-stock-alert-critical { background-color: var(--color-danger-bg); border-color: rgba(239, 68, 68, 0.25); }
 .low-stock-alert-critical .low-stock-alert-icon { background-color: rgba(239, 68, 68, 0.15); color: var(--color-danger); }
 .low-stock-alert-critical .low-stock-alert-tag { background-color: rgba(239, 68, 68, 0.15); color: var(--color-danger); }
+
+.trial-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  background: var(--gradient-primary);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-5);
+  box-shadow: var(--shadow-md);
+}
+
+.trial-card-expired {
+  background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%);
+}
+
+.trial-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.trial-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.trial-card-title {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+}
+
+.trial-card-message {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.trial-card .trial-card-cta.btn-primary {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+}
+
+.trial-card .trial-card-cta.btn-primary:disabled {
+  opacity: 0.85;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .trial-card {
+    flex-wrap: wrap;
+  }
+
+  .trial-card-cta {
+    width: 100%;
+  }
+}

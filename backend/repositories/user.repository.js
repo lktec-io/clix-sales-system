@@ -34,13 +34,25 @@ export async function findById(id) {
   return rows[0] || null;
 }
 
-export async function create({ tenantId, firstName, lastName, gender, phone, email, username, passwordHash, roleId, branchId, status }) {
-  const [result] = await pool.query(
+export async function create({ tenantId, firstName, lastName, gender, phone, email, username, passwordHash, roleId, branchId, status }, connection = pool) {
+  const [result] = await connection.query(
     `INSERT INTO users (tenant_id, first_name, last_name, gender, phone, email, username, password_hash, role_id, branch_id, status)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [tenantId, firstName, lastName, gender || null, phone, email, username, passwordHash, roleId, branchId || null, status || 'active'],
   );
-  return findById(result.insertId);
+  const [rows] = await connection.query(`${BASE_SELECT} WHERE u.id = ? AND u.deleted_at IS NULL LIMIT 1`, [result.insertId]);
+  return rows[0];
+}
+
+// Registration-only: a global email check across ALL tenants. Every other
+// email-conflict check in this file (findConflict) stays tenant-scoped —
+// only the registration entry point needs to know if this email is already
+// in use anywhere, since login-by-email (findByEmailOrUsername, above)
+// resolves by LIMIT 1 with no tenant context and would otherwise become
+// ambiguous between two different tenants' accounts sharing one email.
+export async function findByEmailGlobal(email) {
+  const [rows] = await pool.query('SELECT id FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1', [email]);
+  return rows[0] || null;
 }
 
 export async function incrementFailedAttemptsAndMaybeLock(id, maxAttempts, lockMinutes) {

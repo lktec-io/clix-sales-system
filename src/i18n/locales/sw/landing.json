@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "features": "Vipengele",
+    "pricing": "Bei",
+    "faq": "Maswali",
+    "login": "Ingia",
+    "startTrial": "Anza Jaribio la Bure"
+  },
+  "hero": {
+    "eyebrow": "Mauzo na Hisa, Kwa Urahisi",
+    "title": "Endesha biashara yako yote kutoka dashibodi moja",
+    "subtitle": "Mauzo, hisa, manunuzi, matumizi na ripoti — imejengwa kwa ajili ya wauzaji rejareja na jumla kote Tanzania. Anzisha kwa dakika, si wiki.",
+    "ctaPrimary": "Anza Jaribio la Bure",
+    "ctaSecondary": "Ingia",
+    "noCreditCard": "Hakuna kadi inayohitajika · Jaribio la siku 14 bila malipo",
+    "statBranches": "Tayari kwa matawi mengi",
+    "statLanguages": "Kiingereza na Kiswahili",
+    "statUptime": "Usalama wa hali ya juu"
+  },
+  "features": {
+    "title": "Kila kitu biashara yako inachohitaji, kimejengwa ndani",
+    "subtitle": "Hakuna programu za ziada — mfumo mmoja unaokua nawe.",
+    "pos": { "title": "Sehemu ya Mauzo (POS)", "description": "Malipo ya haraka na risiti, malipo ya aina mbalimbali na uchanganuzi wa bakodi." },
+    "inventory": { "title": "Udhibiti wa Hisa", "description": "Kiwango cha hisa cha wakati halisi katika kila tawi, na tahadhari kabla ya kuisha." },
+    "purchases": { "title": "Manunuzi na Wasambazaji", "description": "Fuatilia oda za manunuzi, malipo ya wasambazaji na salio linalodaiwa mahali pamoja." },
+    "reports": { "title": "Ripoti na Uchambuzi", "description": "Ripoti za mauzo, faida, matumizi na hisa — zinazoweza kupakuliwa kama PDF, Excel na CSV." },
+    "multiBranch": { "title": "Matawi Mengi", "description": "Simamia matawi bila kikomo na ruhusa kulingana na wajibu wa kila mfanyakazi." },
+    "bilingual": { "title": "Kiingereza na Kiswahili", "description": "Mfumo mzima, ikiwemo risiti, katika lugha timu yako inayoifahamu vizuri." }
+  },
+  "pricing": {
+    "title": "Bei rahisi na wazi",
+    "subtitle": "Anza bure. Boresha ukiwa tayari — hakuna mshangao.",
+    "trial": {
+      "name": "Jaribio la Bure",
+      "price": "TZS 0",
+      "period": "kwa siku 14",
+      "description": "Ufikiaji kamili wa vipengele vyote, hakuna kadi inayohitajika.",
+      "cta": "Anza Jaribio la Bure",
+      "features": ["Vipengele vyote vimefunguliwa", "Bidhaa bila kikomo", "Hadi matawi 3", "Msaada kwa barua pepe"]
+    },
+    "growth": {
+      "name": "Ukuaji",
+      "badge": "Maarufu Zaidi",
+      "price": "Inakuja Hivi Karibuni",
+      "period": "kwa mwezi",
+      "description": "Kwa biashara zinazokua na ziko tayari kupanuka.",
+      "cta": "Anza Jaribio la Bure",
+      "features": ["Kila kitu cha Jaribio la Bure", "Matawi bila kikomo", "Msaada wa kipaumbele", "Ripoti za kina"]
+    },
+    "enterprise": {
+      "name": "Kampuni Kubwa",
+      "price": "Maalum",
+      "period": "wasiliana nasi",
+      "description": "Kwa shughuli kubwa zenye mahitaji maalum.",
+      "cta": "Anza Jaribio la Bure",
+      "features": ["Kila kitu cha Ukuaji", "Msimamizi maalum wa akaunti", "Muunganisho maalum", "Uhakikisho wa huduma"]
+    }
+  },
+  "testimonials": {
+    "title": "Inaaminiwa na biashara kama yako",
+    "subtitle": "Jiunge na wauzaji rejareja na jumla wanaotumia Clix tayari.",
+    "placeholder1": { "quote": "Clix imeleta kila tawi kwenye skrini moja — hisa, mauzo na ripoti sasa vinalingana.", "name": "Mmiliki wa Duka", "role": "Vifaa vya Umeme" },
+    "placeholder2": { "quote": "Uwekaji ulichukua alasiri moja, si mwezi. Wahudumu wetu walianza kuhudumia wateja siku hiyo hiyo.", "name": "Meneja wa Duka", "role": "Bidhaa Mchanganyiko" },
+    "placeholder3": { "quote": "Kuwa na mfumo kwa Kiswahili kulifanya kuwafunza timu yote kuwa rahisi.", "name": "Kiongozi wa Uendeshaji", "role": "Usambazaji wa Jumla" }
+  },
+  "faq": {
+    "title": "Maswali yanayoulizwa mara kwa mara",
+    "q1": { "question": "Je, ninahitaji kadi ya benki kuanza?", "answer": "Hapana. Jaribio lako la siku 14 bila malipo huanza mara moja baada ya usajili — hakuna maelezo ya malipo yanayohitajika." },
+    "q2": { "question": "Nini kinatokea baada ya jaribio langu kuisha?", "answer": "Bado unaweza kuingia, kuona dashibodi yako, ripoti, wasifu na mipangilio. Kuunda mauzo mapya, manunuzi, mabadiliko ya hisa, matumizi na uhamisho wa hisa kunasitishwa hadi uboreshe." },
+    "q3": { "question": "Naweza kutumia Clix kwa zaidi ya tawi moja?", "answer": "Ndiyo — Clix imejengwa kwa biashara za matawi mengi tangu siku ya kwanza, na ruhusa kulingana na tawi." },
+    "q4": { "question": "Je, taarifa zangu ziko salama?", "answer": "Taarifa za biashara yako zimetengwa kikamilifu na kampuni nyingine yoyote kwenye Clix, zenye usimbaji fiche wa hali ya juu." },
+    "q5": { "question": "Je, Clix inapatikana kwa Kiswahili?", "answer": "Ndiyo — mfumo mzima, ikiwemo risiti na ripoti, unafanya kazi kwa Kiingereza na Kiswahili." }
+  },
+  "footer": {
+    "tagline": "Usimamizi wa mauzo na hisa kwa biashara zinazokua.",
+    "product": "Bidhaa",
+    "company": "Kampuni",
+    "legal": "Sheria",
+    "rights": "Haki zote zimehifadhiwa."
+  }
+}

@@ -74,6 +74,10 @@ export const en = {
     passwordResetLink: 'Click here to reset your password',
     passwordResetExpiry: 'This link expires in 30 minutes.',
     passwordResetIgnore: 'If you did not request this, you can safely ignore this email.',
+    welcomeSubject: 'Welcome to Clix Sales System — your free trial has started',
+    welcomeGreeting: 'Hi {{name}},',
+    welcomeIntro: 'Your Clix Sales System account for "{{companyName}}" is ready to go.',
+    welcomeTrial: 'You have 14 days of full access on us. No card required.',
   },
   reportTypes: {
     sales: 'Sales', inventory: 'Inventory', purchases: 'Purchases', expenses: 'Expenses', profit: 'Profit',
@@ -171,6 +175,10 @@ export const sw = {
     passwordResetLink: 'Bofya hapa kubadilisha nenosiri lako',
     passwordResetExpiry: 'Kiungo hiki kitaisha muda baada ya dakika 30.',
     passwordResetIgnore: 'Kama hukuomba hili, unaweza kupuuza barua pepe hii kwa usalama.',
+    welcomeSubject: 'Karibu Clix Sales System — muda wako wa majaribio umeanza',
+    welcomeGreeting: 'Habari {{name}},',
+    welcomeIntro: 'Akaunti yako ya Clix Sales System kwa "{{companyName}}" iko tayari.',
+    welcomeTrial: 'Una siku 14 za matumizi kamili bila malipo. Hakuna kadi inayohitajika.',
   },
   reportTypes: {
     sales: 'Mauzo', inventory: 'Hesabu ya Bidhaa', purchases: 'Manunuzi', expenses: 'Matumizi', profit: 'Faida',

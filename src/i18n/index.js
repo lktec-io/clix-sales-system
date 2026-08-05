@@ -11,6 +11,8 @@ import commonEn from './locales/en/common.json';
 import sidebarEn from './locales/en/sidebar.json';
 import navbarEn from './locales/en/navbar.json';
 import authEn from './locales/en/auth.json';
+import landingEn from './locales/en/landing.json';
+import registerEn from './locales/en/register.json';
 import dashboardEn from './locales/en/dashboard.json';
 import productsEn from './locales/en/products.json';
 import inventoryEn from './locales/en/inventory.json';
@@ -30,6 +32,8 @@ import commonSw from './locales/sw/common.json';
 import sidebarSw from './locales/sw/sidebar.json';
 import navbarSw from './locales/sw/navbar.json';
 import authSw from './locales/sw/auth.json';
+import landingSw from './locales/sw/landing.json';
+import registerSw from './locales/sw/register.json';
 import dashboardSw from './locales/sw/dashboard.json';
 import productsSw from './locales/sw/products.json';
 import inventorySw from './locales/sw/inventory.json';
@@ -56,7 +60,7 @@ export const DEFAULT_LANGUAGE = 'en';
 // this is the single place every module's useTranslation(ns) name comes
 // from, and also the default namespace resolution order.
 export const NAMESPACES = [
-  'common', 'sidebar', 'navbar', 'auth', 'dashboard', 'products', 'inventory',
+  'common', 'sidebar', 'navbar', 'auth', 'landing', 'register', 'dashboard', 'products', 'inventory',
   'suppliers', 'purchases', 'customers', 'sales', 'returns', 'expenses',
   'reports', 'settings', 'profile', 'notifications', 'errors',
 ];
@@ -64,7 +68,7 @@ export const NAMESPACES = [
 i18n.use(initReactI18next).init({
   resources: {
     en: {
-      common: commonEn, sidebar: sidebarEn, navbar: navbarEn, auth: authEn, dashboard: dashboardEn,
+      common: commonEn, sidebar: sidebarEn, navbar: navbarEn, auth: authEn, landing: landingEn, register: registerEn, dashboard: dashboardEn,
       products: productsEn, inventory: inventoryEn, suppliers: suppliersEn,
       purchases: purchasesEn, customers: customersEn, sales: salesEn,
       returns: returnsEn, expenses: expensesEn, reports: reportsEn,
@@ -72,7 +76,7 @@ i18n.use(initReactI18next).init({
       errors: errorsEn,
     },
     sw: {
-      common: commonSw, sidebar: sidebarSw, navbar: navbarSw, auth: authSw, dashboard: dashboardSw,
+      common: commonSw, sidebar: sidebarSw, navbar: navbarSw, auth: authSw, landing: landingSw, register: registerSw, dashboard: dashboardSw,
       products: productsSw, inventory: inventorySw, suppliers: suppliersSw,
       purchases: purchasesSw, customers: customersSw, sales: salesSw,
       returns: returnsSw, expenses: expensesSw, reports: reportsSw,

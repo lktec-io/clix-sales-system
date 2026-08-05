@@ -44,7 +44,10 @@ function expiresInToMs(expiresIn) {
   return value * unit;
 }
 
-async function issueTokensForUser(user, { rememberMe, ipAddress, userAgent, deviceLabel }, permissions) {
+// Exported for reuse by tenant.service.js's register() — self-registration
+// must "auto-login" with the exact same token/session bookkeeping login()
+// gets, not a re-implementation of it.
+export async function issueTokensForUser(user, { rememberMe, ipAddress, userAgent, deviceLabel }, permissions) {
   const refreshExpiresIn = rememberMe ? REFRESH_TOKEN_EXPIRES_IN_REMEMBER : REFRESH_TOKEN_EXPIRES_IN_DEFAULT;
   const refreshExpiresAt = new Date(Date.now() + expiresInToMs(refreshExpiresIn));
 

@@ -37,5 +37,9 @@ export const authenticate = asyncHandler(async (req, res, next) => {
 
   req.user = { id: payload.sub, tenantId: tenant.id, roleId: payload.roleId, role: payload.role, branchId: payload.branchId };
   req.tenantId = tenant.id;
+  // Full tenant row (not just the id) — resolveTenant() already fetched it
+  // above, so this is free. Phase 2's requireActiveTrial.js and the
+  // GET /tenants/me endpoint read this directly instead of re-querying.
+  req.tenant = tenant;
   return next();
 });

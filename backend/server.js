@@ -3,6 +3,7 @@ import { env } from './config/env.js';
 import { testConnection } from './config/db.js';
 import { logger } from './config/logger.js';
 import { scheduleDailyBackup } from './jobs/backupJob.js';
+import { scheduleTrialExpirySweep } from './jobs/trialExpiryJob.js';
 import { ensureUploadDirs } from './middlewares/upload.js';
 
 async function start() {
@@ -20,6 +21,7 @@ async function start() {
     });
 
     scheduleDailyBackup();
+    scheduleTrialExpirySweep();
   } catch (err) {
     logger.error('Failed to start server', { message: err.message });
     process.exit(1);

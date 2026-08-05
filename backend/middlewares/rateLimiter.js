@@ -20,3 +20,13 @@ export const authLimiter = rateLimit({
   legacyHeaders: false,
   handler: limiterHandler,
 });
+
+// A spammed *tenant* is more consequential than a mistyped login — tighter
+// than authLimiter (5/hour vs. 10/15min).
+export const registrationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: limiterHandler,
+});

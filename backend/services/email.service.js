@@ -63,3 +63,19 @@ export function passwordResetEmail(resetUrl, locale = 'en') {
     `,
   };
 }
+
+// Fire-and-forget welcome email after self-registration (tenant.service.js).
+// Always English for now — the new tenant hasn't chosen a preferred_language
+// yet (that's set post-login, per the existing profile/settings flow), so
+// there's no locale to look up at this point.
+export function welcomeEmail(companyName, ownerFirstName, locale = 'en') {
+  return {
+    subject: t(locale, 'email.welcomeSubject'),
+    template: 'welcome',
+    html: `
+      <p>${t(locale, 'email.welcomeGreeting', { name: ownerFirstName })}</p>
+      <p>${t(locale, 'email.welcomeIntro', { companyName })}</p>
+      <p>${t(locale, 'email.welcomeTrial')}</p>
+    `,
+  };
+}

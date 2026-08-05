@@ -6,11 +6,13 @@ import MainLayout from '../layouts/MainLayout';
 import ErrorLayout from '../layouts/ErrorLayout';
 import ProtectedRoute from './ProtectedRoute';
 import RequirePermission from './RequirePermission';
+import HomeGate from './HomeGate';
 import { ROUTES } from '../constants/routes';
 
 // Route-level code splitting — every page below is its own chunk, fetched
 // on navigation instead of bloating the initial bundle. This is the pattern
 // every future phase's pages should follow.
+const Register = lazy(() => import('../pages/auth/Register'));
 const Login = lazy(() => import('../pages/auth/Login'));
 const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword'));
 const ResetPassword = lazy(() => import('../pages/auth/ResetPassword'));
@@ -70,8 +72,11 @@ function AppRouter() {
     <BrowserRouter>
       <Suspense fallback={<RouteFallback />}>
         <Routes>
+          <Route path={ROUTES.HOME} element={<HomeGate />} />
+
           <Route element={<AuthLayout />}>
             <Route path={ROUTES.LOGIN} element={<Login />} />
+            <Route path={ROUTES.REGISTER} element={<Register />} />
             <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
             <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
             <Route path={ROUTES.SESSION_EXPIRED} element={<SessionExpired />} />

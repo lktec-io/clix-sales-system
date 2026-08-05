@@ -50,17 +50,18 @@ export async function findAll({ tenantId, page = 1, limit = 20, search, status }
   return { rows, total: countRows[0].total };
 }
 
-export async function create(data) {
-  const [result] = await pool.query(
+export async function create(data, connection = pool) {
+  const [result] = await connection.query(
     `INSERT INTO branches (tenant_id, name, code, manager_id, phone, email, address, region, district, opening_date, status, created_by, updated_by)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.tenantId, data.name, data.code, data.managerId || null, data.phone || null, data.email || null,
       data.address || null, data.region || null, data.district || null, data.openingDate || null,
-      data.status || 'active', data.userId, data.userId,
+      data.status || 'active', data.userId || null, data.userId || null,
     ],
   );
-  return findById(result.insertId, data.tenantId);
+  const [rows] = await connection.query(`${BASE_SELECT} WHERE b.id = ? AND b.tenant_id = ? LIMIT 1`, [result.insertId, data.tenantId]);
+  return rows[0];
 }
 
 export async function update(id, tenantId, data) {

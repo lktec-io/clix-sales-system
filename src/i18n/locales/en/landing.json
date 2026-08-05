@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "login": "Log In",
+    "startTrial": "Start Free Trial"
+  },
+  "hero": {
+    "eyebrow": "Sales & Inventory, Simplified",
+    "title": "Run your entire business from one dashboard",
+    "subtitle": "Point of sale, inventory, purchases, expenses and reports — built for retailers and wholesalers across Tanzania. Set up in minutes, not weeks.",
+    "ctaPrimary": "Start Free Trial",
+    "ctaSecondary": "Log In",
+    "noCreditCard": "No credit card required · 14-day free trial",
+    "statBranches": "Multi-branch ready",
+    "statLanguages": "English & Kiswahili",
+    "statUptime": "Bank-grade security"
+  },
+  "features": {
+    "title": "Everything your business needs, built in",
+    "subtitle": "No plugins, no add-ons — one system that grows with you.",
+    "pos": { "title": "Point of Sale", "description": "Fast, offline-friendly checkout with receipts, split payments and barcode scanning." },
+    "inventory": { "title": "Inventory Control", "description": "Real-time stock levels across every branch, with low-stock alerts before you run out." },
+    "purchases": { "title": "Purchases & Suppliers", "description": "Track purchase orders, supplier payments and outstanding balances in one place." },
+    "reports": { "title": "Reports & Analytics", "description": "Sales, profit, expense and inventory reports — exportable to PDF, Excel and CSV." },
+    "multiBranch": { "title": "Multi-Branch", "description": "Manage unlimited branches with role-based access for every team member." },
+    "bilingual": { "title": "English & Kiswahili", "description": "The full system, receipts included, in the language your team is comfortable with." }
+  },
+  "pricing": {
+    "title": "Simple, transparent pricing",
+    "subtitle": "Start free. Upgrade when you're ready — no surprises.",
+    "trial": {
+      "name": "Free Trial",
+      "price": "TZS 0",
+      "period": "for 14 days",
+      "description": "Full access to every feature, no card required.",
+      "cta": "Start Free Trial",
+      "features": ["All features unlocked", "Unlimited products", "Up to 3 branches", "Email support"]
+    },
+    "growth": {
+      "name": "Growth",
+      "badge": "Most Popular",
+      "price": "Coming Soon",
+      "period": "per month",
+      "description": "For growing businesses ready to scale.",
+      "cta": "Start Free Trial",
+      "features": ["Everything in Free Trial", "Unlimited branches", "Priority support", "Advanced reports"]
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "price": "Custom",
+      "period": "contact us",
+      "description": "For large operations with custom needs.",
+      "cta": "Start Free Trial",
+      "features": ["Everything in Growth", "Dedicated account manager", "Custom integrations", "SLA guarantee"]
+    }
+  },
+  "testimonials": {
+    "title": "Trusted by businesses like yours",
+    "subtitle": "Join retailers and wholesalers already running on Clix.",
+    "placeholder1": { "quote": "Clix brought every branch onto one screen — stock, sales, and reports finally agree with each other.", "name": "Retail Owner", "role": "Electronics & Appliances" },
+    "placeholder2": { "quote": "Setup took an afternoon, not a month. Our cashiers were checking out customers the same day.", "name": "Store Manager", "role": "General Merchandise" },
+    "placeholder3": { "quote": "Having the system in Kiswahili made onboarding the whole team painless.", "name": "Operations Lead", "role": "Wholesale Distribution" }
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "q1": { "question": "Do I need a credit card to start?", "answer": "No. Your 14-day free trial starts immediately after registration — no payment details required." },
+    "q2": { "question": "What happens after my trial ends?", "answer": "You can still log in, view your dashboard, reports, profile and settings. Creating new sales, purchases, inventory changes, expenses and stock transfers is paused until you upgrade." },
+    "q3": { "question": "Can I use Clix for more than one branch?", "answer": "Yes — Clix is built for multi-branch businesses from day one, with role-based access per branch." },
+    "q4": { "question": "Is my data safe?", "answer": "Your business's data is fully isolated from every other company on Clix, with bank-grade encryption in transit." },
+    "q5": { "question": "Is Clix available in Kiswahili?", "answer": "Yes — the entire system, including receipts and reports, works in both English and Kiswahili." }
+  },
+  "footer": {
+    "tagline": "Sales & inventory management for growing businesses.",
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "rights": "All rights reserved."
+  }
+}

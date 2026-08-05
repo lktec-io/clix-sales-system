@@ -5,10 +5,14 @@ import { env } from '../config/env.js';
 import * as authService from '../services/auth.service.js';
 import * as userService from '../services/user.service.js';
 
-const REFRESH_COOKIE_NAME = 'refreshToken';
-const REFRESH_COOKIE_PATH = '/api/v1/auth';
+// Exported for reuse by tenant.controller.js — self-registration's
+// auto-login must set the identical refresh cookie shape login() does, so
+// the existing refresh-token flow (apiClient.js's interceptor, /auth/refresh)
+// keeps working unchanged for a session that started via registration.
+export const REFRESH_COOKIE_NAME = 'refreshToken';
+export const REFRESH_COOKIE_PATH = '/api/v1/auth';
 
-function setRefreshCookie(res, token, expiresAt) {
+export function setRefreshCookie(res, token, expiresAt) {
   res.cookie(REFRESH_COOKIE_NAME, token, {
     httpOnly: true,
     secure: env.isProduction,

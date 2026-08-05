@@ -1,4 +1,13 @@
 {
+  "trial": {
+    "title": "Jaribio la Bure",
+    "daysRemaining_one": "Siku {{count}} imebaki",
+    "daysRemaining_other": "Siku {{count}} zimebaki",
+    "expiredTitle": "Jaribio Limeisha",
+    "expiredMessage": "Jaribio lako limeisha. Boresha usajili wako ili kuendelea.",
+    "upgradePlan": "Boresha Mpango",
+    "upgradeComingSoon": "Uboreshaji unakuja hivi karibuni"
+  },
   "hero": {
     "goodMorning": "Habari za Asubuhi",
     "goodAfternoon": "Habari za Mchana",
