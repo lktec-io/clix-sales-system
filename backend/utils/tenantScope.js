@@ -1,3 +1,5 @@
+import { ApiError } from './apiError.js';
+
 // Centralized query-scope builder for tenant-owned tables — replaces the
 // branchFilter(branchIds) helper that used to be copy-pasted verbatim
 // across 8 repository files (sale, purchase, expense, inventory, return,
@@ -16,7 +18,11 @@
 //   - [...ids]   → IN (?) allowlist
 export function buildScope({ tenantId, tenantColumn = 'tenant_id', branchIds, branchColumn = 'branch_id' } = {}) {
   if (!tenantId) {
-    throw new Error('buildScope() requires a tenantId — every tenant-owned query must be scoped');
+    // ApiError, not a plain Error — resolveTenant()/generateCode() already
+    // fail closed the same way. A plain Error isn't `instanceof ApiError`,
+    // so backend/middlewares/errorHandler.js's catch-all would report it as
+    // an opaque 500 instead of a diagnosable 4xx.
+    throw new ApiError(400, 'buildScope() requires a tenantId — every tenant-owned query must be scoped');
   }
 
   const clauses = [`AND ${tenantColumn} = ?`];

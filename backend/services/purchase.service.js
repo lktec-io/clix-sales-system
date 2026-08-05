@@ -58,10 +58,11 @@ export async function createPurchase(data, actorId, tenantId) {
   const totalAmount = data.items.reduce((sum, item) => sum + item.quantity * item.buyingPrice, 0);
 
   const connection = await pool.getConnection();
+  let orderId;
   try {
     await connection.beginTransaction();
 
-    const orderId = await purchaseRepository.createOrder(
+    orderId = await purchaseRepository.createOrder(
       { tenantId, purchaseNumber, supplierId: data.supplierId, branchId: data.branchId, totalAmount, userId: actorId },
       connection,
     );
@@ -89,32 +90,37 @@ export async function createPurchase(data, actorId, tenantId) {
     }
 
     await connection.commit();
-
-    await activityLogRepository.create({
-      tenantId,
-      userId: actorId,
-      branchId: data.branchId,
-      description: `Purchase "${purchaseNumber}" received from "${supplier.name}"`,
-      referenceType: 'purchase_order',
-      referenceId: orderId,
-    });
-
-    await notificationRepository.notifyBranchManagement(tenantId, data.branchId, {
-      type: 'success',
-      category: 'purchase_completed',
-      title: 'Purchase received',
-      message: `Purchase "${purchaseNumber}" (${formatCurrency(totalAmount)}) received from "${supplier.name}" at "${branch.name}"`,
-      referenceType: 'purchase_order',
-      referenceId: orderId,
-    });
-
-    return purchaseRepository.findById(orderId, tenantId);
   } catch (err) {
     await connection.rollback();
     throw err;
   } finally {
     connection.release();
   }
+
+  // Deliberately outside the transaction's try/catch/finally above — the
+  // purchase itself already committed by this point. A failure writing the
+  // activity feed, firing a notification, or re-reading the row for the
+  // response must never call rollback() on an already-committed connection,
+  // and must never report an already-successful purchase as a failure.
+  await activityLogRepository.create({
+    tenantId,
+    userId: actorId,
+    branchId: data.branchId,
+    description: `Purchase "${purchaseNumber}" received from "${supplier.name}"`,
+    referenceType: 'purchase_order',
+    referenceId: orderId,
+  });
+
+  await notificationRepository.notifyBranchManagement(tenantId, data.branchId, {
+    type: 'success',
+    category: 'purchase_completed',
+    title: 'Purchase received',
+    message: `Purchase "${purchaseNumber}" (${formatCurrency(totalAmount)}) received from "${supplier.name}" at "${branch.name}"`,
+    referenceType: 'purchase_order',
+    referenceId: orderId,
+  });
+
+  return purchaseRepository.findById(orderId, tenantId);
 }
 
 export async function addPayment(data, actorId, tenantId) {
