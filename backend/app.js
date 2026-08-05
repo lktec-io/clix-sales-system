@@ -8,6 +8,7 @@ import { corsOptions } from './config/cors.js';
 import { apiLimiter } from './middlewares/rateLimiter.js';
 import { notFoundHandler, errorHandler } from './middlewares/errorHandler.js';
 import routes from './routes/index.js';
+import platformRoutes from './routes/platform/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -26,6 +27,10 @@ app.use(cookieParser());
 app.use('/api/v1', apiLimiter);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Mounted separately from the tenant router tree (routes/index.js), which
+// this phase never opens — the platform portal is a fully independent
+// route surface, distinguished at the Express layer, not just by JWT.
+app.use('/api/v1/platform', platformRoutes);
 app.use('/api/v1', routes);
 
 app.use(notFoundHandler);

@@ -4,10 +4,13 @@ import { useTranslation } from 'react-i18next';
 import AuthLayout from '../layouts/AuthLayout';
 import MainLayout from '../layouts/MainLayout';
 import ErrorLayout from '../layouts/ErrorLayout';
+import PlatformAuthLayout from '../layouts/PlatformAuthLayout';
+import PlatformLayout from '../layouts/PlatformLayout';
 import ProtectedRoute from './ProtectedRoute';
+import PlatformProtectedRoute from './PlatformProtectedRoute';
 import RequirePermission from './RequirePermission';
 import HomeGate from './HomeGate';
-import { ROUTES } from '../constants/routes';
+import { ROUTES, PLATFORM_ROUTES } from '../constants/routes';
 
 // Route-level code splitting — every page below is its own chunk, fetched
 // on navigation instead of bloating the initial bundle. This is the pattern
@@ -49,6 +52,17 @@ const ExpenseCategorySettings = lazy(() => import('../pages/settings/ExpenseCate
 const Profile = lazy(() => import('../pages/profile/Profile'));
 const NotFound404 = lazy(() => import('../pages/errors/NotFound404'));
 const Forbidden403 = lazy(() => import('../pages/errors/Forbidden403'));
+
+// Phase 3 — Clix SaaS Owner Portal. Fully separate lazy chunks from every
+// tenant page above; PlatformProtectedRoute/PlatformAuthLayout never
+// import anything tenant-specific (useAuth, useCompany, ROUTES).
+const PlatformLogin = lazy(() => import('../pages/platform/auth/PlatformLogin'));
+const PlatformDashboard = lazy(() => import('../pages/platform/dashboard/PlatformDashboard'));
+const TenantList = lazy(() => import('../pages/platform/tenants/TenantList'));
+const TenantDetail = lazy(() => import('../pages/platform/tenants/TenantDetail'));
+const AuditLog = lazy(() => import('../pages/platform/audit/AuditLog'));
+const PlatformNotifications = lazy(() => import('../pages/platform/notifications/PlatformNotifications'));
+const PlatformSettings = lazy(() => import('../pages/platform/settings/PlatformSettings'));
 
 function RouteFallback() {
   const { t } = useTranslation('common');
@@ -128,6 +142,21 @@ function AppRouter() {
               <Route path="/returns/:id" element={<RequirePermission permission="returns.view"><ReturnDetail /></RequirePermission>} />
               <Route path="/expenses" element={<RequirePermission permission="expenses.view"><ExpenseList /></RequirePermission>} />
               <Route path="/reports" element={<RequirePermission permission="reports.view"><ReportsCenter /></RequirePermission>} />
+            </Route>
+          </Route>
+
+          <Route element={<PlatformAuthLayout />}>
+            <Route path={PLATFORM_ROUTES.LOGIN} element={<PlatformLogin />} />
+          </Route>
+
+          <Route element={<PlatformProtectedRoute />}>
+            <Route element={<PlatformLayout />}>
+              <Route path={PLATFORM_ROUTES.DASHBOARD} element={<PlatformDashboard />} />
+              <Route path={PLATFORM_ROUTES.TENANTS} element={<TenantList />} />
+              <Route path={`${PLATFORM_ROUTES.TENANTS}/:id`} element={<TenantDetail />} />
+              <Route path={PLATFORM_ROUTES.AUDIT_LOG} element={<AuditLog />} />
+              <Route path={PLATFORM_ROUTES.NOTIFICATIONS} element={<PlatformNotifications />} />
+              <Route path={PLATFORM_ROUTES.SETTINGS} element={<PlatformSettings />} />
             </Route>
           </Route>
 

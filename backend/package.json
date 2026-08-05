@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "lint": "eslint .",
-    "seed:admin": "node database/seeders/create-admin.js"
+    "seed:admin": "node database/seeders/create-admin.js",
+    "seed:platform-admin": "node database/seeders/create-platform-admin.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

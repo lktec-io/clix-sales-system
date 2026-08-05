@@ -51,7 +51,7 @@ const NAV_LABEL_VARIANT = {
 function useNavItems() {
   const { t } = useTranslation('sidebar');
   return [
-    { to: '/', label: t('nav.dashboard'), icon: FiGrid, end: true },
+    { to: ROUTES.DASHBOARD, label: t('nav.dashboard'), icon: FiGrid, end: true },
     { to: '/customers', label: t('nav.customers'), icon: FiUserCheck, requiredPermission: 'customers.view' },
     { to: '/suppliers', label: t('nav.suppliers'), icon: FiTruck, requiredPermission: 'suppliers.view' },
     { to: '/products', label: t('nav.products'), icon: FiBox, requiredPermission: 'products.view' },

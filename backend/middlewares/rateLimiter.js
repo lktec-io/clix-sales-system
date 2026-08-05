@@ -30,3 +30,14 @@ export const registrationLimiter = rateLimit({
   legacyHeaders: false,
   handler: limiterHandler,
 });
+
+// Platform admin login — small, known population, so this is purely
+// brute-force protection (same shape as authLimiter), layered on top of
+// platform_admins' own per-account failed-attempt lockout.
+export const platformAuthLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: limiterHandler,
+});

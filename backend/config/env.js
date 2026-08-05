@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import crypto from 'crypto';
 
 const REQUIRED_VARS = [
   'NODE_ENV',
@@ -22,6 +23,34 @@ function requireEnv() {
 
 requireEnv();
 
+// Platform-admin JWTs need a signing secret genuinely distinct from the
+// tenant JWT_ACCESS_SECRET/JWT_REFRESH_SECRET, so a tenant token can never
+// verify against the platform's verify function (or vice versa) — see
+// backend/middlewares/authenticatePlatform.js. Adding two more *required*
+// env vars would make this app fail to boot on every existing deployment
+// the moment this code ships, until .env is updated there first — a real
+// outage risk for a production system with live tenants, for a portal only
+// the platform owner uses. Optional overrides (JWT_PLATFORM_ACCESS_SECRET/
+// JWT_PLATFORM_REFRESH_SECRET) let an operator set fully independent
+// secrets whenever convenient; until then, a deterministic HMAC-derived
+// fallback (one-way — a tenant secret can't be recovered from it, and it
+// can't be used to forge a tenant token) keeps the two token spaces
+// cryptographically separate with zero deploy risk.
+function derivePlatformSecret(label) {
+  return crypto.createHmac('sha256', process.env.JWT_ACCESS_SECRET).update(label).digest('hex');
+}
+
+const platformAccessSecret = process.env.JWT_PLATFORM_ACCESS_SECRET || derivePlatformSecret('platform-access-v1');
+const platformRefreshSecret = process.env.JWT_PLATFORM_REFRESH_SECRET || derivePlatformSecret('platform-refresh-v1');
+
+if (!process.env.JWT_PLATFORM_ACCESS_SECRET || !process.env.JWT_PLATFORM_REFRESH_SECRET) {
+  // config/logger.js imports this file, so it can't be used here without a cycle
+  console.warn(
+    '[env] JWT_PLATFORM_ACCESS_SECRET/JWT_PLATFORM_REFRESH_SECRET not set — deriving platform JWT secrets from JWT_ACCESS_SECRET. '
+    + 'Set both explicitly in production for fully independent platform-admin signing keys.',
+  );
+}
+
 export const env = {
   nodeEnv: process.env.NODE_ENV,
   isProduction: process.env.NODE_ENV === 'production',
@@ -41,6 +70,10 @@ export const env = {
     accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
     refreshExpiresInShort: process.env.JWT_REFRESH_EXPIRES_IN_SHORT || '1d',
+    platformAccessSecret,
+    platformRefreshSecret,
+    platformAccessExpiresIn: process.env.JWT_PLATFORM_ACCESS_EXPIRES_IN || '15m',
+    platformRefreshExpiresIn: process.env.JWT_PLATFORM_REFRESH_EXPIRES_IN || '7d',
   },
 
   frontendUrl: process.env.FRONTEND_URL,
