@@ -10,6 +10,9 @@ import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import PageSkeleton from '../../../components/common/PageSkeleton';
 import { useTable } from '../../../hooks/useTable';
 import * as platformTenantService from '../../../services/platformTenantService';
+import * as platformSubscriptionService from '../../../services/platformSubscriptionService';
+import * as platformPlanService from '../../../services/platformPlanService';
+import { formatCurrency } from '../../../utils/formatCurrency';
 import { PLATFORM_ROUTES } from '../../../constants/routes';
 import '../../../styles/pages/PlatformTenantDetail.css';
 
@@ -17,6 +20,11 @@ const TRIAL_ACTION_LABELS = {
   extend: 'Extend Trial',
   reduce: 'Reduce Trial',
   reset: 'Reset Trial',
+};
+
+const BILLING_ACTION_LABELS = {
+  upgrade: 'Upgrade Plan',
+  downgrade: 'Downgrade Plan',
 };
 
 function daysRemainingUntil(trialEndsAt) {
@@ -34,6 +42,17 @@ function TenantDetail() {
   const [trialModal, setTrialModal] = useState(null); // 'extend' | 'reduce' | 'reset' | null
   const [pendingConfirm, setPendingConfirm] = useState(null); // 'suspend' | 'activate' | 'activate-subscription' | 'expire' | null
 
+  // Phase 4 — Subscription & Billing card. Loaded via its own effect/state,
+  // separate from `detail` above (a different endpoint, a different table)
+  // rather than folded into the existing load() — keeps Phase 3's own
+  // tenant-detail fetch completely unchanged.
+  const [subscription, setSubscription] = useState(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+  const [plans, setPlans] = useState([]);
+  const [billingActionModal, setBillingActionModal] = useState(null); // 'upgrade' | 'downgrade' | null
+  const [billingPendingConfirm, setBillingPendingConfirm] = useState(null); // 'renew' | 'cancel' | 'resume' | null
+  const [billingError, setBillingError] = useState('');
+
   const fetchUsers = useCallback((params) => platformTenantService.listTenantUsers(id, params), [id]);
   const usersTable = useTable(fetchUsers);
 
@@ -43,6 +62,13 @@ function TenantDetail() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm({ defaultValues: { days: 14, reason: '' } });
+
+  const {
+    register: registerBilling,
+    handleSubmit: handleSubmitBilling,
+    reset: resetBilling,
+    formState: { errors: billingErrors, isSubmitting: billingSubmitting },
+  } = useForm({ defaultValues: { planId: '', billingCycle: 'monthly' } });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -57,10 +83,28 @@ function TenantDetail() {
     }
   }, [id]);
 
+  const loadBilling = useCallback(async () => {
+    setSubscriptionLoading(true);
+    try {
+      const [subscriptionResult, plansResult] = await Promise.all([
+        platformSubscriptionService.getSubscription(id),
+        platformPlanService.listPlans(),
+      ]);
+      setSubscription(subscriptionResult);
+      setPlans(plansResult.filter((plan) => plan.is_active));
+    } catch {
+      // Subscription is an additive card — a failure here never blocks the
+      // rest of the (Phase 3) tenant detail page from rendering.
+    } finally {
+      setSubscriptionLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
-  }, [load]);
+    loadBilling();
+  }, [load, loadBilling]);
 
   if (loading || !detail) return error ? <div className="alert alert-danger">{error}</div> : <PageSkeleton />;
 
@@ -91,6 +135,32 @@ function TenantDetail() {
       await load();
     } catch (err) {
       setActionError(err.response?.data?.message || 'Action failed.');
+    }
+  };
+
+  const runBillingConfirmedAction = async () => {
+    setBillingError('');
+    try {
+      if (billingPendingConfirm === 'renew') await platformSubscriptionService.renewSubscription(id);
+      else if (billingPendingConfirm === 'cancel') await platformSubscriptionService.cancelSubscription(id);
+      else if (billingPendingConfirm === 'resume') await platformSubscriptionService.resumeSubscription(id);
+      await loadBilling();
+    } catch (err) {
+      setBillingError(err.response?.data?.message || 'Action failed.');
+    }
+  };
+
+  const onSubmitBillingModal = async (values) => {
+    setBillingError('');
+    try {
+      const planId = Number(values.planId);
+      if (billingActionModal === 'upgrade') await platformSubscriptionService.upgradePlan(id, planId, values.billingCycle);
+      else if (billingActionModal === 'downgrade') await platformSubscriptionService.downgradePlan(id, planId, values.billingCycle);
+      setBillingActionModal(null);
+      resetBilling({ planId: '', billingCycle: 'monthly' });
+      await loadBilling();
+    } catch (err) {
+      setBillingError(err.response?.data?.message || 'Action failed.');
     }
   };
 
@@ -183,6 +253,50 @@ function TenantDetail() {
             <button type="button" className="btn btn-secondary" onClick={() => setPendingConfirm('activate-subscription')}>Activate Subscription</button>
             <button type="button" className="btn btn-danger" onClick={() => setPendingConfirm('expire')}>Expire Immediately</button>
           </div>
+        </div>
+      </div>
+
+      <div className="card mt-5">
+        <div className="card-header"><span className="card-title">Subscription &amp; Billing</span></div>
+        <div className="card-body">
+          {billingError && <div className="alert alert-danger mb-4" role="alert">{billingError}</div>}
+          {subscriptionLoading ? (
+            <p className="text-sm text-secondary">Loading…</p>
+          ) : !subscription ? (
+            <p className="text-sm text-secondary">No billing subscription record yet.</p>
+          ) : (
+            <>
+              <dl className="platform-detail-list mb-4">
+                <div><dt>Plan</dt><dd>{subscription.planName}</dd></div>
+                <div><dt>Price</dt><dd>{(() => {
+                  const currentPlan = plans.find((plan) => plan.id === subscription.planId);
+                  const price = currentPlan?.[`price_${subscription.billingCycle}`];
+                  return price !== undefined ? formatCurrency(price, currentPlan.currency) : '—';
+                })()}</dd></div>
+                <div><dt>Status</dt><dd>{subscription.status}</dd></div>
+                <div><dt>Billing Cycle</dt><dd>{subscription.billingCycle}</dd></div>
+                <div><dt>Renewal Date</dt><dd>{subscription.renewalDate ? new Date(subscription.renewalDate).toLocaleDateString() : '—'}</dd></div>
+                <div><dt>Auto Renew</dt><dd>{subscription.autoRenew ? 'Yes' : 'No'}</dd></div>
+                <div><dt>Trial Converted</dt><dd>{subscription.trialConvertedAt ? new Date(subscription.trialConvertedAt).toLocaleDateString() : '—'}</dd></div>
+                {subscription.status === 'cancelled' && (
+                  <div><dt>Cancellation Reason</dt><dd>{subscription.cancellationReason || '—'}</dd></div>
+                )}
+                {subscription.status === 'grace_period' && (
+                  <div><dt>Grace Period Ends</dt><dd>{subscription.gracePeriodEndsAt ? new Date(subscription.gracePeriodEndsAt).toLocaleDateString() : '—'}</dd></div>
+                )}
+              </dl>
+              <div className="flex gap-2" style={{ flexWrap: 'wrap' }}>
+                <button type="button" className="btn btn-secondary" onClick={() => { resetBilling({ planId: '', billingCycle: subscription.billingCycle }); setBillingActionModal('upgrade'); }}>Upgrade Plan</button>
+                <button type="button" className="btn btn-secondary" onClick={() => { resetBilling({ planId: '', billingCycle: subscription.billingCycle }); setBillingActionModal('downgrade'); }}>Downgrade Plan</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setBillingPendingConfirm('renew')}>Renew</button>
+                {subscription.status === 'cancelled' ? (
+                  <button type="button" className="btn btn-primary" onClick={() => setBillingPendingConfirm('resume')}>Resume</button>
+                ) : (
+                  <button type="button" className="btn btn-danger" onClick={() => setBillingPendingConfirm('cancel')}>Cancel Subscription</button>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -286,6 +400,72 @@ function TenantDetail() {
         message={`"${tenant.company_name}" will immediately lose access to create new sales, purchases, inventory changes, expenses, and stock transfers.`}
         confirmLabel="Expire Now"
         variant="danger"
+      />
+
+      <Modal
+        open={Boolean(billingActionModal)}
+        onClose={() => setBillingActionModal(null)}
+        title={billingActionModal ? BILLING_ACTION_LABELS[billingActionModal] : ''}
+        size="sm"
+        footer={
+          <>
+            <button type="button" className="btn btn-secondary" onClick={() => setBillingActionModal(null)}>Cancel</button>
+            <button type="submit" form="billing-action-form" className={`btn btn-primary ${billingSubmitting ? 'btn-loading' : ''}`} disabled={billingSubmitting}>
+              Confirm
+            </button>
+          </>
+        }
+      >
+        <form id="billing-action-form" onSubmit={handleSubmitBilling(onSubmitBillingModal)} noValidate>
+          <div className="form-group">
+            <label className="form-label form-label-required" htmlFor="planId">Plan</label>
+            <select
+              id="planId"
+              className={`form-control ${billingErrors.planId ? 'form-control-error' : ''}`}
+              {...registerBilling('planId', { required: true })}
+            >
+              <option value="">Select a plan…</option>
+              {plans.map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}
+            </select>
+            {billingErrors.planId && <span className="form-error">Select a plan</span>}
+          </div>
+          <div className="form-group">
+            <label className="form-label form-label-required" htmlFor="billingCycle">Billing Cycle</label>
+            <select id="billingCycle" className="form-control" {...registerBilling('billingCycle', { required: true })}>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+        </form>
+      </Modal>
+
+      <ConfirmDialog
+        open={billingPendingConfirm === 'renew'}
+        onClose={() => setBillingPendingConfirm(null)}
+        onConfirm={runBillingConfirmedAction}
+        title="Renew subscription"
+        message={`Renew "${tenant.company_name}"'s subscription for one more billing cycle and generate an invoice?`}
+        confirmLabel="Renew"
+        variant="primary"
+      />
+      <ConfirmDialog
+        open={billingPendingConfirm === 'cancel'}
+        onClose={() => setBillingPendingConfirm(null)}
+        onConfirm={runBillingConfirmedAction}
+        title="Cancel subscription"
+        message={`Cancel "${tenant.company_name}"'s subscription? Auto-renewal will be turned off.`}
+        confirmLabel="Cancel Subscription"
+        variant="danger"
+      />
+      <ConfirmDialog
+        open={billingPendingConfirm === 'resume'}
+        onClose={() => setBillingPendingConfirm(null)}
+        onConfirm={runBillingConfirmedAction}
+        title="Resume subscription"
+        message={`Resume "${tenant.company_name}"'s cancelled subscription?`}
+        confirmLabel="Resume"
+        variant="primary"
       />
     </div>
   );

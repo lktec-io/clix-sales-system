@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   FiGrid, FiUserCheck, FiTruck,
   FiBox, FiArchive, FiShoppingCart, FiDollarSign, FiRotateCcw,
-  FiBarChart2, FiSettings, FiLogOut,
+  FiBarChart2, FiCreditCard, FiSettings, FiLogOut,
   FiChevronsLeft, FiChevronsRight,
 } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
@@ -61,6 +61,9 @@ function useNavItems() {
     { to: '/returns', label: t('nav.returns'), icon: FiRotateCcw, requiredPermission: 'returns.view' },
     { to: '/expenses', label: t('nav.expenses'), icon: FiDollarSign, requiredPermission: 'expenses.view' },
     { to: '/reports', label: t('nav.reports'), icon: FiBarChart2, requiredPermission: 'reports.view' },
+    // Billing is a company-level concern, same gate as Settings/Company —
+    // no new permission code introduced for Phase 4.
+    { to: ROUTES.BILLING, label: t('nav.billing'), icon: FiCreditCard, requiredPermission: 'company.manage' },
     { to: '/settings/company', label: t('nav.settings'), icon: FiSettings, requiredPermission: ['company.manage', 'settings.view'] },
   ];
 }

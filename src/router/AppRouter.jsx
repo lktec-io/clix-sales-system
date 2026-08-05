@@ -47,6 +47,8 @@ const ReturnForm = lazy(() => import('../pages/returns/ReturnForm'));
 const ReturnDetail = lazy(() => import('../pages/returns/ReturnDetail'));
 const ExpenseList = lazy(() => import('../pages/expenses/ExpenseList'));
 const ReportsCenter = lazy(() => import('../pages/reports/ReportsCenter'));
+const BillingOverview = lazy(() => import('../pages/billing/BillingOverview'));
+const InvoiceDetail = lazy(() => import('../pages/billing/InvoiceDetail'));
 const SystemSettings = lazy(() => import('../pages/settings/SystemSettings'));
 const ExpenseCategorySettings = lazy(() => import('../pages/settings/ExpenseCategorySettings'));
 const Profile = lazy(() => import('../pages/profile/Profile'));
@@ -63,6 +65,8 @@ const TenantDetail = lazy(() => import('../pages/platform/tenants/TenantDetail')
 const AuditLog = lazy(() => import('../pages/platform/audit/AuditLog'));
 const PlatformNotifications = lazy(() => import('../pages/platform/notifications/PlatformNotifications'));
 const PlatformSettings = lazy(() => import('../pages/platform/settings/PlatformSettings'));
+const PlanList = lazy(() => import('../pages/platform/plans/PlanList'));
+const BillingDashboard = lazy(() => import('../pages/platform/billing/BillingDashboard'));
 
 function RouteFallback() {
   const { t } = useTranslation('common');
@@ -142,6 +146,8 @@ function AppRouter() {
               <Route path="/returns/:id" element={<RequirePermission permission="returns.view"><ReturnDetail /></RequirePermission>} />
               <Route path="/expenses" element={<RequirePermission permission="expenses.view"><ExpenseList /></RequirePermission>} />
               <Route path="/reports" element={<RequirePermission permission="reports.view"><ReportsCenter /></RequirePermission>} />
+              <Route path={ROUTES.BILLING} element={<RequirePermission permission="company.manage"><BillingOverview /></RequirePermission>} />
+              <Route path={ROUTES.BILLING_INVOICE} element={<RequirePermission permission="company.manage"><InvoiceDetail /></RequirePermission>} />
             </Route>
           </Route>
 
@@ -157,6 +163,8 @@ function AppRouter() {
               <Route path={PLATFORM_ROUTES.AUDIT_LOG} element={<AuditLog />} />
               <Route path={PLATFORM_ROUTES.NOTIFICATIONS} element={<PlatformNotifications />} />
               <Route path={PLATFORM_ROUTES.SETTINGS} element={<PlatformSettings />} />
+              <Route path={PLATFORM_ROUTES.PLANS} element={<PlanList />} />
+              <Route path={PLATFORM_ROUTES.BILLING} element={<BillingDashboard />} />
             </Route>
           </Route>
 

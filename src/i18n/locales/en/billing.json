@@ -1,0 +1,70 @@
+{
+  "card": {
+    "title": "{{plan}} Plan",
+    "daysRemaining_one": "{{count}} day left",
+    "daysRemaining_other": "{{count}} days left",
+    "status": "Status: {{status}}",
+    "viewBilling": "View Billing",
+    "upgradePlan": "Upgrade Plan",
+    "upgradeComingSoon": "Upgrades are coming soon"
+  },
+  "status": {
+    "trial": "Trial",
+    "active": "Active",
+    "expired": "Expired",
+    "suspended": "Suspended",
+    "cancelled": "Cancelled",
+    "pending_payment": "Pending Payment",
+    "grace_period": "Grace Period"
+  },
+  "overview": {
+    "title": "Billing",
+    "subtitle": "Your subscription, invoices, and billing history.",
+    "currentPlan": "Current Plan",
+    "subscriptionStatus": "Subscription Status",
+    "renewalDate": "Renewal Date",
+    "daysRemaining": "Days Remaining",
+    "billingCycle": "Billing Cycle",
+    "upgradePlan": "Upgrade Plan",
+    "upgradeComingSoon": "Upgrades are coming soon — payment support is on the way.",
+    "availablePlans": "Available Plans",
+    "recommended": "Recommended",
+    "perMonth": "/ month",
+    "perQuarter": "/ quarter",
+    "perYear": "/ year",
+    "invoices": "Invoices",
+    "billingHistory": "Billing History",
+    "noInvoices": "No invoices yet.",
+    "noHistory": "No billing history yet.",
+    "columns": {
+      "invoiceNumber": "Invoice Number",
+      "plan": "Plan",
+      "period": "Period",
+      "total": "Total",
+      "status": "Status",
+      "issueDate": "Issue Date",
+      "event": "Event",
+      "date": "Date"
+    },
+    "viewInvoice": "View"
+  },
+  "invoice": {
+    "title": "Invoice",
+    "downloadPdf": "Download PDF",
+    "billingPeriod": "Billing Period",
+    "issueDate": "Issue Date",
+    "dueDate": "Due Date",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "discount": "Discount",
+    "total": "Total",
+    "paymentStatus": "Payment Status"
+  },
+  "paymentStatus": {
+    "pending": "Pending",
+    "paid": "Paid",
+    "failed": "Failed",
+    "void": "Void",
+    "refunded": "Refunded"
+  }
+}

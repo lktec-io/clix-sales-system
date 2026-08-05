@@ -1,0 +1,41 @@
+.invoice-detail-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-4);
+  margin: 0 0 var(--space-5);
+}
+
+.invoice-detail-list dt {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.invoice-detail-list dd {
+  font-weight: var(--font-weight-semibold);
+  margin: 2px 0 0;
+}
+
+.invoice-detail-totals {
+  max-width: 320px;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.invoice-detail-totals > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.invoice-detail-total {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-2);
+  font-size: var(--font-size-md) !important;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text) !important;
+}

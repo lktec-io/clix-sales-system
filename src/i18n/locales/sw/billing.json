@@ -1,0 +1,70 @@
+{
+  "card": {
+    "title": "Mpango wa {{plan}}",
+    "daysRemaining_one": "Siku {{count}} iliyobaki",
+    "daysRemaining_other": "Siku {{count}} zilizobaki",
+    "status": "Hali: {{status}}",
+    "viewBilling": "Angalia Malipo",
+    "upgradePlan": "Boresha Mpango",
+    "upgradeComingSoon": "Uboreshaji unakuja hivi karibuni"
+  },
+  "status": {
+    "trial": "Jaribio",
+    "active": "Inatumika",
+    "expired": "Imeisha",
+    "suspended": "Imesimamishwa",
+    "cancelled": "Imeghairiwa",
+    "pending_payment": "Inasubiri Malipo",
+    "grace_period": "Muda wa Neema"
+  },
+  "overview": {
+    "title": "Malipo",
+    "subtitle": "Usajili wako, ankara, na historia ya malipo.",
+    "currentPlan": "Mpango wa Sasa",
+    "subscriptionStatus": "Hali ya Usajili",
+    "renewalDate": "Tarehe ya Kuhuisha",
+    "daysRemaining": "Siku Zilizobaki",
+    "billingCycle": "Mzunguko wa Malipo",
+    "upgradePlan": "Boresha Mpango",
+    "upgradeComingSoon": "Uboreshaji unakuja hivi karibuni — usaidizi wa malipo unakuja.",
+    "availablePlans": "Mipango Inayopatikana",
+    "recommended": "Inapendekezwa",
+    "perMonth": "/ mwezi",
+    "perQuarter": "/ robo mwaka",
+    "perYear": "/ mwaka",
+    "invoices": "Ankara",
+    "billingHistory": "Historia ya Malipo",
+    "noInvoices": "Hakuna ankara bado.",
+    "noHistory": "Hakuna historia ya malipo bado.",
+    "columns": {
+      "invoiceNumber": "Namba ya Ankara",
+      "plan": "Mpango",
+      "period": "Kipindi",
+      "total": "Jumla",
+      "status": "Hali",
+      "issueDate": "Tarehe ya Kutolewa",
+      "event": "Tukio",
+      "date": "Tarehe"
+    },
+    "viewInvoice": "Angalia"
+  },
+  "invoice": {
+    "title": "Ankara",
+    "downloadPdf": "Pakua PDF",
+    "billingPeriod": "Kipindi cha Malipo",
+    "issueDate": "Tarehe ya Kutolewa",
+    "dueDate": "Tarehe ya Mwisho",
+    "subtotal": "Jumla Ndogo",
+    "tax": "Kodi",
+    "discount": "Punguzo",
+    "total": "Jumla",
+    "paymentStatus": "Hali ya Malipo"
+  },
+  "paymentStatus": {
+    "pending": "Inasubiri",
+    "paid": "Imelipwa",
+    "failed": "Imeshindwa",
+    "void": "Batili",
+    "refunded": "Imerejeshwa"
+  }
+}

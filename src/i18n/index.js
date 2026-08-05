@@ -27,6 +27,7 @@ import settingsEn from './locales/en/settings.json';
 import profileEn from './locales/en/profile.json';
 import notificationsEn from './locales/en/notifications.json';
 import errorsEn from './locales/en/errors.json';
+import billingEn from './locales/en/billing.json';
 
 import commonSw from './locales/sw/common.json';
 import sidebarSw from './locales/sw/sidebar.json';
@@ -48,6 +49,7 @@ import settingsSw from './locales/sw/settings.json';
 import profileSw from './locales/sw/profile.json';
 import notificationsSw from './locales/sw/notifications.json';
 import errorsSw from './locales/sw/errors.json';
+import billingSw from './locales/sw/billing.json';
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -62,7 +64,7 @@ export const DEFAULT_LANGUAGE = 'en';
 export const NAMESPACES = [
   'common', 'sidebar', 'navbar', 'auth', 'landing', 'register', 'dashboard', 'products', 'inventory',
   'suppliers', 'purchases', 'customers', 'sales', 'returns', 'expenses',
-  'reports', 'settings', 'profile', 'notifications', 'errors',
+  'reports', 'settings', 'profile', 'notifications', 'errors', 'billing',
 ];
 
 i18n.use(initReactI18next).init({
@@ -73,7 +75,7 @@ i18n.use(initReactI18next).init({
       purchases: purchasesEn, customers: customersEn, sales: salesEn,
       returns: returnsEn, expenses: expensesEn, reports: reportsEn,
       settings: settingsEn, profile: profileEn, notifications: notificationsEn,
-      errors: errorsEn,
+      errors: errorsEn, billing: billingEn,
     },
     sw: {
       common: commonSw, sidebar: sidebarSw, navbar: navbarSw, auth: authSw, landing: landingSw, register: registerSw, dashboard: dashboardSw,
@@ -81,7 +83,7 @@ i18n.use(initReactI18next).init({
       purchases: purchasesSw, customers: customersSw, sales: salesSw,
       returns: returnsSw, expenses: expensesSw, reports: reportsSw,
       settings: settingsSw, profile: profileSw, notifications: notificationsSw,
-      errors: errorsSw,
+      errors: errorsSw, billing: billingSw,
     },
   },
   lng: DEFAULT_LANGUAGE,

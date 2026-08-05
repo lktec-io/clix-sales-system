@@ -6,6 +6,7 @@ import KPICard from '../../components/dashboard/KPICard';
 import ChartCard from '../../components/dashboard/ChartCard';
 import DashboardHero from '../../components/dashboard/DashboardHero';
 import TrialCard from '../../components/dashboard/TrialCard';
+import SubscriptionCard from '../../components/dashboard/SubscriptionCard';
 import QuickActions from '../../components/dashboard/QuickActions';
 import SalesTrendCard from '../../components/dashboard/SalesTrendCard';
 import TopProductsCard from '../../components/dashboard/TopProductsCard';
@@ -133,6 +134,10 @@ function Dashboard() {
       <motion.div variants={STAGGER_CONTAINER} initial="hidden" animate="show">
         <motion.div variants={STAGGER_ITEM}>
           <TrialCard />
+        </motion.div>
+
+        <motion.div variants={STAGGER_ITEM}>
+          <SubscriptionCard />
         </motion.div>
 
         <motion.div className="kpi-grid" variants={KPI_CARD_STAGGER}>

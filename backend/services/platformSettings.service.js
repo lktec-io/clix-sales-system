@@ -10,6 +10,9 @@ const DEFAULTS = {
   // explicitly out of scope for this phase). See the Phase 3 plan/report.
   maintenance_mode: 'false',
   platform_announcement: '',
+  // Phase 4 — how many days a subscription stays in 'grace_period' after
+  // its end_date passes before subscriptionLifecycleJob.js expires it.
+  grace_period_default_days: '7',
 };
 
 export async function getSettings() {
@@ -23,6 +26,7 @@ export async function getSettings() {
     trialDurationDefaultDays: Number(map.get('trial_duration_default_days') ?? DEFAULTS.trial_duration_default_days),
     maintenanceMode: (map.get('maintenance_mode') ?? DEFAULTS.maintenance_mode) === 'true',
     platformAnnouncement: map.get('platform_announcement') ?? DEFAULTS.platform_announcement,
+    gracePeriodDefaultDays: Number(map.get('grace_period_default_days') ?? DEFAULTS.grace_period_default_days),
   };
 }
 
@@ -33,6 +37,14 @@ export async function getTrialDurationDefaultDays() {
   return settings.trialDurationDefaultDays;
 }
 
+// Used internally by subscriptionLifecycle.service.js's
+// sweepLifecycleTransitions() — same narrow-read pattern as
+// getTrialDurationDefaultDays() above.
+export async function getGracePeriodDefaultDays() {
+  const settings = await getSettings();
+  return settings.gracePeriodDefaultDays;
+}
+
 export async function updateSettings(data, platformAdminId) {
   await platformSettingsRepository.upsert('company_branding_name', String(data.companyBrandingName ?? DEFAULTS.company_branding_name), 'string', platformAdminId);
   await platformSettingsRepository.upsert('support_email', String(data.supportEmail || ''), 'string', platformAdminId);
@@ -40,5 +52,6 @@ export async function updateSettings(data, platformAdminId) {
   await platformSettingsRepository.upsert('trial_duration_default_days', String(Number(data.trialDurationDefaultDays) || 14), 'number', platformAdminId);
   await platformSettingsRepository.upsert('maintenance_mode', String(Boolean(data.maintenanceMode)), 'boolean', platformAdminId);
   await platformSettingsRepository.upsert('platform_announcement', String(data.platformAnnouncement || ''), 'string', platformAdminId);
+  await platformSettingsRepository.upsert('grace_period_default_days', String(Number(data.gracePeriodDefaultDays) || 7), 'number', platformAdminId);
   return getSettings();
 }

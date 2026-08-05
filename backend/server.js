@@ -5,6 +5,7 @@ import { logger } from './config/logger.js';
 import { scheduleDailyBackup } from './jobs/backupJob.js';
 import { scheduleTrialExpirySweep } from './jobs/trialExpiryJob.js';
 import { schedulePlatformNotificationSweep } from './jobs/platformNotificationJob.js';
+import { scheduleSubscriptionLifecycleSweep } from './jobs/subscriptionLifecycleJob.js';
 import { ensureUploadDirs } from './middlewares/upload.js';
 
 async function start() {
@@ -24,6 +25,7 @@ async function start() {
     scheduleDailyBackup();
     scheduleTrialExpirySweep();
     schedulePlatformNotificationSweep();
+    scheduleSubscriptionLifecycleSweep();
   } catch (err) {
     logger.error('Failed to start server', { message: err.message });
     process.exit(1);

@@ -8,6 +8,8 @@ export const ROUTES = {
 
   DASHBOARD: '/dashboard',
   SETTINGS_COMPANY: '/settings/company',
+  BILLING: '/billing',
+  BILLING_INVOICE: '/billing/invoices/:id',
 
   UNAUTHORIZED: '/401',
   FORBIDDEN: '/403',
@@ -25,4 +27,6 @@ export const PLATFORM_ROUTES = {
   AUDIT_LOG: '/platform/audit-log',
   NOTIFICATIONS: '/platform/notifications',
   SETTINGS: '/platform/settings',
+  PLANS: '/platform/plans',
+  BILLING: '/platform/billing',
 };

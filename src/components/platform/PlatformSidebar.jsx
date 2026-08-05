@@ -1,11 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { FiGrid, FiBriefcase, FiFileText, FiBell, FiSettings, FiLogOut } from 'react-icons/fi';
+import { FiGrid, FiBriefcase, FiFileText, FiBell, FiCreditCard, FiTrendingUp, FiSettings, FiLogOut } from 'react-icons/fi';
 import { usePlatformAuth } from '../../hooks/usePlatformAuth';
 import { PLATFORM_ROUTES } from '../../constants/routes';
 
 const NAV_ITEMS = [
   { to: PLATFORM_ROUTES.DASHBOARD, label: 'Dashboard', icon: FiGrid },
   { to: PLATFORM_ROUTES.TENANTS, label: 'Tenants', icon: FiBriefcase },
+  { to: PLATFORM_ROUTES.PLANS, label: 'Plans', icon: FiCreditCard },
+  { to: PLATFORM_ROUTES.BILLING, label: 'Billing', icon: FiTrendingUp },
   { to: PLATFORM_ROUTES.AUDIT_LOG, label: 'Audit Log', icon: FiFileText },
   { to: PLATFORM_ROUTES.NOTIFICATIONS, label: 'Notifications', icon: FiBell },
   { to: PLATFORM_ROUTES.SETTINGS, label: 'Settings', icon: FiSettings },

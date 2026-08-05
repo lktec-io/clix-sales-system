@@ -290,3 +290,64 @@
     width: 100%;
   }
 }
+
+/* Quieter than .trial-card — this renders on every dashboard regardless of
+   status, so it uses the app's plain card surface rather than the trial
+   banner's attention-grabbing gradient. */
+.subscription-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.subscription-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-soft, rgba(47, 107, 255, 0.12));
+  color: var(--color-primary);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.subscription-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.subscription-card-title {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+}
+
+.subscription-card-message {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.subscription-card-link,
+.subscription-card-cta {
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .subscription-card {
+    flex-wrap: wrap;
+  }
+
+  .subscription-card-link,
+  .subscription-card-cta {
+    width: 100%;
+  }
+}

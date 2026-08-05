@@ -6,6 +6,7 @@ import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
 import * as platformTenantRepository from '../repositories/platformTenant.repository.js';
 import * as platformAuditLogRepository from '../repositories/platformAuditLog.repository.js';
+import * as tenantSubscriptionRepository from '../repositories/tenantSubscription.repository.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOADS_ROOT = path.join(__dirname, '..', 'uploads');
@@ -96,4 +97,32 @@ export async function getStorageUsage() {
 
 export async function getRecentActivity(limit = 20) {
   return safely('recent-activity', () => platformAuditLogRepository.findRecent(limit), []);
+}
+
+// Phase 4 — Premium SaaS Billing Engine. Additive: getKpis()/
+// getSystemStatus()/getStorageUsage()/getRecentActivity() above are
+// unchanged. "Monthly Signups" is deliberately NOT recomputed here — it's
+// already thisMonthRegistrations in getKpis()'s response, so the billing
+// dashboard just reuses that existing call instead of a duplicate query
+// (Step 13's "avoid duplicate calculations").
+export async function getBillingKpis() {
+  const [statusCounts, expiringSoon, trialConversions, mostPopularPlan, monthlyRevenue] = await Promise.all([
+    safely('subscription-status-counts', () => tenantSubscriptionRepository.getStatusCounts(), {
+      trial: 0, active: 0, expired: 0, suspended: 0, cancelled: 0, pending_payment: 0, grace_period: 0,
+    }),
+    safely('expiring-soon-count', () => tenantSubscriptionRepository.getExpiringSoonCount(7), 0),
+    safely('trial-conversion-count', () => tenantSubscriptionRepository.getTrialConversionCount(30), 0),
+    safely('most-popular-plan', () => tenantSubscriptionRepository.getMostPopularPlan(), null),
+    safely('monthly-revenue-projected', () => tenantSubscriptionRepository.getMonthlyRevenueProjected(), 0),
+  ]);
+
+  return {
+    activeSubscriptions: statusCounts.active,
+    expiringSoon,
+    expired: statusCounts.expired,
+    trialConversions,
+    mostPopularPlan,
+    monthlyRevenueProjected: monthlyRevenue,
+    annualRevenueProjected: monthlyRevenue * 12,
+  };
 }

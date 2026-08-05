@@ -21,3 +21,8 @@ export const getRecentActivity = asyncHandler(async (req, res) => {
   const data = await platformDashboardService.getRecentActivity(Number(req.query.limit) || 20);
   return success(res, { data });
 });
+
+export const getBillingKpis = asyncHandler(async (req, res) => {
+  const data = await platformDashboardService.getBillingKpis();
+  return success(res, { data });
+});

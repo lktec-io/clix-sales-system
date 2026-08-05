@@ -19,3 +19,8 @@ export async function getRecentActivity(limit = 20) {
   const { data } = await platformApiClient.get('/dashboard/recent-activity', { params: { limit } });
   return data.data;
 }
+
+export async function getBillingKpis() {
+  const { data } = await platformApiClient.get('/dashboard/billing-kpis');
+  return data.data;
+}
