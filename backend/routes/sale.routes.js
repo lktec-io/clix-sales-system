@@ -3,12 +3,13 @@ import * as saleController from '../controllers/sale.controller.js';
 import { authenticate } from '../middlewares/authenticate.js';
 import { authorize } from '../middlewares/authorize.js';
 import { requireActiveTrial } from '../middlewares/requireActiveTrial.js';
+import { requireModule } from '../middlewares/requireModule.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { checkoutValidator } from '../validators/sale.validator.js';
 
 const router = Router();
 
-router.use(authenticate, authorize('sales.view'));
+router.use(authenticate, authorize('sales.view'), requireModule('sales'));
 
 router.get('/', saleController.list);
 router.get('/:id', saleController.getById);

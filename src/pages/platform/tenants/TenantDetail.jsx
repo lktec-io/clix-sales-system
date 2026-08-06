@@ -12,6 +12,7 @@ import { useTable } from '../../../hooks/useTable';
 import * as platformTenantService from '../../../services/platformTenantService';
 import * as platformSubscriptionService from '../../../services/platformSubscriptionService';
 import * as platformPlanService from '../../../services/platformPlanService';
+import * as platformBusinessTemplateService from '../../../services/platformBusinessTemplateService';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { PLATFORM_ROUTES } from '../../../constants/routes';
 import '../../../styles/pages/PlatformTenantDetail.css';
@@ -52,6 +53,16 @@ function TenantDetail() {
   const [billingActionModal, setBillingActionModal] = useState(null); // 'upgrade' | 'downgrade' | null
   const [billingPendingConfirm, setBillingPendingConfirm] = useState(null); // 'renew' | 'cancel' | 'resume' | null
   const [billingError, setBillingError] = useState('');
+
+  // Phase 5 — Business Template & module override card. Same additive
+  // pattern as the billing card above: its own state/effect, never folded
+  // into load() so the Phase 3 tenant-detail fetch stays untouched.
+  const [templates, setTemplates] = useState([]);
+  const [moduleOverrides, setModuleOverrides] = useState([]);
+  const [templateLoading, setTemplateLoading] = useState(true);
+  const [templateError, setTemplateError] = useState('');
+  const [templateSaving, setTemplateSaving] = useState(false);
+  const [pendingTemplateId, setPendingTemplateId] = useState('');
 
   const fetchUsers = useCallback((params) => platformTenantService.listTenantUsers(id, params), [id]);
   const usersTable = useTable(fetchUsers);
@@ -100,11 +111,28 @@ function TenantDetail() {
     }
   }, [id]);
 
+  const loadTemplateSection = useCallback(async () => {
+    setTemplateLoading(true);
+    try {
+      const [templateList, overrides] = await Promise.all([
+        platformBusinessTemplateService.listTemplates(),
+        platformTenantService.getModuleOverrides(id),
+      ]);
+      setTemplates(templateList.filter((template) => template.status === 'active'));
+      setModuleOverrides(overrides);
+    } catch {
+      // Additive card — never blocks the rest of the page from rendering.
+    } finally {
+      setTemplateLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
     loadBilling();
-  }, [load, loadBilling]);
+    loadTemplateSection();
+  }, [load, loadBilling, loadTemplateSection]);
 
   if (loading || !detail) return error ? <div className="alert alert-danger">{error}</div> : <PageSkeleton />;
 
@@ -161,6 +189,34 @@ function TenantDetail() {
       await loadBilling();
     } catch (err) {
       setBillingError(err.response?.data?.message || 'Action failed.');
+    }
+  };
+
+  const onChangeTemplate = async () => {
+    if (!pendingTemplateId) return;
+    setTemplateError('');
+    setTemplateSaving(true);
+    try {
+      await platformTenantService.setBusinessTemplate(id, Number(pendingTemplateId));
+      setPendingTemplateId('');
+      await Promise.all([load(), loadTemplateSection()]);
+    } catch (err) {
+      setTemplateError(err.response?.data?.message || 'Failed to change template.');
+    } finally {
+      setTemplateSaving(false);
+    }
+  };
+
+  // null = "revert to template default" (a distinct action from
+  // "override to enabled/disabled" — see tenantModule.repository.js's
+  // clearOverride vs setOverride).
+  const onToggleModuleOverride = async (moduleId, nextState) => {
+    setTemplateError('');
+    try {
+      await platformTenantService.setModuleOverride(id, moduleId, nextState);
+      await loadTemplateSection();
+    } catch (err) {
+      setTemplateError(err.response?.data?.message || 'Failed to update module override.');
     }
   };
 
@@ -295,6 +351,77 @@ function TenantDetail() {
                   <button type="button" className="btn btn-danger" onClick={() => setBillingPendingConfirm('cancel')}>Cancel Subscription</button>
                 )}
               </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="card mt-5">
+        <div className="card-header"><span className="card-title">Business Template &amp; Modules</span></div>
+        <div className="card-body">
+          {templateError && <div className="alert alert-danger mb-4" role="alert">{templateError}</div>}
+          {templateLoading ? (
+            <p className="text-sm text-secondary">Loading…</p>
+          ) : (
+            <>
+              <p className="text-sm text-secondary mb-2">
+                A template sets this tenant's DEFAULT modules only — every module below can still be enabled or disabled individually, regardless of template.
+              </p>
+              <div className="flex gap-2 items-center mb-4" style={{ flexWrap: 'wrap' }}>
+                <select
+                  className="form-control"
+                  style={{ maxWidth: 260 }}
+                  value={pendingTemplateId}
+                  onChange={(event) => setPendingTemplateId(event.target.value)}
+                >
+                  <option value="">Change template…</option>
+                  {templates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}
+                </select>
+                <button
+                  type="button" className={`btn btn-secondary ${templateSaving ? 'btn-loading' : ''}`}
+                  disabled={!pendingTemplateId || templateSaving} onClick={onChangeTemplate}
+                >
+                  Assign Template
+                </button>
+              </div>
+
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                {moduleOverrides.map((row) => {
+                  const effectivelyEnabled = row.is_core || (row.override_enabled ?? row.template_enabled);
+                  const hasOverride = row.override_enabled !== null && row.override_enabled !== undefined;
+                  return (
+                    <li key={row.module_id} className="flex items-center justify-between" style={{ padding: '8px 0', borderBottom: '1px solid var(--color-border)' }}>
+                      <span className="flex items-center gap-2">
+                        {row.name}
+                        {row.is_core && <span className="badge badge-info">Core</span>}
+                        {!row.is_core && hasOverride && <span className="badge badge-warning">Overridden</span>}
+                        {!row.is_active && !row.is_core && <span className="badge badge-neutral">Not yet available</span>}
+                      </span>
+                      {!row.is_core && (
+                        <span className="flex gap-1">
+                          <button
+                            type="button" className={`btn btn-sm ${effectivelyEnabled ? 'btn-primary' : 'btn-secondary'}`} disabled={!row.is_active}
+                            onClick={() => onToggleModuleOverride(row.module_id, true)}
+                          >
+                            Enable
+                          </button>
+                          <button
+                            type="button" className={`btn btn-sm ${!effectivelyEnabled ? 'btn-primary' : 'btn-secondary'}`} disabled={!row.is_active}
+                            onClick={() => onToggleModuleOverride(row.module_id, false)}
+                          >
+                            Disable
+                          </button>
+                          {hasOverride && (
+                            <button type="button" className="btn btn-ghost btn-sm" onClick={() => onToggleModuleOverride(row.module_id, null)}>
+                              Reset to template default
+                            </button>
+                          )}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </>
           )}
         </div>

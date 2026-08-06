@@ -4,6 +4,10 @@ import * as platformTenantRepository from '../repositories/platformTenant.reposi
 import * as platformAuditLogRepository from '../repositories/platformAuditLog.repository.js';
 import * as platformNotificationRepository from '../repositories/platformNotification.repository.js';
 import * as platformSettingsService from './platformSettings.service.js';
+import * as businessTemplateRepository from '../repositories/businessTemplate.repository.js';
+import * as businessTemplateAssignmentService from './businessTemplateAssignment.service.js';
+import * as tenantModuleRepository from '../repositories/tenantModule.repository.js';
+import { invalidateTenantModulesCache } from './moduleResolution.service.js';
 
 async function findOwnedTenant(id) {
   const tenant = await platformTenantRepository.findById(id);
@@ -119,4 +123,50 @@ export async function expireImmediately(tenantId, admin, ipAddress) {
   invalidateTenantCache(tenantId);
   await logAction(admin.id, 'tenant.expire_trial', `Expired trial immediately for "${tenant.company_name}"`, tenantId, ipAddress);
   return updated;
+}
+
+// Phase 5 — Business Templates & Dynamic Module Framework. Reassigns a
+// tenant's template (Step 4/8/9's "assign template" action). Delegates the
+// actual write + default-settings copy + module-resolution cache
+// invalidation to businessTemplateAssignmentService (the same function
+// self-registration's default-assignment uses) rather than duplicating
+// that logic here — this function only adds the platform-admin-specific
+// concerns: ownership check, tenant-row cache invalidation, audit log.
+export async function setBusinessTemplate(tenantId, businessTemplateId, admin, ipAddress) {
+  const tenant = await findOwnedTenant(tenantId);
+  const template = await businessTemplateRepository.findById(businessTemplateId);
+  if (!template) throw new ApiError(404, 'Business template not found');
+
+  await businessTemplateAssignmentService.assignTemplate(tenantId, businessTemplateId);
+  invalidateTenantCache(tenantId);
+  await logAction(admin.id, 'tenant.set_business_template', `Moved "${tenant.company_name}" to the "${template.name}" template`, tenantId, ipAddress);
+
+  return platformTenantRepository.findById(tenantId);
+}
+
+// Per-tenant module override checklist (Step 8: "Override modules for a
+// single tenant") — a row here wins over the tenant's template's own
+// setting; clearing it (isEnabled === null) reverts to the template
+// default. Scoped to exactly this tenant, so it can never affect any
+// other tenant on the same template (tenant isolation preserved).
+export async function getModuleOverrides(tenantId) {
+  await findOwnedTenant(tenantId);
+  const tenant = await platformTenantRepository.findById(tenantId);
+  return tenantModuleRepository.findForTenant(tenantId, tenant.business_template_id);
+}
+
+export async function setModuleOverride(tenantId, moduleId, isEnabled, admin, ipAddress) {
+  const tenant = await findOwnedTenant(tenantId);
+  if (isEnabled === null) {
+    await tenantModuleRepository.clearOverride(tenantId, moduleId);
+  } else {
+    await tenantModuleRepository.setOverride(tenantId, moduleId, isEnabled);
+  }
+  invalidateTenantModulesCache(tenantId);
+  await logAction(
+    admin.id, 'tenant.set_module_override',
+    `${isEnabled === null ? 'Cleared' : isEnabled ? 'Enabled' : 'Disabled'} a module override for "${tenant.company_name}"`,
+    tenantId, ipAddress,
+  );
+  return getModuleOverrides(tenantId);
 }

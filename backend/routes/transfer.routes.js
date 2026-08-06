@@ -3,12 +3,13 @@ import * as transferController from '../controllers/transfer.controller.js';
 import { authenticate } from '../middlewares/authenticate.js';
 import { authorize } from '../middlewares/authorize.js';
 import { requireActiveTrial } from '../middlewares/requireActiveTrial.js';
+import { requireModule } from '../middlewares/requireModule.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { createTransferValidator } from '../validators/transfer.validator.js';
 
 const router = Router();
 
-router.use(authenticate, authorize('transfers.view'));
+router.use(authenticate, authorize('transfers.view'), requireModule('transfers'));
 
 router.get('/', transferController.list);
 router.get('/:id', transferController.getById);

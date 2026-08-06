@@ -11,3 +11,12 @@ export const resetTrialValidator = [
 export const suspendValidator = [
   body('reason').optional({ values: 'falsy' }).trim().isLength({ max: 255 }),
 ];
+
+export const setBusinessTemplateValidator = [
+  body('businessTemplateId').isInt({ min: 1 }).withMessage('businessTemplateId is required'),
+];
+
+export const setModuleOverrideValidator = [
+  body('moduleId').isInt({ min: 1 }).withMessage('moduleId is required'),
+  body('isEnabled').custom((value) => value === null || typeof value === 'boolean').withMessage('isEnabled must be a boolean or null'),
+];

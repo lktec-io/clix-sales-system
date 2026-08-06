@@ -3,6 +3,7 @@ import * as purchaseController from '../controllers/purchase.controller.js';
 import { authenticate } from '../middlewares/authenticate.js';
 import { authorize } from '../middlewares/authorize.js';
 import { requireActiveTrial } from '../middlewares/requireActiveTrial.js';
+import { requireModule } from '../middlewares/requireModule.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { createSpreadsheetUploader } from '../middlewares/upload.js';
 import { createPurchaseValidator, paymentValidator, commitImportValidator } from '../validators/purchase.validator.js';
@@ -10,7 +11,7 @@ import { createPurchaseValidator, paymentValidator, commitImportValidator } from
 const router = Router();
 const spreadsheetUploader = createSpreadsheetUploader();
 
-router.use(authenticate, authorize('purchases.view'));
+router.use(authenticate, authorize('purchases.view'), requireModule('purchases'));
 
 router.get('/', purchaseController.list);
 router.get('/import/template', authorize('purchases.create'), purchaseController.downloadImportTemplate);

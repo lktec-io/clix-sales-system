@@ -23,6 +23,7 @@ import reportRoutes from './report.routes.js';
 import notificationRoutes from './notification.routes.js';
 import settingsRoutes from './settings.routes.js';
 import billingRoutes from './billing.routes.js';
+import moduleRoutes from './module.routes.js';
 
 const router = Router();
 
@@ -56,5 +57,6 @@ router.use('/reports', reportRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/billing', billingRoutes);
+router.use('/modules', moduleRoutes);
 
 export default router;

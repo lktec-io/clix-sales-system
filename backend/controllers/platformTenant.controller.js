@@ -52,3 +52,19 @@ export const expireImmediately = asyncHandler(async (req, res) => {
   const tenant = await platformTenantService.expireImmediately(Number(req.params.id), req.platformAdmin, req.ip);
   return success(res, { message: 'Trial expired', data: tenant });
 });
+
+export const setBusinessTemplate = asyncHandler(async (req, res) => {
+  const tenant = await platformTenantService.setBusinessTemplate(Number(req.params.id), Number(req.body.businessTemplateId), req.platformAdmin, req.ip);
+  return success(res, { message: 'Business template updated', data: tenant });
+});
+
+export const getModuleOverrides = asyncHandler(async (req, res) => {
+  const data = await platformTenantService.getModuleOverrides(Number(req.params.id));
+  return success(res, { data });
+});
+
+export const setModuleOverride = asyncHandler(async (req, res) => {
+  const isEnabled = req.body.isEnabled === null ? null : Boolean(req.body.isEnabled);
+  const data = await platformTenantService.setModuleOverride(Number(req.params.id), Number(req.body.moduleId), isEnabled, req.platformAdmin, req.ip);
+  return success(res, { message: 'Module override updated', data });
+});

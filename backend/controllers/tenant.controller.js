@@ -1,6 +1,8 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { success } from '../utils/apiResponse.js';
+import { logger } from '../config/logger.js';
 import * as tenantService from '../services/tenant.service.js';
+import * as businessTemplateAssignmentService from '../services/businessTemplateAssignment.service.js';
 import { setRefreshCookie } from './auth.controller.js';
 
 export const register = asyncHandler(async (req, res) => {
@@ -21,6 +23,19 @@ export const register = asyncHandler(async (req, res) => {
     ipAddress: req.ip,
     userAgent: req.headers['user-agent'],
   });
+
+  // Phase 5 — additive, best-effort: assigns Retail Store (the platform
+  // default) to every new tenant. tenant.service.js/tenant.repository.js
+  // are never touched — this runs entirely after register()'s own
+  // transaction has already committed, exactly like its welcome email and
+  // activity log. A failure here never blocks a successful registration
+  // response; the tenant simply resolves to "no modules configured yet"
+  // until a platform admin (or a retry) assigns one.
+  try {
+    await businessTemplateAssignmentService.assignDefault(result.user.tenant_id);
+  } catch (err) {
+    logger.error('Failed to assign default business template at registration', { message: err.message, tenantId: result.user.tenant_id });
+  }
 
   setRefreshCookie(res, result.refreshToken, result.refreshExpiresAt);
   return success(res, {

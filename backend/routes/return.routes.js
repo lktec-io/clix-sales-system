@@ -2,12 +2,13 @@ import { Router } from 'express';
 import * as returnController from '../controllers/return.controller.js';
 import { authenticate } from '../middlewares/authenticate.js';
 import { authorize } from '../middlewares/authorize.js';
+import { requireModule } from '../middlewares/requireModule.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { createReturnValidator } from '../validators/return.validator.js';
 
 const router = Router();
 
-router.use(authenticate, authorize('returns.view'));
+router.use(authenticate, authorize('returns.view'), requireModule('returns'));
 
 router.get('/', returnController.list);
 router.get('/:id', returnController.getById);

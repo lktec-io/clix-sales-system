@@ -49,3 +49,18 @@ export async function expireImmediately(id) {
   const { data } = await platformApiClient.post(`/tenants/${id}/expire`);
   return data.data;
 }
+
+export async function setBusinessTemplate(id, businessTemplateId) {
+  const { data } = await platformApiClient.post(`/tenants/${id}/business-template`, { businessTemplateId });
+  return data.data;
+}
+
+export async function getModuleOverrides(id) {
+  const { data } = await platformApiClient.get(`/tenants/${id}/module-overrides`);
+  return data.data;
+}
+
+export async function setModuleOverride(id, moduleId, isEnabled) {
+  const { data } = await platformApiClient.post(`/tenants/${id}/module-overrides`, { moduleId, isEnabled });
+  return data.data;
+}

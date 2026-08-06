@@ -3,12 +3,13 @@ import * as expenseController from '../controllers/expense.controller.js';
 import { authenticate } from '../middlewares/authenticate.js';
 import { authorize } from '../middlewares/authorize.js';
 import { requireActiveTrial } from '../middlewares/requireActiveTrial.js';
+import { requireModule } from '../middlewares/requireModule.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { expenseValidator } from '../validators/expense.validator.js';
 
 const router = Router();
 
-router.use(authenticate, authorize('expenses.view'));
+router.use(authenticate, authorize('expenses.view'), requireModule('expenses'));
 
 router.get('/categories', expenseController.listCategories);
 router.get('/', expenseController.list);

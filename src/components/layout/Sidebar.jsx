@@ -6,12 +6,25 @@ import {
   FiGrid, FiUserCheck, FiTruck,
   FiBox, FiArchive, FiShoppingCart, FiDollarSign, FiRotateCcw,
   FiBarChart2, FiCreditCard, FiSettings, FiLogOut,
-  FiChevronsLeft, FiChevronsRight,
+  FiChevronsLeft, FiChevronsRight, FiMapPin, FiUsers, FiShield, FiBell, FiRepeat, FiClock, FiCheckCircle,
 } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
 import { useCompany } from '../../hooks/useCompany';
+import { useModules } from '../../hooks/useModules';
 import { ROUTES } from '../../constants/routes';
 import '../../styles/components/Sidebar.css';
+
+// Resolves a module registry's `icon` string (e.g. "FiBox") to the actual
+// react-icons component — the backend can send config, never JSX. Falls
+// back to a generic icon for any future icon key this list doesn't know
+// about yet, rather than crashing.
+const ICON_MAP = {
+  FiGrid, FiUserCheck, FiTruck, FiBox, FiArchive, FiShoppingCart, FiDollarSign, FiRotateCcw,
+  FiBarChart2, FiCreditCard, FiSettings, FiMapPin, FiUsers, FiShield, FiBell, FiRepeat, FiClock, FiCheckCircle,
+};
+function resolveIcon(iconKey) {
+  return ICON_MAP[iconKey] || FiGrid;
+}
 
 // Staggered reveal, played only when the mobile drawer opens (see the
 // openKey/key-remount trick in Sidebar() below) — on desktop isOpen
@@ -36,44 +49,52 @@ const NAV_LABEL_VARIANT = {
   visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
 };
 
-// Branches, Users, Roles, Categories, Brands, Notifications, and Profile
-// are intentionally not top-level nav items — they're reachable via
-// Settings, the Product form, or the Navbar (Profile, notification bell)
-// instead. Transfers has no UI at all anymore (backend untouched). Returns
-// is a full top-level module, matching the client's module list.
+// Phase 5 — data-driven, not hardcoded: NAV_ITEMS is built from
+// GET /modules/me (ModuleContext/useModules), which has already resolved
+// this tenant's Business Template + any per-tenant override + the global
+// module registry. A module only renders as a top-level link when it
+// carries a `route` — branches/users/permissions/notifications resolve
+// with route=NULL in the registry (026_create_module_framework_tables.sql)
+// specifically so they stay reachable only via Settings/the Navbar, exactly
+// as before Phase 5, never becoming new top-level links.
 //
-// `requiredPermission` (a single code, or an array checked with .some() for
-// items reachable via more than one gate) matches the same permission
-// vocabulary the backend's authorize() middleware and the route-level
-// RequirePermission guards use — a role only sees the modules its seeded
-// permissions actually unlock. Dashboard has no gate: every role is seeded
-// with dashboard.view.
-function useNavItems() {
+// `requiredPermission` is still checked below exactly as before — modules
+// only narrow the MAXIMUM visible set; a user's actual permissions narrow
+// it further. Every module's required_permission column points at a
+// permission code that already existed pre-Phase-5.
+//
+// Billing is Phase 4's own always-on feature, deliberately outside the
+// module framework (explicitly "DO NOT CHANGE... Billing Engine") — kept
+// as a fixed, permission-gated entry inserted at its original position,
+// immediately before Settings.
+function useNavItems(modules) {
   const { t } = useTranslation('sidebar');
-  return [
-    { to: ROUTES.DASHBOARD, label: t('nav.dashboard'), icon: FiGrid, end: true },
-    { to: '/customers', label: t('nav.customers'), icon: FiUserCheck, requiredPermission: 'customers.view' },
-    { to: '/suppliers', label: t('nav.suppliers'), icon: FiTruck, requiredPermission: 'suppliers.view' },
-    { to: '/products', label: t('nav.products'), icon: FiBox, requiredPermission: 'products.view' },
-    { to: '/inventory', label: t('nav.inventory'), icon: FiArchive, requiredPermission: 'inventory.view' },
-    { to: '/purchases', label: t('nav.purchases'), icon: FiShoppingCart, requiredPermission: 'purchases.view' },
-    { to: '/pos', label: t('nav.sales'), icon: FiDollarSign, requiredPermission: 'sales.view' },
-    { to: '/returns', label: t('nav.returns'), icon: FiRotateCcw, requiredPermission: 'returns.view' },
-    { to: '/expenses', label: t('nav.expenses'), icon: FiDollarSign, requiredPermission: 'expenses.view' },
-    { to: '/reports', label: t('nav.reports'), icon: FiBarChart2, requiredPermission: 'reports.view' },
-    // Billing is a company-level concern, same gate as Settings/Company —
-    // no new permission code introduced for Phase 4.
-    { to: ROUTES.BILLING, label: t('nav.billing'), icon: FiCreditCard, requiredPermission: 'company.manage' },
-    { to: '/settings/company', label: t('nav.settings'), icon: FiSettings, requiredPermission: ['company.manage', 'settings.view'] },
-  ];
+
+  const moduleItems = modules
+    .filter((module) => module.route)
+    .slice()
+    .sort((a, b) => a.navigationOrder - b.navigationOrder)
+    .map((module) => ({
+      to: module.route,
+      label: t(`nav.${module.key}`, { defaultValue: module.name }),
+      icon: resolveIcon(module.icon),
+      end: module.key === 'dashboard',
+      requiredPermission: module.requiredPermission ? module.requiredPermission.split(',') : undefined,
+    }));
+
+  const billingItem = { to: ROUTES.BILLING, label: t('nav.billing'), icon: FiCreditCard, requiredPermission: ['company.manage'] };
+  const settingsIndex = moduleItems.findIndex((item) => item.to === '/settings/company');
+  if (settingsIndex === -1) return [...moduleItems, billingItem];
+  return [...moduleItems.slice(0, settingsIndex), billingItem, ...moduleItems.slice(settingsIndex)];
 }
 
 function Sidebar({ collapsed, onToggle, onNavigate, isOpen }) {
   const { t } = useTranslation('sidebar');
   const { logout, hasPermission } = useAuth();
   const { company } = useCompany();
+  const { modules } = useModules();
   const navigate = useNavigate();
-  const NAV_ITEMS = useNavItems();
+  const NAV_ITEMS = useNavItems(modules);
   const companyName = company?.company_name || 'Clix';
 
   // Plain function call, not the usePermission() hook — this runs once per

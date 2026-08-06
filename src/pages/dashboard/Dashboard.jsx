@@ -16,6 +16,7 @@ import BarChart from '../../components/charts/BarChart';
 import { useChartTheme } from '../../components/charts/chartTheme';
 import * as dashboardService from '../../services/dashboardService';
 import * as inventoryService from '../../services/inventoryService';
+import { useModules } from '../../hooks/useModules';
 import { formatCurrency, formatNumber } from '../../utils/formatCurrency';
 import '../../styles/pages/Dashboard.css';
 
@@ -39,6 +40,15 @@ function useKpiDefs(t) {
 // read in 3-5 seconds, not require scrolling through an audit log to find
 // the numbers that matter.
 const CHART_TYPES = ['top-products', 'payment-status', 'revenue-vs-expenses'];
+// Maps each chart's service-call key to the dashboard_widgets entry that
+// gates it in the module registry (026_create_module_framework_tables.sql)
+// — camelCase widget keys vs. the kebab-case chart-type keys the existing
+// /dashboard/charts/:type endpoint already used pre-Phase-5.
+const CHART_TYPE_TO_WIDGET = {
+  'top-products': 'topProducts',
+  'payment-status': 'paymentStatus',
+  'revenue-vs-expenses': 'revenueVsExpenses',
+};
 
 const STAGGER_CONTAINER = {
   hidden: {},
@@ -74,7 +84,11 @@ function computeTodayTrend(salesTrend) {
 
 function Dashboard() {
   const { t, i18n } = useTranslation('dashboard');
-  const KPI_DEFS = useKpiDefs(t);
+  const { hasWidget, loading: modulesLoading } = useModules();
+  const KPI_DEFS = useKpiDefs(t).filter((def) => hasWidget(def.key));
+  const enabledChartTypes = CHART_TYPES.filter((type) => hasWidget(CHART_TYPE_TO_WIDGET[type]));
+  const showSalesTrend = hasWidget('salesTrend');
+  const showLowStock = hasWidget('lowStockAlert');
   const chartColors = useChartTheme();
   const [kpis, setKpis] = useState(null);
   const [charts, setCharts] = useState({});
@@ -84,28 +98,33 @@ function Dashboard() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // Waits for the module list to resolve first — fetching before it does
+    // would either skip every widget (empty enabled-set) or fetch data for
+    // widgets this tenant's template doesn't include, wasting a request.
+    if (modulesLoading) return undefined;
+
     let cancelled = false;
 
     async function load() {
       try {
         const [kpiResult, ...chartResults] = await Promise.all([
           dashboardService.getKpis(),
-          ...CHART_TYPES.map((type) => dashboardService.getChart(type)),
-          dashboardService.getChart('sales-trend', { range: 'week' }),
+          ...enabledChartTypes.map((type) => dashboardService.getChart(type)),
+          ...(showSalesTrend ? [dashboardService.getChart('sales-trend', { range: 'week' })] : []),
         ]);
         const [lowStockResult] = await Promise.allSettled([
-          inventoryService.listInventory({ lowStock: true, limit: 10 }),
+          showLowStock ? inventoryService.listInventory({ lowStock: true, limit: 10 }) : Promise.resolve({ items: [] }),
         ]);
 
         if (cancelled) return;
 
         setKpis(kpiResult);
         const chartMap = {};
-        CHART_TYPES.forEach((type, index) => {
+        enabledChartTypes.forEach((type, index) => {
           chartMap[type] = chartResults[index];
         });
         setCharts(chartMap);
-        setTodayTrend(computeTodayTrend(chartResults[CHART_TYPES.length]));
+        setTodayTrend(showSalesTrend ? computeTodayTrend(chartResults[enabledChartTypes.length]) : null);
         setLowStockProducts(lowStockResult.status === 'fulfilled' ? lowStockResult.value.items : []);
       } catch {
         if (!cancelled) setError(t('loadError'));
@@ -118,8 +137,8 @@ function Dashboard() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- t is only used inside the catch's error message; including it would re-run this whole data fetch on every language switch
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- t is only used inside the catch's error message; enabledChartTypes/showSalesTrend/showLowStock are derived from the module list, which only changes on login/logout, not worth re-running the fetch for
+  }, [modulesLoading]);
 
   const topProducts = charts['top-products'] || [];
   const paymentStatus = charts['payment-status'] || [];
@@ -156,33 +175,43 @@ function Dashboard() {
           ))}
         </motion.div>
 
-        <motion.div variants={STAGGER_ITEM}>
-          <SalesTrendCard />
-        </motion.div>
+        {showSalesTrend && (
+          <motion.div variants={STAGGER_ITEM}>
+            <SalesTrendCard />
+          </motion.div>
+        )}
 
-        <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
-          <ChartCard title={t('charts.revenueVsExpenses')} loading={loading} empty={revenueVsExpenses.length === 0} emptyMessage={t('charts.noFinancialActivity')}>
-            <BarChart
-              labels={revenueVsExpenses.map((d) => new Date(d.date).toLocaleDateString(i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ', { day: 'numeric', month: 'short' }))}
-              datasets={[
-                { label: t('charts.revenue'), values: revenueVsExpenses.map((d) => d.revenue), color: chartColors.success },
-                { label: t('charts.expenses'), values: revenueVsExpenses.map((d) => d.expenses), color: chartColors.danger },
-                { label: t('charts.profit'), values: revenueVsExpenses.map((d) => d.profit), color: chartColors.info },
-              ]}
-              valueFormatter={formatCurrency}
-              height={280}
-            />
-          </ChartCard>
+        {(hasWidget('revenueVsExpenses') || hasWidget('paymentStatus')) && (
+          <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
+            {hasWidget('revenueVsExpenses') && (
+              <ChartCard title={t('charts.revenueVsExpenses')} loading={loading} empty={revenueVsExpenses.length === 0} emptyMessage={t('charts.noFinancialActivity')}>
+                <BarChart
+                  labels={revenueVsExpenses.map((d) => new Date(d.date).toLocaleDateString(i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ', { day: 'numeric', month: 'short' }))}
+                  datasets={[
+                    { label: t('charts.revenue'), values: revenueVsExpenses.map((d) => d.revenue), color: chartColors.success },
+                    { label: t('charts.expenses'), values: revenueVsExpenses.map((d) => d.expenses), color: chartColors.danger },
+                    { label: t('charts.profit'), values: revenueVsExpenses.map((d) => d.profit), color: chartColors.info },
+                  ]}
+                  valueFormatter={formatCurrency}
+                  height={280}
+                />
+              </ChartCard>
+            )}
 
-          <ChartCard title={t('charts.paymentStatus')} loading={loading} empty={paymentStatus.length === 0} emptyMessage={t('charts.noPayments')}>
-            <DoughnutChart data={paymentStatus.map((p) => ({ label: p.name, value: Number(p.value) }))} valueFormatter={formatCurrency} />
-          </ChartCard>
-        </motion.div>
+            {hasWidget('paymentStatus') && (
+              <ChartCard title={t('charts.paymentStatus')} loading={loading} empty={paymentStatus.length === 0} emptyMessage={t('charts.noPayments')}>
+                <DoughnutChart data={paymentStatus.map((p) => ({ label: p.name, value: Number(p.value) }))} valueFormatter={formatCurrency} />
+              </ChartCard>
+            )}
+          </motion.div>
+        )}
 
-        <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
-          <TopProductsCard products={topProducts} loading={loading} />
-          <LowStockAlertCard products={lowStockProducts} loading={loading} />
-        </motion.div>
+        {(hasWidget('topProducts') || showLowStock) && (
+          <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
+            {hasWidget('topProducts') && <TopProductsCard products={topProducts} loading={loading} />}
+            {showLowStock && <LowStockAlertCard products={lowStockProducts} loading={loading} />}
+          </motion.div>
+        )}
 
         <motion.div variants={STAGGER_ITEM}>
           <QuickActions />

@@ -2,7 +2,10 @@ import { Router } from 'express';
 import * as platformTenantController from '../../controllers/platformTenant.controller.js';
 import { authenticatePlatform } from '../../middlewares/authenticatePlatform.js';
 import { validateRequest } from '../../middlewares/validateRequest.js';
-import { trialDaysValidator, resetTrialValidator, suspendValidator } from '../../validators/platformTenant.validator.js';
+import {
+  trialDaysValidator, resetTrialValidator, suspendValidator,
+  setBusinessTemplateValidator, setModuleOverrideValidator,
+} from '../../validators/platformTenant.validator.js';
 
 const router = Router();
 
@@ -19,5 +22,9 @@ router.post('/:id/reduce-trial', trialDaysValidator, validateRequest, platformTe
 router.post('/:id/reset-trial', resetTrialValidator, validateRequest, platformTenantController.resetTrial);
 router.post('/:id/activate-subscription', platformTenantController.activateSubscription);
 router.post('/:id/expire', platformTenantController.expireImmediately);
+
+router.post('/:id/business-template', setBusinessTemplateValidator, validateRequest, platformTenantController.setBusinessTemplate);
+router.get('/:id/module-overrides', platformTenantController.getModuleOverrides);
+router.post('/:id/module-overrides', setModuleOverrideValidator, validateRequest, platformTenantController.setModuleOverride);
 
 export default router;
