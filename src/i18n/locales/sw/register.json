@@ -20,6 +20,8 @@
   "passwordMismatch": "Manenosiri hayafanani",
   "businessTypeLabel": "Aina ya Biashara",
   "businessTypeOptional": "Hiari",
+  "businessTemplateLabel": "Unaendesha biashara ya aina gani?",
+  "businessTemplateHint": "Hii huweka dashibodi na menyu zako kulingana na sekta yako — wewe (au msimamizi wako) mnaweza kubadilisha baadaye.",
   "countryLabel": "Nchi",
   "countryOptional": "Hiari",
   "acceptTermsPrefix": "Nakubaliana na",

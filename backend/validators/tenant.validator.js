@@ -16,6 +16,11 @@ export const registerValidator = [
     .withMessage('You must accept the Terms of Service to continue'),
   body('businessType').optional({ values: 'falsy' }).trim().isLength({ max: 100 }),
   body('country').optional({ values: 'falsy' }).trim().isLength({ max: 100 }),
+  // Shape-only check — optional, must be a positive integer if present.
+  // Existence + active-status validation happens in
+  // businessTemplateAssignmentService.resolveSelectedTemplateId(), which
+  // needs a DB lookup and runs from the controller before registration.
+  body('businessTemplateId').optional({ values: 'falsy' }).isInt({ min: 1 }).withMessage('Invalid business type selected'),
   // Honeypot — hidden from real users via CSS in Register.jsx, never
   // populated by a human. A bot's generic form-filler that blanket-fills
   // every field trips this and fails validation the same as any other bad

@@ -20,6 +20,8 @@
   "passwordMismatch": "Passwords do not match",
   "businessTypeLabel": "Business Type",
   "businessTypeOptional": "Optional",
+  "businessTemplateLabel": "What type of business do you run?",
+  "businessTemplateHint": "This sets up your dashboard and menus for your industry — you (or your admin) can always change it later.",
   "countryLabel": "Country",
   "countryOptional": "Optional",
   "acceptTermsPrefix": "I agree to the",

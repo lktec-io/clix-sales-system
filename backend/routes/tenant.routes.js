@@ -7,6 +7,8 @@ import { registerValidator } from '../validators/tenant.validator.js';
 
 const router = Router();
 
+// Public — the signup form loads this before any tenant/session exists.
+router.get('/templates', tenantController.listTemplates);
 router.post('/register', registrationLimiter, registerValidator, validateRequest, tenantController.register);
 router.get('/me', authenticate, tenantController.getMyTenant);
 

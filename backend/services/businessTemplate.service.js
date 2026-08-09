@@ -26,6 +26,20 @@ export async function listActive() {
   return businessTemplateRepository.findAllActive();
 }
 
+// Phase 5.2 — the public signup template picker (Register.jsx). Reshaped
+// and stripped of admin-only fields (status/timestamps), mirroring
+// subscriptionPlan.service.js's listPublicPlans() precedent exactly — same
+// "active-only, reshaped for an unauthenticated caller" pattern.
+export async function listPublicTemplates() {
+  const templates = await businessTemplateRepository.findAllActive();
+  return templates.map((template) => ({
+    id: template.id,
+    name: template.name,
+    slug: template.slug,
+    description: template.description,
+  }));
+}
+
 export async function getDetail(id) {
   const template = await findOwnedTemplate(id);
   const [modules, settings] = await Promise.all([

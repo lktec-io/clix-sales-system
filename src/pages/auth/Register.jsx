@@ -1,12 +1,39 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import {
+  FiEye, FiEyeOff, FiCheck, FiShoppingBag, FiGrid, FiPackage, FiTool,
+  FiCpu, FiShoppingCart, FiDroplet, FiCoffee, FiBookOpen, FiDollarSign, FiUsers,
+} from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
+import * as tenantService from '../../services/tenantService';
 import { ROUTES } from '../../constants/routes';
+import '../../styles/pages/Register.css';
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+// Purely presentational — business_templates carries no icon column (only
+// modules do), so this is a small, gracefully-degrading enhancement, not a
+// gate: any template slug not listed here (a platform admin's new one
+// included) still renders fine via the FiGrid fallback.
+const TEMPLATE_ICONS = {
+  'retail-store': FiShoppingBag,
+  'general-business': FiGrid,
+  'wholesale-store': FiPackage,
+  'hardware-store': FiTool,
+  'electronics-shop': FiCpu,
+  'clothing-store': FiShoppingCart,
+  'cosmetics-shop': FiDroplet,
+  pharmacy: FiPackage,
+  restaurant: FiCoffee,
+  school: FiBookOpen,
+  microfinance: FiDollarSign,
+  saccos: FiUsers,
+};
+function resolveTemplateIcon(slug) {
+  return TEMPLATE_ICONS[slug] || FiGrid;
+}
 
 function Register() {
   const { t } = useTranslation('register');
@@ -14,21 +41,54 @@ function Register() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState('');
+  const [templates, setTemplates] = useState([]);
+  const [templatesLoading, setTemplatesLoading] = useState(true);
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       companyName: '', ownerFirstName: '', ownerLastName: '', businessEmail: '', phone: '',
       password: '', confirmPassword: '', businessType: '', country: '', acceptTerms: false,
+      businessTemplateId: '',
       website: '', // honeypot — see the hidden field below
     },
   });
 
   const password = watch('password');
+  const selectedTemplateId = watch('businessTemplateId');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    tenantService.listTemplates()
+      .then((data) => {
+        if (cancelled) return;
+        setTemplates(data);
+        // Pre-select Retail Store (the platform default) so the picker
+        // never looks "empty" — the user can still change it. Falls back
+        // to the first template if Retail Store isn't present for some
+        // reason (e.g. a platform admin archived it), rather than leaving
+        // no visual selection at all.
+        const defaultTemplate = data.find((template) => template.slug === 'retail-store') || data[0];
+        if (defaultTemplate) setValue('businessTemplateId', defaultTemplate.id);
+      })
+      .catch(() => {
+        // The picker degrades to "not shown" — registration still works
+        // via the backend's own Retail Store fallback when no id is sent.
+      })
+      .finally(() => {
+        if (!cancelled) setTemplatesLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [setValue]);
 
   const onSubmit = async (values) => {
     setFormError('');
@@ -190,6 +250,34 @@ function Register() {
             <input id="country" type="text" className="form-control" {...register('country')} />
           </div>
         </div>
+
+        {!templatesLoading && templates.length > 0 && (
+          <div className="form-group">
+            <label className="form-label">{t('businessTemplateLabel')}</label>
+            <span className="form-help" style={{ display: 'block', marginBottom: 'var(--space-2)' }}>{t('businessTemplateHint')}</span>
+            <input type="hidden" {...register('businessTemplateId')} />
+            <div className="template-picker-grid">
+              {templates.map((template) => {
+                const Icon = resolveTemplateIcon(template.slug);
+                const isSelected = String(selectedTemplateId) === String(template.id);
+                return (
+                  <button
+                    key={template.id}
+                    type="button"
+                    className={`template-picker-card ${isSelected ? 'is-selected' : ''}`}
+                    onClick={() => setValue('businessTemplateId', template.id)}
+                    aria-pressed={isSelected}
+                  >
+                    {isSelected && <span className="template-picker-check"><FiCheck aria-hidden="true" /></span>}
+                    <span className="template-picker-icon" aria-hidden="true"><Icon /></span>
+                    <span className="template-picker-name">{template.name}</span>
+                    {template.description && <span className="template-picker-description">{template.description}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Honeypot — hidden from real users and assistive tech, never
             styled or labelled like a real field. A bot's generic form-filler

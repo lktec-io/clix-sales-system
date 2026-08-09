@@ -1,3 +1,4 @@
+import { ApiError } from '../utils/apiError.js';
 import * as businessTemplateRepository from '../repositories/businessTemplate.repository.js';
 import * as templateSettingsRepository from '../repositories/templateSettings.repository.js';
 import * as systemSettingsRepository from '../repositories/systemSettings.repository.js';
@@ -12,6 +13,25 @@ const DEFAULT_TEMPLATE_ID = 1; // Retail Store — see 026_create_module_framewo
 // already committed by the time this runs.
 export async function assignDefault(tenantId) {
   return assignTemplate(tenantId, DEFAULT_TEMPLATE_ID);
+}
+
+// Phase 5.2 — validates a signup form's optional businessTemplateId BEFORE
+// tenant.service.js's registration transaction ever runs (called from
+// tenant.controller.js, not from inside the transaction), so a bad
+// selection is rejected with zero side effects — no half-created tenant,
+// no account a rejected request could still log into. No template supplied
+// -&gt; silently falls back to Retail Store, preserving the exact pre-Phase-
+// 5.2 default behavior. A template supplied but missing/inactive/archived
+// -&gt; explicit 400, never a silent fallback (the user asked for something
+// specific; guessing on their behalf would be surprising).
+export async function resolveSelectedTemplateId(businessTemplateId) {
+  if (!businessTemplateId) return DEFAULT_TEMPLATE_ID;
+
+  const template = await businessTemplateRepository.findById(businessTemplateId);
+  if (!template || template.status !== 'active') {
+    throw new ApiError(400, 'Selected business type is not available. Please choose another.');
+  }
+  return template.id;
 }
 
 // Also the platform-admin reassignment path (platformTenant.service.js's

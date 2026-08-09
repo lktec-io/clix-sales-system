@@ -24,17 +24,20 @@ router.get('/', authorize('products.view'), productController.list);
 router.get('/sellable', authorize('products.view'), productController.sellable);
 // Placed before /:id so "lookup" is never captured as an :id value.
 router.get('/lookup', authorize('products.view'), productController.lookupSellable);
+// Only Super Administrator holds products.delete in the seeded RBAC (see
+// 001_seed_roles_permissions.sql) — reused here rather than a new
+// permission code, since "who may permanently remove a product" is exactly
+// the same authority as "who may delete one" in the first place. Placed
+// before /:id so "archived" is never captured as an :id value — unlike the
+// other reads above, this is a management view (not something Sales/
+// Inventory ever needs), so requireModule is applied inline here rather
+// than relying on the blanket gate below.
+router.get('/archived', authorize('products.delete'), requireModule('products'), productController.listArchived);
 router.get('/:id', authorize('products.view'), productController.getById);
 router.get('/:id/qr', authorize('products.view'), qrCodeController.getForProduct);
 
 router.use(requireModule('products'));
 
-// Only Super Administrator holds products.delete in the seeded RBAC (see
-// 001_seed_roles_permissions.sql) — reused here rather than a new
-// permission code, since "who may permanently remove a product" is exactly
-// the same authority as "who may delete one" in the first place. Placed
-// before the /:id routes so "archived" is never captured as an :id value.
-router.get('/archived', authorize('products.delete'), productController.listArchived);
 router.post('/', authorize('products.create'), productValidator, validateRequest, productController.create);
 router.put('/:id', authorize('products.edit'), productValidator, validateRequest, productController.update);
 router.patch('/bulk-status', authorize('products.manage'), bulkStatusValidator, validateRequest, productController.bulkStatus);
