@@ -63,7 +63,7 @@ export async function createCustomer(data, actorId, tenantId) {
   // includeYear: false + padLength 4 -> "CUST-0001", not "CUST-2026-00001"
   // — a shorter code a cashier can read aloud without the year segment
   // reading as a typo or an odd artifact.
-  const customerCode = await generateCode('CUSTOMER', 'CUST', { padLength: 4, includeYear: false });
+  const customerCode = await generateCode('CUSTOMER', 'CUST', { tenantId, padLength: 4, includeYear: false });
   const customer = await customerRepository.create({ ...data, tenantId, customerCode, userId: actorId });
 
   await activityLogRepository.create({
