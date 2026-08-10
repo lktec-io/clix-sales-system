@@ -25,6 +25,11 @@ export const register = asyncHandler(async (req, res) => {
   // exact pre-5.2 behavior.
   const resolvedTemplateId = await businessTemplateAssignmentService.resolveSelectedTemplateId(businessTemplateId);
 
+  // Temporary diagnostic — no PII, just the two ids needed to confirm this
+  // exact code path is what production is actually running and that the
+  // signup selection survives validation. Safe to remove once confirmed.
+  logger.info('Registration: business template resolved', { submittedBusinessTemplateId: businessTemplateId ?? null, resolvedTemplateId });
+
   const result = await tenantService.register({
     companyName,
     ownerFirstName,

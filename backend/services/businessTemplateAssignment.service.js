@@ -1,5 +1,6 @@
 import { ApiError } from '../utils/apiError.js';
 import { pool } from '../config/db.js';
+import { logger } from '../config/logger.js';
 import * as businessTemplateRepository from '../repositories/businessTemplate.repository.js';
 import * as templateSettingsRepository from '../repositories/templateSettings.repository.js';
 import * as systemSettingsRepository from '../repositories/systemSettings.repository.js';
@@ -67,6 +68,11 @@ export async function assignTemplate(tenantId, businessTemplateId) {
   if (confirmed !== businessTemplateId) {
     throw new Error(`Business template assignment did not persist for tenant ${tenantId}: expected ${businessTemplateId}, found ${confirmed}`);
   }
+
+  // Temporary diagnostic — confirms this exact write+verify path executed
+  // and what it persisted. Safe to remove once production is confirmed
+  // to be running this code and assigning correctly.
+  logger.info('Registration: business template assigned and verified', { tenantId, businessTemplateId: confirmed });
 
   invalidateTenantModulesCache(tenantId);
 }
