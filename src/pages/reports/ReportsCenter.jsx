@@ -11,6 +11,7 @@ import LineChart from '../../components/charts/LineChart';
 import BarChart from '../../components/charts/BarChart';
 import { usePermission } from '../../hooks/usePermission';
 import { useCompany } from '../../hooks/useCompany';
+import { useModules } from '../../hooks/useModules';
 import * as reportService from '../../services/reportService';
 import * as branchService from '../../services/branchService';
 import * as categoryService from '../../services/categoryService';
@@ -224,6 +225,17 @@ function useReportConfigs(t) {
 // nothing about how a report actually renders needed to change.
 const VISIBLE_REPORT_TYPES = ['sales', 'products', 'inventory', 'customers', 'suppliers', 'expenses', 'all'];
 
+// A Business Template (School, Microfinance, ...) can reach this page with
+// only a fraction of these business modules actually enabled — each card's
+// underlying data source is one of these modules, so a card is only worth
+// showing when its module is. 'all' is the combined Sales/Products/
+// Customers/Expenses view, so it follows 'sales' (the module its summary
+// and breakdowns are built around) rather than its own separate flag.
+const REPORT_TYPE_MODULE_KEY = {
+  sales: 'sales', products: 'products', inventory: 'inventory',
+  customers: 'customers', suppliers: 'suppliers', expenses: 'expenses', all: 'sales',
+};
+
 const REPORT_ICONS = {
   sales: FiDollarSign,
   products: FiPackage,
@@ -295,6 +307,11 @@ function ReportsCenter() {
   const canExport = usePermission('reports.export');
   const canViewUsers = usePermission('users.view');
   const { company } = useCompany();
+  const { isModuleEnabled, loading: modulesLoading } = useModules();
+  const availableReportTypes = useMemo(
+    () => VISIBLE_REPORT_TYPES.filter((type) => isModuleEnabled(REPORT_TYPE_MODULE_KEY[type])),
+    [isModuleEnabled],
+  );
   const [reportType, setReportType] = useState('sales');
   const [branches, setBranches] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -313,6 +330,19 @@ function ReportsCenter() {
   const [exportingCsv, setExportingCsv] = useState(false);
 
   const config = REPORT_CONFIGS[reportType];
+
+  useEffect(() => {
+    // Once the tenant's modules are known, the initial 'sales' guess may not
+    // apply (e.g. a template with no Sales module) — switch to the first
+    // card this tenant actually has, without fighting a selection the user
+    // already made explicitly.
+    if (modulesLoading) return;
+    if (!availableReportTypes.includes(reportType) && availableReportTypes.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reconciling the initial 'sales' guess against the tenant's actual modules once they're known is synchronizing with an external system (ModuleContext), not derived render state
+      setReportType(availableReportTypes[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when modules finish loading or the available set changes, not on every reportType change (that would fight the user's own selection)
+  }, [modulesLoading, availableReportTypes]);
 
   useEffect(() => {
     branchService.listActiveBranches().then(setBranches);
@@ -350,10 +380,15 @@ function ReportsCenter() {
   };
 
   useEffect(() => {
+    // Skip fetching until modules are known and reportType has settled on
+    // one this tenant actually has — otherwise this fires once for the
+    // 'sales' guess (wasted request, possibly for a module-less tenant)
+    // right before the effect above switches it.
+    if (modulesLoading || !availableReportTypes.includes(reportType)) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching the selected report on filter/type change is standard data-fetching, not derived state
     loadReport();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- config is derived from reportType, individual filter fields tracked explicitly below
-  }, [reportType, filters.dateFrom, filters.dateTo, filters.branchId, filters.categoryId, filters.status, filters.customerId, filters.productId, filters.cashierId]);
+  }, [reportType, modulesLoading, availableReportTypes, filters.dateFrom, filters.dateTo, filters.branchId, filters.categoryId, filters.status, filters.customerId, filters.productId, filters.cashierId]);
 
   const summaryEntries = useMemo(() => {
     if (!report?.summary || !config.summary) return [];
@@ -439,6 +474,24 @@ function ReportsCenter() {
     }
   };
 
+  // A template with none of the report-backing modules enabled (e.g. a
+  // sparse vertical whose only real module today is Reports itself) has
+  // nothing honest to show yet — an empty state beats fake/irrelevant
+  // Sales or Inventory cards with zero data behind them.
+  if (!modulesLoading && availableReportTypes.length === 0) {
+    return (
+      <div className="reports-page">
+        <div className="page-header">
+          <div>
+            <h1 className="page-title">{t('reports:page.title')}</h1>
+            <p className="page-subtitle">{t('reports:page.subtitle')}</p>
+          </div>
+        </div>
+        <EmptyState icon={FiBarChart2} title={t('reports:empty.title')} description={t('reports:empty.description')} />
+      </div>
+    );
+  }
+
   return (
     <div className="reports-page">
       <div className="reports-print-header">
@@ -474,7 +527,7 @@ function ReportsCenter() {
       </div>
 
       <div className="reports-type-grid">
-        {VISIBLE_REPORT_TYPES.map((key) => {
+        {availableReportTypes.map((key) => {
           const cfg = REPORT_CONFIGS[key];
           const Icon = REPORT_ICONS[key];
           const active = reportType === key;
