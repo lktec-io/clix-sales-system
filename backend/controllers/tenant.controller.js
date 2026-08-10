@@ -38,18 +38,26 @@ export const register = asyncHandler(async (req, res) => {
     userAgent: req.headers['user-agent'],
   });
 
-  // Phase 5 — additive, best-effort: assigns the resolved template (the
-  // user's selection, or Retail Store as fallback) to the new tenant.
+  // Phase 5 — additive: assigns the resolved template (the user's
+  // selection, or Retail Store as fallback) to the new tenant.
   // tenant.service.js/tenant.repository.js are never touched — this runs
   // entirely after register()'s own transaction has already committed,
   // exactly like its welcome email and activity log. A failure here never
-  // blocks a successful registration response; the tenant simply resolves
-  // to "no modules configured yet" until a platform admin (or a retry)
-  // assigns one.
+  // blocks a successful registration response (the account is real and
+  // usable either way) — but assignTemplate() itself now verifies its own
+  // write landed, so a transient failure surfaces here loudly instead of
+  // silently leaving the tenant on the schema default. One retry absorbs a
+  // one-off blip (a pool hiccup, a lock wait) before giving up and logging.
   try {
     await businessTemplateAssignmentService.assignTemplate(result.user.tenant_id, resolvedTemplateId);
-  } catch (err) {
-    logger.error('Failed to assign business template at registration', { message: err.message, tenantId: result.user.tenant_id, resolvedTemplateId });
+  } catch {
+    try {
+      await businessTemplateAssignmentService.assignTemplate(result.user.tenant_id, resolvedTemplateId);
+    } catch (err) {
+      logger.error('Failed to assign business template at registration after retry', {
+        message: err.message, tenantId: result.user.tenant_id, resolvedTemplateId,
+      });
+    }
   }
 
   setRefreshCookie(res, result.refreshToken, result.refreshExpiresAt);

@@ -1,4 +1,5 @@
 import { ApiError } from '../utils/apiError.js';
+import { pool } from '../config/db.js';
 import * as businessTemplateRepository from '../repositories/businessTemplate.repository.js';
 import * as templateSettingsRepository from '../repositories/templateSettings.repository.js';
 import * as systemSettingsRepository from '../repositories/systemSettings.repository.js';
@@ -36,9 +37,37 @@ export async function resolveSelectedTemplateId(businessTemplateId) {
 
 // Also the platform-admin reassignment path (platformTenant.service.js's
 // new setBusinessTemplate action calls this directly).
+//
+// Runs both writes (the tenants.business_template_id column and the
+// system_settings defaults it seeds) as one transaction, then reads the
+// column back to confirm it actually persisted. tenant.service.js's own
+// registration transaction can't include this write (tenant.service.js/
+// tenant.repository.js are off-limits — the template selection isn't known
+// until after that transaction already has to run), so this can't be made
+// truly atomic WITH tenant creation. What it can guarantee is that it never
+// reports success while silently leaving the tenant on the schema default:
+// either both writes land and the readback proves it, or the whole thing
+// throws and the caller (tenant.controller.js) sees a real error to log/retry
+// on, instead of a partial write nobody notices.
 export async function assignTemplate(tenantId, businessTemplateId) {
-  await businessTemplateRepository.assignToTenant(tenantId, businessTemplateId);
-  await copyDefaultSettingsToTenant(tenantId, businessTemplateId);
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    await businessTemplateRepository.assignToTenant(tenantId, businessTemplateId, connection);
+    await copyDefaultSettingsToTenant(tenantId, businessTemplateId, connection);
+    await connection.commit();
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
+  }
+
+  const confirmed = await businessTemplateRepository.findTenantTemplateId(tenantId);
+  if (confirmed !== businessTemplateId) {
+    throw new Error(`Business template assignment did not persist for tenant ${tenantId}: expected ${businessTemplateId}, found ${confirmed}`);
+  }
+
   invalidateTenantModulesCache(tenantId);
 }
 
@@ -47,9 +76,9 @@ export async function assignTemplate(tenantId, businessTemplateId) {
 // a tenant's later customization is never overwritten by a future edit to
 // the template's defaults (mirrors how company_settings is a one-time-
 // seeded, tenant-owned row today).
-async function copyDefaultSettingsToTenant(tenantId, businessTemplateId) {
+async function copyDefaultSettingsToTenant(tenantId, businessTemplateId, connection) {
   const defaults = await templateSettingsRepository.findAll(businessTemplateId);
   for (const setting of defaults) {
-    await systemSettingsRepository.upsert(tenantId, setting.setting_key, setting.setting_value, setting.data_type, null);
+    await systemSettingsRepository.upsert(tenantId, setting.setting_key, setting.setting_value, setting.data_type, null, connection);
   }
 }

@@ -5,8 +5,8 @@ export async function findAll(tenantId) {
   return rows;
 }
 
-export async function upsert(tenantId, key, value, dataType, userId) {
-  await pool.query(
+export async function upsert(tenantId, key, value, dataType, userId, connection = pool) {
+  await connection.query(
     `INSERT INTO system_settings (tenant_id, setting_key, setting_value, data_type, created_by, updated_by)
      VALUES (?, ?, ?, ?, ?, ?)
      ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), data_type = VALUES(data_type), updated_by = VALUES(updated_by)`,

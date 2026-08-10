@@ -42,8 +42,18 @@ export async function setStatus(id, status) {
 // same shape as every other tenant-mutating action in this codebase
 // (platformTenant.repository.js's suspend/activate/etc). tenant.repository
 // .js itself is never touched.
-export async function assignToTenant(tenantId, businessTemplateId) {
-  await pool.query('UPDATE tenants SET business_template_id = ? WHERE id = ?', [businessTemplateId, tenantId]);
+export async function assignToTenant(tenantId, businessTemplateId, connection = pool) {
+  await connection.query('UPDATE tenants SET business_template_id = ? WHERE id = ?', [businessTemplateId, tenantId]);
+}
+
+// Read-after-write check for assignToTenant — businessTemplateAssignment
+// .service.js#assignTemplate() calls this outside the write's own
+// transaction (on a fresh connection) to confirm the column genuinely holds
+// the value just written, turning a silent no-op into a loud failure
+// instead of a tenant quietly left on the wrong template.
+export async function findTenantTemplateId(tenantId) {
+  const [rows] = await pool.query('SELECT business_template_id FROM tenants WHERE id = ? LIMIT 1', [tenantId]);
+  return rows[0]?.business_template_id ?? null;
 }
 
 // Clones a template's own row plus its module map and default settings —
