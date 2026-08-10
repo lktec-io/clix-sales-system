@@ -11,7 +11,12 @@
     "expenses": "Expenses",
     "reports": "Reports",
     "billing": "Billing",
-    "settings": "Settings"
+    "settings": "Settings",
+    "loan_products": "Loan Products",
+    "loans": "Loans",
+    "loan_repayments": "Repayments",
+    "savings": "Savings",
+    "borrower_groups": "Groups"
   },
   "logout": "Logout",
   "expandSidebar": "Expand sidebar",

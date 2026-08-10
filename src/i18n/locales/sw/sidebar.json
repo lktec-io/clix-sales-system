@@ -11,7 +11,12 @@
     "expenses": "Matumizi",
     "reports": "Ripoti",
     "billing": "Malipo",
-    "settings": "Mipangilio"
+    "settings": "Mipangilio",
+    "loan_products": "Aina za Mikopo",
+    "loans": "Mikopo",
+    "loan_repayments": "Malipo ya Mikopo",
+    "savings": "Akiba",
+    "borrower_groups": "Vikundi"
   },
   "logout": "Ondoka",
   "expandSidebar": "Panua Menyu",

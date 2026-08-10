@@ -430,3 +430,85 @@ export async function usersReport({ tenantId, dateFrom, dateTo, branchId, branch
     byBranch: byBranch.map((row) => ({ ...row, count: Number(row.count) })),
   };
 }
+
+// Microfinance — real aggregates against the tables 028_create_
+// microfinance_tables.sql creates, same shape/convention as every report
+// above (dateFrom/dateTo bound the loan's created_at, not its full
+// lifetime, so a loan opened last quarter and still active today only
+// counts toward the range it was actually created in — consistent with how
+// every other report type scopes "this report" by creation date).
+export async function loanPortfolioReport({ tenantId, dateFrom, dateTo, branchId, status, branchIds }) {
+  const conditions = ['l.created_at >= ?', 'l.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
+  const params = [dateFrom, dateTo];
+  if (branchId) { conditions.push('l.branch_id = ?'); params.push(branchId); }
+  if (status) { conditions.push('l.status = ?'); params.push(status); }
+  const scope = buildScope({ tenantId, tenantColumn: 'l.tenant_id', branchIds, branchColumn: 'l.branch_id' });
+  const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
+  const allParams = [...params, ...scope.params];
+
+  const [[summary]] = await pool.query(
+    `SELECT COUNT(*) AS totalLoans,
+            COALESCE(SUM(l.approved_amount), 0) AS totalDisbursed,
+            COALESCE(SUM(CASE WHEN l.status = 'active' THEN l.principal_outstanding + l.interest_outstanding ELSE 0 END), 0) AS totalOutstanding
+     FROM loans l ${where}`,
+    allParams,
+  );
+
+  const [byStatus] = await pool.query(
+    `SELECT l.status AS label, COUNT(*) AS count, COALESCE(SUM(l.approved_amount), 0) AS value
+     FROM loans l ${where} GROUP BY l.status ORDER BY count DESC`,
+    allParams,
+  );
+
+  const [byProduct] = await pool.query(
+    `SELECT lp.name AS label, COUNT(*) AS count, COALESCE(SUM(l.approved_amount), 0) AS value
+     FROM loans l JOIN loan_products lp ON lp.id = l.loan_product_id
+     ${where} GROUP BY lp.id, lp.name ORDER BY value DESC`,
+    allParams,
+  );
+
+  return {
+    summary: {
+      totalLoans: Number(summary.totalLoans),
+      totalDisbursed: Number(summary.totalDisbursed),
+      totalOutstanding: Number(summary.totalOutstanding),
+    },
+    byStatus: byStatus.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+    byProduct: byProduct.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+  };
+}
+
+export async function loanRepaymentsReport({ tenantId, dateFrom, dateTo, branchId, branchIds }) {
+  const conditions = ['r.payment_date >= ?', 'r.payment_date <= ?'];
+  const params = [dateFrom, dateTo];
+  if (branchId) { conditions.push('r.branch_id = ?'); params.push(branchId); }
+  const scope = buildScope({ tenantId, tenantColumn: 'r.tenant_id', branchIds, branchColumn: 'r.branch_id' });
+  const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
+  const allParams = [...params, ...scope.params];
+
+  const [[summary]] = await pool.query(
+    `SELECT COUNT(*) AS totalRepayments, COALESCE(SUM(r.amount), 0) AS totalCollected FROM loan_repayments r ${where}`,
+    allParams,
+  );
+
+  const [byDay] = await pool.query(
+    `SELECT DATE(r.payment_date) AS label, COALESCE(SUM(r.amount), 0) AS value
+     FROM loan_repayments r ${where} GROUP BY DATE(r.payment_date) ORDER BY label ASC`,
+    allParams,
+  );
+
+  const [byMethod] = await pool.query(
+    `SELECT r.payment_method AS label, COUNT(*) AS count, COALESCE(SUM(r.amount), 0) AS value
+     FROM loan_repayments r ${where} GROUP BY r.payment_method ORDER BY value DESC`,
+    allParams,
+  );
+
+  return {
+    summary: {
+      totalRepayments: Number(summary.totalRepayments),
+      totalCollected: Number(summary.totalCollected),
+    },
+    byDay: byDay.map((row) => ({ ...row, value: Number(row.value) })),
+    byMethod: byMethod.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+  };
+}

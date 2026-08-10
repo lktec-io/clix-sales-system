@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FiPrinter, FiDownload, FiFileText, FiBarChart2, FiGrid, FiTrendingUp,
-  FiDollarSign, FiPackage, FiBox, FiUsers, FiTruck, FiCreditCard, FiLayers,
+  FiDollarSign, FiPackage, FiBox, FiUsers, FiTruck, FiCreditCard, FiLayers, FiPercent, FiCheckCircle,
 } from 'react-icons/fi';
 import KPICard from '../../components/dashboard/KPICard';
 import EmptyState from '../../components/common/EmptyState';
@@ -107,9 +107,22 @@ function useReturnStatusOptions(t) {
   ];
 }
 
+function useLoanStatusOptions(t) {
+  return [
+    { value: 'submitted', label: t('reports:loanStatusOptions.submitted') },
+    { value: 'under_review', label: t('reports:loanStatusOptions.underReview') },
+    { value: 'approved', label: t('reports:loanStatusOptions.approved') },
+    { value: 'rejected', label: t('reports:loanStatusOptions.rejected') },
+    { value: 'active', label: t('reports:loanStatusOptions.active') },
+    { value: 'completed', label: t('reports:loanStatusOptions.completed') },
+    { value: 'written_off', label: t('reports:loanStatusOptions.writtenOff') },
+  ];
+}
+
 function useReportConfigs(t) {
   const purchaseStatusOptions = usePurchaseStatusOptions(t);
   const returnStatusOptions = useReturnStatusOptions(t);
+  const loanStatusOptions = useLoanStatusOptions(t);
 
   return {
     sales: {
@@ -194,6 +207,28 @@ function useReportConfigs(t) {
         { key: 'byBranch', title: t('reports:breakdowns.byBranch'), labelHeader: t('reports:headers.branch') },
       ],
     },
+    loan_portfolio: {
+      label: t('reports:types.loan_portfolio'), description: t('reports:descriptions.loan_portfolio'),
+      filters: ['dateFrom', 'dateTo', 'branchId', 'status'],
+      statusOptions: loanStatusOptions,
+      summary: {
+        totalLoans: t('reports:summary.totalLoans'), totalDisbursed: t('reports:summary.totalDisbursed'),
+        totalOutstanding: t('reports:summary.totalOutstanding'),
+      },
+      breakdowns: [
+        { key: 'byStatus', title: t('reports:breakdowns.byStatus'), labelHeader: t('reports:headers.status') },
+        { key: 'byProduct', title: t('reports:breakdowns.byProduct'), labelHeader: t('reports:headers.product') },
+      ],
+    },
+    loan_repayments: {
+      label: t('reports:types.loan_repayments'), description: t('reports:descriptions.loan_repayments'),
+      filters: ['dateFrom', 'dateTo', 'branchId'],
+      summary: { totalRepayments: t('reports:summary.totalRepayments'), totalCollected: t('reports:summary.totalCollected') },
+      breakdowns: [
+        { key: 'byDay', title: t('reports:breakdowns.byDay'), labelHeader: t('reports:headers.date') },
+        { key: 'byMethod', title: t('reports:breakdowns.byMethod'), labelHeader: t('reports:headers.method') },
+      ],
+    },
     // Combined business-summary report — backend/services/report.service.js's
     // buildAllReport() flattens Sales/Products/Customers/Expenses/Profit into
     // this exact shape, so it renders through the same summary cards +
@@ -223,7 +258,10 @@ function useReportConfigs(t) {
 // branches/users) stay fully supported by the backend and this same
 // generic renderer; they're just no longer offered as a card here, so
 // nothing about how a report actually renders needed to change.
-const VISIBLE_REPORT_TYPES = ['sales', 'products', 'inventory', 'customers', 'suppliers', 'expenses', 'all'];
+const VISIBLE_REPORT_TYPES = [
+  'sales', 'products', 'inventory', 'customers', 'suppliers', 'expenses', 'all',
+  'loan_portfolio', 'loan_repayments',
+];
 
 // A Business Template (School, Microfinance, ...) can reach this page with
 // only a fraction of these business modules actually enabled — each card's
@@ -234,6 +272,7 @@ const VISIBLE_REPORT_TYPES = ['sales', 'products', 'inventory', 'customers', 'su
 const REPORT_TYPE_MODULE_KEY = {
   sales: 'sales', products: 'products', inventory: 'inventory',
   customers: 'customers', suppliers: 'suppliers', expenses: 'expenses', all: 'sales',
+  loan_portfolio: 'loans', loan_repayments: 'loan_repayments',
 };
 
 const REPORT_ICONS = {
@@ -244,6 +283,8 @@ const REPORT_ICONS = {
   suppliers: FiTruck,
   expenses: FiCreditCard,
   all: FiLayers,
+  loan_portfolio: FiPercent,
+  loan_repayments: FiCheckCircle,
 };
 
 function humanize(key) {

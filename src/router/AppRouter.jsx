@@ -47,6 +47,14 @@ const ReturnForm = lazy(() => import('../pages/returns/ReturnForm'));
 const ReturnDetail = lazy(() => import('../pages/returns/ReturnDetail'));
 const ExpenseList = lazy(() => import('../pages/expenses/ExpenseList'));
 const ReportsCenter = lazy(() => import('../pages/reports/ReportsCenter'));
+const LoanProductList = lazy(() => import('../pages/microfinance/LoanProductList'));
+const LoanList = lazy(() => import('../pages/microfinance/LoanList'));
+const LoanForm = lazy(() => import('../pages/microfinance/LoanForm'));
+const LoanDetail = lazy(() => import('../pages/microfinance/LoanDetail'));
+const SavingsList = lazy(() => import('../pages/microfinance/SavingsList'));
+const SavingsDetail = lazy(() => import('../pages/microfinance/SavingsDetail'));
+const GroupList = lazy(() => import('../pages/microfinance/GroupList'));
+const RepaymentList = lazy(() => import('../pages/microfinance/RepaymentList'));
 const BillingOverview = lazy(() => import('../pages/billing/BillingOverview'));
 const InvoiceDetail = lazy(() => import('../pages/billing/InvoiceDetail'));
 const SystemSettings = lazy(() => import('../pages/settings/SystemSettings'));
@@ -148,6 +156,15 @@ function AppRouter() {
               <Route path="/returns/:id" element={<RequirePermission permission="returns.view"><ReturnDetail /></RequirePermission>} />
               <Route path="/expenses" element={<RequirePermission permission="expenses.view"><ExpenseList /></RequirePermission>} />
               <Route path="/reports" element={<RequirePermission permission="reports.view"><ReportsCenter /></RequirePermission>} />
+
+              <Route path="/loan-products" element={<RequirePermission permission="loan_products.view"><LoanProductList /></RequirePermission>} />
+              <Route path="/loans" element={<RequirePermission permission="loans.view"><LoanList /></RequirePermission>} />
+              <Route path="/loans/new" element={<RequirePermission permission="loans.create"><LoanForm /></RequirePermission>} />
+              <Route path="/loans/:id" element={<RequirePermission permission="loans.view"><LoanDetail /></RequirePermission>} />
+              <Route path="/repayments" element={<RequirePermission permission="loan_repayments.view"><RepaymentList /></RequirePermission>} />
+              <Route path="/savings" element={<RequirePermission permission="savings.view"><SavingsList /></RequirePermission>} />
+              <Route path="/savings/:id" element={<RequirePermission permission="savings.view"><SavingsDetail /></RequirePermission>} />
+              <Route path="/groups" element={<RequirePermission permission="borrower_groups.view"><GroupList /></RequirePermission>} />
               <Route path={ROUTES.BILLING} element={<RequirePermission permission="company.manage"><BillingOverview /></RequirePermission>} />
               <Route path={ROUTES.BILLING_INVOICE} element={<RequirePermission permission="company.manage"><InvoiceDetail /></RequirePermission>} />
             </Route>

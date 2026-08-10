@@ -22,7 +22,9 @@
     "profit": "Profit",
     "branches": "Branches",
     "users": "Users",
-    "all": "All Reports"
+    "all": "All Reports",
+    "loan_portfolio": "Loan Portfolio",
+    "loan_repayments": "Loan Repayments"
   },
   "descriptions": {
     "sales": "Revenue, transactions, and daily trends.",
@@ -36,7 +38,9 @@
     "profit": "Revenue, cost of goods sold and net profit.",
     "branches": "Performance comparison across branches.",
     "users": "Staff accounts by role, branch and status.",
-    "all": "A combined business summary across every area."
+    "all": "A combined business summary across every area.",
+    "loan_portfolio": "Loans by status and product, disbursed and outstanding totals.",
+    "loan_repayments": "Repayments collected by day and payment method."
   },
   "summary": {
     "totalSales": "Total Sales",
@@ -60,7 +64,12 @@
     "totalUsers": "Total Users",
     "activeUsers": "Active",
     "suspendedUsers": "Suspended",
-    "lockedUsers": "Locked"
+    "lockedUsers": "Locked",
+    "totalLoans": "Total Loans",
+    "totalDisbursed": "Total Disbursed",
+    "totalOutstanding": "Total Outstanding",
+    "totalRepayments": "Total Repayments",
+    "totalCollected": "Total Collected"
   },
   "breakdowns": {
     "byDay": "By Day",
@@ -75,7 +84,10 @@
     "byRole": "By Role",
     "salesByDay": "Sales By Day",
     "salesByBranch": "Sales By Branch",
-    "expensesByCategory": "Expenses By Category"
+    "expensesByCategory": "Expenses By Category",
+    "byStatus": "By Status",
+    "byProduct": "By Loan Product",
+    "byMethod": "By Payment Method"
   },
   "headers": {
     "date": "Date",
@@ -85,7 +97,9 @@
     "category": "Category",
     "product": "Product",
     "reason": "Reason",
-    "role": "Role"
+    "role": "Role",
+    "status": "Status",
+    "method": "Method"
   },
   "filters": {
     "quickRange": "Quick Range",
@@ -118,6 +132,15 @@
     "cancelled": "Cancelled",
     "approved": "Approved",
     "rejected": "Rejected"
+  },
+  "loanStatusOptions": {
+    "submitted": "Submitted",
+    "underReview": "Under Review",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "active": "Active",
+    "completed": "Completed",
+    "writtenOff": "Written Off"
   },
   "charts": {
     "dailyProfitTrend": "Daily Profit Trend",

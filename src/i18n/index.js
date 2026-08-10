@@ -28,6 +28,7 @@ import profileEn from './locales/en/profile.json';
 import notificationsEn from './locales/en/notifications.json';
 import errorsEn from './locales/en/errors.json';
 import billingEn from './locales/en/billing.json';
+import microfinanceEn from './locales/en/microfinance.json';
 
 import commonSw from './locales/sw/common.json';
 import sidebarSw from './locales/sw/sidebar.json';
@@ -50,6 +51,7 @@ import profileSw from './locales/sw/profile.json';
 import notificationsSw from './locales/sw/notifications.json';
 import errorsSw from './locales/sw/errors.json';
 import billingSw from './locales/sw/billing.json';
+import microfinanceSw from './locales/sw/microfinance.json';
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -64,7 +66,7 @@ export const DEFAULT_LANGUAGE = 'en';
 export const NAMESPACES = [
   'common', 'sidebar', 'navbar', 'auth', 'landing', 'register', 'dashboard', 'products', 'inventory',
   'suppliers', 'purchases', 'customers', 'sales', 'returns', 'expenses',
-  'reports', 'settings', 'profile', 'notifications', 'errors', 'billing',
+  'reports', 'settings', 'profile', 'notifications', 'errors', 'billing', 'microfinance',
 ];
 
 i18n.use(initReactI18next).init({
@@ -75,7 +77,7 @@ i18n.use(initReactI18next).init({
       purchases: purchasesEn, customers: customersEn, sales: salesEn,
       returns: returnsEn, expenses: expensesEn, reports: reportsEn,
       settings: settingsEn, profile: profileEn, notifications: notificationsEn,
-      errors: errorsEn, billing: billingEn,
+      errors: errorsEn, billing: billingEn, microfinance: microfinanceEn,
     },
     sw: {
       common: commonSw, sidebar: sidebarSw, navbar: navbarSw, auth: authSw, landing: landingSw, register: registerSw, dashboard: dashboardSw,
@@ -83,7 +85,7 @@ i18n.use(initReactI18next).init({
       purchases: purchasesSw, customers: customersSw, sales: salesSw,
       returns: returnsSw, expenses: expensesSw, reports: reportsSw,
       settings: settingsSw, profile: profileSw, notifications: notificationsSw,
-      errors: errorsSw, billing: billingSw,
+      errors: errorsSw, billing: billingSw, microfinance: microfinanceSw,
     },
   },
   lng: DEFAULT_LANGUAGE,

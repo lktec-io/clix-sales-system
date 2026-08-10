@@ -4,12 +4,15 @@ import { logger } from '../config/logger.js';
 import { getAccessibleBranchIds } from '../utils/branchScope.js';
 import * as dashboardRepository from '../repositories/dashboard.repository.js';
 import * as activityLogRepository from '../repositories/activityLog.repository.js';
+import { getPortfolioKpis } from './loan.service.js';
 
 const EMPTY_KPIS = {
   todaySales: 0, monthlySales: 0, todayProfit: 0, monthlyProfit: 0,
   totalCustomers: 0, totalSuppliers: 0, totalProducts: 0, inventoryValue: 0,
   lowStockCount: 0, todayExpenses: 0, monthlyExpenses: 0,
   todayOrders: 0, pendingTransfers: 0, pendingPurchases: 0,
+  totalBorrowers: 0, activeLoans: 0, totalDisbursed: 0, outstandingBalance: 0,
+  overdueLoans: 0, portfolioAtRisk: 0, todayCollections: 0, totalCollected: 0, totalSavingsBalance: 0,
 };
 
 const EMPTY_INVENTORY_SUMMARY = { outOfStock: 0, lowStock: 0, inStock: 0 };
@@ -41,9 +44,23 @@ const CHART_HANDLERS = {
   'revenue-vs-expenses': (tenantId, branchIds) => safely('revenue-vs-expenses', () => dashboardRepository.getRevenueVsExpenses(tenantId, branchIds), []),
 };
 
+const EMPTY_MICROFINANCE_KPIS = {
+  totalBorrowers: 0, activeLoans: 0, totalDisbursed: 0, outstandingBalance: 0,
+  overdueLoans: 0, portfolioAtRisk: 0, todayCollections: 0, totalCollected: 0, totalSavingsBalance: 0,
+};
+
 export async function getKpis(user) {
   const branchIds = await getAccessibleBranchIds(user);
-  return safely('kpis', () => dashboardRepository.getKpis(user.tenantId, branchIds), EMPTY_KPIS);
+  const [retailKpis, microfinanceKpis] = await Promise.all([
+    safely('kpis', () => dashboardRepository.getKpis(user.tenantId, branchIds), EMPTY_KPIS),
+    // Real aggregates from loan.service.js's own portfolio queries — reused,
+    // not duplicated. Cheap (indexed COUNT/SUM against tenant_id) and
+    // harmless for a tenant whose template doesn't include Loans: the
+    // underlying tables are simply empty for them, and hasWidget() on the
+    // frontend hides these keys from any dashboard that isn't Microfinance.
+    safely('microfinance-kpis', () => getPortfolioKpis(user), EMPTY_MICROFINANCE_KPIS),
+  ]);
+  return { ...retailKpis, ...microfinanceKpis };
 }
 
 export async function getChart(user, type, query = {}) {

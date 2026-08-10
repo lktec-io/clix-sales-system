@@ -27,6 +27,18 @@
     "todayOrdersSubtitle": "Completed sales today",
     "lowStockCount": "Low Stock Products",
     "lowStockCountSubtitle": "Need restocking",
+    "totalBorrowers": "Total Borrowers",
+    "totalBorrowersSubtitle": "With an active or past loan",
+    "activeLoans": "Active Loans",
+    "activeLoansSubtitle": "Currently being repaid",
+    "outstandingBalance": "Outstanding Balance",
+    "outstandingBalanceSubtitle": "Principal and interest still owed",
+    "overdueLoans": "Overdue Loans",
+    "overdueLoansSubtitle": "Past their due date",
+    "todayCollections": "Today's Collections",
+    "todayCollectionsSubtitle": "Repayments received today",
+    "totalSavingsBalance": "Total Savings",
+    "totalSavingsBalanceSubtitle": "Across all savings accounts",
     "trendVsYesterday": "{{percent}}% vs yesterday"
   },
   "charts": {

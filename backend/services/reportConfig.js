@@ -18,6 +18,7 @@ export const MONEY_KEYS = new Set([
   'value', 'totalRevenue', 'totalAmount', 'totalDiscount', 'averageSale', 'totalValue',
   'salesRevenue', 'expenses', 'totalExpenses', 'net', 'cogs', 'grossProfit', 'netProfit', 'totalRefund',
   'totalPurchased', 'totalPaid', 'outstandingBalance',
+  'totalDisbursed', 'totalOutstanding', 'totalCollected',
 ]);
 
 function buildReportConfigs(locale) {
@@ -84,6 +85,16 @@ function buildReportConfigs(locale) {
       title: rt('users'),
       summaryLabels: { totalUsers: sl('totalUsers'), activeUsers: sl('activeUsers'), suspendedUsers: sl('suspendedUsers'), lockedUsers: sl('lockedUsers') },
       breakdowns: [{ key: 'byRole', title: bd('byRole'), labelHeader: bh('role') }, { key: 'byBranch', title: bd('byBranch'), labelHeader: bh('branch') }],
+    },
+    loan_portfolio: {
+      title: rt('loan_portfolio'),
+      summaryLabels: { totalLoans: sl('totalLoans'), totalDisbursed: sl('totalDisbursed'), totalOutstanding: sl('totalOutstanding') },
+      breakdowns: [{ key: 'byStatus', title: bd('byStatus'), labelHeader: bh('status') }, { key: 'byProduct', title: bd('byProduct'), labelHeader: bh('product') }],
+    },
+    loan_repayments: {
+      title: rt('loan_repayments'),
+      summaryLabels: { totalRepayments: sl('totalRepayments'), totalCollected: sl('totalCollected') },
+      breakdowns: [{ key: 'byDay', title: bd('byDay'), labelHeader: bh('date') }, { key: 'byMethod', title: bd('byMethod'), labelHeader: bh('method') }],
     },
     // The business-summary report — report.service.js's buildAllReport()
     // flattens sales/products/customers/expenses/profit into this same

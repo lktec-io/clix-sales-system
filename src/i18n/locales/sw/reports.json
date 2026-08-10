@@ -22,7 +22,9 @@
     "profit": "Faida",
     "branches": "Matawi",
     "users": "Watumiaji",
-    "all": "Ripoti Zote"
+    "all": "Ripoti Zote",
+    "loan_portfolio": "Mikopo Yote",
+    "loan_repayments": "Malipo ya Mikopo"
   },
   "descriptions": {
     "sales": "Mapato, miamala, na mwelekeo wa kila siku.",
@@ -36,7 +38,9 @@
     "profit": "Mapato, gharama za bidhaa zilizouzwa na faida halisi.",
     "branches": "Ulinganisho wa utendaji kati ya matawi.",
     "users": "Akaunti za watumiaji kwa jukumu, tawi na hali.",
-    "all": "Muhtasari wa jumla wa biashara katika maeneo yote."
+    "all": "Muhtasari wa jumla wa biashara katika maeneo yote.",
+    "loan_portfolio": "Mikopo kwa hali na aina, jumla iliyotolewa na inayodaiwa.",
+    "loan_repayments": "Malipo yaliyokusanywa kwa siku na njia ya malipo."
   },
   "summary": {
     "totalSales": "Jumla ya Mauzo",
@@ -60,7 +64,12 @@
     "totalUsers": "Jumla ya Watumiaji",
     "activeUsers": "Hai",
     "suspendedUsers": "Waliosimamishwa",
-    "lockedUsers": "Waliofungwa"
+    "lockedUsers": "Waliofungwa",
+    "totalLoans": "Jumla ya Mikopo",
+    "totalDisbursed": "Jumla Iliyotolewa",
+    "totalOutstanding": "Jumla Inayodaiwa",
+    "totalRepayments": "Jumla ya Malipo",
+    "totalCollected": "Jumla Iliyokusanywa"
   },
   "breakdowns": {
     "byDay": "Kwa Siku",
@@ -75,7 +84,10 @@
     "byRole": "Kwa Jukumu",
     "salesByDay": "Mauzo kwa Siku",
     "salesByBranch": "Mauzo kwa Tawi",
-    "expensesByCategory": "Matumizi kwa Aina"
+    "expensesByCategory": "Matumizi kwa Aina",
+    "byStatus": "Kwa Hali",
+    "byProduct": "Kwa Aina ya Mkopo",
+    "byMethod": "Kwa Njia ya Malipo"
   },
   "headers": {
     "date": "Tarehe",
@@ -85,7 +97,9 @@
     "category": "Aina",
     "product": "Bidhaa",
     "reason": "Sababu",
-    "role": "Jukumu"
+    "role": "Jukumu",
+    "status": "Hali",
+    "method": "Njia"
   },
   "filters": {
     "quickRange": "Kipindi cha Haraka",
@@ -118,6 +132,15 @@
     "cancelled": "Imeghairiwa",
     "approved": "Imeidhinishwa",
     "rejected": "Imekataliwa"
+  },
+  "loanStatusOptions": {
+    "submitted": "Imewasilishwa",
+    "underReview": "Inakaguliwa",
+    "approved": "Imeidhinishwa",
+    "rejected": "Imekataliwa",
+    "active": "Hai",
+    "completed": "Imekamilika",
+    "writtenOff": "Imefutwa"
   },
   "charts": {
     "dailyProfitTrend": "Mwelekeo wa Faida ya Kila Siku",

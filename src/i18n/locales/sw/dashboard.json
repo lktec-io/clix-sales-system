@@ -27,6 +27,18 @@
     "todayOrdersSubtitle": "Mauzo yaliyokamilika leo",
     "lowStockCount": "Bidhaa Zenye Hesabu Ndogo",
     "lowStockCountSubtitle": "Zinahitaji kuongezwa",
+    "totalBorrowers": "Wakopaji Wote",
+    "totalBorrowersSubtitle": "Wenye mkopo hai au uliopita",
+    "activeLoans": "Mikopo Hai",
+    "activeLoansSubtitle": "Inayolipwa kwa sasa",
+    "outstandingBalance": "Salio Linalodaiwa",
+    "outstandingBalanceSubtitle": "Mtaji na riba inayodaiwa",
+    "overdueLoans": "Mikopo Iliyochelewa",
+    "overdueLoansSubtitle": "Imepita tarehe ya malipo",
+    "todayCollections": "Makusanyo ya Leo",
+    "todayCollectionsSubtitle": "Malipo yaliyopokewa leo",
+    "totalSavingsBalance": "Akiba Zote",
+    "totalSavingsBalanceSubtitle": "Katika akaunti zote za akiba",
     "trendVsYesterday": "{{percent}}% ikilinganishwa na jana"
   },
   "charts": {

@@ -24,6 +24,11 @@ import notificationRoutes from './notification.routes.js';
 import settingsRoutes from './settings.routes.js';
 import billingRoutes from './billing.routes.js';
 import moduleRoutes from './module.routes.js';
+import loanProductRoutes from './loanProduct.routes.js';
+import loanRoutes from './loan.routes.js';
+import loanRepaymentRoutes from './loanRepayment.routes.js';
+import savingsRoutes from './savings.routes.js';
+import loanGroupRoutes from './loanGroup.routes.js';
 
 const router = Router();
 
@@ -58,5 +63,10 @@ router.use('/notifications', notificationRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/billing', billingRoutes);
 router.use('/modules', moduleRoutes);
+router.use('/loan-products', loanProductRoutes);
+router.use('/loans', loanRoutes);
+router.use('/repayments', loanRepaymentRoutes);
+router.use('/savings', savingsRoutes);
+router.use('/groups', loanGroupRoutes);
 
 export default router;

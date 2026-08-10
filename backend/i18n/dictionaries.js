@@ -83,6 +83,7 @@ export const en = {
     sales: 'Sales', inventory: 'Inventory', purchases: 'Purchases', expenses: 'Expenses', profit: 'Profit',
     branches: 'Branches', products: 'Products', customers: 'Customers', suppliers: 'Suppliers', returns: 'Returns',
     transfers: 'Transfers', users: 'Users', all: 'All Reports',
+    loan_portfolio: 'Loan Portfolio', loan_repayments: 'Loan Repayments',
   },
   summaryLabels: {
     totalSales: 'Total Sales', totalRevenue: 'Total Revenue', totalDiscount: 'Total Discount', averageSale: 'Average Sale',
@@ -91,16 +92,20 @@ export const en = {
     totalExpenses: 'Total Expenses', salesRevenue: 'Sales Revenue', cogs: 'Cost of Goods Sold', grossProfit: 'Gross Profit',
     expenses: 'Expenses', netProfit: 'Net Profit', totalUsers: 'Total Users', activeUsers: 'Active',
     suspendedUsers: 'Suspended', lockedUsers: 'Locked',
+    totalLoans: 'Total Loans', totalDisbursed: 'Total Disbursed', totalOutstanding: 'Total Outstanding',
+    totalRepayments: 'Total Repayments', totalCollected: 'Total Collected',
   },
   breakdowns: {
     byDay: 'By Day', byBranch: 'By Branch', topCustomers: 'Top Customers', byCategory: 'By Category',
     topProducts: 'Top Products', bySupplier: 'By Supplier', byReason: 'By Reason', branchComparison: 'Branch Comparison',
     supplierBalances: 'Supplier Balances', byRole: 'By Role', salesByDay: 'Sales By Day', salesByBranch: 'Sales By Branch',
     expensesByCategory: 'Expenses By Category',
+    byStatus: 'By Status', byProduct: 'By Loan Product', byMethod: 'By Payment Method',
   },
   breakdownHeaders: {
     date: 'Date', branch: 'Branch', category: 'Category', product: 'Product', supplier: 'Supplier',
     reason: 'Reason', role: 'Role', customer: 'Customer', name: 'Name',
+    status: 'Status', method: 'Method',
   },
   filterLabels: {
     cashier: 'Cashier', status: 'Status',
@@ -184,6 +189,7 @@ export const sw = {
     sales: 'Mauzo', inventory: 'Hesabu ya Bidhaa', purchases: 'Manunuzi', expenses: 'Matumizi', profit: 'Faida',
     branches: 'Matawi', products: 'Bidhaa', customers: 'Wateja', suppliers: 'Wasambazaji', returns: 'Marejesho',
     transfers: 'Uhamisho', users: 'Watumiaji', all: 'Ripoti Zote',
+    loan_portfolio: 'Mikopo Yote', loan_repayments: 'Malipo ya Mikopo',
   },
   summaryLabels: {
     totalSales: 'Jumla ya Mauzo', totalRevenue: 'Jumla ya Mapato', totalDiscount: 'Jumla ya Punguzo', averageSale: 'Wastani wa Mauzo',
@@ -192,16 +198,20 @@ export const sw = {
     totalExpenses: 'Jumla ya Matumizi', salesRevenue: 'Mapato ya Mauzo', cogs: 'Gharama za Bidhaa Zilizouzwa', grossProfit: 'Faida Ghafi',
     expenses: 'Matumizi', netProfit: 'Faida Halisi', totalUsers: 'Jumla ya Watumiaji', activeUsers: 'Hai',
     suspendedUsers: 'Waliosimamishwa', lockedUsers: 'Waliofungwa',
+    totalLoans: 'Jumla ya Mikopo', totalDisbursed: 'Jumla Iliyotolewa', totalOutstanding: 'Jumla Inayodaiwa',
+    totalRepayments: 'Jumla ya Malipo', totalCollected: 'Jumla Iliyokusanywa',
   },
   breakdowns: {
     byDay: 'Kwa Siku', byBranch: 'Kwa Tawi', topCustomers: 'Wateja Bora', byCategory: 'Kwa Kategoria',
     topProducts: 'Bidhaa Bora', bySupplier: 'Kwa Msambazaji', byReason: 'Kwa Sababu', branchComparison: 'Ulinganisho wa Matawi',
     supplierBalances: 'Salio za Wasambazaji', byRole: 'Kwa Jukumu', salesByDay: 'Mauzo kwa Siku', salesByBranch: 'Mauzo kwa Tawi',
     expensesByCategory: 'Matumizi kwa Aina',
+    byStatus: 'Kwa Hali', byProduct: 'Kwa Aina ya Mkopo', byMethod: 'Kwa Njia ya Malipo',
   },
   breakdownHeaders: {
     date: 'Tarehe', branch: 'Tawi', category: 'Kategoria', product: 'Bidhaa', supplier: 'Msambazaji',
     reason: 'Sababu', role: 'Jukumu', customer: 'Mteja', name: 'Jina',
+    status: 'Hali', method: 'Njia',
   },
   filterLabels: {
     cashier: 'Mhudumu', status: 'Hali',

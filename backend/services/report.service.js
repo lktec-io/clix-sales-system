@@ -6,6 +6,7 @@ import { buildAnalysis } from './reportAnalysis.js';
 const REPORT_TYPES = [
   'sales', 'inventory', 'purchases', 'expenses', 'profit',
   'branches', 'products', 'customers', 'suppliers', 'returns', 'transfers', 'users', 'all',
+  'loan_portfolio', 'loan_repayments',
 ];
 
 // The "by day" breakdowns (sales/profit) group by a naturally-unbounded
@@ -87,6 +88,8 @@ export async function getReport(type, query, user) {
     case 'returns': report = await reportRepository.returnsReport(filters); break;
     case 'transfers': report = await reportRepository.transfersReport(filters); break;
     case 'users': report = await reportRepository.usersReport(filters); break;
+    case 'loan_portfolio': report = await reportRepository.loanPortfolioReport(filters); break;
+    case 'loan_repayments': report = await reportRepository.loanRepaymentsReport(filters); break;
     case 'all': return buildAllReport(filters, { previousRevenue });
     default: throw new ApiError(404, `Unknown report type "${type}"`);
   }
