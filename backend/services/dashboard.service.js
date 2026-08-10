@@ -47,6 +47,7 @@ const CHART_HANDLERS = {
 const EMPTY_MICROFINANCE_KPIS = {
   totalBorrowers: 0, activeLoans: 0, totalDisbursed: 0, outstandingBalance: 0,
   overdueLoans: 0, portfolioAtRisk: 0, todayCollections: 0, totalCollected: 0, totalSavingsBalance: 0,
+  pendingApplications: 0,
 };
 
 export async function getKpis(user) {

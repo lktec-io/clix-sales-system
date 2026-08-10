@@ -143,12 +143,17 @@ export async function getPortfolioSummary(tenantId, branchIds) {
     `SELECT COALESCE(SUM(principal_outstanding + interest_outstanding), 0) AS value FROM loans WHERE status = 'active' ${scope.clause}`,
     scope.params,
   );
+  const [[pending]] = await pool.query(
+    `SELECT COUNT(*) AS value FROM loans WHERE status IN ('submitted','under_review') ${scope.clause}`,
+    scope.params,
+  );
 
   return {
     totalBorrowers: Number(borrowers.value),
     activeLoans: Number(activeLoans.value),
     totalDisbursed: Number(disbursed.value),
     outstandingBalance: Number(outstanding.value),
+    pendingApplications: Number(pending.value),
   };
 }
 

@@ -271,7 +271,13 @@ const VISIBLE_REPORT_TYPES = [
 // and breakdowns are built around) rather than its own separate flag.
 const REPORT_TYPE_MODULE_KEY = {
   sales: 'sales', products: 'products', inventory: 'inventory',
-  customers: 'customers', suppliers: 'suppliers', expenses: 'expenses', all: 'sales',
+  // The "Customers" report is top-customers-by-SALES-spend, not a report
+  // about the Customers module's existence — gated on 'sales' rather than
+  // 'customers' so it doesn't show for a tenant (Microfinance) that has
+  // Customers (borrowers are customers) but no Sales at all. Every existing
+  // retail-shaped template already has both modules together, so this is a
+  // no-op for them.
+  customers: 'sales', suppliers: 'suppliers', expenses: 'expenses', all: 'sales',
   loan_portfolio: 'loans', loan_repayments: 'loan_repayments',
 };
 

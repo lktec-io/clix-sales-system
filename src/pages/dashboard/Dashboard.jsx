@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
-  FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle, FiUserCheck, FiCreditCard, FiAlertOctagon,
+  FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle, FiUserCheck, FiCreditCard, FiAlertOctagon, FiClock,
 } from 'react-icons/fi';
 import KPICard from '../../components/dashboard/KPICard';
 import ChartCard from '../../components/dashboard/ChartCard';
@@ -32,15 +32,18 @@ function useKpiDefs(t) {
     { key: 'todayOrders', label: t('kpi.todayOrders'), icon: FiShoppingBag, formatter: formatNumber, subtitle: t('kpi.todayOrdersSubtitle'), accent: '#F59E0B' },
     { key: 'lowStockCount', label: t('kpi.lowStockCount'), icon: FiAlertTriangle, formatter: formatNumber, subtitle: t('kpi.lowStockCountSubtitle'), accent: '#EF4444' },
     // Microfinance — same hasWidget() gate as every retail KPI above, driven
-    // by the 'loans'/'savings' modules' dashboard_widgets column
-    // (028_create_microfinance_tables.sql). Only ever rendered for a tenant
-    // whose resolved modules actually include them.
-    { key: 'totalBorrowers', label: t('kpi.totalBorrowers'), icon: FiUserCheck, formatter: formatNumber, subtitle: t('kpi.totalBorrowersSubtitle'), accent: '#2F6BFF' },
-    { key: 'activeLoans', label: t('kpi.activeLoans'), icon: FiCreditCard, formatter: formatNumber, subtitle: t('kpi.activeLoansSubtitle'), accent: '#10B981' },
-    { key: 'outstandingBalance', label: t('kpi.outstandingBalance'), icon: FiDollarSign, formatter: formatCurrency, subtitle: t('kpi.outstandingBalanceSubtitle'), accent: '#8B5CF6' },
+    // by the 'loans' module's dashboard_widgets column
+    // (029_simplify_microfinance_modules.sql). Only ever rendered for a
+    // tenant whose resolved modules actually include it. Exactly the 7
+    // metrics a lending-focused dashboard needs — no Borrowers/Savings/
+    // "today's collections" noise.
+    { key: 'activeLoans', label: t('kpi.activeLoans'), icon: FiUserCheck, formatter: formatNumber, subtitle: t('kpi.activeLoansSubtitle'), accent: '#2F6BFF' },
+    { key: 'totalDisbursed', label: t('kpi.totalDisbursed'), icon: FiTrendingUp, formatter: formatCurrency, subtitle: t('kpi.totalDisbursedSubtitle'), accent: '#10B981' },
+    { key: 'totalCollected', label: t('kpi.totalCollected'), icon: FiCreditCard, formatter: formatCurrency, subtitle: t('kpi.totalCollectedSubtitle'), accent: '#8B5CF6' },
+    { key: 'outstandingBalance', label: t('kpi.outstandingBalance'), icon: FiDollarSign, formatter: formatCurrency, subtitle: t('kpi.outstandingBalanceSubtitle'), accent: '#F59E0B' },
     { key: 'overdueLoans', label: t('kpi.overdueLoans'), icon: FiAlertOctagon, formatter: formatNumber, subtitle: t('kpi.overdueLoansSubtitle'), accent: '#EF4444' },
-    { key: 'todayCollections', label: t('kpi.todayCollections'), icon: FiTrendingUp, formatter: formatCurrency, subtitle: t('kpi.todayCollectionsSubtitle'), accent: '#F59E0B' },
-    { key: 'totalSavingsBalance', label: t('kpi.totalSavingsBalance'), icon: FiDollarSign, formatter: formatCurrency, subtitle: t('kpi.totalSavingsBalanceSubtitle'), accent: '#10B981' },
+    { key: 'portfolioAtRisk', label: t('kpi.portfolioAtRisk'), icon: FiAlertTriangle, formatter: formatCurrency, subtitle: t('kpi.portfolioAtRiskSubtitle'), accent: '#DC2626' },
+    { key: 'pendingApplications', label: t('kpi.pendingApplications'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.pendingApplicationsSubtitle'), accent: '#06B6D4' },
   ];
 }
 
