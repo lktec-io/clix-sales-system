@@ -43,3 +43,37 @@ export const authenticate = asyncHandler(async (req, res, next) => {
   req.tenant = tenant;
   return next();
 });
+
+// For the handful of routes that must serve BOTH a logged-out caller (the
+// login page rendering company branding before any session exists) and a
+// logged-in one (the same endpoint, Settings > Company Profile) from a
+// single handler. Unlike authenticate() above, a missing/invalid token is
+// not an error here — req.user/req.tenant are simply left unset and the
+// controller decides what an anonymous caller gets to see. A tenant_id is
+// still only ever taken from a verified JWT claim, never guessed.
+export const authenticateOptional = asyncHandler(async (req, res, next) => {
+  const header = req.headers.authorization || '';
+  const [scheme, token] = header.split(' ');
+
+  if (scheme !== 'Bearer' || !token) {
+    return next();
+  }
+
+  let payload;
+  try {
+    payload = verifyAccessToken(token);
+  } catch {
+    return next();
+  }
+
+  try {
+    const tenant = await resolveTenant(payload.tenantId);
+    req.user = { id: payload.sub, tenantId: tenant.id, roleId: payload.roleId, role: payload.role, branchId: payload.branchId };
+    req.tenantId = tenant.id;
+    req.tenant = tenant;
+  } catch {
+    // Suspended tenant, deleted tenant, etc. — treat as anonymous rather
+    // than failing a route that's supposed to degrade gracefully.
+  }
+  return next();
+});

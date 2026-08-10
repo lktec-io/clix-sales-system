@@ -177,7 +177,7 @@ export async function refresh({ refreshToken }) {
     sub: user.id, tenantId: user.tenant_id, roleId: user.role_id, role: user.role_name, branchId: user.branch_id, permissions: userWithPermissions.permissions,
   });
 
-  return { accessToken, refreshToken: newRefreshToken, user: userWithPermissions };
+  return { accessToken, refreshToken: newRefreshToken, refreshExpiresAt, user: userWithPermissions };
 }
 
 export async function logout({ refreshToken }) {

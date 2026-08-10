@@ -46,7 +46,7 @@ export const refresh = asyncHandler(async (req, res) => {
 
   const result = await authService.refresh({ refreshToken });
 
-  setRefreshCookie(res, result.refreshToken, undefined);
+  setRefreshCookie(res, result.refreshToken, result.refreshExpiresAt);
   return success(res, { message: 'Token refreshed', data: { accessToken: result.accessToken, user: result.user } });
 });
 
