@@ -1,3 +1,4 @@
+import { pool } from '../config/db.js';
 import { ApiError } from '../utils/apiError.js';
 import { generateCode } from '../repositories/sequence.repository.js';
 import { addBillingCycle, priceForCycle } from '../utils/billingCycle.js';
@@ -11,12 +12,6 @@ import {
   createInvoiceForEvent, notifyTenant, markInvoicePaid,
 } from './subscriptionLifecycle.service.js';
 import { getProvider, getActiveProviderName } from './paymentProviders/index.js';
-
-async function findOwnedSubscription(tenantId) {
-  const subscription = await tenantSubscriptionRepository.findByTenantId(tenantId);
-  if (!subscription) throw new ApiError(404, 'Tenant has no subscription record');
-  return subscription;
-}
 
 async function findActivePlan(planId) {
   const plan = await subscriptionPlanRepository.findById(planId);
@@ -38,18 +33,43 @@ async function findActivePlan(planId) {
 // skip payment the way an admin's direct changePlan() override can. This
 // is what actually creates the pending state a payment then confirms.
 export async function initiateCheckout(tenantId, { planId, billingCycle }, actingUser) {
-  const subscription = await findOwnedSubscription(tenantId);
   const plan = await findActivePlan(planId);
 
-  if (subscription.status === 'pending_payment') {
-    throw new ApiError(409, 'A payment is already in progress for this subscription. Wait for it to be confirmed or contact support.');
-  }
-
+  // The guard-then-write below runs inside one locked transaction — two
+  // concurrent checkout requests for the same tenant (double-click, a
+  // retried request on a flaky connection, two open tabs) would otherwise
+  // both read status !== 'pending_payment' before either write lands,
+  // each creating its own invoice/payment for the same upgrade. FOR
+  // UPDATE (tenantSubscriptionRepository.findByTenantIdForUpdate) makes
+  // the second request wait for the first transaction to commit, then see
+  // the fresh 'pending_payment' status and correctly reject with 409 —
+  // same pattern inventoryRepository.recordMovement() already uses for
+  // its own read-check-write race.
+  const connection = await pool.getConnection();
+  let subscription;
+  let updatedSubscription;
   const startDate = new Date();
   const endDate = addBillingCycle(startDate, billingCycle);
-  const updatedSubscription = await tenantSubscriptionRepository.convertFromTrial(tenantId, {
-    planId, billingCycle, startDate, endDate, renewalDate: endDate,
-  });
+  try {
+    await connection.beginTransaction();
+
+    subscription = await tenantSubscriptionRepository.findByTenantIdForUpdate(tenantId, connection);
+    if (!subscription) throw new ApiError(404, 'Tenant has no subscription record');
+    if (subscription.status === 'pending_payment') {
+      throw new ApiError(409, 'A payment is already in progress for this subscription. Wait for it to be confirmed or contact support.');
+    }
+
+    updatedSubscription = await tenantSubscriptionRepository.convertFromTrial(tenantId, {
+      planId, billingCycle, startDate, endDate, renewalDate: endDate,
+    }, connection);
+
+    await connection.commit();
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
+  }
 
   const eventId = await subscriptionEventRepository.create({
     tenantId,
@@ -158,6 +178,20 @@ export async function rejectPaymentManually(paymentId, reason, admin, ipAddress)
   if (payment.status === 'succeeded') throw new ApiError(400, 'Payment is already confirmed and cannot be rejected.');
 
   const updated = await paymentRepository.markFailed(payment.id, { failureReason: reason || 'Rejected by platform admin' });
+
+  // Without this, the subscription stays stuck in 'pending_payment'
+  // forever — initiateCheckout refuses to start a new checkout while it's
+  // pending, so a rejected tenant could never try again without a
+  // platform admin manually intervening. Falls back to 'active' if this
+  // was an existing paying customer switching plans (trial_converted_at
+  // already set), 'trial' if it was their first-ever conversion attempt —
+  // the exact same signal markInvoicePaid already uses the other way
+  // around (wasTrialConversion = !subscription.trial_converted_at).
+  const subscription = await tenantSubscriptionRepository.findById(payment.subscription_id);
+  if (subscription && subscription.status === 'pending_payment') {
+    const fallbackStatus = subscription.trial_converted_at ? 'active' : 'trial';
+    await tenantSubscriptionRepository.revertPendingPayment(payment.tenant_id, fallbackStatus);
+  }
 
   await platformAuditLogRepository.create({
     platformAdminId: admin?.id || null,

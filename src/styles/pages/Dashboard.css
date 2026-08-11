@@ -276,11 +276,6 @@
   color: #ffffff;
 }
 
-.trial-card .trial-card-cta.btn-primary:disabled {
-  opacity: 0.85;
-  cursor: not-allowed;
-}
-
 @media (max-width: 640px) {
   .trial-card {
     flex-wrap: wrap;

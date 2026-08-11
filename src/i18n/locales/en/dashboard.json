@@ -5,8 +5,7 @@
     "daysRemaining_other": "{{count}} days remaining",
     "expiredTitle": "Trial Expired",
     "expiredMessage": "Your trial has expired. Upgrade your subscription to continue.",
-    "upgradePlan": "Upgrade Plan",
-    "upgradeComingSoon": "Upgrades are coming soon"
+    "upgradePlan": "Upgrade Plan"
   },
   "hero": {
     "goodMorning": "Good Morning",

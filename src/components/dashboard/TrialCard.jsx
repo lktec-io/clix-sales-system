@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { FiClock, FiAlertCircle } from 'react-icons/fi';
 import * as tenantService from '../../services/tenantService';
+import { ROUTES } from '../../constants/routes';
 import Skeleton from '../common/Skeleton';
 
 function daysRemaining(trialEndsAt) {
@@ -59,9 +61,7 @@ function TrialCard() {
             : t('trial.daysRemaining', { count: remaining })}
         </span>
       </div>
-      <button type="button" className="btn btn-primary trial-card-cta" disabled title={t('trial.upgradeComingSoon')}>
-        {t('trial.upgradePlan')}
-      </button>
+      <Link to={ROUTES.BILLING} className="btn btn-primary trial-card-cta">{t('trial.upgradePlan')}</Link>
     </div>
   );
 }

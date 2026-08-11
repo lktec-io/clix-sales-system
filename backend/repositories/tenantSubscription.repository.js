@@ -33,6 +33,23 @@ export async function findByTenantId(tenantId) {
   return rows[0] || null;
 }
 
+// Row-locking variant for payment.service.js#initiateCheckout — closes the
+// race where two concurrent checkout requests for the same tenant both
+// read status !== 'pending_payment' before either write lands, creating
+// two invoices/payments for one upgrade. Must run inside a transaction on
+// `connection`; the lock releases on that transaction's commit/rollback,
+// same FOR UPDATE pattern inventoryRepository.recordMovement() already
+// uses for its own read-check-write race.
+export async function findByTenantIdForUpdate(tenantId, connection) {
+  const [rows] = await connection.query(
+    `SELECT ts.*, p.name AS plan_name, p.slug AS plan_slug
+     FROM tenant_subscriptions ts JOIN subscription_plans p ON p.id = ts.plan_id
+     WHERE ts.tenant_id = ? LIMIT 1 FOR UPDATE`,
+    [tenantId],
+  );
+  return rows[0] || null;
+}
+
 export async function findById(id) {
   const [rows] = await pool.query(
     `SELECT ts.*, p.name AS plan_name, p.slug AS plan_slug
@@ -54,15 +71,25 @@ export async function changePlan(tenantId, { planId, billingCycle }) {
 
 // First-ever conversion out of a trial onto a paid plan — status lands on
 // pending_payment (not active) until markInvoicePaid confirms it, exactly
-// the seam a real checkout will occupy in Phase 5.
-export async function convertFromTrial(tenantId, { planId, billingCycle, startDate, endDate, renewalDate }) {
-  await pool.query(
+// the seam a real checkout occupies (payment.service.js#initiateCheckout).
+// Optional `connection` (default `pool`) lets initiateCheckout run this as
+// part of the same locked transaction as findByTenantIdForUpdate() above —
+// every other caller (subscriptionLifecycle.service.js's admin-driven
+// upgradePlan) is unaffected, since the default is identical to before.
+export async function convertFromTrial(tenantId, { planId, billingCycle, startDate, endDate, renewalDate }, connection = pool) {
+  await connection.query(
     `UPDATE tenant_subscriptions
      SET plan_id = ?, billing_cycle = ?, status = 'pending_payment', start_date = ?, end_date = ?, renewal_date = ?
      WHERE tenant_id = ?`,
     [planId, billingCycle, startDate, endDate, renewalDate, tenantId],
   );
-  return findByTenantId(tenantId);
+  const [rows] = await connection.query(
+    `SELECT ts.*, p.name AS plan_name, p.slug AS plan_slug
+     FROM tenant_subscriptions ts JOIN subscription_plans p ON p.id = ts.plan_id
+     WHERE ts.tenant_id = ? LIMIT 1`,
+    [tenantId],
+  );
+  return rows[0] || null;
 }
 
 // Extends the paid period to the next cycle but leaves activation pending
@@ -84,6 +111,21 @@ export async function activate(tenantId, { trialConverted = false } = {}) {
   } else {
     await pool.query("UPDATE tenant_subscriptions SET status = 'active', grace_period_ends_at = NULL WHERE tenant_id = ?", [tenantId]);
   }
+  return findByTenantId(tenantId);
+}
+
+// Reverts a rejected/failed checkout out of 'pending_payment' back to
+// whatever status made sense before the attempt, so the tenant isn't
+// permanently locked out of ever checking out again (initiateCheckout's
+// own guard refuses to start a new checkout while status is
+// 'pending_payment') and isn't left in a state markInvoicePaid never
+// expected to see. Guarded by `AND status = 'pending_payment'` so it's a
+// safe no-op if the payment was somehow already resolved another way.
+export async function revertPendingPayment(tenantId, fallbackStatus) {
+  await pool.query(
+    "UPDATE tenant_subscriptions SET status = ? WHERE tenant_id = ? AND status = 'pending_payment'",
+    [fallbackStatus, tenantId],
+  );
   return findByTenantId(tenantId);
 }
 
