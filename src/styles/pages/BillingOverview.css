@@ -110,3 +110,8 @@
 .billing-plan-cycles svg {
   color: var(--color-success);
 }
+
+.billing-plan-choose {
+  width: 100%;
+  margin-top: var(--space-4);
+}

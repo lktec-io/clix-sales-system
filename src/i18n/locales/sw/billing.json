@@ -5,8 +5,7 @@
     "daysRemaining_other": "Siku {{count}} zilizobaki",
     "status": "Hali: {{status}}",
     "viewBilling": "Angalia Malipo",
-    "upgradePlan": "Boresha Mpango",
-    "upgradeComingSoon": "Uboreshaji unakuja hivi karibuni"
+    "upgradePlan": "Boresha Mpango"
   },
   "status": {
     "trial": "Jaribio",
@@ -25,8 +24,6 @@
     "renewalDate": "Tarehe ya Kuhuisha",
     "daysRemaining": "Siku Zilizobaki",
     "billingCycle": "Mzunguko wa Malipo",
-    "upgradePlan": "Boresha Mpango",
-    "upgradeComingSoon": "Uboreshaji unakuja hivi karibuni — usaidizi wa malipo unakuja.",
     "availablePlans": "Mipango Inayopatikana",
     "recommended": "Inapendekezwa",
     "perMonth": "/ mwezi",
@@ -36,6 +33,27 @@
     "billingHistory": "Historia ya Malipo",
     "noInvoices": "Hakuna ankara bado.",
     "noHistory": "Hakuna historia ya malipo bado.",
+    "myPayments": "Malipo Yangu",
+    "noPayments": "Hakuna maombi ya malipo bado.",
+    "choosePlan": "Chagua mpango huu",
+    "currentPlanBadge": "Mpango wa sasa",
+    "pendingPaymentBanner": "Uboreshaji wa mpango wako unasubiri uthibitisho wa malipo. Hii inaweza kuchukua muda kidogo — angalia tena hivi karibuni.",
+    "instructionsIntro": "Uboreshaji umeombwa. Namba ya kumbukumbu {{reference}} kwa {{amount}} — timu yetu itathibitisha malipo yako hivi karibuni.",
+    "upgradeRequested": "Uboreshaji umeombwa. Tutathibitisha malipo yako hivi karibuni.",
+    "checkoutTitle": "Boresha hadi {{plan}}",
+    "checkoutIntro": "Chagua mzunguko wa malipo ili kuendelea. Ombi lako litakaguliwa na kuthibitishwa na timu yetu.",
+    "confirmUpgrade": "Omba Uboreshaji",
+    "cancel": "Ghairi",
+    "cycleOptions": {
+      "monthly": "Kila Mwezi",
+      "quarterly": "Kila Robo Mwaka",
+      "yearly": "Kila Mwaka"
+    },
+    "cyclePriceSuffix": {
+      "monthly": "/ mwezi",
+      "quarterly": "/ robo mwaka",
+      "yearly": "/ mwaka"
+    },
     "columns": {
       "invoiceNumber": "Namba ya Ankara",
       "plan": "Mpango",
@@ -44,7 +62,8 @@
       "status": "Hali",
       "issueDate": "Tarehe ya Kutolewa",
       "event": "Tukio",
-      "date": "Tarehe"
+      "date": "Tarehe",
+      "reference": "Namba ya Kumbukumbu"
     },
     "viewInvoice": "Angalia"
   },
@@ -66,5 +85,12 @@
     "failed": "Imeshindwa",
     "void": "Batili",
     "refunded": "Imerejeshwa"
+  },
+  "paymentState": {
+    "pending": "Inasubiri",
+    "processing": "Inachakatwa",
+    "succeeded": "Imefanikiwa",
+    "failed": "Imeshindwa",
+    "cancelled": "Imeghairiwa"
   }
 }

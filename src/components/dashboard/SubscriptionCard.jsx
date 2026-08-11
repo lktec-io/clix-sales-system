@@ -49,9 +49,7 @@ function SubscriptionCard() {
         </span>
       </div>
       <Link to={ROUTES.BILLING} className="btn btn-secondary subscription-card-link">{t('card.viewBilling')}</Link>
-      <button type="button" className="btn btn-primary subscription-card-cta" disabled title={t('card.upgradeComingSoon')}>
-        {t('card.upgradePlan')}
-      </button>
+      <Link to={ROUTES.BILLING} className="btn btn-primary subscription-card-cta">{t('card.upgradePlan')}</Link>
     </div>
   );
 }

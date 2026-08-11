@@ -27,7 +27,10 @@ async function logAction(platformAdminId, action, description, tenantId, ipAddre
   await platformAuditLogRepository.create({ platformAdminId, action, description, tenantId, ipAddress });
 }
 
-async function notifyTenant(tenantId, { type, category, title, message, referenceId }) {
+// Exported — reused by payment.service.js (Phase 6) so a tenant-initiated
+// checkout notification uses the exact same helper an admin-initiated plan
+// change already does, instead of a second near-identical implementation.
+export async function notifyTenant(tenantId, { type, category, title, message, referenceId }) {
   await notificationRepository.notifyBranchManagement(tenantId, null, {
     type, category, title, message, referenceType: 'tenant_subscription', referenceId,
   });
@@ -39,7 +42,11 @@ async function notifyTenant(tenantId, { type, category, title, message, referenc
 // decisions"). requireActiveTrial.js keeps gating purely off
 // tenants.trial_ends_at/subscription_status, completely unaffected by
 // anything in this file.
-async function createInvoiceForEvent({ tenantId, subscriptionId, eventId, plan, billingCycle, periodStart, periodEnd }) {
+// Exported — reused by payment.service.js (Phase 6) so a tenant-initiated
+// checkout creates its invoice through the exact same logic an
+// admin-initiated upgrade/downgrade/renew already does, rather than a
+// second competing invoice-creation path.
+export async function createInvoiceForEvent({ tenantId, subscriptionId, eventId, plan, billingCycle, periodStart, periodEnd }) {
   const invoiceNumber = await generateCode('INVOICE', 'INV', { tenantId, padLength: 6 });
   const subtotal = priceForCycle(plan, billingCycle);
   const issueDate = new Date();
@@ -221,11 +228,17 @@ export async function scheduleplanChange(tenantId, { planId, billingCycle, effec
   return updated;
 }
 
-// The Phase-5 seam: a real payment-gateway webhook will call this exact
-// function once it confirms a charge, instead of a platform admin clicking
-// "Mark Paid" for manual bookkeeping today. Nothing about this function's
-// signature or behavior should need to change for that to happen.
-export async function markInvoicePaid(invoiceId, admin, ipAddress) {
+// The Phase-6 seam this was built for: payment.service.js's
+// confirmPaymentManually() (platform admin) and confirmPaymentFromWebhook()
+// (a real gateway, once one exists) both call this exact function, instead
+// of a platform admin clicking "Mark Paid" being the only way an invoice
+// ever gets marked paid. `admin` is optional — null for a system/webhook
+// actor (mirrors the cron entry points below, which already log
+// subscription_events with platformAdminId: null for the same reason) —
+// everything else about this function's signature and behavior is
+// unchanged for the existing platform-admin call site
+// (invoice.controller.js's markPaid).
+export async function markInvoicePaid(invoiceId, admin = null, ipAddress = null) {
   const invoice = await invoiceRepository.findById(invoiceId);
   if (!invoice) throw new ApiError(404, 'Invoice not found');
   if (invoice.payment_status === 'paid') throw new ApiError(400, 'Invoice is already marked paid');
@@ -239,7 +252,7 @@ export async function markInvoicePaid(invoiceId, admin, ipAddress) {
     updatedSubscription = await tenantSubscriptionRepository.activate(invoice.tenant_id, { trialConverted: wasTrialConversion });
   }
 
-  await logAction(admin.id, 'invoice.mark_paid', `Marked invoice "${invoice.invoice_number}" as paid`, invoice.tenant_id, ipAddress);
+  await logAction(admin?.id || null, 'invoice.mark_paid', `Marked invoice "${invoice.invoice_number}" as paid`, invoice.tenant_id, ipAddress);
   await notifyTenant(invoice.tenant_id, {
     type: 'success', category: 'invoice_generated', title: 'Payment confirmed',
     message: `Invoice "${invoice.invoice_number}" has been marked as paid.`, referenceId: invoice.id,

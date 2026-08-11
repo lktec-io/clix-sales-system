@@ -7,6 +7,7 @@ import platformNotificationRoutes from './platformNotification.routes.js';
 import platformSettingsRoutes from './platformSettings.routes.js';
 import platformPlanRoutes from './platformPlan.routes.js';
 import platformSubscriptionRoutes from './platformSubscription.routes.js';
+import platformPaymentRoutes from './platformPayment.routes.js';
 import moduleRoutes from './module.routes.js';
 import businessTemplateRoutes from './businessTemplate.routes.js';
 
@@ -23,6 +24,7 @@ router.use('/notifications', platformNotificationRoutes);
 router.use('/settings', platformSettingsRoutes);
 router.use('/plans', platformPlanRoutes);
 router.use('/subscriptions', platformSubscriptionRoutes);
+router.use('/payments', platformPaymentRoutes);
 router.use('/modules', moduleRoutes);
 router.use('/templates', businessTemplateRoutes);
 

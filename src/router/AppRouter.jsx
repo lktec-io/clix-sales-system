@@ -110,6 +110,7 @@ const PlatformNotifications = lazy(() => import('../pages/platform/notifications
 const PlatformSettings = lazy(() => import('../pages/platform/settings/PlatformSettings'));
 const PlanList = lazy(() => import('../pages/platform/plans/PlanList'));
 const BillingDashboard = lazy(() => import('../pages/platform/billing/BillingDashboard'));
+const PaymentList = lazy(() => import('../pages/platform/payments/PaymentList'));
 const TemplateList = lazy(() => import('../pages/platform/templates/TemplateList'));
 const ModuleList = lazy(() => import('../pages/platform/templates/ModuleList'));
 
@@ -245,6 +246,7 @@ function AppRouter() {
               <Route path={PLATFORM_ROUTES.SETTINGS} element={<PlatformSettings />} />
               <Route path={PLATFORM_ROUTES.PLANS} element={<PlanList />} />
               <Route path={PLATFORM_ROUTES.BILLING} element={<BillingDashboard />} />
+              <Route path={PLATFORM_ROUTES.PAYMENTS} element={<PaymentList />} />
               <Route path={PLATFORM_ROUTES.TEMPLATES} element={<TemplateList />} />
               <Route path={PLATFORM_ROUTES.MODULES} element={<ModuleList />} />
             </Route>

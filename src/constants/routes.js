@@ -29,6 +29,7 @@ export const PLATFORM_ROUTES = {
   SETTINGS: '/platform/settings',
   PLANS: '/platform/plans',
   BILLING: '/platform/billing',
+  PAYMENTS: '/platform/payments',
   TEMPLATES: '/platform/templates',
   MODULES: '/platform/modules',
 };

@@ -5,8 +5,7 @@
     "daysRemaining_other": "{{count}} days left",
     "status": "Status: {{status}}",
     "viewBilling": "View Billing",
-    "upgradePlan": "Upgrade Plan",
-    "upgradeComingSoon": "Upgrades are coming soon"
+    "upgradePlan": "Upgrade Plan"
   },
   "status": {
     "trial": "Trial",
@@ -25,8 +24,6 @@
     "renewalDate": "Renewal Date",
     "daysRemaining": "Days Remaining",
     "billingCycle": "Billing Cycle",
-    "upgradePlan": "Upgrade Plan",
-    "upgradeComingSoon": "Upgrades are coming soon — payment support is on the way.",
     "availablePlans": "Available Plans",
     "recommended": "Recommended",
     "perMonth": "/ month",
@@ -36,6 +33,27 @@
     "billingHistory": "Billing History",
     "noInvoices": "No invoices yet.",
     "noHistory": "No billing history yet.",
+    "myPayments": "My Payments",
+    "noPayments": "No payment requests yet.",
+    "choosePlan": "Choose this plan",
+    "currentPlanBadge": "Current plan",
+    "pendingPaymentBanner": "Your plan upgrade is awaiting payment confirmation. This can take a moment — check back soon.",
+    "instructionsIntro": "Upgrade requested. Reference {{reference}} for {{amount}} — our team will confirm your payment shortly.",
+    "upgradeRequested": "Upgrade requested. We'll confirm your payment shortly.",
+    "checkoutTitle": "Upgrade to {{plan}}",
+    "checkoutIntro": "Choose a billing cycle to continue. Your request will be reviewed and confirmed by our team.",
+    "confirmUpgrade": "Request Upgrade",
+    "cancel": "Cancel",
+    "cycleOptions": {
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "yearly": "Yearly"
+    },
+    "cyclePriceSuffix": {
+      "monthly": "/ month",
+      "quarterly": "/ quarter",
+      "yearly": "/ year"
+    },
     "columns": {
       "invoiceNumber": "Invoice Number",
       "plan": "Plan",
@@ -44,7 +62,8 @@
       "status": "Status",
       "issueDate": "Issue Date",
       "event": "Event",
-      "date": "Date"
+      "date": "Date",
+      "reference": "Reference"
     },
     "viewInvoice": "View"
   },
@@ -66,5 +85,12 @@
     "failed": "Failed",
     "void": "Void",
     "refunded": "Refunded"
+  },
+  "paymentState": {
+    "pending": "Pending",
+    "processing": "Processing",
+    "succeeded": "Succeeded",
+    "failed": "Failed",
+    "cancelled": "Cancelled"
   }
 }
