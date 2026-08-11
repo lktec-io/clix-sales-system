@@ -351,3 +351,38 @@
     width: 100%;
   }
 }
+
+/* Microfinance "Loan Portfolio" — three independent counts (not a
+   part-of-a-whole chart), since Active/Overdue/Completed genuinely
+   overlap (an overdue loan is still counted in Active) and a doughnut
+   would misrepresent that as a clean partition. */
+.loan-portfolio-breakdown {
+  display: flex;
+  justify-content: space-around;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.loan-portfolio-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.loan-portfolio-stat-value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.loan-portfolio-stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.table-row-clickable {
+  cursor: pointer;
+}
+
+.table-row-clickable:hover {
+  background-color: var(--color-gray-light);
+}

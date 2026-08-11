@@ -51,3 +51,8 @@ export const portfolioKpis = asyncHandler(async (req, res) => {
   const kpis = await loanService.getPortfolioKpis(req.user);
   return success(res, { data: kpis });
 });
+
+export const recentApplications = asyncHandler(async (req, res) => {
+  const loans = await loanService.getRecentApplications(req.user, req.query.limit ? Number(req.query.limit) : undefined);
+  return success(res, { data: loans });
+});

@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiCheck, FiX, FiDollarSign, FiSlash, FiUserPlus, FiPlus } from 'react-icons/fi';
+import { FiArrowLeft, FiCheck, FiX, FiDollarSign, FiSlash, FiPlus } from 'react-icons/fi';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Modal from '../../components/common/Modal';
 import PageSkeleton from '../../components/common/PageSkeleton';
 import EmptyState from '../../components/common/EmptyState';
+import KPICard from '../../components/dashboard/KPICard';
 import { usePermission } from '../../hooks/usePermission';
 import { useToast } from '../../hooks/useToast';
 import * as loanService from '../../services/loanService';
@@ -32,14 +33,12 @@ function LoanDetail() {
 
   const [loan, setLoan] = useState(null);
   const [dialog, setDialog] = useState(null);
-  const [guarantorModalOpen, setGuarantorModalOpen] = useState(false);
   const [repaymentModalOpen, setRepaymentModalOpen] = useState(false);
   const [actionError, setActionError] = useState('');
 
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const formatDate = (isoString) => (isoString ? new Date(isoString).toLocaleDateString(dateLocale, { dateStyle: 'medium' }) : '—');
 
-  const guarantorForm = useForm({ defaultValues: { guarantorName: '', guarantorPhone: '', guaranteedAmount: '' } });
   const repaymentForm = useForm({ defaultValues: { amount: '', paymentMethod: 'cash', paymentDate: new Date().toISOString().slice(0, 10), reference: '' } });
 
   const loadLoan = useCallback(() => {
@@ -49,6 +48,15 @@ function LoanDetail() {
   useEffect(() => {
     loadLoan();
   }, [loadLoan]);
+
+  // Only meaningful once a schedule exists (disbursed onward) — a loan
+  // still awaiting approval/disbursement has no committed totals yet.
+  const totals = useMemo(() => {
+    if (!loan || loan.schedule.length === 0) return null;
+    const totalPayable = loan.schedule.reduce((sum, row) => sum + Number(row.total_due), 0);
+    const totalPaid = loan.schedule.reduce((sum, row) => sum + Number(row.amount_paid), 0);
+    return { totalPayable, totalPaid, outstanding: Number(loan.principal_outstanding) + Number(loan.interest_outstanding) };
+  }, [loan]);
 
   if (!loan) {
     return <PageSkeleton />;
@@ -67,25 +75,18 @@ function LoanDetail() {
     }
   };
 
-  const submitGuarantor = async (values) => {
-    try {
-      await loanService.addGuarantor(loan.id, {
-        guarantorName: values.guarantorName, guarantorPhone: values.guarantorPhone || undefined,
-        guaranteedAmount: Number(values.guaranteedAmount),
-      });
-      toast.success(t('microfinance:loans.detail.guarantorAddSuccess'));
-      setGuarantorModalOpen(false);
-      guarantorForm.reset();
-      loadLoan();
-    } catch (err) {
-      setActionError(err.response?.data?.message || t('microfinance:loans.detail.guarantorAddError'));
-    }
-  };
+  const outstandingNow = Number(loan.principal_outstanding) + Number(loan.interest_outstanding);
 
   const submitRepayment = async (values) => {
+    const amount = Number(values.amount);
+    if (amount > outstandingNow) {
+      setActionError(t('microfinance:loans.detail.repaymentExceedsBalance', { balance: formatCurrency(outstandingNow) }));
+      return;
+    }
+    setActionError('');
     try {
       await loanService.recordRepayment({
-        loanId: loan.id, amount: Number(values.amount), paymentMethod: values.paymentMethod,
+        loanId: loan.id, amount, paymentMethod: values.paymentMethod,
         paymentDate: values.paymentDate, reference: values.reference || undefined,
       });
       toast.success(t('microfinance:loans.detail.recordSuccess'));
@@ -111,9 +112,7 @@ function LoanDetail() {
             <FiArrowLeft aria-hidden="true" /> {t('microfinance:loans.detail.backToLoans')}
           </button>
           <h1 className="page-title">{loan.loan_number}</h1>
-          <p className="page-subtitle">
-            {loan.borrower_first_name} {loan.borrower_last_name} · {loan.loan_product_name} · {formatDate(loan.created_at)}
-          </p>
+          <p className="page-subtitle">{loan.borrower_first_name} {loan.borrower_last_name} · {formatDate(loan.created_at)}</p>
         </div>
         <div className="page-actions">
           {canReview && (
@@ -155,50 +154,42 @@ function LoanDetail() {
         <div className="card-body">
           <div className="form-row">
             <div>
-              <span className="text-xs text-secondary">{t('microfinance:loans.detail.status')}</span>
-              <div><span className={`badge ${STATUS_BADGE[loan.status] || 'badge-neutral'}`}>{t(`microfinance:loans.status.${loan.status}`)}</span></div>
+              <span className="text-xs text-secondary">{t('microfinance:loans.detail.borrower')}</span>
+              <div className="text-sm font-semibold">{loan.borrower_first_name} {loan.borrower_last_name}</div>
             </div>
             <div>
               <span className="text-xs text-secondary">{t('microfinance:loans.detail.requestedAmount')}</span>
-              <div className="text-sm font-semibold">{formatCurrency(loan.requested_amount)}</div>
-            </div>
-            <div>
-              <span className="text-xs text-secondary">{t('microfinance:loans.detail.approvedAmount')}</span>
-              <div className="text-sm font-semibold">{loan.approved_amount ? formatCurrency(loan.approved_amount) : '—'}</div>
+              <div className="text-sm font-semibold">{formatCurrency(loan.approved_amount || loan.requested_amount)}</div>
             </div>
             <div>
               <span className="text-xs text-secondary">{t('microfinance:loans.detail.interestRate')}</span>
-              <div className="text-sm">{loan.interest_rate}% ({t(`microfinance:loanProducts.form.${loan.interest_method}`)})</div>
+              <div className="text-sm">{loan.interest_rate}%</div>
             </div>
             <div>
               <span className="text-xs text-secondary">{t('microfinance:loans.detail.duration')}</span>
               <div className="text-sm">{loan.duration_value} {t(`microfinance:loanProducts.form.${loan.duration_unit}`)}</div>
             </div>
-            {loan.purpose && (
-              <div>
-                <span className="text-xs text-secondary">{t('microfinance:loans.detail.purpose')}</span>
-                <div className="text-sm">{loan.purpose}</div>
-              </div>
-            )}
-          </div>
-          {(loan.status === 'active' || loan.status === 'completed') && (
-            <div className="form-row mt-4">
-              <div>
-                <span className="text-xs text-secondary">{t('microfinance:loans.detail.outstandingBalance')}</span>
-                <div className="text-sm font-semibold">{formatCurrency(Number(loan.principal_outstanding) + Number(loan.interest_outstanding))}</div>
-              </div>
-              <div>
-                <span className="text-xs text-secondary">{t('microfinance:loans.detail.principalOutstanding')}</span>
-                <div className="text-sm">{formatCurrency(loan.principal_outstanding)}</div>
-              </div>
-              <div>
-                <span className="text-xs text-secondary">{t('microfinance:loans.detail.interestOutstanding')}</span>
-                <div className="text-sm">{formatCurrency(loan.interest_outstanding)}</div>
-              </div>
+            <div>
+              <span className="text-xs text-secondary">{t('microfinance:loans.form.startDateLabel')}</span>
+              <div className="text-sm">{formatDate(loan.requested_start_date)}</div>
             </div>
-          )}
+            <div>
+              <span className="text-xs text-secondary">{t('microfinance:loans.detail.status')}</span>
+              <div><span className={`badge ${STATUS_BADGE[loan.status] || 'badge-neutral'}`}>{t(`microfinance:loans.status.${loan.status}`)}</span></div>
+            </div>
+          </div>
         </div>
       </div>
+
+      {totals ? (
+        <div className="grid grid-cols-3 mb-5">
+          <KPICard icon={FiDollarSign} label={t('microfinance:loans.detail.totalPayable')} value={totals.totalPayable} formatter={(v) => formatCurrency(v)} />
+          <KPICard icon={FiCheck} label={t('microfinance:loans.detail.totalPaid')} value={totals.totalPaid} formatter={(v) => formatCurrency(v)} />
+          <KPICard icon={FiDollarSign} label={t('microfinance:loans.detail.outstandingBalance')} value={totals.outstanding} formatter={(v) => formatCurrency(v)} />
+        </div>
+      ) : (
+        <div className="alert alert-info mb-5">{t('microfinance:loans.detail.noSchedule')}</div>
+      )}
 
       <div className="card mb-5">
         <div className="card-header"><span className="card-title">{t('microfinance:loans.detail.scheduleTitle')}</span></div>
@@ -215,6 +206,7 @@ function LoanDetail() {
                   <th>{t('microfinance:loans.detail.scheduleColumns.interest')}</th>
                   <th>{t('microfinance:loans.detail.scheduleColumns.total')}</th>
                   <th>{t('microfinance:loans.detail.scheduleColumns.paid')}</th>
+                  <th>{t('microfinance:loans.detail.scheduleColumns.balance')}</th>
                   <th>{t('microfinance:loans.detail.scheduleColumns.status')}</th>
                 </tr>
               </thead>
@@ -227,7 +219,8 @@ function LoanDetail() {
                     <td>{formatCurrency(row.interest_due)}</td>
                     <td>{formatCurrency(row.total_due)}</td>
                     <td>{formatCurrency(row.amount_paid)}</td>
-                    <td><span className={`badge ${SCHEDULE_STATUS_BADGE[row.status] || 'badge-neutral'}`}>{row.status}</span></td>
+                    <td>{formatCurrency(Number(row.total_due) - Number(row.amount_paid))}</td>
+                    <td><span className={`badge ${SCHEDULE_STATUS_BADGE[row.status] || 'badge-neutral'}`}>{t(`microfinance:loans.scheduleStatus.${row.status}`)}</span></td>
                   </tr>
                 ))}
               </tbody>
@@ -237,32 +230,25 @@ function LoanDetail() {
       </div>
 
       <div className="card mb-5">
-        <div className="card-header">
-          <span className="card-title">{t('microfinance:loans.detail.guarantorsTitle')}</span>
-          {canManage && (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setGuarantorModalOpen(true)}>
-              <FiUserPlus aria-hidden="true" /> {t('microfinance:loans.detail.addGuarantorTitle')}
-            </button>
-          )}
-        </div>
-        {loan.guarantors.length === 0 ? (
-          <div className="card-body"><EmptyState title={t('microfinance:loans.detail.noGuarantors')} /></div>
-        ) : (
-          <div className="table-wrapper">
-            <table className="table">
-              <thead><tr><th>{t('microfinance:loans.form.guarantorName')}</th><th>{t('microfinance:loans.form.guarantorPhone')}</th><th>{t('microfinance:loans.form.guaranteedAmount')}</th></tr></thead>
-              <tbody>
-                {loan.guarantors.map((g) => (
-                  <tr key={g.id}>
-                    <td>{g.guarantor_name}</td>
-                    <td>{g.guarantor_phone || '—'}</td>
-                    <td>{formatCurrency(g.guaranteed_amount)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="card-header"><span className="card-title">{t('microfinance:loans.detail.loanInformation')}</span></div>
+        <div className="card-body">
+          <div className="form-row">
+            {loan.purpose && (
+              <div>
+                <span className="text-xs text-secondary">{t('microfinance:loans.detail.purpose')}</span>
+                <div className="text-sm">{loan.purpose}</div>
+              </div>
+            )}
+            <div>
+              <span className="text-xs text-secondary">{t('microfinance:loans.detail.disbursementDate')}</span>
+              <div className="text-sm">{formatDate(loan.disbursed_at)}</div>
+            </div>
+            <div>
+              <span className="text-xs text-secondary">{t('microfinance:loans.detail.paymentFrequency')}</span>
+              <div className="text-sm">{t(`microfinance:loanProducts.form.${loan.repayment_frequency}`)}</div>
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
       <div className="card">
@@ -326,34 +312,6 @@ function LoanDetail() {
       />
 
       <Modal
-        open={guarantorModalOpen}
-        onClose={() => setGuarantorModalOpen(false)}
-        title={t('microfinance:loans.detail.addGuarantorTitle')}
-        size="sm"
-        footer={
-          <>
-            <button type="button" className="btn btn-secondary" onClick={() => setGuarantorModalOpen(false)}>{t('common:actions.cancel')}</button>
-            <button type="submit" form="guarantor-form" className="btn btn-primary">{t('microfinance:loans.form.addGuarantor')}</button>
-          </>
-        }
-      >
-        <form id="guarantor-form" onSubmit={guarantorForm.handleSubmit(submitGuarantor)} noValidate>
-          <div className="form-group">
-            <label className="form-label form-label-required" htmlFor="guarantorName">{t('microfinance:loans.form.guarantorName')}</label>
-            <input id="guarantorName" className="form-control" {...guarantorForm.register('guarantorName', { required: true })} />
-          </div>
-          <div className="form-group">
-            <label className="form-label" htmlFor="guarantorPhone">{t('microfinance:loans.form.guarantorPhone')}</label>
-            <input id="guarantorPhone" className="form-control" {...guarantorForm.register('guarantorPhone')} />
-          </div>
-          <div className="form-group">
-            <label className="form-label form-label-required" htmlFor="guaranteedAmount">{t('microfinance:loans.form.guaranteedAmount')}</label>
-            <input id="guaranteedAmount" type="number" min="0" step="0.01" className="form-control" {...guarantorForm.register('guaranteedAmount', { required: true })} />
-          </div>
-        </form>
-      </Modal>
-
-      <Modal
         open={repaymentModalOpen}
         onClose={() => setRepaymentModalOpen(false)}
         title={t('microfinance:loans.detail.recordRepayment')}
@@ -365,10 +323,23 @@ function LoanDetail() {
           </>
         }
       >
+        <div className="form-group">
+          <span className="text-xs text-secondary">{t('microfinance:loans.detail.outstandingBalance')}</span>
+          <div className="text-sm font-semibold">{formatCurrency(outstandingNow)}</div>
+        </div>
         <form id="repayment-form" onSubmit={repaymentForm.handleSubmit(submitRepayment)} noValidate>
           <div className="form-group">
             <label className="form-label form-label-required" htmlFor="amount">{t('microfinance:loans.detail.repaymentAmountLabel')}</label>
-            <input id="amount" type="number" min="0" step="0.01" className="form-control" {...repaymentForm.register('amount', { required: true })} />
+            <input
+              id="amount" type="number" min="0" max={outstandingNow} step="0.01"
+              className="form-control"
+              {...repaymentForm.register('amount', { required: true, max: { value: outstandingNow, message: t('microfinance:loans.detail.repaymentExceedsBalance', { balance: formatCurrency(outstandingNow) }) } })}
+            />
+            {repaymentForm.formState.errors.amount && <span className="form-error">{repaymentForm.formState.errors.amount.message}</span>}
+          </div>
+          <div className="form-group">
+            <label className="form-label form-label-required" htmlFor="paymentDate">{t('microfinance:loans.detail.paymentDateLabel')}</label>
+            <input id="paymentDate" type="date" className="form-control" {...repaymentForm.register('paymentDate', { required: true })} />
           </div>
           <div className="form-group">
             <label className="form-label" htmlFor="paymentMethod">{t('microfinance:loans.detail.paymentMethodLabel')}</label>
@@ -380,12 +351,8 @@ function LoanDetail() {
               <option value="other">{t('microfinance:loans.paymentMethods.other')}</option>
             </select>
           </div>
-          <div className="form-group">
-            <label className="form-label form-label-required" htmlFor="paymentDate">{t('microfinance:loans.detail.paymentDateLabel')}</label>
-            <input id="paymentDate" type="date" className="form-control" {...repaymentForm.register('paymentDate', { required: true })} />
-          </div>
-          <div className="form-group">
-            <label className="form-label" htmlFor="reference">{t('microfinance:loans.detail.referenceLabel')}</label>
+          <div className="form-group mb-0">
+            <label className="form-label" htmlFor="reference">{t('microfinance:loans.detail.notesLabel')}</label>
             <input id="reference" className="form-control" {...repaymentForm.register('reference')} />
           </div>
         </form>

@@ -1,0 +1,77 @@
+.loan-form-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+/* Live preview, not another data-entry card — pinned so it stays in view
+   as the (usually taller) form scrolls, same "sticky summary rail"
+   convention the reference direction calls for. */
+.loan-summary-card {
+  position: sticky;
+  top: var(--space-5);
+}
+
+.loan-summary-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.loan-summary-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.loan-summary-row strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  text-align: right;
+}
+
+.loan-summary-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-1) 0;
+}
+
+.loan-summary-total {
+  font-size: var(--font-size-md);
+}
+
+.loan-summary-total strong {
+  color: var(--color-accent);
+  font-size: var(--font-size-lg);
+}
+
+.loan-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+@media (max-width: 768px) {
+  /* Single column — the summary card falls below the form in source
+     order already, so this alone moves it there, no reordering needed. */
+  .loan-form-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .loan-summary-card {
+    position: static;
+  }
+
+  .loan-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .loan-form-actions .btn {
+    width: 100%;
+  }
+}

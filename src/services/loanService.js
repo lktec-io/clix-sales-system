@@ -40,13 +40,13 @@ export async function writeOffLoan(id) {
   return data.data;
 }
 
-export async function addGuarantor(id, payload) {
-  const { data } = await apiClient.post(`/loans/${id}/guarantors`, payload);
+export async function getPortfolioKpis() {
+  const { data } = await apiClient.get('/loans/kpis');
   return data.data;
 }
 
-export async function getPortfolioKpis() {
-  const { data } = await apiClient.get('/loans/kpis');
+export async function getRecentApplications(limit) {
+  const { data } = await apiClient.get('/loans/recent', { params: limit ? { limit } : undefined });
   return data.data;
 }
 

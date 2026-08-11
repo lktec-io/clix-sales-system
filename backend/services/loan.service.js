@@ -110,33 +110,60 @@ export async function getLoan(id, tenantId) {
   return { ...loan, schedule, guarantors, repayments };
 }
 
+const DURATION_UNIT_TO_FREQUENCY = { days: 'daily', weeks: 'weekly', months: 'monthly' };
+
 export async function applyForLoan(data, actorId, tenantId) {
   const customer = await customerRepository.findById(data.customerId, tenantId);
   if (!customer) throw new ApiError(400, 'Selected borrower does not exist');
-
-  const product = await loanProductRepository.findById(data.loanProductId, tenantId);
-  if (!product || product.status !== 'active') throw new ApiError(400, 'Selected loan product is not available');
 
   const branch = await branchRepository.findById(data.branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
 
   const requestedAmount = Number(data.requestedAmount);
-  if (requestedAmount < Number(product.min_amount) || requestedAmount > Number(product.max_amount)) {
-    throw new ApiError(400, `Requested amount must be between ${formatCurrency(product.min_amount)} and ${formatCurrency(product.max_amount)} for this loan product`);
+  if (requestedAmount <= 0) throw new ApiError(400, 'Loan amount must be greater than zero');
+
+  // The simplified Microfinance workflow enters terms directly on the loan
+  // (loanProductId absent) rather than requiring a pre-configured Loan
+  // Product — loans.loan_product_id is nullable specifically for this path
+  // (030_simplify_microfinance_loans.sql). Supplying a loanProductId still
+  // works exactly as before, for any caller that has one.
+  let loanTerms;
+  if (data.loanProductId) {
+    const product = await loanProductRepository.findById(data.loanProductId, tenantId);
+    if (!product || product.status !== 'active') throw new ApiError(400, 'Selected loan product is not available');
+    if (requestedAmount < Number(product.min_amount) || requestedAmount > Number(product.max_amount)) {
+      throw new ApiError(400, `Requested amount must be between ${formatCurrency(product.min_amount)} and ${formatCurrency(product.max_amount)} for this loan product`);
+    }
+    loanTerms = {
+      interestRate: product.interest_rate, interestMethod: product.interest_method,
+      durationValue: product.duration_value, durationUnit: product.duration_unit,
+      repaymentFrequency: product.repayment_frequency,
+      processingFeeAmount: round2(requestedAmount * (Number(product.processing_fee_percent) / 100)),
+    };
+  } else {
+    const interestRate = Number(data.interestRate);
+    const durationValue = Number(data.durationValue);
+    const durationUnit = data.durationUnit;
+    if (!(interestRate >= 0)) throw new ApiError(400, 'Interest rate must be zero or greater');
+    if (!(durationValue > 0)) throw new ApiError(400, 'Duration must be greater than zero');
+    if (!DURATION_UNIT_TO_FREQUENCY[durationUnit]) throw new ApiError(400, 'Invalid duration unit');
+    loanTerms = {
+      interestRate, interestMethod: 'flat', durationValue, durationUnit,
+      repaymentFrequency: DURATION_UNIT_TO_FREQUENCY[durationUnit],
+      processingFeeAmount: 0,
+    };
   }
 
   const loanNumber = await generateCode('LOAN', 'LN', { tenantId, padLength: 6 });
-  const processingFeeAmount = round2(requestedAmount * (Number(product.processing_fee_percent) / 100));
 
   const connection = await pool.getConnection();
   let loanId;
   try {
     await connection.beginTransaction();
     loanId = await loanRepository.create({
-      tenantId, branchId: data.branchId, loanNumber, customerId: data.customerId, loanProductId: data.loanProductId,
-      requestedAmount, interestRate: product.interest_rate, interestMethod: product.interest_method,
-      durationValue: product.duration_value, durationUnit: product.duration_unit,
-      repaymentFrequency: product.repayment_frequency, processingFeeAmount, purpose: data.purpose, appliedBy: actorId,
+      tenantId, branchId: data.branchId, loanNumber, customerId: data.customerId,
+      loanProductId: data.loanProductId || null,
+      requestedAmount, ...loanTerms, purpose: data.purpose, requestedStartDate: data.startDate, appliedBy: actorId,
     }, connection);
 
     for (const guarantor of data.guarantors || []) {
@@ -176,10 +203,16 @@ export async function approveLoan(id, data, actorId, tenantId) {
     throw new ApiError(400, 'Only a submitted or under-review application can be approved');
   }
 
-  const product = await loanProductRepository.findById(loan.loan_product_id, tenantId);
   const approvedAmount = Number(data.approvedAmount ?? loan.requested_amount);
-  if (approvedAmount < Number(product.min_amount) || approvedAmount > Number(product.max_amount)) {
-    throw new ApiError(400, `Approved amount must be between ${formatCurrency(product.min_amount)} and ${formatCurrency(product.max_amount)}`);
+  if (approvedAmount <= 0) throw new ApiError(400, 'Approved amount must be greater than zero');
+
+  // Only a product-based loan has min/max bounds to enforce — a
+  // directly-entered loan (loan_product_id null) has none, by design.
+  if (loan.loan_product_id) {
+    const product = await loanProductRepository.findById(loan.loan_product_id, tenantId);
+    if (product && (approvedAmount < Number(product.min_amount) || approvedAmount > Number(product.max_amount))) {
+      throw new ApiError(400, `Approved amount must be between ${formatCurrency(product.min_amount)} and ${formatCurrency(product.max_amount)}`);
+    }
   }
 
   await loanRepository.approve(id, tenantId, { approvedAmount, approvedBy: actorId });
@@ -377,4 +410,9 @@ export async function getPortfolioKpis(user) {
     savingsAccountRepository.getTotalBalance(user.tenantId),
   ]);
   return { ...portfolio, ...overdue, ...collections, totalSavingsBalance: savingsBalance };
+}
+
+export async function getRecentApplications(user, limit = 5) {
+  const branchIds = await getAccessibleBranchIds(user);
+  return loanRepository.findRecent(user.tenantId, branchIds, limit);
 }

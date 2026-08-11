@@ -47,7 +47,8 @@ export async function findAll({ tenantId, page = 1, limit = 20, search, branchId
   `;
 
   const [rows] = await pool.query(
-    `SELECT r.*, l.loan_number, c.first_name AS borrower_first_name, c.last_name AS borrower_last_name
+    `SELECT r.*, l.loan_number, l.principal_outstanding, l.interest_outstanding,
+            c.first_name AS borrower_first_name, c.last_name AS borrower_last_name
      ${baseFrom} ${whereClause} ORDER BY r.created_at DESC LIMIT ? OFFSET ?`,
     [...allParams, limit, offset],
   );

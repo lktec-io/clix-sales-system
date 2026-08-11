@@ -27,11 +27,13 @@
     "todayOrdersSubtitle": "Mauzo yaliyokamilika leo",
     "lowStockCount": "Bidhaa Zenye Hesabu Ndogo",
     "lowStockCountSubtitle": "Zinahitaji kuongezwa",
-    "activeLoans": "Mikopo Hai Yote",
+    "totalLoans": "Jumla ya Mikopo",
+    "totalLoansSubtitle": "Mikopo yote, hali zote",
+    "activeLoans": "Mikopo Hai",
     "activeLoansSubtitle": "Inayolipwa kwa sasa",
-    "totalDisbursed": "Jumla Iliyotolewa",
+    "totalDisbursed": "Kiasi Kilichotolewa",
     "totalDisbursedSubtitle": "Mikopo yote iliyowahi kutolewa",
-    "totalCollected": "Jumla Iliyokusanywa",
+    "totalCollected": "Kiasi Kilichokusanywa",
     "totalCollectedSubtitle": "Malipo yote yaliyowahi kupokewa",
     "outstandingBalance": "Salio Linalodaiwa",
     "outstandingBalanceSubtitle": "Mtaji na riba inayodaiwa",
@@ -39,8 +41,8 @@
     "overdueLoansSubtitle": "Imepita tarehe ya malipo",
     "portfolioAtRisk": "Kiasi Kilichochelewa",
     "portfolioAtRiskSubtitle": "Jumla isiyolipwa kwenye malipo yaliyochelewa",
-    "pendingApplications": "Maombi Yanayosubiri",
-    "pendingApplicationsSubtitle": "Yanasubiri ukaguzi au idhini",
+    "todayCollections": "Makusanyo ya Leo",
+    "todayCollectionsSubtitle": "Malipo yaliyopokewa leo",
     "trendVsYesterday": "{{percent}}% ikilinganishwa na jana"
   },
   "charts": {
@@ -78,6 +80,28 @@
     "newCustomer": "Mteja Mpya",
     "newExpense": "Tumizi Jipya",
     "reports": "Ripoti"
+  },
+  "loanPortfolio": {
+    "title": "Mikopo Yote",
+    "active": "Hai",
+    "overdue": "Imechelewa",
+    "completed": "Imekamilika"
+  },
+  "recentLoans": {
+    "title": "Maombi ya Hivi Karibuni ya Mikopo",
+    "empty": "Hakuna maombi ya mikopo bado.",
+    "customer": "Mteja",
+    "amount": "Kiasi",
+    "date": "Tarehe",
+    "status": "Hali",
+    "status_submitted": "Imewasilishwa",
+    "status_under_review": "Inakaguliwa",
+    "status_approved": "Imeidhinishwa",
+    "status_rejected": "Imekataliwa",
+    "status_active": "Hai",
+    "status_completed": "Imekamilika",
+    "status_defaulted": "Haijalipwa",
+    "status_written_off": "Imefutwa"
   },
   "loadError": "Imeshindwa kupakia taarifa za dashibodi."
 }

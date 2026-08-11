@@ -27,11 +27,13 @@
     "todayOrdersSubtitle": "Completed sales today",
     "lowStockCount": "Low Stock Products",
     "lowStockCountSubtitle": "Need restocking",
-    "activeLoans": "Total Active Loans",
+    "totalLoans": "Total Loans",
+    "totalLoansSubtitle": "All loans, any status",
+    "activeLoans": "Active Loans",
     "activeLoansSubtitle": "Currently being repaid",
-    "totalDisbursed": "Total Amount Disbursed",
+    "totalDisbursed": "Amount Disbursed",
     "totalDisbursedSubtitle": "All loans ever disbursed",
-    "totalCollected": "Total Amount Collected",
+    "totalCollected": "Amount Collected",
     "totalCollectedSubtitle": "All repayments ever received",
     "outstandingBalance": "Outstanding Balance",
     "outstandingBalanceSubtitle": "Principal and interest still owed",
@@ -39,8 +41,8 @@
     "overdueLoansSubtitle": "Past their due date",
     "portfolioAtRisk": "Overdue Amount",
     "portfolioAtRiskSubtitle": "Total unpaid on overdue installments",
-    "pendingApplications": "Pending Applications",
-    "pendingApplicationsSubtitle": "Awaiting review or approval",
+    "todayCollections": "Today's Collections",
+    "todayCollectionsSubtitle": "Repayments received today",
     "trendVsYesterday": "{{percent}}% vs yesterday"
   },
   "charts": {
@@ -78,6 +80,28 @@
     "newCustomer": "New Customer",
     "newExpense": "New Expense",
     "reports": "Reports"
+  },
+  "loanPortfolio": {
+    "title": "Loan Portfolio",
+    "active": "Active",
+    "overdue": "Overdue",
+    "completed": "Completed"
+  },
+  "recentLoans": {
+    "title": "Recent Loan Applications",
+    "empty": "No loan applications yet.",
+    "customer": "Customer",
+    "amount": "Amount",
+    "date": "Date",
+    "status": "Status",
+    "status_submitted": "Submitted",
+    "status_under_review": "Under Review",
+    "status_approved": "Approved",
+    "status_rejected": "Rejected",
+    "status_active": "Active",
+    "status_completed": "Completed",
+    "status_defaulted": "Defaulted",
+    "status_written_off": "Written Off"
   },
   "loadError": "Failed to load dashboard data."
 }

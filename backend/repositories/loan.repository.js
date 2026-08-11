@@ -1,6 +1,10 @@
 import { pool } from '../config/db.js';
 import { buildScope } from '../utils/tenantScope.js';
 
+// LEFT JOIN loan_products — the simplified Microfinance workflow creates
+// loans with directly-entered terms and no product at all (loan_product_id
+// is nullable; see 030_simplify_microfinance_loans.sql), so this must not
+// exclude those rows the way an inner JOIN would.
 const DETAIL_SELECT = `
   SELECT l.*,
          c.first_name AS borrower_first_name, c.last_name AS borrower_last_name,
@@ -9,7 +13,7 @@ const DETAIL_SELECT = `
          b.name AS branch_name
   FROM loans l
   JOIN customers c ON c.id = l.customer_id
-  JOIN loan_products lp ON lp.id = l.loan_product_id
+  LEFT JOIN loan_products lp ON lp.id = l.loan_product_id
   JOIN branches b ON b.id = l.branch_id
 `;
 
@@ -60,18 +64,18 @@ export async function findAll({ tenantId, page = 1, limit = 20, search, status, 
 export async function create({
   tenantId, branchId, loanNumber, customerId, loanProductId, requestedAmount,
   interestRate, interestMethod, durationValue, durationUnit, repaymentFrequency,
-  processingFeeAmount, purpose, appliedBy,
+  processingFeeAmount, purpose, requestedStartDate, appliedBy,
 }, connection = pool) {
   const [result] = await connection.query(
     `INSERT INTO loans
        (tenant_id, branch_id, loan_number, customer_id, loan_product_id, requested_amount,
         interest_rate, interest_method, duration_value, duration_unit, repayment_frequency,
-        processing_fee_amount, purpose, status, applied_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'submitted', ?)`,
+        processing_fee_amount, purpose, requested_start_date, status, applied_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'submitted', ?)`,
     [
       tenantId, branchId, loanNumber, customerId, loanProductId, requestedAmount,
       interestRate, interestMethod, durationValue, durationUnit, repaymentFrequency,
-      processingFeeAmount || 0, purpose || null, appliedBy,
+      processingFeeAmount || 0, purpose || null, requestedStartDate || null, appliedBy,
     ],
   );
   return result.insertId;
@@ -131,8 +135,16 @@ export async function getPortfolioSummary(tenantId, branchIds) {
     `SELECT COUNT(DISTINCT customer_id) AS value FROM loans WHERE status IN ('active','completed','disbursed') ${scope.clause}`,
     scope.params,
   );
+  const [[totalLoans]] = await pool.query(
+    `SELECT COUNT(*) AS value FROM loans WHERE 1 = 1 ${scope.clause}`,
+    scope.params,
+  );
   const [[activeLoans]] = await pool.query(
     `SELECT COUNT(*) AS value FROM loans WHERE status = 'active' ${scope.clause}`,
+    scope.params,
+  );
+  const [[completedLoans]] = await pool.query(
+    `SELECT COUNT(*) AS value FROM loans WHERE status = 'completed' ${scope.clause}`,
     scope.params,
   );
   const [[disbursed]] = await pool.query(
@@ -150,11 +162,29 @@ export async function getPortfolioSummary(tenantId, branchIds) {
 
   return {
     totalBorrowers: Number(borrowers.value),
+    totalLoans: Number(totalLoans.value),
     activeLoans: Number(activeLoans.value),
+    completedLoans: Number(completedLoans.value),
     totalDisbursed: Number(disbursed.value),
     outstandingBalance: Number(outstanding.value),
     pendingApplications: Number(pending.value),
   };
+}
+
+// The Dashboard's "Recent Loan Applications" list — any status, newest
+// first, capped small since this is a glance-at-a-glance widget, not a
+// substitute for the full Loans list page.
+export async function findRecent(tenantId, branchIds, limit = 5) {
+  const scope = buildScope({ tenantId, tenantColumn: 'l.tenant_id', branchIds, branchColumn: 'l.branch_id' });
+  const [rows] = await pool.query(
+    `SELECT l.id, l.loan_number, l.requested_amount, l.approved_amount, l.status, l.created_at,
+            c.first_name AS borrower_first_name, c.last_name AS borrower_last_name
+     FROM loans l JOIN customers c ON c.id = l.customer_id
+     WHERE 1 = 1 ${scope.clause}
+     ORDER BY l.created_at DESC LIMIT ?`,
+    [...scope.params, limit],
+  );
+  return rows;
 }
 
 export async function getOverdueSummary(tenantId, branchIds) {

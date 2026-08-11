@@ -67,6 +67,13 @@ const NAV_LABEL_VARIANT = {
 // module framework (explicitly "DO NOT CHANGE... Billing Engine") — kept
 // as a fixed, permission-gated entry inserted at its original position,
 // immediately before Settings.
+// Returns { mainItems, bottomItems } instead of one flat list — every
+// tenant's Settings (and the always-on Billing item right next to it) is
+// visually anchored at the bottom of the sidebar, under its own divider,
+// separated from the day-to-day operational modules above it under "MAIN".
+// This is a structural change to the shared Sidebar, not a Microfinance
+// special-case: it applies identically to every template, since Settings
+// already sorted last (or near-last) by navigation_order for all of them.
 function useNavItems(modules) {
   const { t } = useTranslation('sidebar');
 
@@ -84,8 +91,12 @@ function useNavItems(modules) {
 
   const billingItem = { to: ROUTES.BILLING, label: t('nav.billing'), icon: FiCreditCard, requiredPermission: ['company.manage'] };
   const settingsIndex = moduleItems.findIndex((item) => item.to === '/settings/company');
-  if (settingsIndex === -1) return [...moduleItems, billingItem];
-  return [...moduleItems.slice(0, settingsIndex), billingItem, ...moduleItems.slice(settingsIndex)];
+
+  if (settingsIndex === -1) return { mainItems: moduleItems, bottomItems: [billingItem] };
+  return {
+    mainItems: moduleItems.slice(0, settingsIndex),
+    bottomItems: [billingItem, ...moduleItems.slice(settingsIndex)],
+  };
 }
 
 function Sidebar({ collapsed, onToggle, onNavigate, isOpen }) {
@@ -94,7 +105,7 @@ function Sidebar({ collapsed, onToggle, onNavigate, isOpen }) {
   const { company } = useCompany();
   const { modules } = useModules();
   const navigate = useNavigate();
-  const NAV_ITEMS = useNavItems(modules);
+  const { mainItems, bottomItems } = useNavItems(modules);
   const companyName = company?.company_name || 'Clix';
 
   // Plain function call, not the usePermission() hook — this runs once per
@@ -104,7 +115,8 @@ function Sidebar({ collapsed, onToggle, onNavigate, isOpen }) {
     if (Array.isArray(item.requiredPermission)) return item.requiredPermission.some(hasPermission);
     return hasPermission(item.requiredPermission);
   };
-  const visibleNavItems = NAV_ITEMS.filter(isNavItemVisible);
+  const visibleMainItems = mainItems.filter(isNavItemVisible);
+  const visibleBottomItems = bottomItems.filter(isNavItemVisible);
 
   // Replays the label/icon stagger every time the mobile drawer opens: each
   // open increments openKey, which remounts the nav list so its "hidden"
@@ -144,6 +156,36 @@ function Sidebar({ collapsed, onToggle, onNavigate, isOpen }) {
     });
   };
 
+  const renderNavLink = ({ to, label, icon: Icon, end }) => (
+    <NavLink
+      key={to}
+      to={to}
+      end={end}
+      className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`}
+      onClick={(event) => handleNavClick(event, to)}
+    >
+      {({ isActive }) => (
+        <>
+          {isActive && (
+            <motion.span
+              layoutId="sidebar-active-pill"
+              className="sidebar-link-indicator"
+              transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+            />
+          )}
+          <motion.span className="sidebar-link-icon" variants={NAV_ICON_VARIANT}>
+            <Icon aria-hidden="true" />
+          </motion.span>
+          {!collapsed && (
+            <motion.span className="sidebar-link-label" variants={NAV_LABEL_VARIANT}>
+              {label}
+            </motion.span>
+          )}
+        </>
+      )}
+    </NavLink>
+  );
+
   return (
     <aside className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''}`}>
       <div className="sidebar-brand">
@@ -157,6 +199,7 @@ function Sidebar({ collapsed, onToggle, onNavigate, isOpen }) {
         )}
       </div>
 
+      {!collapsed && <span className="sidebar-section-label">{t('sectionMain')}</span>}
       <motion.nav
         key={openKey}
         className="sidebar-nav"
@@ -164,36 +207,14 @@ function Sidebar({ collapsed, onToggle, onNavigate, isOpen }) {
         initial={openKey === 0 ? false : 'hidden'}
         animate="visible"
       >
-        {visibleNavItems.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`}
-            onClick={(event) => handleNavClick(event, to)}
-          >
-            {({ isActive }) => (
-              <>
-                {isActive && (
-                  <motion.span
-                    layoutId="sidebar-active-pill"
-                    className="sidebar-link-indicator"
-                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                  />
-                )}
-                <motion.span className="sidebar-link-icon" variants={NAV_ICON_VARIANT}>
-                  <Icon aria-hidden="true" />
-                </motion.span>
-                {!collapsed && (
-                  <motion.span className="sidebar-link-label" variants={NAV_LABEL_VARIANT}>
-                    {label}
-                  </motion.span>
-                )}
-              </>
-            )}
-          </NavLink>
-        ))}
+        {visibleMainItems.map(renderNavLink)}
       </motion.nav>
+
+      {visibleBottomItems.length > 0 && (
+        <nav className="sidebar-nav-bottom">
+          {visibleBottomItems.map(renderNavLink)}
+        </nav>
+      )}
 
       <div className="sidebar-footer">
         <button type="button" className="sidebar-link sidebar-logout" onClick={handleLogout}>

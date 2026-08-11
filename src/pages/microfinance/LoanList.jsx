@@ -30,8 +30,8 @@ function LoanList() {
   const columns = [
     { key: 'loan_number', label: t('microfinance:loans.columns.loanNumber') },
     { key: 'borrower', label: t('microfinance:loans.columns.borrower'), render: (row) => `${row.borrower_first_name} ${row.borrower_last_name}` },
-    { key: 'loan_product_name', label: t('microfinance:loans.columns.product') },
     { key: 'amount', label: t('microfinance:loans.columns.amount'), render: (row) => formatCurrency(row.approved_amount || row.requested_amount) },
+    { key: 'interest_rate', label: t('microfinance:loans.detail.interestRate'), render: (row) => `${row.interest_rate}%` },
     {
       key: 'status',
       label: t('microfinance:loans.columns.status'),

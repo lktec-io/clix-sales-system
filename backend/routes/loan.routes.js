@@ -18,6 +18,7 @@ router.use(authenticate, authorize('loans.view'), requireModule('loans'));
 // 5.1's product.routes.js /archived-vs-/:id fix for the exact failure shape
 // this ordering avoids).
 router.get('/kpis', loanController.portfolioKpis);
+router.get('/recent', loanController.recentApplications);
 
 router.get('/', loanController.list);
 router.get('/:id', loanController.getById);

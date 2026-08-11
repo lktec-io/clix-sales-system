@@ -65,10 +65,40 @@
   min-width: 0;
 }
 
+/* Uppercase section eyebrow above the operational nav items ("MAIN") —
+   matches the brand's existing label/eyebrow convention (see reports-type-
+   card-title-adjacent labels), just applied to sidebar grouping. Hidden
+   when collapsed, same rule every nav label already follows. */
+.sidebar-section-label {
+  padding: var(--space-3) var(--space-4) var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* No dedicated "muted sidebar text" token exists — derived from the
+     theme's own --sidebar-text-strong so this reads correctly across all
+     three themes (dark, ocean, light) instead of a hardcoded white that
+     would vanish on the light theme's dark-on-light sidebar. */
+  color: color-mix(in srgb, var(--sidebar-text-strong) 55%, transparent);
+  flex-shrink: 0;
+}
+
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-3) var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Settings (+ Billing) — anchored under a divider just above the
+   logout/collapse footer, visually separated from the scrollable
+   operational list above rather than blending into the end of it. */
+.sidebar-nav-bottom {
+  flex-shrink: 0;
+  padding: var(--space-2);
+  border-top: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
   gap: var(--space-1);

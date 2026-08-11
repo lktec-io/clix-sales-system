@@ -103,8 +103,8 @@ function CustomerDetail() {
 
   const loanColumns = [
     { key: 'loan_number', label: t('microfinance:loans.columns.loanNumber') },
-    { key: 'loan_product_name', label: t('microfinance:loans.columns.product') },
     { key: 'amount', label: t('microfinance:loans.columns.amount'), render: (row) => formatCurrency(row.approved_amount || row.requested_amount) },
+    { key: 'interest_rate', label: t('microfinance:loans.detail.interestRate'), render: (row) => `${row.interest_rate}%` },
     {
       key: 'outstanding',
       label: t('microfinance:loans.detail.outstandingBalance'),

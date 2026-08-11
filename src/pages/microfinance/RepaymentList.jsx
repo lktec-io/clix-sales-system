@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { FiPlus } from 'react-icons/fi';
@@ -27,9 +27,13 @@ function RepaymentList() {
   const [modalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState('');
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, watch, formState: { errors, isSubmitting } } = useForm({
     defaultValues: { loanId: '', amount: '', paymentMethod: 'cash', paymentDate: new Date().toISOString().slice(0, 10), reference: '' },
   });
+
+  const selectedLoanId = watch('loanId');
+  const selectedLoan = useMemo(() => activeLoans.find((loan) => String(loan.id) === String(selectedLoanId)), [activeLoans, selectedLoanId]);
+  const selectedLoanBalance = selectedLoan ? Number(selectedLoan.principal_outstanding) + Number(selectedLoan.interest_outstanding) : null;
 
   useEffect(() => {
     if (modalOpen) {
@@ -44,10 +48,15 @@ function RepaymentList() {
   };
 
   const onSubmit = async (values) => {
+    const amount = Number(values.amount);
+    if (selectedLoanBalance != null && amount > selectedLoanBalance) {
+      setError(t('microfinance:loans.detail.repaymentExceedsBalance', { balance: formatCurrency(selectedLoanBalance) }));
+      return;
+    }
     setError('');
     try {
       await loanService.recordRepayment({
-        loanId: Number(values.loanId), amount: Number(values.amount), paymentMethod: values.paymentMethod,
+        loanId: Number(values.loanId), amount, paymentMethod: values.paymentMethod,
         paymentDate: values.paymentDate, reference: values.reference || undefined,
       });
       toast.success(t('microfinance:loans.detail.recordSuccess'));
@@ -59,12 +68,22 @@ function RepaymentList() {
   };
 
   const columns = [
-    { key: 'receipt_number', label: t('microfinance:loans.detail.receiptNumber'), render: (row) => row.receipt_number },
+    { key: 'receipt_number', label: t('microfinance:loans.detail.receiptNumber') },
     { key: 'loan_number', label: t('microfinance:loans.columns.loanNumber') },
     { key: 'borrower', label: t('microfinance:loans.columns.borrower'), render: (row) => `${row.borrower_first_name} ${row.borrower_last_name}` },
     { key: 'amount', label: t('microfinance:loans.detail.repaymentAmountLabel'), render: (row) => formatCurrency(row.amount) },
+    { key: 'payment_date', label: t('microfinance:loans.detail.paymentDateLabel'), render: (row) => formatDate(row.payment_date) },
     { key: 'payment_method', label: t('microfinance:loans.detail.paymentMethodLabel'), render: (row) => t(`microfinance:loans.paymentMethods.${row.payment_method}`) },
-    { key: 'payment_date', label: t('common:labels.date'), render: (row) => formatDate(row.payment_date) },
+    {
+      key: 'status',
+      label: t('common:labels.status'),
+      render: () => <span className="badge badge-success">{t('microfinance:loans.repaymentRecorded')}</span>,
+    },
+    {
+      key: 'balance',
+      label: t('microfinance:loans.detail.outstandingBalance'),
+      render: (row) => formatCurrency(Number(row.principal_outstanding) + Number(row.interest_outstanding)),
+    },
   ];
 
   return (
@@ -116,9 +135,28 @@ function RepaymentList() {
               ))}
             </select>
           </div>
+          {selectedLoan && (
+            <>
+              <div className="form-group">
+                <span className="text-xs text-secondary">{t('microfinance:loans.columns.borrower')}</span>
+                <div className="text-sm font-semibold">{selectedLoan.borrower_first_name} {selectedLoan.borrower_last_name}</div>
+              </div>
+              <div className="form-group">
+                <span className="text-xs text-secondary">{t('microfinance:loans.detail.outstandingBalance')}</span>
+                <div className="text-sm font-semibold">{formatCurrency(selectedLoanBalance)}</div>
+              </div>
+            </>
+          )}
           <div className="form-group">
             <label className="form-label form-label-required" htmlFor="amount">{t('microfinance:loans.detail.repaymentAmountLabel')}</label>
-            <input id="amount" type="number" min="0" step="0.01" className={`form-control ${errors.amount ? 'form-control-error' : ''}`} {...register('amount', { required: true })} />
+            <input
+              id="amount" type="number" min="0" max={selectedLoanBalance ?? undefined} step="0.01"
+              className={`form-control ${errors.amount ? 'form-control-error' : ''}`} {...register('amount', { required: true })}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label form-label-required" htmlFor="paymentDate">{t('microfinance:loans.detail.paymentDateLabel')}</label>
+            <input id="paymentDate" type="date" className="form-control" {...register('paymentDate', { required: true })} />
           </div>
           <div className="form-group">
             <label className="form-label" htmlFor="paymentMethod">{t('microfinance:loans.detail.paymentMethodLabel')}</label>
@@ -130,12 +168,8 @@ function RepaymentList() {
               <option value="other">{t('microfinance:loans.paymentMethods.other')}</option>
             </select>
           </div>
-          <div className="form-group">
-            <label className="form-label form-label-required" htmlFor="paymentDate">{t('microfinance:loans.detail.paymentDateLabel')}</label>
-            <input id="paymentDate" type="date" className="form-control" {...register('paymentDate', { required: true })} />
-          </div>
-          <div className="form-group">
-            <label className="form-label" htmlFor="reference">{t('microfinance:loans.detail.referenceLabel')}</label>
+          <div className="form-group mb-0">
+            <label className="form-label" htmlFor="reference">{t('microfinance:loans.detail.notesLabel')}</label>
             <input id="reference" className="form-control" {...register('reference')} />
           </div>
         </form>

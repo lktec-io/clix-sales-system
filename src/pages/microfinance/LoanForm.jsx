@@ -1,58 +1,75 @@
-import { useEffect, useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import * as loanService from '../../services/loanService';
-import * as loanProductService from '../../services/loanProductService';
 import * as customerService from '../../services/customerService';
 import * as branchService from '../../services/branchService';
 import { useToast } from '../../hooks/useToast';
 import { formatCurrency } from '../../utils/formatCurrency';
+import '../../styles/pages/LoanForm.css';
+
+// Mirrors loan.service.js's own DURATION_UNIT_TO_FREQUENCY exactly — the
+// live summary shown here must always agree with what the backend actually
+// computes, so this is the same mapping, not a re-guess.
+const DURATION_UNIT_TO_FREQUENCY = { days: 'daily', weeks: 'weekly', months: 'monthly' };
 
 function LoanForm() {
   const { t } = useTranslation(['microfinance', 'common']);
   const navigate = useNavigate();
   const toast = useToast();
   const [borrowers, setBorrowers] = useState([]);
-  const [products, setProducts] = useState([]);
   const [branches, setBranches] = useState([]);
   const [formError, setFormError] = useState('');
 
   const {
     register,
-    control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      customerId: '', loanProductId: '', branchId: '', requestedAmount: '', purpose: '',
-      guarantors: [],
+      customerId: '', branchId: '', requestedAmount: '', interestRate: '',
+      durationValue: '', durationUnit: 'months', startDate: '', purpose: '',
     },
   });
 
-  const { fields, append, remove } = useFieldArray({ control, name: 'guarantors' });
-  const selectedProductId = watch('loanProductId');
-  const selectedProduct = products.find((p) => String(p.id) === String(selectedProductId));
-
   useEffect(() => {
     customerService.listActiveCustomers().then(setBorrowers);
-    loanProductService.listActiveLoanProducts().then(setProducts);
-    branchService.listActiveBranches().then(setBranches);
-  }, []);
+    branchService.listActiveBranches().then((rows) => {
+      setBranches(rows);
+      // A single-branch tenant (the common case for a new Microfinance
+      // business) never needs to be asked which branch — auto-select it so
+      // the form only shows a branch picker when there's an actual choice.
+      if (rows.length === 1) setValue('branchId', rows[0].id);
+    });
+  }, [setValue]);
+
+  const amount = Number(watch('requestedAmount')) || 0;
+  const rate = Number(watch('interestRate')) || 0;
+  const durationValue = Number(watch('durationValue')) || 0;
+  const durationUnit = watch('durationUnit');
+
+  // Flat-rate preview only — the simplified Create Loan form always uses
+  // flat interest (loan.service.js#applyForLoan defaults interestMethod to
+  // 'flat' whenever no Loan Product is supplied), so this is the exact same
+  // math the backend will apply, not an approximation.
+  const totalInterest = useMemo(() => Math.round((amount * (rate / 100)) * 100) / 100, [amount, rate]);
+  const totalPayable = useMemo(() => Math.round((amount + totalInterest) * 100) / 100, [amount, totalInterest]);
+  const repaymentFrequency = DURATION_UNIT_TO_FREQUENCY[durationUnit] || '—';
 
   const onSubmit = async (values) => {
     setFormError('');
     const payload = {
       customerId: Number(values.customerId),
-      loanProductId: Number(values.loanProductId),
       branchId: Number(values.branchId),
       requestedAmount: Number(values.requestedAmount),
+      interestRate: Number(values.interestRate),
+      durationValue: Number(values.durationValue),
+      durationUnit: values.durationUnit,
+      startDate: values.startDate || undefined,
       purpose: values.purpose || undefined,
-      guarantors: (values.guarantors || [])
-        .filter((g) => g.guarantorName)
-        .map((g) => ({ guarantorName: g.guarantorName, guarantorPhone: g.guarantorPhone || undefined, guaranteedAmount: Number(g.guaranteedAmount) })),
     };
 
     try {
@@ -76,9 +93,9 @@ function LoanForm() {
       {formError && <div className="alert alert-danger mb-4" role="alert">{formError}</div>}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className="card mb-5">
-          <div className="card-body">
-            <div className="form-row">
+        <div className="loan-form-layout">
+          <div className="card">
+            <div className="card-body">
               <div className="form-group">
                 <label className="form-label form-label-required" htmlFor="customerId">{t('microfinance:loans.form.borrowerLabel')}</label>
                 <select id="customerId" className={`form-control ${errors.customerId ? 'form-control-error' : ''}`} {...register('customerId', { required: t('microfinance:loans.form.borrowerRequired') })}>
@@ -87,84 +104,96 @@ function LoanForm() {
                 </select>
                 {errors.customerId && <span className="form-error">{errors.customerId.message}</span>}
               </div>
-              <div className="form-group">
-                <label className="form-label form-label-required" htmlFor="branchId">{t('microfinance:loans.form.branchLabel')}</label>
-                <select id="branchId" className={`form-control ${errors.branchId ? 'form-control-error' : ''}`} {...register('branchId', { required: t('microfinance:loans.form.branchRequired') })}>
-                  <option value="">{t('microfinance:loans.form.selectBranch')}</option>
-                  {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                </select>
-                {errors.branchId && <span className="form-error">{errors.branchId.message}</span>}
-              </div>
-            </div>
 
-            <div className="form-group">
-              <label className="form-label form-label-required" htmlFor="loanProductId">{t('microfinance:loans.form.loanProductLabel')}</label>
-              <select id="loanProductId" className={`form-control ${errors.loanProductId ? 'form-control-error' : ''}`} {...register('loanProductId', { required: t('microfinance:loans.form.loanProductRequired') })}>
-                <option value="">{t('microfinance:loans.form.selectLoanProduct')}</option>
-                {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-              {errors.loanProductId && <span className="form-error">{errors.loanProductId.message}</span>}
-              {selectedProduct && (
-                <span className="form-help">
-                  {t('microfinance:loans.form.productRange', {
-                    min: formatCurrency(selectedProduct.min_amount),
-                    max: formatCurrency(selectedProduct.max_amount),
-                    rate: selectedProduct.interest_rate,
-                    method: t(`microfinance:loanProducts.form.${selectedProduct.interest_method}`),
-                  })}
-                </span>
+              {branches.length > 1 && (
+                <div className="form-group">
+                  <label className="form-label form-label-required" htmlFor="branchId">{t('microfinance:loans.form.branchLabel')}</label>
+                  <select id="branchId" className={`form-control ${errors.branchId ? 'form-control-error' : ''}`} {...register('branchId', { required: t('microfinance:loans.form.branchRequired') })}>
+                    <option value="">{t('microfinance:loans.form.selectBranch')}</option>
+                    {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </select>
+                  {errors.branchId && <span className="form-error">{errors.branchId.message}</span>}
+                </div>
               )}
-            </div>
 
-            <div className="form-row">
               <div className="form-group">
-                <label className="form-label form-label-required" htmlFor="requestedAmount">{t('microfinance:loans.form.requestedAmountLabel')}</label>
+                <label className="form-label form-label-required" htmlFor="requestedAmount">{t('microfinance:loans.form.loanAmountLabel')}</label>
                 <input id="requestedAmount" type="number" min="0" step="0.01" className={`form-control ${errors.requestedAmount ? 'form-control-error' : ''}`} {...register('requestedAmount', { required: t('microfinance:loans.form.requestedAmountRequired') })} />
                 {errors.requestedAmount && <span className="form-error">{errors.requestedAmount.message}</span>}
               </div>
+
               <div className="form-group">
+                <label className="form-label form-label-required" htmlFor="interestRate">{t('microfinance:loans.form.interestRateLabel')}</label>
+                <input id="interestRate" type="number" min="0" step="0.01" className={`form-control ${errors.interestRate ? 'form-control-error' : ''}`} {...register('interestRate', { required: t('microfinance:loans.form.interestRateRequired') })} />
+                {errors.interestRate && <span className="form-error">{errors.interestRate.message}</span>}
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label form-label-required" htmlFor="durationValue">{t('microfinance:loans.form.durationLabel')}</label>
+                  <input id="durationValue" type="number" min="1" step="1" className={`form-control ${errors.durationValue ? 'form-control-error' : ''}`} {...register('durationValue', { required: t('microfinance:loans.form.durationRequired') })} />
+                  {errors.durationValue && <span className="form-error">{errors.durationValue.message}</span>}
+                </div>
+                <div className="form-group">
+                  <label className="form-label form-label-required" htmlFor="durationUnit">{t('microfinance:loans.form.unitLabel')}</label>
+                  <select id="durationUnit" className="form-control" {...register('durationUnit')}>
+                    <option value="days">{t('microfinance:loanProducts.form.days')}</option>
+                    <option value="weeks">{t('microfinance:loanProducts.form.weeks')}</option>
+                    <option value="months">{t('microfinance:loanProducts.form.months')}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="startDate">{t('microfinance:loans.form.startDateLabel')}</label>
+                <input id="startDate" type="date" className="form-control" {...register('startDate')} />
+              </div>
+
+              <div className="form-group mb-0">
                 <label className="form-label" htmlFor="purpose">{t('microfinance:loans.form.purposeLabel')}</label>
-                <input id="purpose" className="form-control" {...register('purpose')} />
+                <textarea id="purpose" className="form-control" rows={3} {...register('purpose')} />
+              </div>
+            </div>
+          </div>
+
+          <div className="card loan-summary-card">
+            <div className="card-header"><span className="card-title">{t('microfinance:loans.form.summaryTitle')}</span></div>
+            <div className="card-body loan-summary-body">
+              <div className="loan-summary-row">
+                <span>{t('microfinance:loans.form.loanAmountLabel')}</span>
+                <strong>{formatCurrency(amount)}</strong>
+              </div>
+              <div className="loan-summary-row">
+                <span>{t('microfinance:loans.form.interestRateLabel')}</span>
+                <strong>{rate}%</strong>
+              </div>
+              <div className="loan-summary-row">
+                <span>{t('microfinance:loans.form.durationLabel')}</span>
+                <strong>{durationValue || 0} {t(`microfinance:loanProducts.form.${durationUnit}`)}</strong>
+              </div>
+              <div className="loan-summary-row">
+                <span>{t('microfinance:loans.form.repaymentFrequencyLabel')}</span>
+                <strong>{t(`microfinance:loanProducts.form.${repaymentFrequency}`, repaymentFrequency)}</strong>
+              </div>
+              <div className="loan-summary-divider" />
+              <div className="loan-summary-row">
+                <span>{t('microfinance:loans.form.totalInterestLabel')}</span>
+                <strong>{formatCurrency(totalInterest)}</strong>
+              </div>
+              <div className="loan-summary-row loan-summary-total">
+                <span>{t('microfinance:loans.form.totalPayableLabel')}</span>
+                <strong>{formatCurrency(totalPayable)}</strong>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="card mb-5">
-          <div className="card-header">
-            <span className="card-title">{t('microfinance:loans.form.guarantorsTitle')}</span>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => append({ guarantorName: '', guarantorPhone: '', guaranteedAmount: '' })}>
-              <FiPlus aria-hidden="true" /> {t('microfinance:loans.form.addGuarantor')}
-            </button>
-          </div>
-          {fields.length > 0 && (
-            <div className="card-body">
-              {fields.map((field, index) => (
-                <div className="form-row" key={field.id} style={{ alignItems: 'flex-end' }}>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor={`guarantors.${index}.guarantorName`}>{t('microfinance:loans.form.guarantorName')}</label>
-                    <input id={`guarantors.${index}.guarantorName`} className="form-control" {...register(`guarantors.${index}.guarantorName`)} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor={`guarantors.${index}.guarantorPhone`}>{t('microfinance:loans.form.guarantorPhone')}</label>
-                    <input id={`guarantors.${index}.guarantorPhone`} className="form-control" {...register(`guarantors.${index}.guarantorPhone`)} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor={`guarantors.${index}.guaranteedAmount`}>{t('microfinance:loans.form.guaranteedAmount')}</label>
-                    <input id={`guarantors.${index}.guaranteedAmount`} type="number" min="0" step="0.01" className="form-control" {...register(`guarantors.${index}.guaranteedAmount`)} />
-                  </div>
-                  <button type="button" className="btn btn-ghost btn-icon" onClick={() => remove(index)} aria-label={t('microfinance:loans.form.removeGuarantor')}>
-                    <FiTrash2 />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+        <div className="loan-form-actions">
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/loans')}>{t('common:actions.cancel')}</button>
+          <button type="submit" className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
+            {t('microfinance:loans.form.submitApplication')}
+          </button>
         </div>
-
-        <button type="submit" className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
-          {t('microfinance:loans.form.submitApplication')}
-        </button>
       </form>
     </div>
   );
