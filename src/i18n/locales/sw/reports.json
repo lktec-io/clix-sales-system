@@ -28,7 +28,8 @@
     "pharmacy_sales": "Mauzo ya Duka la Dawa",
     "medicine_stock": "Hesabu ya Dawa",
     "medicine_expiry": "Ripoti ya Muda wa Mwisho",
-    "pharmacy_purchases": "Manunuzi ya Duka la Dawa"
+    "pharmacy_purchases": "Manunuzi ya Duka la Dawa",
+    "restaurant_sales": "Mauzo ya Mkahawa"
   },
   "descriptions": {
     "sales": "Mapato, miamala, na mwelekeo wa kila siku.",
@@ -48,7 +49,8 @@
     "pharmacy_sales": "Mapato ya mauzo ya dawa kwa siku na dawa zinazouzwa zaidi.",
     "medicine_stock": "Thamani ya hesabu ya kila dawa, zenye hesabu ndogo kwanza.",
     "medicine_expiry": "Vipande vilivyoisha muda au vinavyokaribia kuisha ndani ya siku 30.",
-    "pharmacy_purchases": "Hesabu iliyopokelewa kwa msambazaji kwa kipindi husika."
+    "pharmacy_purchases": "Hesabu iliyopokelewa kwa msambazaji kwa kipindi husika.",
+    "restaurant_sales": "Mapato ya oda kwa siku, vipengele bora vya menyu, na njia za malipo."
   },
   "summary": {
     "totalSales": "Jumla ya Mauzo",
@@ -81,7 +83,9 @@
     "totalMedicines": "Jumla ya Dawa",
     "totalStockValue": "Thamani ya Hesabu",
     "expiredCount": "Zilizoisha Muda",
-    "expiringSoonCount": "Zinakaribia Kuisha"
+    "expiringSoonCount": "Zinakaribia Kuisha",
+    "totalOrders": "Jumla ya Oda",
+    "averageOrder": "Wastani wa Oda"
   },
   "breakdowns": {
     "byDay": "Kwa Siku",
@@ -101,7 +105,8 @@
     "byProduct": "Kwa Aina ya Mkopo",
     "byMethod": "Kwa Njia ya Malipo",
     "byMedicine": "Kwa Dawa",
-    "expiringBatches": "Vipande Vinavyokaribia Kuisha"
+    "expiringBatches": "Vipande Vinavyokaribia Kuisha",
+    "byMenuItem": "Kwa Kipengele cha Menyu"
   },
   "headers": {
     "date": "Tarehe",
@@ -115,7 +120,8 @@
     "status": "Hali",
     "method": "Njia",
     "medicine": "Dawa",
-    "medicineBatch": "Dawa / Kipande"
+    "medicineBatch": "Dawa / Kipande",
+    "menuItem": "Kipengele cha Menyu"
   },
   "filters": {
     "quickRange": "Kipindi cha Haraka",

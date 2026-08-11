@@ -65,6 +65,13 @@ const PharmacySaleDetail = lazy(() => import('../pages/pharmacy/PharmacySaleDeta
 const PharmacyPurchaseList = lazy(() => import('../pages/pharmacy/PharmacyPurchaseList'));
 const PharmacyPurchaseForm = lazy(() => import('../pages/pharmacy/PharmacyPurchaseForm'));
 const PharmacyPurchaseDetail = lazy(() => import('../pages/pharmacy/PharmacyPurchaseDetail'));
+const MenuItemList = lazy(() => import('../pages/restaurant/MenuItemList'));
+const MenuItemForm = lazy(() => import('../pages/restaurant/MenuItemForm'));
+const TableList = lazy(() => import('../pages/restaurant/TableList'));
+const OrderList = lazy(() => import('../pages/restaurant/OrderList'));
+const OrderForm = lazy(() => import('../pages/restaurant/OrderForm'));
+const OrderDetail = lazy(() => import('../pages/restaurant/OrderDetail'));
+const KitchenQueue = lazy(() => import('../pages/restaurant/KitchenQueue'));
 const BillingOverview = lazy(() => import('../pages/billing/BillingOverview'));
 const InvoiceDetail = lazy(() => import('../pages/billing/InvoiceDetail'));
 const SystemSettings = lazy(() => import('../pages/settings/SystemSettings'));
@@ -187,6 +194,15 @@ function AppRouter() {
               <Route path="/pharmacy/purchases" element={<RequirePermission permission="pharmacy_purchases.view"><PharmacyPurchaseList /></RequirePermission>} />
               <Route path="/pharmacy/purchases/new" element={<RequirePermission permission="pharmacy_purchases.create"><PharmacyPurchaseForm /></RequirePermission>} />
               <Route path="/pharmacy/purchases/:id" element={<RequirePermission permission="pharmacy_purchases.view"><PharmacyPurchaseDetail /></RequirePermission>} />
+
+              <Route path="/menu" element={<RequirePermission permission="menu_items.view"><MenuItemList /></RequirePermission>} />
+              <Route path="/menu/new" element={<RequirePermission permission="menu_items.manage"><MenuItemForm /></RequirePermission>} />
+              <Route path="/menu/:id/edit" element={<RequirePermission permission="menu_items.manage"><MenuItemForm /></RequirePermission>} />
+              <Route path="/tables" element={<RequirePermission permission="restaurant_tables.view"><TableList /></RequirePermission>} />
+              <Route path="/restaurant/orders" element={<RequirePermission permission="restaurant_orders.view"><OrderList /></RequirePermission>} />
+              <Route path="/restaurant/orders/new" element={<RequirePermission permission="restaurant_orders.create"><OrderForm /></RequirePermission>} />
+              <Route path="/restaurant/orders/:id" element={<RequirePermission permission="restaurant_orders.view"><OrderDetail /></RequirePermission>} />
+              <Route path="/kitchen" element={<RequirePermission permission="kitchen.view"><KitchenQueue /></RequirePermission>} />
 
               <Route path={ROUTES.BILLING} element={<RequirePermission permission="company.manage"><BillingOverview /></RequirePermission>} />
               <Route path={ROUTES.BILLING_INVOICE} element={<RequirePermission permission="company.manage"><InvoiceDetail /></RequirePermission>} />

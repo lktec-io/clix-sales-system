@@ -32,6 +32,10 @@ import loanGroupRoutes from './loanGroup.routes.js';
 import medicineRoutes from './medicine.routes.js';
 import pharmacySaleRoutes from './pharmacySale.routes.js';
 import pharmacyPurchaseRoutes from './pharmacyPurchase.routes.js';
+import menuItemRoutes from './menuItem.routes.js';
+import restaurantTableRoutes from './restaurantTable.routes.js';
+import restaurantOrderRoutes from './restaurantOrder.routes.js';
+import kitchenRoutes from './kitchen.routes.js';
 
 const router = Router();
 
@@ -74,5 +78,9 @@ router.use('/groups', loanGroupRoutes);
 router.use('/medicines', medicineRoutes);
 router.use('/pharmacy/sales', pharmacySaleRoutes);
 router.use('/pharmacy/purchases', pharmacyPurchaseRoutes);
+router.use('/menu', menuItemRoutes);
+router.use('/tables', restaurantTableRoutes);
+router.use('/restaurant/orders', restaurantOrderRoutes);
+router.use('/kitchen', kitchenRoutes);
 
 export default router;

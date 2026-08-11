@@ -20,7 +20,11 @@
     "medicines": "Medicines",
     "expiry": "Expiry Tracking",
     "pharmacy_sales": "Sales",
-    "pharmacy_purchases": "Purchases"
+    "pharmacy_purchases": "Purchases",
+    "menu": "Menu",
+    "tables": "Tables",
+    "restaurant_orders": "Orders",
+    "kitchen": "Kitchen"
   },
   "sectionMain": "Main",
   "logout": "Logout",

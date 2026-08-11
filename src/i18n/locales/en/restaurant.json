@@ -1,0 +1,186 @@
+{
+  "menu": {
+    "list": {
+      "title": "Menu",
+      "subtitle": "Manage the dishes and drinks your restaurant serves.",
+      "newItem": "New Menu Item",
+      "searchPlaceholder": "Search menu items...",
+      "emptyMessage": "No menu items yet.",
+      "viewItem": "View menu item",
+      "allCategories": "All Categories",
+      "allStatuses": "All Statuses"
+    },
+    "columns": {
+      "name": "Name",
+      "category": "Category",
+      "sellingPrice": "Selling Price",
+      "status": "Status"
+    },
+    "status": {
+      "available": "Available",
+      "unavailable": "Unavailable"
+    },
+    "form": {
+      "newTitle": "New Menu Item",
+      "editTitle": "Edit Menu Item",
+      "newSubtitle": "Add a new dish or drink to your menu.",
+      "editSubtitle": "Update this menu item's details.",
+      "nameLabel": "Item Name",
+      "nameRequired": "Name is required",
+      "categoryLabel": "Category",
+      "selectCategory": "Select a category",
+      "sellingPriceLabel": "Selling Price",
+      "sellingPriceRequired": "Selling price is required",
+      "descriptionLabel": "Description (optional)",
+      "isAvailableLabel": "Available for order",
+      "save": "Save Menu Item",
+      "createSuccess": "Menu item created",
+      "updateSuccess": "Menu item updated",
+      "saveError": "Failed to save menu item"
+    },
+    "detail": {
+      "backToMenu": "Back to Menu",
+      "edit": "Edit"
+    }
+  },
+  "tables": {
+    "list": {
+      "title": "Tables",
+      "subtitle": "Manage your dining tables and their status.",
+      "newTable": "New Table",
+      "emptyMessage": "No tables yet.",
+      "allBranches": "All Branches",
+      "allStatuses": "All Statuses"
+    },
+    "columns": {
+      "tableNumber": "Table",
+      "branch": "Branch",
+      "capacity": "Capacity",
+      "status": "Status"
+    },
+    "status": {
+      "available": "Available",
+      "occupied": "Occupied",
+      "reserved": "Reserved"
+    },
+    "form": {
+      "newTitle": "New Table",
+      "editTitle": "Edit Table",
+      "branchLabel": "Branch",
+      "branchRequired": "Branch is required",
+      "selectBranch": "Select a branch",
+      "tableNumberLabel": "Table Number / Name",
+      "tableNumberRequired": "Table number is required",
+      "capacityLabel": "Seating Capacity",
+      "save": "Save Table",
+      "createSuccess": "Table created",
+      "updateSuccess": "Table updated",
+      "saveError": "Failed to save table"
+    },
+    "actions": {
+      "markReserved": "Mark Reserved",
+      "markAvailable": "Mark Available",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "statusUpdateSuccess": "Table status updated",
+      "statusUpdateError": "Failed to update table status"
+    }
+  },
+  "orders": {
+    "list": {
+      "title": "Orders",
+      "subtitle": "Dine-in and takeaway orders.",
+      "newOrder": "New Order",
+      "searchPlaceholder": "Search by order number or table...",
+      "emptyMessage": "No orders yet.",
+      "viewOrder": "View order",
+      "allStatuses": "All Statuses"
+    },
+    "columns": {
+      "orderNumber": "Order #",
+      "table": "Table",
+      "branch": "Branch",
+      "total": "Total",
+      "status": "Status",
+      "date": "Date"
+    },
+    "status": {
+      "open": "Open",
+      "sent_to_kitchen": "Sent to Kitchen",
+      "preparing": "Preparing",
+      "ready": "Ready",
+      "served": "Served",
+      "paid": "Paid",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "takeaway": "Takeaway",
+    "walkIn": "Walk-in",
+    "paymentMethods": {
+      "cash": "Cash",
+      "mobile_money": "Mobile Money",
+      "bank_transfer": "Bank Transfer",
+      "card": "Card",
+      "other": "Other"
+    },
+    "form": {
+      "newTitle": "New Order",
+      "newSubtitle": "Build the order, then send it to the kitchen.",
+      "tableLabel": "Table (optional — leave blank for takeaway)",
+      "selectTable": "Takeaway / no table",
+      "branchLabel": "Branch",
+      "branchRequired": "Branch is required",
+      "selectBranch": "Select a branch",
+      "customerLabel": "Customer (optional)",
+      "selectCustomer": "Walk-in customer",
+      "itemsTitle": "Items",
+      "addLine": "Add Item",
+      "removeLine": "Remove line",
+      "selectMenuItem": "Select a menu item",
+      "quantityLabel": "Quantity",
+      "total": "Total",
+      "confirmOrder": "Confirm Order",
+      "createSuccess": "Order opened",
+      "createError": "Failed to open order"
+    },
+    "itemColumns": {
+      "item": "Item",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "lineTotal": "Subtotal",
+      "kitchenStatus": "Kitchen Status"
+    },
+    "detail": {
+      "backToOrders": "Back to Orders",
+      "itemsTitle": "Order Items",
+      "totalLabel": "Total",
+      "sendToKitchen": "Send to Kitchen",
+      "markServed": "Mark Served",
+      "completePayment": "Complete Payment",
+      "cancelOrder": "Cancel Order",
+      "paymentMethodLabel": "Payment Method",
+      "confirmPayment": "Confirm Payment",
+      "cancelConfirmTitle": "Cancel order",
+      "cancelConfirmMessage": "Cancel this order? This cannot be undone.",
+      "cancelConfirmButton": "Cancel Order",
+      "actionSuccess": "Order updated",
+      "actionError": "Failed to update order"
+    }
+  },
+  "kitchen": {
+    "title": "Kitchen",
+    "subtitle": "Incoming tickets, oldest first.",
+    "empty": "No orders in the kitchen right now.",
+    "refresh": "Refresh",
+    "startPreparing": "Start Preparing",
+    "markReady": "Mark Ready",
+    "kitchenStatus": {
+      "new": "New",
+      "preparing": "Preparing",
+      "ready": "Ready",
+      "served": "Served"
+    },
+    "updateSuccess": "Item status updated",
+    "updateError": "Failed to update item status"
+  }
+}

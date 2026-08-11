@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
-  FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle, FiUserCheck, FiCreditCard, FiAlertOctagon, FiClock, FiBox,
+  FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle, FiUserCheck, FiCreditCard, FiAlertOctagon, FiClock, FiBox, FiCheckCircle,
 } from 'react-icons/fi';
 import KPICard from '../../components/dashboard/KPICard';
 import ChartCard from '../../components/dashboard/ChartCard';
@@ -22,6 +22,7 @@ import * as inventoryService from '../../services/inventoryService';
 import * as loanService from '../../services/loanService';
 import * as medicineService from '../../services/medicineService';
 import * as pharmacySaleService from '../../services/pharmacySaleService';
+import * as restaurantOrderService from '../../services/restaurantOrderService';
 import { useModules } from '../../hooks/useModules';
 import { formatCurrency, formatNumber } from '../../utils/formatCurrency';
 import '../../styles/pages/Dashboard.css';
@@ -61,6 +62,15 @@ function useKpiDefs(t) {
     { key: 'expiringSoonCount', label: t('kpi.expiringSoonCount'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.expiringSoonCountSubtitle'), accent: '#F59E0B' },
     { key: 'todaySalesCount', label: t('kpi.todaySalesCount'), icon: FiShoppingBag, formatter: formatNumber, subtitle: t('kpi.todaySalesCountSubtitle'), accent: '#8B5CF6' },
     { key: 'todayRevenue', label: t('kpi.todayRevenue'), icon: FiDollarSign, formatter: formatCurrency, subtitle: t('kpi.todayRevenueSubtitle'), accent: '#10B981' },
+    // Restaurant — gated by the 'restaurant_orders'/'tables' modules'
+    // dashboard_widgets columns (033_create_restaurant_tables.sql).
+    // todaySales/todayOrders above are reused directly (same meaning as
+    // retail's own definitions); only the Restaurant-unique concepts below
+    // get new keys.
+    { key: 'completedOrdersToday', label: t('kpi.completedOrdersToday'), icon: FiCheckCircle, formatter: formatNumber, subtitle: t('kpi.completedOrdersTodaySubtitle'), accent: '#10B981' },
+    { key: 'pendingKitchenOrders', label: t('kpi.pendingKitchenOrders'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.pendingKitchenOrdersSubtitle'), accent: '#F59E0B' },
+    { key: 'occupiedTables', label: t('kpi.occupiedTables'), icon: FiUserCheck, formatter: formatNumber, subtitle: t('kpi.occupiedTablesSubtitle'), accent: '#EF4444' },
+    { key: 'availableTables', label: t('kpi.availableTables'), icon: FiCheckCircle, formatter: formatNumber, subtitle: t('kpi.availableTablesSubtitle'), accent: '#2F6BFF' },
   ];
 }
 
@@ -124,6 +134,7 @@ function Dashboard() {
   const showLowStock = hasWidget('lowStockAlert');
   const showLoanPortfolio = isModuleEnabled('loans');
   const showPharmacy = isModuleEnabled('medicines');
+  const showRestaurant = isModuleEnabled('restaurant_orders');
   const chartColors = useChartTheme();
   const [kpis, setKpis] = useState(null);
   const [charts, setCharts] = useState({});
@@ -131,6 +142,7 @@ function Dashboard() {
   const [recentLoans, setRecentLoans] = useState([]);
   const [expiringBatches, setExpiringBatches] = useState([]);
   const [recentSales, setRecentSales] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
   const [todayTrend, setTodayTrend] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -150,11 +162,12 @@ function Dashboard() {
           ...enabledChartTypes.map((type) => dashboardService.getChart(type)),
           ...(showSalesTrend ? [dashboardService.getChart('sales-trend', { range: 'week' })] : []),
         ]);
-        const [lowStockResult, recentLoansResult, expiringResult, recentSalesResult] = await Promise.allSettled([
+        const [lowStockResult, recentLoansResult, expiringResult, recentSalesResult, recentOrdersResult] = await Promise.allSettled([
           showLowStock ? inventoryService.listInventory({ lowStock: true, limit: 10 }) : Promise.resolve({ items: [] }),
           showLoanPortfolio ? loanService.getRecentApplications(5) : Promise.resolve([]),
           showPharmacy ? medicineService.listExpiring({ status: 'expiring_soon', limit: 5 }) : Promise.resolve({ items: [] }),
           showPharmacy ? pharmacySaleService.getRecentSales(5) : Promise.resolve([]),
+          showRestaurant ? restaurantOrderService.getRecentOrders(5) : Promise.resolve([]),
         ]);
 
         if (cancelled) return;
@@ -170,6 +183,7 @@ function Dashboard() {
         setRecentLoans(recentLoansResult.status === 'fulfilled' ? recentLoansResult.value : []);
         setExpiringBatches(expiringResult.status === 'fulfilled' ? expiringResult.value.items : []);
         setRecentSales(recentSalesResult.status === 'fulfilled' ? recentSalesResult.value : []);
+        setRecentOrders(recentOrdersResult.status === 'fulfilled' ? recentOrdersResult.value : []);
       } catch {
         if (!cancelled) setError(t('loadError'));
       } finally {
@@ -361,6 +375,40 @@ function Dashboard() {
                           <td>{sale.customer_first_name ? `${sale.customer_first_name} ${sale.customer_last_name}` : t('recentSales.walkIn')}</td>
                           <td>{formatCurrency(sale.total_amount)}</td>
                           <td>{new Date(sale.created_at).toLocaleDateString(i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ', { day: 'numeric', month: 'short' })}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {showRestaurant && (
+          <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
+            <div className="card">
+              <div className="card-header"><span className="card-title">{t('recentOrders.title')}</span></div>
+              {recentOrders.length === 0 ? (
+                <div className="card-body text-sm text-secondary">{t('recentOrders.empty')}</div>
+              ) : (
+                <div className="table-wrapper">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>{t('recentOrders.order')}</th>
+                        <th>{t('recentOrders.table')}</th>
+                        <th>{t('recentOrders.amount')}</th>
+                        <th>{t('recentOrders.status')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentOrders.map((order) => (
+                        <tr key={order.id} className="table-row-clickable" onClick={() => navigate(`/restaurant/orders/${order.id}`)}>
+                          <td>{order.order_number}</td>
+                          <td>{order.table_number || t('recentOrders.takeaway')}</td>
+                          <td>{formatCurrency(order.total_amount)}</td>
+                          <td><span className="badge badge-neutral">{t(`recentOrders.status_${order.status}`, order.status)}</span></td>
                         </tr>
                       ))}
                     </tbody>

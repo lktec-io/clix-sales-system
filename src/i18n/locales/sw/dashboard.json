@@ -55,6 +55,14 @@
     "todaySalesCountSubtitle": "Mauzo yaliyokamilika leo",
     "todayRevenue": "Mapato ya Leo",
     "todayRevenueSubtitle": "Katika matawi yote",
+    "completedOrdersToday": "Oda Zilizokamilika",
+    "completedOrdersTodaySubtitle": "Zilizofungwa leo",
+    "pendingKitchenOrders": "Oda Zinazosubiri Jikoni",
+    "pendingKitchenOrdersSubtitle": "Vitu vinavyoandaliwa",
+    "occupiedTables": "Meza Zilizochukuliwa",
+    "occupiedTablesSubtitle": "Zenye wateja sasa",
+    "availableTables": "Meza Zinazopatikana",
+    "availableTablesSubtitle": "Tayari kwa wateja",
     "trendVsYesterday": "{{percent}}% ikilinganishwa na jana"
   },
   "charts": {
@@ -130,6 +138,23 @@
     "amount": "Kiasi",
     "date": "Tarehe",
     "walkIn": "Mteja wa Kawaida"
+  },
+  "recentOrders": {
+    "title": "Oda za Hivi Karibuni",
+    "empty": "Hakuna oda bado.",
+    "order": "Namba ya Oda",
+    "table": "Meza",
+    "amount": "Kiasi",
+    "status": "Hali",
+    "takeaway": "Kuchukua",
+    "status_open": "Wazi",
+    "status_sent_to_kitchen": "Imetumwa Jikoni",
+    "status_preparing": "Inaandaliwa",
+    "status_ready": "Tayari",
+    "status_served": "Imehudumiwa",
+    "status_paid": "Imelipwa",
+    "status_completed": "Imekamilika",
+    "status_cancelled": "Imeghairiwa"
   },
   "loadError": "Imeshindwa kupakia taarifa za dashibodi."
 }

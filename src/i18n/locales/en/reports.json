@@ -28,7 +28,8 @@
     "pharmacy_sales": "Pharmacy Sales",
     "medicine_stock": "Medicine Stock",
     "medicine_expiry": "Expiry Report",
-    "pharmacy_purchases": "Pharmacy Purchases"
+    "pharmacy_purchases": "Pharmacy Purchases",
+    "restaurant_sales": "Restaurant Sales"
   },
   "descriptions": {
     "sales": "Revenue, transactions, and daily trends.",
@@ -48,7 +49,8 @@
     "pharmacy_sales": "Medicine sales revenue by day and top-selling medicines.",
     "medicine_stock": "Current stock value per medicine, lowest stock first.",
     "medicine_expiry": "Batches already expired or expiring within 30 days.",
-    "pharmacy_purchases": "Stock received by supplier for the period."
+    "pharmacy_purchases": "Stock received by supplier for the period.",
+    "restaurant_sales": "Order revenue by day, best-selling menu items, and payment methods."
   },
   "summary": {
     "totalSales": "Total Sales",
@@ -81,7 +83,9 @@
     "totalMedicines": "Total Medicines",
     "totalStockValue": "Stock Value",
     "expiredCount": "Expired",
-    "expiringSoonCount": "Expiring Soon"
+    "expiringSoonCount": "Expiring Soon",
+    "totalOrders": "Total Orders",
+    "averageOrder": "Average Order"
   },
   "breakdowns": {
     "byDay": "By Day",
@@ -101,7 +105,8 @@
     "byProduct": "By Loan Product",
     "byMethod": "By Payment Method",
     "byMedicine": "By Medicine",
-    "expiringBatches": "Expiring Batches"
+    "expiringBatches": "Expiring Batches",
+    "byMenuItem": "By Menu Item"
   },
   "headers": {
     "date": "Date",
@@ -115,7 +120,8 @@
     "status": "Status",
     "method": "Method",
     "medicine": "Medicine",
-    "medicineBatch": "Medicine / Batch"
+    "medicineBatch": "Medicine / Batch",
+    "menuItem": "Menu Item"
   },
   "filters": {
     "quickRange": "Quick Range",

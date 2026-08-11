@@ -1,0 +1,186 @@
+{
+  "menu": {
+    "list": {
+      "title": "Menyu",
+      "subtitle": "Simamia vyakula na vinywaji vinavyotolewa na mkahawa wako.",
+      "newItem": "Kipengele Kipya cha Menyu",
+      "searchPlaceholder": "Tafuta vipengele vya menyu...",
+      "emptyMessage": "Hakuna vipengele vya menyu bado.",
+      "viewItem": "Angalia kipengele cha menyu",
+      "allCategories": "Aina Zote",
+      "allStatuses": "Hali Zote"
+    },
+    "columns": {
+      "name": "Jina",
+      "category": "Aina",
+      "sellingPrice": "Bei ya Kuuza",
+      "status": "Hali"
+    },
+    "status": {
+      "available": "Inapatikana",
+      "unavailable": "Haipatikani"
+    },
+    "form": {
+      "newTitle": "Kipengele Kipya cha Menyu",
+      "editTitle": "Hariri Kipengele cha Menyu",
+      "newSubtitle": "Ongeza chakula au kinywaji kipya kwenye menyu yako.",
+      "editSubtitle": "Sasisha maelezo ya kipengele hiki cha menyu.",
+      "nameLabel": "Jina la Kipengele",
+      "nameRequired": "Jina linahitajika",
+      "categoryLabel": "Aina",
+      "selectCategory": "Chagua aina",
+      "sellingPriceLabel": "Bei ya Kuuza",
+      "sellingPriceRequired": "Bei ya kuuza inahitajika",
+      "descriptionLabel": "Maelezo (si lazima)",
+      "isAvailableLabel": "Inapatikana kuagizwa",
+      "save": "Hifadhi Kipengele",
+      "createSuccess": "Kipengele cha menyu kimeongezwa",
+      "updateSuccess": "Kipengele cha menyu kimesasishwa",
+      "saveError": "Imeshindwa kuhifadhi kipengele cha menyu"
+    },
+    "detail": {
+      "backToMenu": "Rudi kwa Menyu",
+      "edit": "Hariri"
+    }
+  },
+  "tables": {
+    "list": {
+      "title": "Meza",
+      "subtitle": "Simamia meza zako za chakula na hali zake.",
+      "newTable": "Meza Mpya",
+      "emptyMessage": "Hakuna meza bado.",
+      "allBranches": "Matawi Yote",
+      "allStatuses": "Hali Zote"
+    },
+    "columns": {
+      "tableNumber": "Meza",
+      "branch": "Tawi",
+      "capacity": "Uwezo",
+      "status": "Hali"
+    },
+    "status": {
+      "available": "Inapatikana",
+      "occupied": "Imechukuliwa",
+      "reserved": "Imehifadhiwa"
+    },
+    "form": {
+      "newTitle": "Meza Mpya",
+      "editTitle": "Hariri Meza",
+      "branchLabel": "Tawi",
+      "branchRequired": "Tawi linahitajika",
+      "selectBranch": "Chagua tawi",
+      "tableNumberLabel": "Namba / Jina la Meza",
+      "tableNumberRequired": "Namba ya meza inahitajika",
+      "capacityLabel": "Uwezo wa Viti",
+      "save": "Hifadhi Meza",
+      "createSuccess": "Meza imeongezwa",
+      "updateSuccess": "Meza imesasishwa",
+      "saveError": "Imeshindwa kuhifadhi meza"
+    },
+    "actions": {
+      "markReserved": "Weka Imehifadhiwa",
+      "markAvailable": "Weka Inapatikana",
+      "deactivate": "Zima",
+      "activate": "Washa",
+      "statusUpdateSuccess": "Hali ya meza imesasishwa",
+      "statusUpdateError": "Imeshindwa kusasisha hali ya meza"
+    }
+  },
+  "orders": {
+    "list": {
+      "title": "Oda",
+      "subtitle": "Oda za ndani na za kuchukua.",
+      "newOrder": "Oda Mpya",
+      "searchPlaceholder": "Tafuta kwa namba ya oda au meza...",
+      "emptyMessage": "Hakuna oda bado.",
+      "viewOrder": "Angalia oda",
+      "allStatuses": "Hali Zote"
+    },
+    "columns": {
+      "orderNumber": "Namba ya Oda",
+      "table": "Meza",
+      "branch": "Tawi",
+      "total": "Jumla",
+      "status": "Hali",
+      "date": "Tarehe"
+    },
+    "status": {
+      "open": "Wazi",
+      "sent_to_kitchen": "Imetumwa Jikoni",
+      "preparing": "Inaandaliwa",
+      "ready": "Tayari",
+      "served": "Imehudumiwa",
+      "paid": "Imelipwa",
+      "completed": "Imekamilika",
+      "cancelled": "Imeghairiwa"
+    },
+    "takeaway": "Kuchukua",
+    "walkIn": "Mteja wa Kawaida",
+    "paymentMethods": {
+      "cash": "Taslimu",
+      "mobile_money": "Pesa za Simu",
+      "bank_transfer": "Uhamisho wa Benki",
+      "card": "Kadi",
+      "other": "Nyingine"
+    },
+    "form": {
+      "newTitle": "Oda Mpya",
+      "newSubtitle": "Jenga oda, kisha uitume jikoni.",
+      "tableLabel": "Meza (si lazima — acha wazi kwa kuchukua)",
+      "selectTable": "Kuchukua / hakuna meza",
+      "branchLabel": "Tawi",
+      "branchRequired": "Tawi linahitajika",
+      "selectBranch": "Chagua tawi",
+      "customerLabel": "Mteja (si lazima)",
+      "selectCustomer": "Mteja wa kawaida",
+      "itemsTitle": "Vitu",
+      "addLine": "Ongeza Kitu",
+      "removeLine": "Ondoa mstari",
+      "selectMenuItem": "Chagua kipengele cha menyu",
+      "quantityLabel": "Idadi",
+      "total": "Jumla",
+      "confirmOrder": "Thibitisha Oda",
+      "createSuccess": "Oda imefunguliwa",
+      "createError": "Imeshindwa kufungua oda"
+    },
+    "itemColumns": {
+      "item": "Kitu",
+      "quantity": "Idadi",
+      "unitPrice": "Bei ya Kipimo",
+      "lineTotal": "Jumla Ndogo",
+      "kitchenStatus": "Hali ya Jikoni"
+    },
+    "detail": {
+      "backToOrders": "Rudi kwa Oda",
+      "itemsTitle": "Vitu vya Oda",
+      "totalLabel": "Jumla",
+      "sendToKitchen": "Tuma Jikoni",
+      "markServed": "Weka Imehudumiwa",
+      "completePayment": "Kamilisha Malipo",
+      "cancelOrder": "Ghairi Oda",
+      "paymentMethodLabel": "Njia ya Malipo",
+      "confirmPayment": "Thibitisha Malipo",
+      "cancelConfirmTitle": "Ghairi oda",
+      "cancelConfirmMessage": "Ghairi oda hii? Hatua hii haiwezi kutenduliwa.",
+      "cancelConfirmButton": "Ghairi Oda",
+      "actionSuccess": "Oda imesasishwa",
+      "actionError": "Imeshindwa kusasisha oda"
+    }
+  },
+  "kitchen": {
+    "title": "Jikoni",
+    "subtitle": "Tiketi zinazoingia, za zamani kwanza.",
+    "empty": "Hakuna oda jikoni kwa sasa.",
+    "refresh": "Onyesha upya",
+    "startPreparing": "Anza Kuandaa",
+    "markReady": "Weka Tayari",
+    "kitchenStatus": {
+      "new": "Mpya",
+      "preparing": "Inaandaliwa",
+      "ready": "Tayari",
+      "served": "Imehudumiwa"
+    },
+    "updateSuccess": "Hali ya kitu imesasishwa",
+    "updateError": "Imeshindwa kusasisha hali ya kitu"
+  }
+}

@@ -20,7 +20,11 @@
     "medicines": "Dawa",
     "expiry": "Ufuatiliaji wa Muda wa Mwisho",
     "pharmacy_sales": "Mauzo",
-    "pharmacy_purchases": "Manunuzi"
+    "pharmacy_purchases": "Manunuzi",
+    "menu": "Menyu",
+    "tables": "Meza",
+    "restaurant_orders": "Oda",
+    "kitchen": "Jikoni"
   },
   "sectionMain": "Kuu",
   "logout": "Ondoka",

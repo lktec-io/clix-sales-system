@@ -6,7 +6,7 @@ import {
   FiGrid, FiUserCheck, FiTruck,
   FiBox, FiArchive, FiShoppingCart, FiDollarSign, FiRotateCcw,
   FiBarChart2, FiCreditCard, FiSettings, FiLogOut,
-  FiChevronsLeft, FiChevronsRight, FiMapPin, FiUsers, FiShield, FiBell, FiRepeat, FiClock, FiCheckCircle, FiLayers,
+  FiChevronsLeft, FiChevronsRight, FiMapPin, FiUsers, FiShield, FiBell, FiRepeat, FiClock, FiCheckCircle, FiLayers, FiCoffee,
 } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
 import { useCompany } from '../../hooks/useCompany';
@@ -20,7 +20,7 @@ import '../../styles/components/Sidebar.css';
 // about yet, rather than crashing.
 const ICON_MAP = {
   FiGrid, FiUserCheck, FiTruck, FiBox, FiArchive, FiShoppingCart, FiDollarSign, FiRotateCcw,
-  FiBarChart2, FiCreditCard, FiSettings, FiMapPin, FiUsers, FiShield, FiBell, FiRepeat, FiClock, FiCheckCircle, FiLayers,
+  FiBarChart2, FiCreditCard, FiSettings, FiMapPin, FiUsers, FiShield, FiBell, FiRepeat, FiClock, FiCheckCircle, FiLayers, FiCoffee,
 };
 function resolveIcon(iconKey) {
   return ICON_MAP[iconKey] || FiGrid;

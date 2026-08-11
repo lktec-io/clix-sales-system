@@ -646,3 +646,57 @@ export async function pharmacyPurchasesReport({ tenantId, dateFrom, dateTo, bran
     bySupplier: bySupplier.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
   };
 }
+
+// Restaurant — real aggregates against 033_create_restaurant_tables.sql.
+// Consolidated into one report type covering all 4 requested concepts
+// (Sales/Revenue, Orders, Best-selling Menu Items, Payment Summary) via
+// three breakdowns on a single summary — same consolidation precedent as
+// Pharmacy/Microfinance. Only 'completed' orders count as real revenue
+// (open/cancelled tickets never became a sale).
+export async function restaurantSalesReport({ tenantId, dateFrom, dateTo, branchId, branchIds }) {
+  const conditions = ["o.status = 'completed'", 'o.created_at >= ?', 'o.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
+  const params = [dateFrom, dateTo];
+  if (branchId) { conditions.push('o.branch_id = ?'); params.push(branchId); }
+  const scope = buildScope({ tenantId, tenantColumn: 'o.tenant_id', branchIds, branchColumn: 'o.branch_id' });
+  const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
+  const allParams = [...params, ...scope.params];
+
+  const [[summary]] = await pool.query(
+    `SELECT COUNT(*) AS totalOrders, COALESCE(SUM(o.total_amount), 0) AS totalRevenue,
+            COALESCE(AVG(o.total_amount), 0) AS averageOrder
+     FROM restaurant_orders o ${where}`,
+    allParams,
+  );
+
+  const [byDay] = await pool.query(
+    `SELECT DATE(o.created_at) AS label, COALESCE(SUM(o.total_amount), 0) AS value
+     FROM restaurant_orders o ${where} GROUP BY DATE(o.created_at) ORDER BY label ASC`,
+    allParams,
+  );
+
+  const [byMenuItem] = await pool.query(
+    `SELECT mi.name AS label, COALESCE(SUM(oi.quantity), 0) AS count, COALESCE(SUM(oi.line_total), 0) AS value
+     FROM restaurant_order_items oi
+     JOIN restaurant_orders o ON o.id = oi.order_id
+     JOIN menu_items mi ON mi.id = oi.menu_item_id
+     ${where} GROUP BY mi.id, mi.name ORDER BY count DESC LIMIT 10`,
+    allParams,
+  );
+
+  const [byPaymentMethod] = await pool.query(
+    `SELECT o.payment_method AS label, COUNT(*) AS count, COALESCE(SUM(o.total_amount), 0) AS value
+     FROM restaurant_orders o ${where} GROUP BY o.payment_method ORDER BY value DESC`,
+    allParams,
+  );
+
+  return {
+    summary: {
+      totalOrders: Number(summary.totalOrders),
+      totalRevenue: Number(summary.totalRevenue),
+      averageOrder: Number(summary.averageOrder),
+    },
+    byDay: byDay.map((row) => ({ ...row, value: Number(row.value) })),
+    byMenuItem: byMenuItem.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+    byPaymentMethod: byPaymentMethod.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+  };
+}

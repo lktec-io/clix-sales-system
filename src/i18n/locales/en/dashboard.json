@@ -55,6 +55,14 @@
     "todaySalesCountSubtitle": "Completed sales today",
     "todayRevenue": "Today's Revenue",
     "todayRevenueSubtitle": "Across all branches",
+    "completedOrdersToday": "Completed Orders",
+    "completedOrdersTodaySubtitle": "Closed out today",
+    "pendingKitchenOrders": "Pending Kitchen Orders",
+    "pendingKitchenOrdersSubtitle": "Items still being prepared",
+    "occupiedTables": "Occupied Tables",
+    "occupiedTablesSubtitle": "Currently seated",
+    "availableTables": "Available Tables",
+    "availableTablesSubtitle": "Ready to seat",
     "trendVsYesterday": "{{percent}}% vs yesterday"
   },
   "charts": {
@@ -130,6 +138,23 @@
     "amount": "Amount",
     "date": "Date",
     "walkIn": "Walk-in"
+  },
+  "recentOrders": {
+    "title": "Recent Orders",
+    "empty": "No orders yet.",
+    "order": "Order #",
+    "table": "Table",
+    "amount": "Amount",
+    "status": "Status",
+    "takeaway": "Takeaway",
+    "status_open": "Open",
+    "status_sent_to_kitchen": "Sent to Kitchen",
+    "status_preparing": "Preparing",
+    "status_ready": "Ready",
+    "status_served": "Served",
+    "status_paid": "Paid",
+    "status_completed": "Completed",
+    "status_cancelled": "Cancelled"
   },
   "loadError": "Failed to load dashboard data."
 }

@@ -8,6 +8,7 @@ const REPORT_TYPES = [
   'branches', 'products', 'customers', 'suppliers', 'returns', 'transfers', 'users', 'all',
   'loan_portfolio', 'loan_repayments',
   'pharmacy_sales', 'medicine_stock', 'medicine_expiry', 'pharmacy_purchases',
+  'restaurant_sales',
 ];
 
 // The "by day" breakdowns (sales/profit) group by a naturally-unbounded
@@ -95,6 +96,7 @@ export async function getReport(type, query, user) {
     case 'medicine_stock': report = await reportRepository.medicineStockReport(filters); break;
     case 'medicine_expiry': report = await reportRepository.medicineExpiryReport(filters); break;
     case 'pharmacy_purchases': report = await reportRepository.pharmacyPurchasesReport(filters); break;
+    case 'restaurant_sales': report = await reportRepository.restaurantSalesReport(filters); break;
     case 'all': return buildAllReport(filters, { previousRevenue });
     default: throw new ApiError(404, `Unknown report type "${type}"`);
   }

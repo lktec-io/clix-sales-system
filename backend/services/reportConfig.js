@@ -19,7 +19,7 @@ export const MONEY_KEYS = new Set([
   'salesRevenue', 'expenses', 'totalExpenses', 'net', 'cogs', 'grossProfit', 'netProfit', 'totalRefund',
   'totalPurchased', 'totalPaid', 'outstandingBalance',
   'totalDisbursed', 'totalOutstanding', 'totalCollected',
-  'totalStockValue',
+  'totalStockValue', 'averageOrder',
 ]);
 
 function buildReportConfigs(locale) {
@@ -124,6 +124,18 @@ function buildReportConfigs(locale) {
       title: rt('pharmacy_purchases'),
       summaryLabels: { totalPurchases: sl('totalPurchases'), totalAmount: sl('totalAmount') },
       breakdowns: [{ key: 'bySupplier', title: bd('bySupplier'), labelHeader: bh('supplier') }],
+    },
+    // Consolidated Restaurant report — covers Sales/Revenue, Orders,
+    // Best-selling Menu Items, and Payment Summary in one report via three
+    // breakdowns, same consolidation precedent as Pharmacy/Microfinance.
+    restaurant_sales: {
+      title: rt('restaurant_sales'),
+      summaryLabels: { totalOrders: sl('totalOrders'), totalRevenue: sl('totalRevenue'), averageOrder: sl('averageOrder') },
+      breakdowns: [
+        { key: 'byDay', title: bd('byDay'), labelHeader: bh('date') },
+        { key: 'byMenuItem', title: bd('byMenuItem'), labelHeader: bh('menuItem') },
+        { key: 'byPaymentMethod', title: bd('byMethod'), labelHeader: bh('method') },
+      ],
     },
     // The business-summary report — report.service.js's buildAllReport()
     // flattens sales/products/customers/expenses/profit into this same

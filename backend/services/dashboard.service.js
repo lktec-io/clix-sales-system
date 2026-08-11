@@ -7,6 +7,8 @@ import * as activityLogRepository from '../repositories/activityLog.repository.j
 import { getPortfolioKpis } from './loan.service.js';
 import { getDashboardSummary as getMedicineDashboardSummary } from './medicine.service.js';
 import { getSalesSummary as getPharmacySalesSummary } from './pharmacySale.service.js';
+import { getSalesSummary as getRestaurantSalesSummary, getPendingKitchenCount } from './restaurantOrder.service.js';
+import { getOccupancySummary } from './restaurantTable.service.js';
 
 const EMPTY_KPIS = {
   todaySales: 0, monthlySales: 0, todayProfit: 0, monthlyProfit: 0,
@@ -57,9 +59,18 @@ const EMPTY_PHARMACY_KPIS = {
   todaySalesCount: 0, todayRevenue: 0,
 };
 
+// todayOrders/todaySales are the exact same keys (and meaning) as retail's
+// own EMPTY_KPIS — a genuinely shared concept, safe to reuse directly since
+// Restaurant and Retail are mutually exclusive templates and never merge
+// together for one tenant. Only the Restaurant-unique concepts get new keys.
+const EMPTY_RESTAURANT_KPIS = {
+  todayOrders: 0, todaySales: 0, completedOrdersToday: 0, pendingKitchenOrders: 0,
+  occupiedTables: 0, availableTables: 0,
+};
+
 export async function getKpis(user) {
   const branchIds = await getAccessibleBranchIds(user);
-  const [retailKpis, microfinanceKpis, pharmacyStockKpis, pharmacySalesKpis] = await Promise.all([
+  const [retailKpis, microfinanceKpis, pharmacyStockKpis, pharmacySalesKpis, restaurantOrderKpis, restaurantTableKpis] = await Promise.all([
     safely('kpis', () => dashboardRepository.getKpis(user.tenantId, branchIds), EMPTY_KPIS),
     // Real aggregates from loan.service.js's own portfolio queries — reused,
     // not duplicated. Cheap (indexed COUNT/SUM against tenant_id) and
@@ -72,8 +83,14 @@ export async function getKpis(user) {
     // for any tenant whose template doesn't include Medicines.
     safely('pharmacy-stock-kpis', () => getMedicineDashboardSummary(user), EMPTY_PHARMACY_KPIS),
     safely('pharmacy-sales-kpis', () => getPharmacySalesSummary(user), EMPTY_PHARMACY_KPIS),
+    // Same reuse principle for Restaurant.
+    safely('restaurant-order-kpis', async () => ({
+      ...(await getRestaurantSalesSummary(user)),
+      ...(await getPendingKitchenCount(user)),
+    }), EMPTY_RESTAURANT_KPIS),
+    safely('restaurant-table-kpis', () => getOccupancySummary(user), EMPTY_RESTAURANT_KPIS),
   ]);
-  return { ...retailKpis, ...microfinanceKpis, ...pharmacyStockKpis, ...pharmacySalesKpis };
+  return { ...retailKpis, ...microfinanceKpis, ...pharmacyStockKpis, ...pharmacySalesKpis, ...restaurantOrderKpis, ...restaurantTableKpis };
 }
 
 export async function getChart(user, type, query = {}) {
