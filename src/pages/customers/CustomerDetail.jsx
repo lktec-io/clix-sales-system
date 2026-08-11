@@ -12,6 +12,12 @@ import * as customerService from '../../services/customerService';
 import * as loanService from '../../services/loanService';
 import { formatCurrency } from '../../utils/formatCurrency';
 
+const REPAIR_STATUS_BADGE = {
+  received: 'badge-neutral', diagnosis: 'badge-info', waiting_approval: 'badge-warning',
+  approved: 'badge-info', in_repair: 'badge-info', ready_for_collection: 'badge-warning',
+  completed: 'badge-success', cancelled: 'badge-danger', rejected: 'badge-danger', unrepairable: 'badge-danger',
+};
+
 const LOAN_STATUS_BADGE = {
   submitted: 'badge-neutral', under_review: 'badge-warning', approved: 'badge-info',
   rejected: 'badge-danger', disbursed: 'badge-success', active: 'badge-success',
@@ -19,17 +25,20 @@ const LOAN_STATUS_BADGE = {
 };
 
 function CustomerDetail() {
-  const { t, i18n } = useTranslation(['customers', 'sales', 'returns', 'microfinance', 'common']);
+  const { t, i18n } = useTranslation(['customers', 'sales', 'returns', 'microfinance', 'electronics', 'common']);
   const { id } = useParams();
   const navigate = useNavigate();
   const { isModuleEnabled } = useModules();
   const showSales = isModuleEnabled('sales');
   const showReturns = isModuleEnabled('returns');
   const showLoans = isModuleEnabled('loans');
+  const showRepairs = isModuleEnabled('repairs');
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loans, setLoans] = useState([]);
   const [loansLoading, setLoansLoading] = useState(showLoans);
+  const [repairs, setRepairs] = useState([]);
+  const [repairsLoading, setRepairsLoading] = useState(showRepairs);
 
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const formatDate = (isoString) => new Date(isoString).toLocaleDateString(dateLocale, { dateStyle: 'medium' });
@@ -86,6 +95,17 @@ function CustomerDetail() {
     });
   }, [id, showLoans]);
 
+  // Same "only fetch for a tenant whose template actually includes this
+  // module" principle as the loans effect above — repairs is empty/never
+  // called for anyone but an Electronics-template tenant.
+  useEffect(() => {
+    if (!showRepairs) return;
+    customerService.getCustomerRepairHistory(id).then((data) => {
+      setRepairs(data);
+      setRepairsLoading(false);
+    });
+  }, [id, showRepairs]);
+
   const purchaseColumns = [
     { key: 'sale_number', label: t('customers:columns.saleNumber') },
     { key: 'created_at', label: t('customers:columns.date'), render: (row) => formatDate(row.created_at) },
@@ -121,6 +141,28 @@ function CustomerDetail() {
       render: (row) => (
         <button type="button" className="btn btn-ghost btn-sm" onClick={() => navigate(`/loans/${row.id}`)}>
           {t('microfinance:loans.list.viewLoan')}
+        </button>
+      ),
+    },
+  ];
+
+  const repairColumns = [
+    { key: 'repair_number', label: t('electronics:repairs.customerHistory.repairNumber') },
+    { key: 'device', label: t('electronics:repairs.customerHistory.device'), render: (row) => `${row.brand} ${row.model}` },
+    { key: 'reported_problem', label: t('electronics:repairs.customerHistory.problem') },
+    {
+      key: 'status',
+      label: t('electronics:repairs.customerHistory.status'),
+      render: (row) => <span className={`badge ${REPAIR_STATUS_BADGE[row.status] || 'badge-neutral'}`}>{t(`electronics:repairs.status.${row.status}`)}</span>,
+    },
+    { key: 'repair_total', label: t('electronics:repairs.customerHistory.total'), render: (row) => formatCurrency(row.repair_total) },
+    { key: 'received_at', label: t('electronics:repairs.customerHistory.date'), render: (row) => formatDate(row.received_at) },
+    {
+      key: 'actions',
+      label: '',
+      render: (row) => (
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => navigate(`/repairs/${row.id}`)}>
+          {t('electronics:repairs.list.viewRepair')}
         </button>
       ),
     },
@@ -169,10 +211,17 @@ function CustomerDetail() {
       )}
 
       {showReturns && (
-        <div className="card">
+        <div className={`card ${showRepairs ? 'mb-5' : ''}`}>
           <div className="card-header"><span className="card-title">{t('customers:detail.returnHistory')}</span></div>
           <Table columns={returnColumns} rows={returns.items} loading={returns.loading} emptyMessage={t('customers:detail.noReturns')} />
           <Pagination page={returns.page} totalPages={returns.meta.totalPages} total={returns.meta.total} limit={returns.meta.limit} onPageChange={returns.setPage} />
+        </div>
+      )}
+
+      {showRepairs && (
+        <div className="card">
+          <div className="card-header"><span className="card-title">{t('electronics:repairs.customerHistory.title')}</span></div>
+          <Table columns={repairColumns} rows={repairs} loading={repairsLoading} emptyMessage={t('electronics:repairs.customerHistory.empty')} />
         </div>
       )}
     </div>

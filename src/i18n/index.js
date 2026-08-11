@@ -31,6 +31,7 @@ import billingEn from './locales/en/billing.json';
 import microfinanceEn from './locales/en/microfinance.json';
 import pharmacyEn from './locales/en/pharmacy.json';
 import restaurantEn from './locales/en/restaurant.json';
+import electronicsEn from './locales/en/electronics.json';
 
 import commonSw from './locales/sw/common.json';
 import sidebarSw from './locales/sw/sidebar.json';
@@ -56,6 +57,7 @@ import billingSw from './locales/sw/billing.json';
 import microfinanceSw from './locales/sw/microfinance.json';
 import pharmacySw from './locales/sw/pharmacy.json';
 import restaurantSw from './locales/sw/restaurant.json';
+import electronicsSw from './locales/sw/electronics.json';
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -70,7 +72,7 @@ export const DEFAULT_LANGUAGE = 'en';
 export const NAMESPACES = [
   'common', 'sidebar', 'navbar', 'auth', 'landing', 'register', 'dashboard', 'products', 'inventory',
   'suppliers', 'purchases', 'customers', 'sales', 'returns', 'expenses',
-  'reports', 'settings', 'profile', 'notifications', 'errors', 'billing', 'microfinance', 'pharmacy', 'restaurant',
+  'reports', 'settings', 'profile', 'notifications', 'errors', 'billing', 'microfinance', 'pharmacy', 'restaurant', 'electronics',
 ];
 
 i18n.use(initReactI18next).init({
@@ -81,7 +83,7 @@ i18n.use(initReactI18next).init({
       purchases: purchasesEn, customers: customersEn, sales: salesEn,
       returns: returnsEn, expenses: expensesEn, reports: reportsEn,
       settings: settingsEn, profile: profileEn, notifications: notificationsEn,
-      errors: errorsEn, billing: billingEn, microfinance: microfinanceEn, pharmacy: pharmacyEn, restaurant: restaurantEn,
+      errors: errorsEn, billing: billingEn, microfinance: microfinanceEn, pharmacy: pharmacyEn, restaurant: restaurantEn, electronics: electronicsEn,
     },
     sw: {
       common: commonSw, sidebar: sidebarSw, navbar: navbarSw, auth: authSw, landing: landingSw, register: registerSw, dashboard: dashboardSw,
@@ -89,7 +91,7 @@ i18n.use(initReactI18next).init({
       purchases: purchasesSw, customers: customersSw, sales: salesSw,
       returns: returnsSw, expenses: expensesSw, reports: reportsSw,
       settings: settingsSw, profile: profileSw, notifications: notificationsSw,
-      errors: errorsSw, billing: billingSw, microfinance: microfinanceSw, pharmacy: pharmacySw, restaurant: restaurantSw,
+      errors: errorsSw, billing: billingSw, microfinance: microfinanceSw, pharmacy: pharmacySw, restaurant: restaurantSw, electronics: electronicsSw,
     },
   },
   lng: DEFAULT_LANGUAGE,

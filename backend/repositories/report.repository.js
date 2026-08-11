@@ -700,3 +700,71 @@ export async function restaurantSalesReport({ tenantId, dateFrom, dateTo, branch
     byPaymentMethod: byPaymentMethod.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
   };
 }
+
+// Electronics/Repairs — real aggregates against
+// 034_finalize_template_scope_and_electronics_repairs.sql. Consolidated
+// into one report type covering all 6 requested concepts (Repair Revenue,
+// Repair Status Summary, Parts Used in Repairs, Technician Performance,
+// Outstanding Repair Payments, Repair Profitability) via a summary plus
+// three breakdowns — same consolidation precedent as Pharmacy/Restaurant.
+// Sales/Inventory/Expenses reports are the existing generic report types,
+// reused unmodified (Electronics has no parallel sales schema).
+export async function repairsReport({ tenantId, dateFrom, dateTo, branchId, branchIds }) {
+  const conditions = ['r.received_at >= ?', 'r.received_at < DATE_ADD(?, INTERVAL 1 DAY)'];
+  const params = [dateFrom, dateTo];
+  if (branchId) { conditions.push('r.branch_id = ?'); params.push(branchId); }
+  const scope = buildScope({ tenantId, tenantColumn: 'r.tenant_id', branchIds, branchColumn: 'r.branch_id' });
+  const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
+  const allParams = [...params, ...scope.params];
+
+  // Revenue/profit only count completed jobs — an open or cancelled repair
+  // never became real income, the same "only completed orders are revenue"
+  // rule restaurantSalesReport already applies.
+  const [[summary]] = await pool.query(
+    `SELECT
+       COUNT(*) AS totalRepairs,
+       COALESCE(SUM(CASE WHEN r.status = 'completed' THEN r.repair_total ELSE 0 END), 0) AS repairRevenue,
+       COALESCE(SUM(CASE WHEN r.status = 'completed' THEN r.parts_total ELSE 0 END), 0) AS partsCost,
+       COALESCE(SUM(CASE WHEN r.status NOT IN ('cancelled','rejected','unrepairable') THEN r.repair_total - r.amount_paid ELSE 0 END), 0) AS outstandingPayments
+     FROM repairs r ${where}`,
+    allParams,
+  );
+  const repairRevenue = Number(summary.repairRevenue);
+  const partsCost = Number(summary.partsCost);
+
+  const [byStatus] = await pool.query(
+    `SELECT r.status AS label, COUNT(*) AS count, COALESCE(SUM(r.repair_total), 0) AS value
+     FROM repairs r ${where} GROUP BY r.status ORDER BY count DESC`,
+    allParams,
+  );
+
+  const [byTechnician] = await pool.query(
+    `SELECT COALESCE(CONCAT(u.first_name, ' ', u.last_name), 'Unassigned') AS label,
+            COUNT(*) AS count, COALESCE(SUM(CASE WHEN r.status = 'completed' THEN r.repair_total ELSE 0 END), 0) AS value
+     FROM repairs r LEFT JOIN users u ON u.id = r.technician_id
+     ${where} GROUP BY r.technician_id, u.first_name, u.last_name ORDER BY value DESC`,
+    allParams,
+  );
+
+  const [byPart] = await pool.query(
+    `SELECT p.name AS label, COALESCE(SUM(rp.quantity), 0) AS count, COALESCE(SUM(rp.line_total), 0) AS value
+     FROM repair_parts rp
+     JOIN repairs r ON r.id = rp.repair_id
+     JOIN products p ON p.id = rp.product_id
+     ${where} GROUP BY p.id, p.name ORDER BY value DESC LIMIT 10`,
+    allParams,
+  );
+
+  return {
+    summary: {
+      totalRepairs: Number(summary.totalRepairs),
+      repairRevenue,
+      partsCost,
+      grossProfit: repairRevenue - partsCost,
+      outstandingPayments: Number(summary.outstandingPayments),
+    },
+    byStatus: byStatus.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+    byTechnician: byTechnician.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+    byPart: byPart.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+  };
+}

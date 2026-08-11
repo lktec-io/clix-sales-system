@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  FiEye, FiEyeOff, FiCheck, FiShoppingBag, FiGrid, FiPackage, FiTool,
-  FiCpu, FiShoppingCart, FiDroplet, FiCoffee, FiBookOpen, FiDollarSign, FiUsers,
+  FiEye, FiEyeOff, FiCheck, FiShoppingBag, FiGrid, FiPackage,
+  FiCpu, FiDroplet, FiCoffee, FiDollarSign,
 } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
 import * as tenantService from '../../services/tenantService';
@@ -15,21 +15,19 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/
 
 // Purely presentational — business_templates carries no icon column (only
 // modules do), so this is a small, gracefully-degrading enhancement, not a
-// gate: any template slug not listed here (a platform admin's new one
-// included) still renders fine via the FiGrid fallback.
+// gate: any template slug not listed here still renders fine via the
+// FiGrid fallback. Only the platform's final six templates are listed —
+// General Business/Wholesale/Hardware/Clothing/School/SACCOS were archived
+// (034_finalize_template_scope_and_electronics_repairs.sql) and will never
+// be returned by GET /tenants/templates, but the fallback means this map
+// never needs to be perfectly in sync with the database to stay safe.
 const TEMPLATE_ICONS = {
   'retail-store': FiShoppingBag,
-  'general-business': FiGrid,
-  'wholesale-store': FiPackage,
-  'hardware-store': FiTool,
   'electronics-shop': FiCpu,
-  'clothing-store': FiShoppingCart,
   'cosmetics-shop': FiDroplet,
   pharmacy: FiPackage,
   restaurant: FiCoffee,
-  school: FiBookOpen,
   microfinance: FiDollarSign,
-  saccos: FiUsers,
 };
 function resolveTemplateIcon(slug) {
   return TEMPLATE_ICONS[slug] || FiGrid;

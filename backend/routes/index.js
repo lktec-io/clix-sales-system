@@ -36,6 +36,7 @@ import menuItemRoutes from './menuItem.routes.js';
 import restaurantTableRoutes from './restaurantTable.routes.js';
 import restaurantOrderRoutes from './restaurantOrder.routes.js';
 import kitchenRoutes from './kitchen.routes.js';
+import repairRoutes from './repair.routes.js';
 
 const router = Router();
 
@@ -82,5 +83,6 @@ router.use('/menu', menuItemRoutes);
 router.use('/tables', restaurantTableRoutes);
 router.use('/restaurant/orders', restaurantOrderRoutes);
 router.use('/kitchen', kitchenRoutes);
+router.use('/repairs', repairRoutes);
 
 export default router;

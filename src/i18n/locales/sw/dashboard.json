@@ -63,6 +63,20 @@
     "occupiedTablesSubtitle": "Zenye wateja sasa",
     "availableTables": "Meza Zinazopatikana",
     "availableTablesSubtitle": "Tayari kwa wateja",
+    "todayRepairs": "Matengenezo ya Leo",
+    "todayRepairsSubtitle": "Vifaa vilivyopokewa leo",
+    "pendingDiagnosis": "Inasubiri Uchunguzi",
+    "pendingDiagnosisSubtitle": "Inasubiri uchunguzi wa fundi",
+    "waitingApproval": "Inasubiri Idhini",
+    "waitingApprovalSubtitle": "Imetumwa kwa mteja kwa idhini",
+    "inRepairCount": "Inatengenezwa",
+    "inRepairCountSubtitle": "Inafanyiwa kazi sasa",
+    "readyForCollection": "Tayari Kuchukuliwa",
+    "readyForCollectionSubtitle": "Inasubiri mteja kuchukua",
+    "completedRepairsToday": "Matengenezo Yaliyokamilika",
+    "completedRepairsTodaySubtitle": "Yaliyochukuliwa leo",
+    "outstandingRepairPayments": "Malipo ya Matengenezo Yanayodaiwa",
+    "outstandingRepairPaymentsSubtitle": "Salio linalodaiwa kwenye kazi zinazoendelea",
     "trendVsYesterday": "{{percent}}% ikilinganishwa na jana"
   },
   "charts": {
@@ -155,6 +169,24 @@
     "status_paid": "Imelipwa",
     "status_completed": "Imekamilika",
     "status_cancelled": "Imeghairiwa"
+  },
+  "recentRepairs": {
+    "title": "Matengenezo ya Hivi Karibuni",
+    "empty": "Hakuna matengenezo bado.",
+    "repairNumber": "Namba ya Tengenezo",
+    "device": "Kifaa",
+    "total": "Jumla",
+    "status": "Hali",
+    "status_received": "Kimepokewa",
+    "status_diagnosis": "Uchunguzi",
+    "status_waiting_approval": "Inasubiri Idhini",
+    "status_approved": "Imeidhinishwa",
+    "status_in_repair": "Inatengenezwa",
+    "status_ready_for_collection": "Tayari Kuchukuliwa",
+    "status_completed": "Imekamilika",
+    "status_cancelled": "Imeghairiwa",
+    "status_rejected": "Imekataliwa",
+    "status_unrepairable": "Haiwezi Kutengenezwa"
   },
   "loadError": "Imeshindwa kupakia taarifa za dashibodi."
 }

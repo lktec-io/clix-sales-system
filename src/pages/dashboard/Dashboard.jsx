@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
-  FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle, FiUserCheck, FiCreditCard, FiAlertOctagon, FiClock, FiBox, FiCheckCircle,
+  FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle, FiUserCheck, FiCreditCard, FiAlertOctagon, FiClock, FiBox, FiCheckCircle, FiTool,
 } from 'react-icons/fi';
 import KPICard from '../../components/dashboard/KPICard';
 import ChartCard from '../../components/dashboard/ChartCard';
@@ -23,6 +23,7 @@ import * as loanService from '../../services/loanService';
 import * as medicineService from '../../services/medicineService';
 import * as pharmacySaleService from '../../services/pharmacySaleService';
 import * as restaurantOrderService from '../../services/restaurantOrderService';
+import * as repairService from '../../services/repairService';
 import { useModules } from '../../hooks/useModules';
 import { formatCurrency, formatNumber } from '../../utils/formatCurrency';
 import '../../styles/pages/Dashboard.css';
@@ -71,6 +72,15 @@ function useKpiDefs(t) {
     { key: 'pendingKitchenOrders', label: t('kpi.pendingKitchenOrders'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.pendingKitchenOrdersSubtitle'), accent: '#F59E0B' },
     { key: 'occupiedTables', label: t('kpi.occupiedTables'), icon: FiUserCheck, formatter: formatNumber, subtitle: t('kpi.occupiedTablesSubtitle'), accent: '#EF4444' },
     { key: 'availableTables', label: t('kpi.availableTables'), icon: FiCheckCircle, formatter: formatNumber, subtitle: t('kpi.availableTablesSubtitle'), accent: '#2F6BFF' },
+    // Electronics/Repairs — gated by the 'repairs' module's dashboard_widgets
+    // column (034_finalize_template_scope_and_electronics_repairs.sql).
+    { key: 'todayRepairs', label: t('kpi.todayRepairs'), icon: FiTool, formatter: formatNumber, subtitle: t('kpi.todayRepairsSubtitle'), accent: '#2F6BFF' },
+    { key: 'pendingDiagnosis', label: t('kpi.pendingDiagnosis'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.pendingDiagnosisSubtitle'), accent: '#F59E0B' },
+    { key: 'waitingApproval', label: t('kpi.waitingApproval'), icon: FiAlertOctagon, formatter: formatNumber, subtitle: t('kpi.waitingApprovalSubtitle'), accent: '#DC2626' },
+    { key: 'inRepairCount', label: t('kpi.inRepairCount'), icon: FiTool, formatter: formatNumber, subtitle: t('kpi.inRepairCountSubtitle'), accent: '#8B5CF6' },
+    { key: 'readyForCollection', label: t('kpi.readyForCollection'), icon: FiCheckCircle, formatter: formatNumber, subtitle: t('kpi.readyForCollectionSubtitle'), accent: '#06B6D4' },
+    { key: 'completedRepairsToday', label: t('kpi.completedRepairsToday'), icon: FiCheckCircle, formatter: formatNumber, subtitle: t('kpi.completedRepairsTodaySubtitle'), accent: '#10B981' },
+    { key: 'outstandingRepairPayments', label: t('kpi.outstandingRepairPayments'), icon: FiDollarSign, formatter: formatCurrency, subtitle: t('kpi.outstandingRepairPaymentsSubtitle'), accent: '#EF4444' },
   ];
 }
 
@@ -135,6 +145,7 @@ function Dashboard() {
   const showLoanPortfolio = isModuleEnabled('loans');
   const showPharmacy = isModuleEnabled('medicines');
   const showRestaurant = isModuleEnabled('restaurant_orders');
+  const showElectronics = isModuleEnabled('repairs');
   const chartColors = useChartTheme();
   const [kpis, setKpis] = useState(null);
   const [charts, setCharts] = useState({});
@@ -143,6 +154,7 @@ function Dashboard() {
   const [expiringBatches, setExpiringBatches] = useState([]);
   const [recentSales, setRecentSales] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
+  const [recentRepairs, setRecentRepairs] = useState([]);
   const [todayTrend, setTodayTrend] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -162,12 +174,13 @@ function Dashboard() {
           ...enabledChartTypes.map((type) => dashboardService.getChart(type)),
           ...(showSalesTrend ? [dashboardService.getChart('sales-trend', { range: 'week' })] : []),
         ]);
-        const [lowStockResult, recentLoansResult, expiringResult, recentSalesResult, recentOrdersResult] = await Promise.allSettled([
+        const [lowStockResult, recentLoansResult, expiringResult, recentSalesResult, recentOrdersResult, recentRepairsResult] = await Promise.allSettled([
           showLowStock ? inventoryService.listInventory({ lowStock: true, limit: 10 }) : Promise.resolve({ items: [] }),
           showLoanPortfolio ? loanService.getRecentApplications(5) : Promise.resolve([]),
           showPharmacy ? medicineService.listExpiring({ status: 'expiring_soon', limit: 5 }) : Promise.resolve({ items: [] }),
           showPharmacy ? pharmacySaleService.getRecentSales(5) : Promise.resolve([]),
           showRestaurant ? restaurantOrderService.getRecentOrders(5) : Promise.resolve([]),
+          showElectronics ? repairService.getRecentRepairs(5) : Promise.resolve([]),
         ]);
 
         if (cancelled) return;
@@ -184,6 +197,7 @@ function Dashboard() {
         setExpiringBatches(expiringResult.status === 'fulfilled' ? expiringResult.value.items : []);
         setRecentSales(recentSalesResult.status === 'fulfilled' ? recentSalesResult.value : []);
         setRecentOrders(recentOrdersResult.status === 'fulfilled' ? recentOrdersResult.value : []);
+        setRecentRepairs(recentRepairsResult.status === 'fulfilled' ? recentRepairsResult.value : []);
       } catch {
         if (!cancelled) setError(t('loadError'));
       } finally {
@@ -409,6 +423,40 @@ function Dashboard() {
                           <td>{order.table_number || t('recentOrders.takeaway')}</td>
                           <td>{formatCurrency(order.total_amount)}</td>
                           <td><span className="badge badge-neutral">{t(`recentOrders.status_${order.status}`, order.status)}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {showElectronics && (
+          <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
+            <div className="card">
+              <div className="card-header"><span className="card-title">{t('recentRepairs.title')}</span></div>
+              {recentRepairs.length === 0 ? (
+                <div className="card-body text-sm text-secondary">{t('recentRepairs.empty')}</div>
+              ) : (
+                <div className="table-wrapper">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>{t('recentRepairs.repairNumber')}</th>
+                        <th>{t('recentRepairs.device')}</th>
+                        <th>{t('recentRepairs.total')}</th>
+                        <th>{t('recentRepairs.status')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentRepairs.map((repair) => (
+                        <tr key={repair.id} className="table-row-clickable" onClick={() => navigate(`/repairs/${repair.id}`)}>
+                          <td>{repair.repair_number}</td>
+                          <td>{repair.brand} {repair.model}</td>
+                          <td>{formatCurrency(repair.repair_total)}</td>
+                          <td><span className="badge badge-neutral">{t(`recentRepairs.status_${repair.status}`, repair.status)}</span></td>
                         </tr>
                       ))}
                     </tbody>

@@ -63,6 +63,20 @@
     "occupiedTablesSubtitle": "Currently seated",
     "availableTables": "Available Tables",
     "availableTablesSubtitle": "Ready to seat",
+    "todayRepairs": "Today's Repairs",
+    "todayRepairsSubtitle": "Devices received today",
+    "pendingDiagnosis": "Pending Diagnosis",
+    "pendingDiagnosisSubtitle": "Awaiting technician diagnosis",
+    "waitingApproval": "Waiting Approval",
+    "waitingApprovalSubtitle": "Sent to customer for approval",
+    "inRepairCount": "In Repair",
+    "inRepairCountSubtitle": "Currently being worked on",
+    "readyForCollection": "Ready for Collection",
+    "readyForCollectionSubtitle": "Awaiting customer pickup",
+    "completedRepairsToday": "Completed Repairs",
+    "completedRepairsTodaySubtitle": "Collected today",
+    "outstandingRepairPayments": "Outstanding Repair Payments",
+    "outstandingRepairPaymentsSubtitle": "Balance still owed across active jobs",
     "trendVsYesterday": "{{percent}}% vs yesterday"
   },
   "charts": {
@@ -155,6 +169,24 @@
     "status_paid": "Paid",
     "status_completed": "Completed",
     "status_cancelled": "Cancelled"
+  },
+  "recentRepairs": {
+    "title": "Recent Repairs",
+    "empty": "No repairs yet.",
+    "repairNumber": "Repair #",
+    "device": "Device",
+    "total": "Total",
+    "status": "Status",
+    "status_received": "Received",
+    "status_diagnosis": "Diagnosis",
+    "status_waiting_approval": "Waiting Approval",
+    "status_approved": "Approved",
+    "status_in_repair": "In Repair",
+    "status_ready_for_collection": "Ready for Collection",
+    "status_completed": "Completed",
+    "status_cancelled": "Cancelled",
+    "status_rejected": "Rejected",
+    "status_unrepairable": "Unrepairable"
   },
   "loadError": "Failed to load dashboard data."
 }

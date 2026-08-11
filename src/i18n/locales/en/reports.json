@@ -29,7 +29,8 @@
     "medicine_stock": "Medicine Stock",
     "medicine_expiry": "Expiry Report",
     "pharmacy_purchases": "Pharmacy Purchases",
-    "restaurant_sales": "Restaurant Sales"
+    "restaurant_sales": "Restaurant Sales",
+    "repairs": "Repairs"
   },
   "descriptions": {
     "sales": "Revenue, transactions, and daily trends.",
@@ -50,7 +51,8 @@
     "medicine_stock": "Current stock value per medicine, lowest stock first.",
     "medicine_expiry": "Batches already expired or expiring within 30 days.",
     "pharmacy_purchases": "Stock received by supplier for the period.",
-    "restaurant_sales": "Order revenue by day, best-selling menu items, and payment methods."
+    "restaurant_sales": "Order revenue by day, best-selling menu items, and payment methods.",
+    "repairs": "Repair revenue, status breakdown, parts used, and technician performance."
   },
   "summary": {
     "totalSales": "Total Sales",
@@ -85,7 +87,11 @@
     "expiredCount": "Expired",
     "expiringSoonCount": "Expiring Soon",
     "totalOrders": "Total Orders",
-    "averageOrder": "Average Order"
+    "averageOrder": "Average Order",
+    "totalRepairs": "Total Repairs",
+    "repairRevenue": "Repair Revenue",
+    "partsCost": "Parts Cost",
+    "outstandingPayments": "Outstanding Payments"
   },
   "breakdowns": {
     "byDay": "By Day",
@@ -106,7 +112,9 @@
     "byMethod": "By Payment Method",
     "byMedicine": "By Medicine",
     "expiringBatches": "Expiring Batches",
-    "byMenuItem": "By Menu Item"
+    "byMenuItem": "By Menu Item",
+    "byTechnician": "By Technician",
+    "byPart": "Parts Used"
   },
   "headers": {
     "date": "Date",
@@ -121,7 +129,8 @@
     "method": "Method",
     "medicine": "Medicine",
     "medicineBatch": "Medicine / Batch",
-    "menuItem": "Menu Item"
+    "menuItem": "Menu Item",
+    "technician": "Technician"
   },
   "filters": {
     "quickRange": "Quick Range",

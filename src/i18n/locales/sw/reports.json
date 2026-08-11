@@ -29,7 +29,8 @@
     "medicine_stock": "Hesabu ya Dawa",
     "medicine_expiry": "Ripoti ya Muda wa Mwisho",
     "pharmacy_purchases": "Manunuzi ya Duka la Dawa",
-    "restaurant_sales": "Mauzo ya Mkahawa"
+    "restaurant_sales": "Mauzo ya Mkahawa",
+    "repairs": "Matengenezo"
   },
   "descriptions": {
     "sales": "Mapato, miamala, na mwelekeo wa kila siku.",
@@ -50,7 +51,8 @@
     "medicine_stock": "Thamani ya hesabu ya kila dawa, zenye hesabu ndogo kwanza.",
     "medicine_expiry": "Vipande vilivyoisha muda au vinavyokaribia kuisha ndani ya siku 30.",
     "pharmacy_purchases": "Hesabu iliyopokelewa kwa msambazaji kwa kipindi husika.",
-    "restaurant_sales": "Mapato ya oda kwa siku, vipengele bora vya menyu, na njia za malipo."
+    "restaurant_sales": "Mapato ya oda kwa siku, vipengele bora vya menyu, na njia za malipo.",
+    "repairs": "Mapato ya matengenezo, muhtasari wa hali, vipuri vilivyotumika, na utendaji wa fundi."
   },
   "summary": {
     "totalSales": "Jumla ya Mauzo",
@@ -85,7 +87,11 @@
     "expiredCount": "Zilizoisha Muda",
     "expiringSoonCount": "Zinakaribia Kuisha",
     "totalOrders": "Jumla ya Oda",
-    "averageOrder": "Wastani wa Oda"
+    "averageOrder": "Wastani wa Oda",
+    "totalRepairs": "Jumla ya Matengenezo",
+    "repairRevenue": "Mapato ya Matengenezo",
+    "partsCost": "Gharama za Vipuri",
+    "outstandingPayments": "Malipo Yanayodaiwa"
   },
   "breakdowns": {
     "byDay": "Kwa Siku",
@@ -106,7 +112,9 @@
     "byMethod": "Kwa Njia ya Malipo",
     "byMedicine": "Kwa Dawa",
     "expiringBatches": "Vipande Vinavyokaribia Kuisha",
-    "byMenuItem": "Kwa Kipengele cha Menyu"
+    "byMenuItem": "Kwa Kipengele cha Menyu",
+    "byTechnician": "Kwa Fundi",
+    "byPart": "Vipuri Vilivyotumika"
   },
   "headers": {
     "date": "Tarehe",
@@ -121,7 +129,8 @@
     "method": "Njia",
     "medicine": "Dawa",
     "medicineBatch": "Dawa / Kipande",
-    "menuItem": "Kipengele cha Menyu"
+    "menuItem": "Kipengele cha Menyu",
+    "technician": "Fundi"
   },
   "filters": {
     "quickRange": "Kipindi cha Haraka",

@@ -24,7 +24,8 @@
     "menu": "Menu",
     "tables": "Tables",
     "restaurant_orders": "Orders",
-    "kitchen": "Kitchen"
+    "kitchen": "Kitchen",
+    "repairs": "Repairs"
   },
   "sectionMain": "Main",
   "logout": "Logout",

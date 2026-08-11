@@ -25,6 +25,11 @@ export async function getCustomerReturnHistory(id, params) {
   return data.data;
 }
 
+export async function getCustomerRepairHistory(id) {
+  const { data } = await apiClient.get(`/customers/${id}/repairs`);
+  return data.data;
+}
+
 export async function createCustomer(payload) {
   const { data } = await apiClient.post('/customers', payload);
   return data.data;

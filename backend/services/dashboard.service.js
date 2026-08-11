@@ -9,6 +9,7 @@ import { getDashboardSummary as getMedicineDashboardSummary } from './medicine.s
 import { getSalesSummary as getPharmacySalesSummary } from './pharmacySale.service.js';
 import { getSalesSummary as getRestaurantSalesSummary, getPendingKitchenCount } from './restaurantOrder.service.js';
 import { getOccupancySummary } from './restaurantTable.service.js';
+import { getDashboardSummary as getRepairDashboardSummary } from './repair.service.js';
 
 const EMPTY_KPIS = {
   todaySales: 0, monthlySales: 0, todayProfit: 0, monthlyProfit: 0,
@@ -68,9 +69,14 @@ const EMPTY_RESTAURANT_KPIS = {
   occupiedTables: 0, availableTables: 0,
 };
 
+const EMPTY_REPAIR_KPIS = {
+  todayRepairs: 0, pendingDiagnosis: 0, waitingApproval: 0, inRepairCount: 0,
+  readyForCollection: 0, completedRepairsToday: 0, outstandingRepairPayments: 0,
+};
+
 export async function getKpis(user) {
   const branchIds = await getAccessibleBranchIds(user);
-  const [retailKpis, microfinanceKpis, pharmacyStockKpis, pharmacySalesKpis, restaurantOrderKpis, restaurantTableKpis] = await Promise.all([
+  const [retailKpis, microfinanceKpis, pharmacyStockKpis, pharmacySalesKpis, restaurantOrderKpis, restaurantTableKpis, repairKpis] = await Promise.all([
     safely('kpis', () => dashboardRepository.getKpis(user.tenantId, branchIds), EMPTY_KPIS),
     // Real aggregates from loan.service.js's own portfolio queries — reused,
     // not duplicated. Cheap (indexed COUNT/SUM against tenant_id) and
@@ -89,8 +95,13 @@ export async function getKpis(user) {
       ...(await getPendingKitchenCount(user)),
     }), EMPTY_RESTAURANT_KPIS),
     safely('restaurant-table-kpis', () => getOccupancySummary(user), EMPTY_RESTAURANT_KPIS),
+    // Same reuse principle for Electronics/Repairs.
+    safely('repair-kpis', () => getRepairDashboardSummary(user), EMPTY_REPAIR_KPIS),
   ]);
-  return { ...retailKpis, ...microfinanceKpis, ...pharmacyStockKpis, ...pharmacySalesKpis, ...restaurantOrderKpis, ...restaurantTableKpis };
+  return {
+    ...retailKpis, ...microfinanceKpis, ...pharmacyStockKpis, ...pharmacySalesKpis,
+    ...restaurantOrderKpis, ...restaurantTableKpis, ...repairKpis,
+  };
 }
 
 export async function getChart(user, type, query = {}) {

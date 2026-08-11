@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   FiPrinter, FiDownload, FiFileText, FiBarChart2, FiGrid, FiTrendingUp,
   FiDollarSign, FiPackage, FiBox, FiUsers, FiTruck, FiCreditCard, FiLayers, FiPercent, FiCheckCircle,
-  FiShoppingCart, FiClock, FiCoffee,
+  FiShoppingCart, FiClock, FiCoffee, FiTool,
 } from 'react-icons/fi';
 import KPICard from '../../components/dashboard/KPICard';
 import EmptyState from '../../components/common/EmptyState';
@@ -86,7 +86,7 @@ const MONEY_KEYS = new Set([
   'value', 'totalRevenue', 'totalAmount', 'totalDiscount', 'averageSale', 'totalValue',
   'salesRevenue', 'expenses', 'totalExpenses', 'net', 'cogs', 'grossProfit', 'netProfit',
   'totalPurchased', 'totalPaid', 'outstandingBalance', 'averageDailySales', 'averageInvoice',
-  'totalStockValue', 'averageOrder',
+  'totalStockValue', 'averageOrder', 'repairRevenue', 'partsCost', 'outstandingPayments',
 ]);
 
 // Report type labels/summary labels/breakdown titles all come from the
@@ -281,6 +281,25 @@ function useReportConfigs(t) {
         { key: 'byPaymentMethod', title: t('reports:breakdowns.byMethod'), labelHeader: t('reports:headers.method') },
       ],
     },
+    // Consolidated Electronics/Repairs report — Repair Revenue, Status
+    // Summary, Parts Used, Technician Performance, Outstanding Payments and
+    // Profitability all in one report via three breakdowns. Sales/Inventory/
+    // Expenses reports are the existing generic types above — Electronics
+    // reuses them unmodified rather than duplicating.
+    repairs: {
+      label: t('reports:types.repairs'), description: t('reports:descriptions.repairs'),
+      filters: ['dateFrom', 'dateTo', 'branchId'],
+      summary: {
+        totalRepairs: t('reports:summary.totalRepairs'), repairRevenue: t('reports:summary.repairRevenue'),
+        partsCost: t('reports:summary.partsCost'), grossProfit: t('reports:summary.grossProfit'),
+        outstandingPayments: t('reports:summary.outstandingPayments'),
+      },
+      breakdowns: [
+        { key: 'byStatus', title: t('reports:breakdowns.byStatus'), labelHeader: t('reports:headers.status') },
+        { key: 'byTechnician', title: t('reports:breakdowns.byTechnician'), labelHeader: t('reports:headers.technician') },
+        { key: 'byPart', title: t('reports:breakdowns.byPart'), labelHeader: t('reports:headers.product') },
+      ],
+    },
     // Combined business-summary report — backend/services/report.service.js's
     // buildAllReport() flattens Sales/Products/Customers/Expenses/Profit into
     // this exact shape, so it renders through the same summary cards +
@@ -314,7 +333,7 @@ const VISIBLE_REPORT_TYPES = [
   'sales', 'products', 'inventory', 'customers', 'suppliers', 'expenses', 'all',
   'loan_portfolio', 'loan_repayments',
   'pharmacy_sales', 'medicine_stock', 'medicine_expiry', 'pharmacy_purchases',
-  'restaurant_sales',
+  'restaurant_sales', 'repairs',
 ];
 
 // A Business Template (School, Microfinance, ...) can reach this page with
@@ -334,7 +353,7 @@ const REPORT_TYPE_MODULE_KEY = {
   customers: 'sales', suppliers: 'suppliers', expenses: 'expenses', all: 'sales',
   loan_portfolio: 'loans', loan_repayments: 'loan_repayments',
   pharmacy_sales: 'pharmacy_sales', medicine_stock: 'medicines', medicine_expiry: 'expiry', pharmacy_purchases: 'pharmacy_purchases',
-  restaurant_sales: 'restaurant_orders',
+  restaurant_sales: 'restaurant_orders', repairs: 'repairs',
 };
 
 const REPORT_ICONS = {
@@ -350,6 +369,7 @@ const REPORT_ICONS = {
   pharmacy_sales: FiShoppingCart,
   medicine_stock: FiBox,
   restaurant_sales: FiCoffee,
+  repairs: FiTool,
   medicine_expiry: FiClock,
   pharmacy_purchases: FiTruck,
 };

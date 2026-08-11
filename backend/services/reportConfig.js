@@ -19,7 +19,7 @@ export const MONEY_KEYS = new Set([
   'salesRevenue', 'expenses', 'totalExpenses', 'net', 'cogs', 'grossProfit', 'netProfit', 'totalRefund',
   'totalPurchased', 'totalPaid', 'outstandingBalance',
   'totalDisbursed', 'totalOutstanding', 'totalCollected',
-  'totalStockValue', 'averageOrder',
+  'totalStockValue', 'averageOrder', 'repairRevenue', 'partsCost', 'outstandingPayments',
 ]);
 
 function buildReportConfigs(locale) {
@@ -135,6 +135,23 @@ function buildReportConfigs(locale) {
         { key: 'byDay', title: bd('byDay'), labelHeader: bh('date') },
         { key: 'byMenuItem', title: bd('byMenuItem'), labelHeader: bh('menuItem') },
         { key: 'byPaymentMethod', title: bd('byMethod'), labelHeader: bh('method') },
+      ],
+    },
+    // Consolidated Electronics/Repairs report — Repair Revenue, Repair
+    // Status Summary, Parts Used in Repairs, Technician Performance,
+    // Outstanding Repair Payments, and Repair Profitability all in one
+    // report via a summary plus three breakdowns. Sales/Inventory/Expenses
+    // reports are the existing generic types above, reused unmodified.
+    repairs: {
+      title: rt('repairs'),
+      summaryLabels: {
+        totalRepairs: sl('totalRepairs'), repairRevenue: sl('repairRevenue'), partsCost: sl('partsCost'),
+        grossProfit: sl('grossProfit'), outstandingPayments: sl('outstandingPayments'),
+      },
+      breakdowns: [
+        { key: 'byStatus', title: bd('byStatus'), labelHeader: bh('status') },
+        { key: 'byTechnician', title: bd('byTechnician'), labelHeader: bh('technician') },
+        { key: 'byPart', title: bd('byPart'), labelHeader: bh('product') },
       ],
     },
     // The business-summary report — report.service.js's buildAllReport()
