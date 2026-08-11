@@ -85,6 +85,7 @@ export async function createAdjustment(data, user) {
   });
 
   await activityLogRepository.create({
+    tenantId: user.tenantId,
     userId: user.id,
     branchId: data.branchId,
     description: `Stock adjustment for "${product.name}": ${previousStock} → ${newStock} (${data.reason})`,

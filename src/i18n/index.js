@@ -1,12 +1,17 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-// Every namespace is bundled statically (not fetched over HTTP) — the whole
-// translation set is a few dozen KB, far cheaper than a network waterfall on
-// every route change. Route-level code splitting (see AppRouter.jsx's
-// React.lazy pages) already keeps the JS bundle lazy where it actually
-// matters; these JSON dictionaries just ride along with whichever page
-// imports them via useTranslation(namespace).
+// Every namespace used outside a specific business template is bundled
+// statically here (not fetched over HTTP) — cheap, synchronous, no loading
+// state ever needed. The four business-vertical namespaces below
+// (pharmacy/restaurant/electronics/microfinance) are the exception: they're
+// only ever read by pages already behind route-level lazy loading for that
+// exact vertical (a Retail or Cosmetics tenant never reaches them), so they
+// are registered on demand by src/i18n/loaders/*.js, imported alongside
+// each consuming page's own lazy() factory in AppRouter.jsx. That keeps
+// ~60KB of translation JSON a given tenant will never use out of the
+// eager main bundle without introducing any async/flash-of-untranslated-
+// text risk, since the loader always finishes before the page renders.
 import commonEn from './locales/en/common.json';
 import sidebarEn from './locales/en/sidebar.json';
 import navbarEn from './locales/en/navbar.json';
@@ -28,10 +33,6 @@ import profileEn from './locales/en/profile.json';
 import notificationsEn from './locales/en/notifications.json';
 import errorsEn from './locales/en/errors.json';
 import billingEn from './locales/en/billing.json';
-import microfinanceEn from './locales/en/microfinance.json';
-import pharmacyEn from './locales/en/pharmacy.json';
-import restaurantEn from './locales/en/restaurant.json';
-import electronicsEn from './locales/en/electronics.json';
 
 import commonSw from './locales/sw/common.json';
 import sidebarSw from './locales/sw/sidebar.json';
@@ -54,10 +55,6 @@ import profileSw from './locales/sw/profile.json';
 import notificationsSw from './locales/sw/notifications.json';
 import errorsSw from './locales/sw/errors.json';
 import billingSw from './locales/sw/billing.json';
-import microfinanceSw from './locales/sw/microfinance.json';
-import pharmacySw from './locales/sw/pharmacy.json';
-import restaurantSw from './locales/sw/restaurant.json';
-import electronicsSw from './locales/sw/electronics.json';
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -83,7 +80,7 @@ i18n.use(initReactI18next).init({
       purchases: purchasesEn, customers: customersEn, sales: salesEn,
       returns: returnsEn, expenses: expensesEn, reports: reportsEn,
       settings: settingsEn, profile: profileEn, notifications: notificationsEn,
-      errors: errorsEn, billing: billingEn, microfinance: microfinanceEn, pharmacy: pharmacyEn, restaurant: restaurantEn, electronics: electronicsEn,
+      errors: errorsEn, billing: billingEn,
     },
     sw: {
       common: commonSw, sidebar: sidebarSw, navbar: navbarSw, auth: authSw, landing: landingSw, register: registerSw, dashboard: dashboardSw,
@@ -91,7 +88,7 @@ i18n.use(initReactI18next).init({
       purchases: purchasesSw, customers: customersSw, sales: salesSw,
       returns: returnsSw, expenses: expensesSw, reports: reportsSw,
       settings: settingsSw, profile: profileSw, notifications: notificationsSw,
-      errors: errorsSw, billing: billingSw, microfinance: microfinanceSw, pharmacy: pharmacySw, restaurant: restaurantSw, electronics: electronicsSw,
+      errors: errorsSw, billing: billingSw,
     },
   },
   lng: DEFAULT_LANGUAGE,

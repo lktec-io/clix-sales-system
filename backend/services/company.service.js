@@ -81,6 +81,7 @@ export async function updateLogo(file, userId, tenantId) {
   }
 
   await activityLogRepository.create({
+    tenantId,
     userId,
     branchId: null,
     description: 'Company logo updated',

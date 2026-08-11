@@ -70,8 +70,10 @@
   line-height: 1.4;
 }
 
-@media (max-width: 480px) {
-  .template-picker-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
+/* No max-width override here on purpose — the base rule's
+   auto-fill/minmax(150px, 1fr) is already fully responsive at every width
+   on its own (that's what auto-fill+minmax is for). A prior fixed
+   `repeat(2, 1fr)` override at <=480px squeezed each card to ~125px on a
+   320-360px phone, tighter than the 150px minimum the desktop rule itself
+   enforces — removed rather than tuned, since the base rule alone is
+   already correct everywhere. */

@@ -115,6 +115,7 @@ export async function login({ identifier, password, rememberMe, ipAddress, userA
   await userRepository.resetFailedAttempts(user.id);
   await userRepository.updateLastLogin(user.id);
   await activityLogRepository.create({
+    tenantId: user.tenant_id,
     userId: user.id,
     branchId: user.branch_id,
     description: `${user.first_name} ${user.last_name} logged in`,

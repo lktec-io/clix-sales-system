@@ -15,6 +15,21 @@ import { ROUTES, PLATFORM_ROUTES } from '../constants/routes';
 // Route-level code splitting — every page below is its own chunk, fetched
 // on navigation instead of bloating the initial bundle. This is the pattern
 // every future phase's pages should follow.
+//
+// Pages that read a business-vertical i18n namespace (pharmacy/restaurant/
+// electronics/microfinance) also pull in that namespace's loader module
+// (src/i18n/loaders/*.js) here, via Promise.all alongside the page's own
+// import(). Both resolve before React ever renders the page, so the
+// namespace is guaranteed registered in time — no async gap, no flash of
+// untranslated keys — while keeping ~60KB of translation JSON a Retail/
+// Cosmetics tenant will never use out of the eager main bundle.
+function withNamespaces(pageImportFactory, ...namespaceLoaders) {
+  return () => Promise.all([pageImportFactory(), ...namespaceLoaders.map((load) => load())]).then(([mod]) => mod);
+}
+const loadPharmacyNs = () => import('../i18n/loaders/pharmacy');
+const loadRestaurantNs = () => import('../i18n/loaders/restaurant');
+const loadElectronicsNs = () => import('../i18n/loaders/electronics');
+const loadMicrofinanceNs = () => import('../i18n/loaders/microfinance');
 const Register = lazy(() => import('../pages/auth/Register'));
 const Login = lazy(() => import('../pages/auth/Login'));
 const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword'));
@@ -38,7 +53,7 @@ const PurchaseList = lazy(() => import('../pages/purchases/PurchaseList'));
 const PurchaseForm = lazy(() => import('../pages/purchases/PurchaseForm'));
 const PurchaseDetail = lazy(() => import('../pages/purchases/PurchaseDetail'));
 const CustomerList = lazy(() => import('../pages/customers/CustomerList'));
-const CustomerDetail = lazy(() => import('../pages/customers/CustomerDetail'));
+const CustomerDetail = lazy(withNamespaces(() => import('../pages/customers/CustomerDetail'), loadMicrofinanceNs, loadElectronicsNs));
 const POS = lazy(() => import('../pages/pos/POS'));
 const SaleList = lazy(() => import('../pages/pos/SaleList'));
 const SaleDetail = lazy(() => import('../pages/pos/SaleDetail'));
@@ -47,34 +62,34 @@ const ReturnForm = lazy(() => import('../pages/returns/ReturnForm'));
 const ReturnDetail = lazy(() => import('../pages/returns/ReturnDetail'));
 const ExpenseList = lazy(() => import('../pages/expenses/ExpenseList'));
 const ReportsCenter = lazy(() => import('../pages/reports/ReportsCenter'));
-const LoanProductList = lazy(() => import('../pages/microfinance/LoanProductList'));
-const LoanList = lazy(() => import('../pages/microfinance/LoanList'));
-const LoanForm = lazy(() => import('../pages/microfinance/LoanForm'));
-const LoanDetail = lazy(() => import('../pages/microfinance/LoanDetail'));
-const SavingsList = lazy(() => import('../pages/microfinance/SavingsList'));
-const SavingsDetail = lazy(() => import('../pages/microfinance/SavingsDetail'));
-const GroupList = lazy(() => import('../pages/microfinance/GroupList'));
-const RepaymentList = lazy(() => import('../pages/microfinance/RepaymentList'));
-const MedicineList = lazy(() => import('../pages/pharmacy/MedicineList'));
-const MedicineForm = lazy(() => import('../pages/pharmacy/MedicineForm'));
-const MedicineDetail = lazy(() => import('../pages/pharmacy/MedicineDetail'));
-const ExpiryTracking = lazy(() => import('../pages/pharmacy/ExpiryTracking'));
-const PharmacySaleList = lazy(() => import('../pages/pharmacy/PharmacySaleList'));
-const PharmacySaleForm = lazy(() => import('../pages/pharmacy/PharmacySaleForm'));
-const PharmacySaleDetail = lazy(() => import('../pages/pharmacy/PharmacySaleDetail'));
-const PharmacyPurchaseList = lazy(() => import('../pages/pharmacy/PharmacyPurchaseList'));
-const PharmacyPurchaseForm = lazy(() => import('../pages/pharmacy/PharmacyPurchaseForm'));
-const PharmacyPurchaseDetail = lazy(() => import('../pages/pharmacy/PharmacyPurchaseDetail'));
-const MenuItemList = lazy(() => import('../pages/restaurant/MenuItemList'));
-const MenuItemForm = lazy(() => import('../pages/restaurant/MenuItemForm'));
-const TableList = lazy(() => import('../pages/restaurant/TableList'));
-const OrderList = lazy(() => import('../pages/restaurant/OrderList'));
-const OrderForm = lazy(() => import('../pages/restaurant/OrderForm'));
-const OrderDetail = lazy(() => import('../pages/restaurant/OrderDetail'));
-const KitchenQueue = lazy(() => import('../pages/restaurant/KitchenQueue'));
-const RepairList = lazy(() => import('../pages/electronics/RepairList'));
-const RepairIntakeForm = lazy(() => import('../pages/electronics/RepairIntakeForm'));
-const RepairDetail = lazy(() => import('../pages/electronics/RepairDetail'));
+const LoanProductList = lazy(withNamespaces(() => import('../pages/microfinance/LoanProductList'), loadMicrofinanceNs));
+const LoanList = lazy(withNamespaces(() => import('../pages/microfinance/LoanList'), loadMicrofinanceNs));
+const LoanForm = lazy(withNamespaces(() => import('../pages/microfinance/LoanForm'), loadMicrofinanceNs));
+const LoanDetail = lazy(withNamespaces(() => import('../pages/microfinance/LoanDetail'), loadMicrofinanceNs));
+const SavingsList = lazy(withNamespaces(() => import('../pages/microfinance/SavingsList'), loadMicrofinanceNs));
+const SavingsDetail = lazy(withNamespaces(() => import('../pages/microfinance/SavingsDetail'), loadMicrofinanceNs));
+const GroupList = lazy(withNamespaces(() => import('../pages/microfinance/GroupList'), loadMicrofinanceNs));
+const RepaymentList = lazy(withNamespaces(() => import('../pages/microfinance/RepaymentList'), loadMicrofinanceNs));
+const MedicineList = lazy(withNamespaces(() => import('../pages/pharmacy/MedicineList'), loadPharmacyNs));
+const MedicineForm = lazy(withNamespaces(() => import('../pages/pharmacy/MedicineForm'), loadPharmacyNs));
+const MedicineDetail = lazy(withNamespaces(() => import('../pages/pharmacy/MedicineDetail'), loadPharmacyNs));
+const ExpiryTracking = lazy(withNamespaces(() => import('../pages/pharmacy/ExpiryTracking'), loadPharmacyNs));
+const PharmacySaleList = lazy(withNamespaces(() => import('../pages/pharmacy/PharmacySaleList'), loadPharmacyNs));
+const PharmacySaleForm = lazy(withNamespaces(() => import('../pages/pharmacy/PharmacySaleForm'), loadPharmacyNs));
+const PharmacySaleDetail = lazy(withNamespaces(() => import('../pages/pharmacy/PharmacySaleDetail'), loadPharmacyNs));
+const PharmacyPurchaseList = lazy(withNamespaces(() => import('../pages/pharmacy/PharmacyPurchaseList'), loadPharmacyNs));
+const PharmacyPurchaseForm = lazy(withNamespaces(() => import('../pages/pharmacy/PharmacyPurchaseForm'), loadPharmacyNs));
+const PharmacyPurchaseDetail = lazy(withNamespaces(() => import('../pages/pharmacy/PharmacyPurchaseDetail'), loadPharmacyNs));
+const MenuItemList = lazy(withNamespaces(() => import('../pages/restaurant/MenuItemList'), loadRestaurantNs));
+const MenuItemForm = lazy(withNamespaces(() => import('../pages/restaurant/MenuItemForm'), loadRestaurantNs));
+const TableList = lazy(withNamespaces(() => import('../pages/restaurant/TableList'), loadRestaurantNs));
+const OrderList = lazy(withNamespaces(() => import('../pages/restaurant/OrderList'), loadRestaurantNs));
+const OrderForm = lazy(withNamespaces(() => import('../pages/restaurant/OrderForm'), loadRestaurantNs));
+const OrderDetail = lazy(withNamespaces(() => import('../pages/restaurant/OrderDetail'), loadRestaurantNs));
+const KitchenQueue = lazy(withNamespaces(() => import('../pages/restaurant/KitchenQueue'), loadRestaurantNs));
+const RepairList = lazy(withNamespaces(() => import('../pages/electronics/RepairList'), loadElectronicsNs));
+const RepairIntakeForm = lazy(withNamespaces(() => import('../pages/electronics/RepairIntakeForm'), loadElectronicsNs));
+const RepairDetail = lazy(withNamespaces(() => import('../pages/electronics/RepairDetail'), loadElectronicsNs));
 const BillingOverview = lazy(() => import('../pages/billing/BillingOverview'));
 const InvoiceDetail = lazy(() => import('../pages/billing/InvoiceDetail'));
 const SystemSettings = lazy(() => import('../pages/settings/SystemSettings'));

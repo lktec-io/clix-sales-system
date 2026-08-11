@@ -7,10 +7,10 @@
 
 .billing-summary-list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: var(--space-3) var(--space-5);
   flex: 1;
-  min-width: 260px;
+  min-width: 0;
 }
 
 .billing-summary-list dt {
