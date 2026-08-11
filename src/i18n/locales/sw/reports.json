@@ -24,7 +24,11 @@
     "users": "Watumiaji",
     "all": "Ripoti Zote",
     "loan_portfolio": "Mikopo Yote",
-    "loan_repayments": "Malipo ya Mikopo"
+    "loan_repayments": "Malipo ya Mikopo",
+    "pharmacy_sales": "Mauzo ya Duka la Dawa",
+    "medicine_stock": "Hesabu ya Dawa",
+    "medicine_expiry": "Ripoti ya Muda wa Mwisho",
+    "pharmacy_purchases": "Manunuzi ya Duka la Dawa"
   },
   "descriptions": {
     "sales": "Mapato, miamala, na mwelekeo wa kila siku.",
@@ -40,7 +44,11 @@
     "users": "Akaunti za watumiaji kwa jukumu, tawi na hali.",
     "all": "Muhtasari wa jumla wa biashara katika maeneo yote.",
     "loan_portfolio": "Mikopo kwa hali na aina, jumla iliyotolewa na inayodaiwa.",
-    "loan_repayments": "Malipo yaliyokusanywa kwa siku na njia ya malipo."
+    "loan_repayments": "Malipo yaliyokusanywa kwa siku na njia ya malipo.",
+    "pharmacy_sales": "Mapato ya mauzo ya dawa kwa siku na dawa zinazouzwa zaidi.",
+    "medicine_stock": "Thamani ya hesabu ya kila dawa, zenye hesabu ndogo kwanza.",
+    "medicine_expiry": "Vipande vilivyoisha muda au vinavyokaribia kuisha ndani ya siku 30.",
+    "pharmacy_purchases": "Hesabu iliyopokelewa kwa msambazaji kwa kipindi husika."
   },
   "summary": {
     "totalSales": "Jumla ya Mauzo",
@@ -69,7 +77,11 @@
     "totalDisbursed": "Jumla Iliyotolewa",
     "totalOutstanding": "Jumla Inayodaiwa",
     "totalRepayments": "Jumla ya Malipo",
-    "totalCollected": "Jumla Iliyokusanywa"
+    "totalCollected": "Jumla Iliyokusanywa",
+    "totalMedicines": "Jumla ya Dawa",
+    "totalStockValue": "Thamani ya Hesabu",
+    "expiredCount": "Zilizoisha Muda",
+    "expiringSoonCount": "Zinakaribia Kuisha"
   },
   "breakdowns": {
     "byDay": "Kwa Siku",
@@ -87,7 +99,9 @@
     "expensesByCategory": "Matumizi kwa Aina",
     "byStatus": "Kwa Hali",
     "byProduct": "Kwa Aina ya Mkopo",
-    "byMethod": "Kwa Njia ya Malipo"
+    "byMethod": "Kwa Njia ya Malipo",
+    "byMedicine": "Kwa Dawa",
+    "expiringBatches": "Vipande Vinavyokaribia Kuisha"
   },
   "headers": {
     "date": "Tarehe",
@@ -99,7 +113,9 @@
     "reason": "Sababu",
     "role": "Jukumu",
     "status": "Hali",
-    "method": "Njia"
+    "method": "Njia",
+    "medicine": "Dawa",
+    "medicineBatch": "Dawa / Kipande"
   },
   "filters": {
     "quickRange": "Kipindi cha Haraka",
@@ -113,7 +129,9 @@
     "customer": "Mteja",
     "allCustomers": "Wateja Wote",
     "product": "Bidhaa",
-    "allProducts": "Bidhaa Zote"
+    "allProducts": "Bidhaa Zote",
+    "supplier": "Msambazaji",
+    "allSuppliers": "Wasambazaji Wote"
   },
   "presets": {
     "today": "Leo",

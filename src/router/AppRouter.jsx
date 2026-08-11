@@ -55,6 +55,16 @@ const SavingsList = lazy(() => import('../pages/microfinance/SavingsList'));
 const SavingsDetail = lazy(() => import('../pages/microfinance/SavingsDetail'));
 const GroupList = lazy(() => import('../pages/microfinance/GroupList'));
 const RepaymentList = lazy(() => import('../pages/microfinance/RepaymentList'));
+const MedicineList = lazy(() => import('../pages/pharmacy/MedicineList'));
+const MedicineForm = lazy(() => import('../pages/pharmacy/MedicineForm'));
+const MedicineDetail = lazy(() => import('../pages/pharmacy/MedicineDetail'));
+const ExpiryTracking = lazy(() => import('../pages/pharmacy/ExpiryTracking'));
+const PharmacySaleList = lazy(() => import('../pages/pharmacy/PharmacySaleList'));
+const PharmacySaleForm = lazy(() => import('../pages/pharmacy/PharmacySaleForm'));
+const PharmacySaleDetail = lazy(() => import('../pages/pharmacy/PharmacySaleDetail'));
+const PharmacyPurchaseList = lazy(() => import('../pages/pharmacy/PharmacyPurchaseList'));
+const PharmacyPurchaseForm = lazy(() => import('../pages/pharmacy/PharmacyPurchaseForm'));
+const PharmacyPurchaseDetail = lazy(() => import('../pages/pharmacy/PharmacyPurchaseDetail'));
 const BillingOverview = lazy(() => import('../pages/billing/BillingOverview'));
 const InvoiceDetail = lazy(() => import('../pages/billing/InvoiceDetail'));
 const SystemSettings = lazy(() => import('../pages/settings/SystemSettings'));
@@ -165,6 +175,19 @@ function AppRouter() {
               <Route path="/savings" element={<RequirePermission permission="savings.view"><SavingsList /></RequirePermission>} />
               <Route path="/savings/:id" element={<RequirePermission permission="savings.view"><SavingsDetail /></RequirePermission>} />
               <Route path="/groups" element={<RequirePermission permission="borrower_groups.view"><GroupList /></RequirePermission>} />
+
+              <Route path="/medicines" element={<RequirePermission permission="medicines.view"><MedicineList /></RequirePermission>} />
+              <Route path="/medicines/new" element={<RequirePermission permission="medicines.manage"><MedicineForm /></RequirePermission>} />
+              <Route path="/medicines/:id/edit" element={<RequirePermission permission="medicines.manage"><MedicineForm /></RequirePermission>} />
+              <Route path="/medicines/:id" element={<RequirePermission permission="medicines.view"><MedicineDetail /></RequirePermission>} />
+              <Route path="/expiry-tracking" element={<RequirePermission permission="medicines.view"><ExpiryTracking /></RequirePermission>} />
+              <Route path="/pharmacy/sales" element={<RequirePermission permission="pharmacy_sales.view"><PharmacySaleList /></RequirePermission>} />
+              <Route path="/pharmacy/sales/new" element={<RequirePermission permission="pharmacy_sales.create"><PharmacySaleForm /></RequirePermission>} />
+              <Route path="/pharmacy/sales/:id" element={<RequirePermission permission="pharmacy_sales.view"><PharmacySaleDetail /></RequirePermission>} />
+              <Route path="/pharmacy/purchases" element={<RequirePermission permission="pharmacy_purchases.view"><PharmacyPurchaseList /></RequirePermission>} />
+              <Route path="/pharmacy/purchases/new" element={<RequirePermission permission="pharmacy_purchases.create"><PharmacyPurchaseForm /></RequirePermission>} />
+              <Route path="/pharmacy/purchases/:id" element={<RequirePermission permission="pharmacy_purchases.view"><PharmacyPurchaseDetail /></RequirePermission>} />
+
               <Route path={ROUTES.BILLING} element={<RequirePermission permission="company.manage"><BillingOverview /></RequirePermission>} />
               <Route path={ROUTES.BILLING_INVOICE} element={<RequirePermission permission="company.manage"><InvoiceDetail /></RequirePermission>} />
             </Route>

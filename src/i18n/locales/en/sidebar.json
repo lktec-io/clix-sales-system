@@ -16,7 +16,11 @@
     "loans": "Loans",
     "loan_repayments": "Repayments",
     "savings": "Savings",
-    "borrower_groups": "Groups"
+    "borrower_groups": "Groups",
+    "medicines": "Medicines",
+    "expiry": "Expiry Tracking",
+    "pharmacy_sales": "Sales",
+    "pharmacy_purchases": "Purchases"
   },
   "sectionMain": "Main",
   "logout": "Logout",

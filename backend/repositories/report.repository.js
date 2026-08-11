@@ -512,3 +512,137 @@ export async function loanRepaymentsReport({ tenantId, dateFrom, dateTo, branchI
     byMethod: byMethod.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
   };
 }
+
+// Pharmacy — real aggregates against 031_create_pharmacy_tables.sql.
+// Consolidated into 4 report types (Sales, Stock, Expiry, Purchases)
+// rather than 8 separate literal ones — a "Customer Sales History" is the
+// Sales report filtered by customerId, a "Low Stock Report" is the Stock
+// report's own lowStockCount/byMedicine breakdown, a "Supplier Purchase
+// History" is the Purchases report filtered by supplierId — the same
+// "filters within one report" consolidation Microfinance's loan_portfolio
+// report already established, not a missing feature.
+export async function pharmacySalesReport({ tenantId, dateFrom, dateTo, branchId, customerId, branchIds }) {
+  const conditions = ["s.status = 'completed'", 's.created_at >= ?', 's.created_at < DATE_ADD(?, INTERVAL 1 DAY)'];
+  const params = [dateFrom, dateTo];
+  if (branchId) { conditions.push('s.branch_id = ?'); params.push(branchId); }
+  if (customerId) { conditions.push('s.customer_id = ?'); params.push(customerId); }
+  const scope = buildScope({ tenantId, tenantColumn: 's.tenant_id', branchIds, branchColumn: 's.branch_id' });
+  const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
+  const allParams = [...params, ...scope.params];
+
+  const [[summary]] = await pool.query(
+    `SELECT COUNT(*) AS totalSales, COALESCE(SUM(s.total_amount), 0) AS totalRevenue FROM pharmacy_sales s ${where}`,
+    allParams,
+  );
+
+  const [byDay] = await pool.query(
+    `SELECT DATE(s.created_at) AS label, COALESCE(SUM(s.total_amount), 0) AS value
+     FROM pharmacy_sales s ${where} GROUP BY DATE(s.created_at) ORDER BY label ASC`,
+    allParams,
+  );
+
+  const [byMedicine] = await pool.query(
+    `SELECT m.name AS label, COALESCE(SUM(si.quantity), 0) AS count, COALESCE(SUM(si.line_total), 0) AS value
+     FROM pharmacy_sale_items si
+     JOIN pharmacy_sales s ON s.id = si.sale_id
+     JOIN medicines m ON m.id = si.medicine_id
+     ${where} GROUP BY m.id, m.name ORDER BY value DESC LIMIT 10`,
+    allParams,
+  );
+
+  return {
+    summary: { totalSales: Number(summary.totalSales), totalRevenue: Number(summary.totalRevenue) },
+    byDay: byDay.map((row) => ({ ...row, value: Number(row.value) })),
+    byMedicine: byMedicine.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+  };
+}
+
+export async function medicineStockReport({ tenantId, branchId, branchIds }) {
+  const batchConditions = ['b.quantity > 0'];
+  const batchParams = [];
+  if (branchId) { batchConditions.push('b.branch_id = ?'); batchParams.push(branchId); }
+  const batchScope = buildScope({ tenantId, tenantColumn: 'b.tenant_id', branchIds, branchColumn: 'b.branch_id' });
+
+  const [[summary]] = await pool.query(
+    `SELECT COUNT(DISTINCT m.id) AS totalMedicines, COALESCE(SUM(stock.value), 0) AS totalStockValue
+     FROM medicines m
+     JOIN (
+       SELECT b.medicine_id, SUM(b.quantity) AS qty, SUM(b.quantity * b.buying_price) AS value
+       FROM medicine_batches b WHERE ${batchConditions.join(' AND ')} ${batchScope.clause} GROUP BY b.medicine_id
+     ) stock ON stock.medicine_id = m.id
+     WHERE m.tenant_id = ? AND m.deleted_at IS NULL`,
+    [...batchParams, ...batchScope.params, tenantId],
+  );
+
+  const [byMedicine] = await pool.query(
+    `SELECT m.name AS label, SUM(b.quantity) AS count, SUM(b.quantity * b.buying_price) AS value
+     FROM medicine_batches b JOIN medicines m ON m.id = b.medicine_id
+     WHERE ${batchConditions.join(' AND ')} ${batchScope.clause} GROUP BY m.id, m.name ORDER BY count ASC LIMIT 50`,
+    [...batchParams, ...batchScope.params],
+  );
+
+  return {
+    summary: { totalMedicines: Number(summary.totalMedicines), totalStockValue: Number(summary.totalStockValue) },
+    byMedicine: byMedicine.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+  };
+}
+
+export async function medicineExpiryReport({ tenantId, branchId, branchIds }) {
+  const conditions = ['b.quantity > 0'];
+  const params = [];
+  if (branchId) { conditions.push('b.branch_id = ?'); params.push(branchId); }
+  const scope = buildScope({ tenantId, tenantColumn: 'b.tenant_id', branchIds, branchColumn: 'b.branch_id' });
+  const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
+  const allParams = [...params, ...scope.params];
+
+  const [[summary]] = await pool.query(
+    `SELECT
+       COUNT(CASE WHEN b.expiry_date < CURDATE() THEN 1 END) AS expiredCount,
+       COUNT(CASE WHEN b.expiry_date >= CURDATE() AND b.expiry_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 1 END) AS expiringSoonCount
+     FROM medicine_batches b ${where}`,
+    allParams,
+  );
+
+  // daysRemaining, not "value" — the generic MONEY_KEYS formatter every
+  // renderer (frontend table, PDF, Excel, CSV) applies to a column named
+  // "value" would otherwise render a day-count ("-3") as currency.
+  const [byMedicine] = await pool.query(
+    `SELECT CONCAT(m.name, ' — ', b.batch_number) AS label, b.quantity AS count, DATEDIFF(b.expiry_date, CURDATE()) AS daysRemaining
+     FROM medicine_batches b JOIN medicines m ON m.id = b.medicine_id
+     ${where} AND b.expiry_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+     ORDER BY b.expiry_date ASC LIMIT 50`,
+    allParams,
+  );
+
+  return {
+    summary: { expiredCount: Number(summary.expiredCount), expiringSoonCount: Number(summary.expiringSoonCount) },
+    byMedicine: byMedicine.map((row) => ({ ...row, count: Number(row.count), daysRemaining: Number(row.daysRemaining) })),
+  };
+}
+
+export async function pharmacyPurchasesReport({ tenantId, dateFrom, dateTo, branchId, supplierId, branchIds }) {
+  const conditions = ['p.purchase_date >= ?', 'p.purchase_date <= ?'];
+  const params = [dateFrom, dateTo];
+  if (branchId) { conditions.push('p.branch_id = ?'); params.push(branchId); }
+  if (supplierId) { conditions.push('p.supplier_id = ?'); params.push(supplierId); }
+  const scope = buildScope({ tenantId, tenantColumn: 'p.tenant_id', branchIds, branchColumn: 'p.branch_id' });
+  const where = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
+  const allParams = [...params, ...scope.params];
+
+  const [[summary]] = await pool.query(
+    `SELECT COUNT(*) AS totalPurchases, COALESCE(SUM(p.total_amount), 0) AS totalAmount FROM pharmacy_purchases p ${where}`,
+    allParams,
+  );
+
+  const [bySupplier] = await pool.query(
+    `SELECT sup.name AS label, COUNT(*) AS count, COALESCE(SUM(p.total_amount), 0) AS value
+     FROM pharmacy_purchases p JOIN suppliers sup ON sup.id = p.supplier_id
+     ${where} GROUP BY sup.id, sup.name ORDER BY value DESC`,
+    allParams,
+  );
+
+  return {
+    summary: { totalPurchases: Number(summary.totalPurchases), totalAmount: Number(summary.totalAmount) },
+    bySupplier: bySupplier.map((row) => ({ ...row, count: Number(row.count), value: Number(row.value) })),
+  };
+}

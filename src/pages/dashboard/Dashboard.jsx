@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
-  FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle, FiUserCheck, FiCreditCard, FiAlertOctagon, FiClock,
+  FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle, FiUserCheck, FiCreditCard, FiAlertOctagon, FiClock, FiBox,
 } from 'react-icons/fi';
 import KPICard from '../../components/dashboard/KPICard';
 import ChartCard from '../../components/dashboard/ChartCard';
@@ -20,6 +20,8 @@ import { useChartTheme } from '../../components/charts/chartTheme';
 import * as dashboardService from '../../services/dashboardService';
 import * as inventoryService from '../../services/inventoryService';
 import * as loanService from '../../services/loanService';
+import * as medicineService from '../../services/medicineService';
+import * as pharmacySaleService from '../../services/pharmacySaleService';
 import { useModules } from '../../hooks/useModules';
 import { formatCurrency, formatNumber } from '../../utils/formatCurrency';
 import '../../styles/pages/Dashboard.css';
@@ -47,6 +49,18 @@ function useKpiDefs(t) {
     { key: 'overdueLoans', label: t('kpi.overdueLoans'), icon: FiAlertOctagon, formatter: formatNumber, subtitle: t('kpi.overdueLoansSubtitle'), accent: '#EF4444' },
     { key: 'portfolioAtRisk', label: t('kpi.portfolioAtRisk'), icon: FiAlertTriangle, formatter: formatCurrency, subtitle: t('kpi.portfolioAtRiskSubtitle'), accent: '#DC2626' },
     { key: 'todayCollections', label: t('kpi.todayCollections'), icon: FiTrendingUp, formatter: formatCurrency, subtitle: t('kpi.todayCollectionsSubtitle'), accent: '#06B6D4' },
+    // Pharmacy — gated by the 'medicines' module's dashboard_widgets column
+    // (031_create_pharmacy_tables.sql), same hasWidget() pattern as every
+    // KPI above. lowStockCount/outOfStockCount are shared widget keys with
+    // retail's own inventory KPIs by design (same underlying concept,
+    // reused rather than duplicated) — never rendered together since the
+    // two are mutually exclusive business templates.
+    { key: 'totalMedicines', label: t('kpi.totalMedicines'), icon: FiBox, formatter: formatNumber, subtitle: t('kpi.totalMedicinesSubtitle'), accent: '#2F6BFF' },
+    { key: 'outOfStockCount', label: t('kpi.outOfStockCount'), icon: FiAlertOctagon, formatter: formatNumber, subtitle: t('kpi.outOfStockCountSubtitle'), accent: '#DC2626' },
+    { key: 'expiredCount', label: t('kpi.expiredCount'), icon: FiAlertTriangle, formatter: formatNumber, subtitle: t('kpi.expiredCountSubtitle'), accent: '#EF4444' },
+    { key: 'expiringSoonCount', label: t('kpi.expiringSoonCount'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.expiringSoonCountSubtitle'), accent: '#F59E0B' },
+    { key: 'todaySalesCount', label: t('kpi.todaySalesCount'), icon: FiShoppingBag, formatter: formatNumber, subtitle: t('kpi.todaySalesCountSubtitle'), accent: '#8B5CF6' },
+    { key: 'todayRevenue', label: t('kpi.todayRevenue'), icon: FiDollarSign, formatter: formatCurrency, subtitle: t('kpi.todayRevenueSubtitle'), accent: '#10B981' },
   ];
 }
 
@@ -109,11 +123,14 @@ function Dashboard() {
   const showSalesTrend = hasWidget('salesTrend');
   const showLowStock = hasWidget('lowStockAlert');
   const showLoanPortfolio = isModuleEnabled('loans');
+  const showPharmacy = isModuleEnabled('medicines');
   const chartColors = useChartTheme();
   const [kpis, setKpis] = useState(null);
   const [charts, setCharts] = useState({});
   const [lowStockProducts, setLowStockProducts] = useState([]);
   const [recentLoans, setRecentLoans] = useState([]);
+  const [expiringBatches, setExpiringBatches] = useState([]);
+  const [recentSales, setRecentSales] = useState([]);
   const [todayTrend, setTodayTrend] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -133,9 +150,11 @@ function Dashboard() {
           ...enabledChartTypes.map((type) => dashboardService.getChart(type)),
           ...(showSalesTrend ? [dashboardService.getChart('sales-trend', { range: 'week' })] : []),
         ]);
-        const [lowStockResult, recentLoansResult] = await Promise.allSettled([
+        const [lowStockResult, recentLoansResult, expiringResult, recentSalesResult] = await Promise.allSettled([
           showLowStock ? inventoryService.listInventory({ lowStock: true, limit: 10 }) : Promise.resolve({ items: [] }),
           showLoanPortfolio ? loanService.getRecentApplications(5) : Promise.resolve([]),
+          showPharmacy ? medicineService.listExpiring({ status: 'expiring_soon', limit: 5 }) : Promise.resolve({ items: [] }),
+          showPharmacy ? pharmacySaleService.getRecentSales(5) : Promise.resolve([]),
         ]);
 
         if (cancelled) return;
@@ -149,6 +168,8 @@ function Dashboard() {
         setTodayTrend(showSalesTrend ? computeTodayTrend(chartResults[enabledChartTypes.length]) : null);
         setLowStockProducts(lowStockResult.status === 'fulfilled' ? lowStockResult.value.items : []);
         setRecentLoans(recentLoansResult.status === 'fulfilled' ? recentLoansResult.value : []);
+        setExpiringBatches(expiringResult.status === 'fulfilled' ? expiringResult.value.items : []);
+        setRecentSales(recentSalesResult.status === 'fulfilled' ? recentSalesResult.value : []);
       } catch {
         if (!cancelled) setError(t('loadError'));
       } finally {
@@ -278,6 +299,68 @@ function Dashboard() {
                           <td>{formatCurrency(loan.approved_amount || loan.requested_amount)}</td>
                           <td>{new Date(loan.created_at).toLocaleDateString(i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ', { day: 'numeric', month: 'short' })}</td>
                           <td><span className="badge badge-neutral">{t(`recentLoans.status_${loan.status}`, loan.status)}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {showPharmacy && (
+          <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
+            <div className="card">
+              <div className="card-header"><span className="card-title">{t('expiryAlerts.title')}</span></div>
+              {expiringBatches.length === 0 ? (
+                <div className="card-body text-sm text-secondary">{t('expiryAlerts.empty')}</div>
+              ) : (
+                <div className="table-wrapper">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>{t('expiryAlerts.medicine')}</th>
+                        <th>{t('expiryAlerts.batch')}</th>
+                        <th>{t('expiryAlerts.expiryDate')}</th>
+                        <th>{t('expiryAlerts.quantity')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {expiringBatches.map((batch) => (
+                        <tr key={batch.id} className="table-row-clickable" onClick={() => navigate('/expiry-tracking')}>
+                          <td>{batch.medicine_name}</td>
+                          <td>{batch.batch_number}</td>
+                          <td>{new Date(batch.expiry_date).toLocaleDateString(i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                          <td>{batch.quantity}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <div className="card">
+              <div className="card-header"><span className="card-title">{t('recentSales.title')}</span></div>
+              {recentSales.length === 0 ? (
+                <div className="card-body text-sm text-secondary">{t('recentSales.empty')}</div>
+              ) : (
+                <div className="table-wrapper">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>{t('recentSales.customer')}</th>
+                        <th>{t('recentSales.amount')}</th>
+                        <th>{t('recentSales.date')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentSales.map((sale) => (
+                        <tr key={sale.id} className="table-row-clickable" onClick={() => navigate(`/pharmacy/sales/${sale.id}`)}>
+                          <td>{sale.customer_first_name ? `${sale.customer_first_name} ${sale.customer_last_name}` : t('recentSales.walkIn')}</td>
+                          <td>{formatCurrency(sale.total_amount)}</td>
+                          <td>{new Date(sale.created_at).toLocaleDateString(i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ', { day: 'numeric', month: 'short' })}</td>
                         </tr>
                       ))}
                     </tbody>

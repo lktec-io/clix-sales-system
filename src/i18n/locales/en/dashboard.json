@@ -43,6 +43,18 @@
     "portfolioAtRiskSubtitle": "Total unpaid on overdue installments",
     "todayCollections": "Today's Collections",
     "todayCollectionsSubtitle": "Repayments received today",
+    "totalMedicines": "Total Medicines",
+    "totalMedicinesSubtitle": "Active medicines in catalog",
+    "outOfStockCount": "Out of Stock",
+    "outOfStockCountSubtitle": "Medicines with zero stock",
+    "expiredCount": "Expired Medicines",
+    "expiredCountSubtitle": "Batches past their expiry date",
+    "expiringSoonCount": "Expiring Soon",
+    "expiringSoonCountSubtitle": "Batches expiring within 30 days",
+    "todaySalesCount": "Today's Sales",
+    "todaySalesCountSubtitle": "Completed sales today",
+    "todayRevenue": "Today's Revenue",
+    "todayRevenueSubtitle": "Across all branches",
     "trendVsYesterday": "{{percent}}% vs yesterday"
   },
   "charts": {
@@ -102,6 +114,22 @@
     "status_completed": "Completed",
     "status_defaulted": "Defaulted",
     "status_written_off": "Written Off"
+  },
+  "expiryAlerts": {
+    "title": "Expiry Alerts",
+    "empty": "No batches expiring soon.",
+    "medicine": "Medicine",
+    "batch": "Batch #",
+    "expiryDate": "Expiry Date",
+    "quantity": "Quantity"
+  },
+  "recentSales": {
+    "title": "Recent Sales",
+    "empty": "No sales yet.",
+    "customer": "Customer",
+    "amount": "Amount",
+    "date": "Date",
+    "walkIn": "Walk-in"
   },
   "loadError": "Failed to load dashboard data."
 }

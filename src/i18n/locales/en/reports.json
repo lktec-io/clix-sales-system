@@ -24,7 +24,11 @@
     "users": "Users",
     "all": "All Reports",
     "loan_portfolio": "Loan Portfolio",
-    "loan_repayments": "Loan Repayments"
+    "loan_repayments": "Loan Repayments",
+    "pharmacy_sales": "Pharmacy Sales",
+    "medicine_stock": "Medicine Stock",
+    "medicine_expiry": "Expiry Report",
+    "pharmacy_purchases": "Pharmacy Purchases"
   },
   "descriptions": {
     "sales": "Revenue, transactions, and daily trends.",
@@ -40,7 +44,11 @@
     "users": "Staff accounts by role, branch and status.",
     "all": "A combined business summary across every area.",
     "loan_portfolio": "Loans by status and product, disbursed and outstanding totals.",
-    "loan_repayments": "Repayments collected by day and payment method."
+    "loan_repayments": "Repayments collected by day and payment method.",
+    "pharmacy_sales": "Medicine sales revenue by day and top-selling medicines.",
+    "medicine_stock": "Current stock value per medicine, lowest stock first.",
+    "medicine_expiry": "Batches already expired or expiring within 30 days.",
+    "pharmacy_purchases": "Stock received by supplier for the period."
   },
   "summary": {
     "totalSales": "Total Sales",
@@ -69,7 +77,11 @@
     "totalDisbursed": "Total Disbursed",
     "totalOutstanding": "Total Outstanding",
     "totalRepayments": "Total Repayments",
-    "totalCollected": "Total Collected"
+    "totalCollected": "Total Collected",
+    "totalMedicines": "Total Medicines",
+    "totalStockValue": "Stock Value",
+    "expiredCount": "Expired",
+    "expiringSoonCount": "Expiring Soon"
   },
   "breakdowns": {
     "byDay": "By Day",
@@ -87,7 +99,9 @@
     "expensesByCategory": "Expenses By Category",
     "byStatus": "By Status",
     "byProduct": "By Loan Product",
-    "byMethod": "By Payment Method"
+    "byMethod": "By Payment Method",
+    "byMedicine": "By Medicine",
+    "expiringBatches": "Expiring Batches"
   },
   "headers": {
     "date": "Date",
@@ -99,7 +113,9 @@
     "reason": "Reason",
     "role": "Role",
     "status": "Status",
-    "method": "Method"
+    "method": "Method",
+    "medicine": "Medicine",
+    "medicineBatch": "Medicine / Batch"
   },
   "filters": {
     "quickRange": "Quick Range",
@@ -113,7 +129,9 @@
     "customer": "Customer",
     "allCustomers": "All Customers",
     "product": "Product",
-    "allProducts": "All Products"
+    "allProducts": "All Products",
+    "supplier": "Supplier",
+    "allSuppliers": "All Suppliers"
   },
   "presets": {
     "today": "Today",

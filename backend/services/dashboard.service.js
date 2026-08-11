@@ -5,6 +5,8 @@ import { getAccessibleBranchIds } from '../utils/branchScope.js';
 import * as dashboardRepository from '../repositories/dashboard.repository.js';
 import * as activityLogRepository from '../repositories/activityLog.repository.js';
 import { getPortfolioKpis } from './loan.service.js';
+import { getDashboardSummary as getMedicineDashboardSummary } from './medicine.service.js';
+import { getSalesSummary as getPharmacySalesSummary } from './pharmacySale.service.js';
 
 const EMPTY_KPIS = {
   todaySales: 0, monthlySales: 0, todayProfit: 0, monthlyProfit: 0,
@@ -50,9 +52,14 @@ const EMPTY_MICROFINANCE_KPIS = {
   pendingApplications: 0,
 };
 
+const EMPTY_PHARMACY_KPIS = {
+  totalMedicines: 0, lowStockCount: 0, outOfStockCount: 0, expiredCount: 0, expiringSoonCount: 0,
+  todaySalesCount: 0, todayRevenue: 0,
+};
+
 export async function getKpis(user) {
   const branchIds = await getAccessibleBranchIds(user);
-  const [retailKpis, microfinanceKpis] = await Promise.all([
+  const [retailKpis, microfinanceKpis, pharmacyStockKpis, pharmacySalesKpis] = await Promise.all([
     safely('kpis', () => dashboardRepository.getKpis(user.tenantId, branchIds), EMPTY_KPIS),
     // Real aggregates from loan.service.js's own portfolio queries — reused,
     // not duplicated. Cheap (indexed COUNT/SUM against tenant_id) and
@@ -60,8 +67,13 @@ export async function getKpis(user) {
     // underlying tables are simply empty for them, and hasWidget() on the
     // frontend hides these keys from any dashboard that isn't Microfinance.
     safely('microfinance-kpis', () => getPortfolioKpis(user), EMPTY_MICROFINANCE_KPIS),
+    // Same reuse principle for Pharmacy — medicine.service.js/
+    // pharmacySale.service.js's own summary queries, harmless no-op cost
+    // for any tenant whose template doesn't include Medicines.
+    safely('pharmacy-stock-kpis', () => getMedicineDashboardSummary(user), EMPTY_PHARMACY_KPIS),
+    safely('pharmacy-sales-kpis', () => getPharmacySalesSummary(user), EMPTY_PHARMACY_KPIS),
   ]);
-  return { ...retailKpis, ...microfinanceKpis };
+  return { ...retailKpis, ...microfinanceKpis, ...pharmacyStockKpis, ...pharmacySalesKpis };
 }
 
 export async function getChart(user, type, query = {}) {

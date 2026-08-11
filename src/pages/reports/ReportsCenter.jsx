@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   FiPrinter, FiDownload, FiFileText, FiBarChart2, FiGrid, FiTrendingUp,
   FiDollarSign, FiPackage, FiBox, FiUsers, FiTruck, FiCreditCard, FiLayers, FiPercent, FiCheckCircle,
+  FiShoppingCart, FiClock,
 } from 'react-icons/fi';
 import KPICard from '../../components/dashboard/KPICard';
 import EmptyState from '../../components/common/EmptyState';
@@ -18,6 +19,7 @@ import * as categoryService from '../../services/categoryService';
 import * as customerService from '../../services/customerService';
 import * as productService from '../../services/productService';
 import * as userService from '../../services/userService';
+import * as supplierService from '../../services/supplierService';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { downloadCsv } from '../../utils/exportCsv';
 import '../../styles/pages/Reports.css';
@@ -84,6 +86,7 @@ const MONEY_KEYS = new Set([
   'value', 'totalRevenue', 'totalAmount', 'totalDiscount', 'averageSale', 'totalValue',
   'salesRevenue', 'expenses', 'totalExpenses', 'net', 'cogs', 'grossProfit', 'netProfit',
   'totalPurchased', 'totalPaid', 'outstandingBalance', 'averageDailySales', 'averageInvoice',
+  'totalStockValue',
 ]);
 
 // Report type labels/summary labels/breakdown titles all come from the
@@ -229,6 +232,39 @@ function useReportConfigs(t) {
         { key: 'byMethod', title: t('reports:breakdowns.byMethod'), labelHeader: t('reports:headers.method') },
       ],
     },
+    // Consolidated Pharmacy reports — mirrors the backend's own
+    // consolidation in reportConfig.js (pharmacy_sales doubles as a
+    // Customer Sales History via the customerId filter, medicine_stock's
+    // byMedicine rows are already sorted ascending by quantity so it
+    // doubles as a Low Stock Report, pharmacy_purchases doubles as a
+    // Supplier Purchase History via the supplierId filter).
+    pharmacy_sales: {
+      label: t('reports:types.pharmacy_sales'), description: t('reports:descriptions.pharmacy_sales'),
+      filters: ['dateFrom', 'dateTo', 'branchId', 'customerId'],
+      summary: { totalSales: t('reports:summary.totalSales'), totalRevenue: t('reports:summary.totalRevenue') },
+      breakdowns: [
+        { key: 'byDay', title: t('reports:breakdowns.byDay'), labelHeader: t('reports:headers.date') },
+        { key: 'byMedicine', title: t('reports:breakdowns.byMedicine'), labelHeader: t('reports:headers.medicine') },
+      ],
+    },
+    medicine_stock: {
+      label: t('reports:types.medicine_stock'), description: t('reports:descriptions.medicine_stock'),
+      filters: ['branchId'],
+      summary: { totalMedicines: t('reports:summary.totalMedicines'), totalStockValue: t('reports:summary.totalStockValue') },
+      breakdowns: [{ key: 'byMedicine', title: t('reports:breakdowns.byMedicine'), labelHeader: t('reports:headers.medicine') }],
+    },
+    medicine_expiry: {
+      label: t('reports:types.medicine_expiry'), description: t('reports:descriptions.medicine_expiry'),
+      filters: ['branchId'],
+      summary: { expiredCount: t('reports:summary.expiredCount'), expiringSoonCount: t('reports:summary.expiringSoonCount') },
+      breakdowns: [{ key: 'byMedicine', title: t('reports:breakdowns.expiringBatches'), labelHeader: t('reports:headers.medicineBatch') }],
+    },
+    pharmacy_purchases: {
+      label: t('reports:types.pharmacy_purchases'), description: t('reports:descriptions.pharmacy_purchases'),
+      filters: ['dateFrom', 'dateTo', 'branchId', 'supplierId'],
+      summary: { totalPurchases: t('reports:summary.totalPurchases'), totalAmount: t('reports:summary.totalAmount') },
+      breakdowns: [{ key: 'bySupplier', title: t('reports:breakdowns.bySupplier'), labelHeader: t('reports:headers.supplier') }],
+    },
     // Combined business-summary report — backend/services/report.service.js's
     // buildAllReport() flattens Sales/Products/Customers/Expenses/Profit into
     // this exact shape, so it renders through the same summary cards +
@@ -261,6 +297,7 @@ function useReportConfigs(t) {
 const VISIBLE_REPORT_TYPES = [
   'sales', 'products', 'inventory', 'customers', 'suppliers', 'expenses', 'all',
   'loan_portfolio', 'loan_repayments',
+  'pharmacy_sales', 'medicine_stock', 'medicine_expiry', 'pharmacy_purchases',
 ];
 
 // A Business Template (School, Microfinance, ...) can reach this page with
@@ -279,6 +316,7 @@ const REPORT_TYPE_MODULE_KEY = {
   // no-op for them.
   customers: 'sales', suppliers: 'suppliers', expenses: 'expenses', all: 'sales',
   loan_portfolio: 'loans', loan_repayments: 'loan_repayments',
+  pharmacy_sales: 'pharmacy_sales', medicine_stock: 'medicines', medicine_expiry: 'expiry', pharmacy_purchases: 'pharmacy_purchases',
 };
 
 const REPORT_ICONS = {
@@ -291,6 +329,10 @@ const REPORT_ICONS = {
   all: FiLayers,
   loan_portfolio: FiPercent,
   loan_repayments: FiCheckCircle,
+  pharmacy_sales: FiShoppingCart,
+  medicine_stock: FiBox,
+  medicine_expiry: FiClock,
+  pharmacy_purchases: FiTruck,
 };
 
 function humanize(key) {
@@ -365,9 +407,10 @@ function ReportsCenter() {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [cashiers, setCashiers] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
   const [datePreset, setDatePreset] = useState('month');
   const [filters, setFilters] = useState({
-    dateFrom: firstOfMonthIso(), dateTo: todayIso(), branchId: '', categoryId: '', status: '', customerId: '', productId: '', cashierId: '',
+    dateFrom: firstOfMonthIso(), dateTo: todayIso(), branchId: '', categoryId: '', status: '', customerId: '', productId: '', cashierId: '', supplierId: '',
   });
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -396,6 +439,7 @@ function ReportsCenter() {
     categoryService.listActiveCategories().then(setCategories);
     customerService.listActiveCustomers().then(setCustomers);
     productService.listProducts({ limit: 200 }).then((result) => setProducts(result.items || []));
+    supplierService.listActiveSuppliers().then(setSuppliers);
     // Cashier filter needs the users list, which 403s for a role without
     // users.view (e.g. Cashier/Sales viewing their own Reports) — only
     // fetched, and only offered as a filter, for roles that can see it.
@@ -435,7 +479,7 @@ function ReportsCenter() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching the selected report on filter/type change is standard data-fetching, not derived state
     loadReport();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- config is derived from reportType, individual filter fields tracked explicitly below
-  }, [reportType, modulesLoading, availableReportTypes, filters.dateFrom, filters.dateTo, filters.branchId, filters.categoryId, filters.status, filters.customerId, filters.productId, filters.cashierId]);
+  }, [reportType, modulesLoading, availableReportTypes, filters.dateFrom, filters.dateTo, filters.branchId, filters.categoryId, filters.status, filters.customerId, filters.productId, filters.cashierId, filters.supplierId]);
 
   const summaryEntries = useMemo(() => {
     if (!report?.summary || !config.summary) return [];
@@ -699,6 +743,15 @@ function ReportsCenter() {
               <select id="productId" className="form-control" value={filters.productId} onChange={(e) => setFilters((prev) => ({ ...prev, productId: e.target.value }))}>
                 <option value="">{t('reports:filters.allProducts')}</option>
                 {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </div>
+          )}
+          {config.filters.includes('supplierId') && (
+            <div className="form-group">
+              <label className="form-label" htmlFor="supplierId">{t('reports:filters.supplier')}</label>
+              <select id="supplierId" className="form-control" value={filters.supplierId} onChange={(e) => setFilters((prev) => ({ ...prev, supplierId: e.target.value }))}>
+                <option value="">{t('reports:filters.allSuppliers')}</option>
+                {suppliers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
           )}

@@ -19,6 +19,7 @@ export const MONEY_KEYS = new Set([
   'salesRevenue', 'expenses', 'totalExpenses', 'net', 'cogs', 'grossProfit', 'netProfit', 'totalRefund',
   'totalPurchased', 'totalPaid', 'outstandingBalance',
   'totalDisbursed', 'totalOutstanding', 'totalCollected',
+  'totalStockValue',
 ]);
 
 function buildReportConfigs(locale) {
@@ -95,6 +96,34 @@ function buildReportConfigs(locale) {
       title: rt('loan_repayments'),
       summaryLabels: { totalRepayments: sl('totalRepayments'), totalCollected: sl('totalCollected') },
       breakdowns: [{ key: 'byDay', title: bd('byDay'), labelHeader: bh('date') }, { key: 'byMethod', title: bd('byMethod'), labelHeader: bh('method') }],
+    },
+    // Consolidated Pharmacy reports — each covers several of the user's
+    // originally-requested report names via its own filters/breakdowns
+    // rather than one report type per bullet point: pharmacy_sales doubles
+    // as "Customer Sales History" (filter by customerId), medicine_stock
+    // doubles as "Low Stock Report" (its own byMedicine rows are already
+    // sorted ascending by quantity), pharmacy_purchases doubles as
+    // "Supplier Purchase History" (filter by supplierId) — same
+    // consolidation precedent as loan_portfolio/loan_repayments.
+    pharmacy_sales: {
+      title: rt('pharmacy_sales'),
+      summaryLabels: { totalSales: sl('totalSales'), totalRevenue: sl('totalRevenue') },
+      breakdowns: [{ key: 'byDay', title: bd('byDay'), labelHeader: bh('date') }, { key: 'byMedicine', title: bd('byMedicine'), labelHeader: bh('medicine') }],
+    },
+    medicine_stock: {
+      title: rt('medicine_stock'),
+      summaryLabels: { totalMedicines: sl('totalMedicines'), totalStockValue: sl('totalStockValue') },
+      breakdowns: [{ key: 'byMedicine', title: bd('byMedicine'), labelHeader: bh('medicine') }],
+    },
+    medicine_expiry: {
+      title: rt('medicine_expiry'),
+      summaryLabels: { expiredCount: sl('expiredCount'), expiringSoonCount: sl('expiringSoonCount') },
+      breakdowns: [{ key: 'byMedicine', title: bd('expiringBatches'), labelHeader: bh('medicineBatch') }],
+    },
+    pharmacy_purchases: {
+      title: rt('pharmacy_purchases'),
+      summaryLabels: { totalPurchases: sl('totalPurchases'), totalAmount: sl('totalAmount') },
+      breakdowns: [{ key: 'bySupplier', title: bd('bySupplier'), labelHeader: bh('supplier') }],
     },
     // The business-summary report — report.service.js's buildAllReport()
     // flattens sales/products/customers/expenses/profit into this same

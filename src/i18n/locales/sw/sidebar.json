@@ -16,7 +16,11 @@
     "loans": "Mikopo",
     "loan_repayments": "Malipo ya Mikopo",
     "savings": "Akiba",
-    "borrower_groups": "Vikundi"
+    "borrower_groups": "Vikundi",
+    "medicines": "Dawa",
+    "expiry": "Ufuatiliaji wa Muda wa Mwisho",
+    "pharmacy_sales": "Mauzo",
+    "pharmacy_purchases": "Manunuzi"
   },
   "sectionMain": "Kuu",
   "logout": "Ondoka",

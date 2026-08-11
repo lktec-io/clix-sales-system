@@ -84,6 +84,7 @@ export const en = {
     branches: 'Branches', products: 'Products', customers: 'Customers', suppliers: 'Suppliers', returns: 'Returns',
     transfers: 'Transfers', users: 'Users', all: 'All Reports',
     loan_portfolio: 'Loan Portfolio', loan_repayments: 'Loan Repayments',
+    pharmacy_sales: 'Pharmacy Sales', medicine_stock: 'Medicine Stock', medicine_expiry: 'Expiry Report', pharmacy_purchases: 'Pharmacy Purchases',
   },
   summaryLabels: {
     totalSales: 'Total Sales', totalRevenue: 'Total Revenue', totalDiscount: 'Total Discount', averageSale: 'Average Sale',
@@ -94,6 +95,7 @@ export const en = {
     suspendedUsers: 'Suspended', lockedUsers: 'Locked',
     totalLoans: 'Total Loans', totalDisbursed: 'Total Disbursed', totalOutstanding: 'Total Outstanding',
     totalRepayments: 'Total Repayments', totalCollected: 'Total Collected',
+    totalMedicines: 'Total Medicines', totalStockValue: 'Stock Value', expiredCount: 'Expired', expiringSoonCount: 'Expiring Soon',
   },
   breakdowns: {
     byDay: 'By Day', byBranch: 'By Branch', topCustomers: 'Top Customers', byCategory: 'By Category',
@@ -101,11 +103,12 @@ export const en = {
     supplierBalances: 'Supplier Balances', byRole: 'By Role', salesByDay: 'Sales By Day', salesByBranch: 'Sales By Branch',
     expensesByCategory: 'Expenses By Category',
     byStatus: 'By Status', byProduct: 'By Loan Product', byMethod: 'By Payment Method',
+    byMedicine: 'By Medicine', expiringBatches: 'Expiring Batches',
   },
   breakdownHeaders: {
     date: 'Date', branch: 'Branch', category: 'Category', product: 'Product', supplier: 'Supplier',
     reason: 'Reason', role: 'Role', customer: 'Customer', name: 'Name',
-    status: 'Status', method: 'Method',
+    status: 'Status', method: 'Method', medicine: 'Medicine', medicineBatch: 'Medicine / Batch',
   },
   filterLabels: {
     cashier: 'Cashier', status: 'Status',
@@ -190,6 +193,7 @@ export const sw = {
     branches: 'Matawi', products: 'Bidhaa', customers: 'Wateja', suppliers: 'Wasambazaji', returns: 'Marejesho',
     transfers: 'Uhamisho', users: 'Watumiaji', all: 'Ripoti Zote',
     loan_portfolio: 'Mikopo Yote', loan_repayments: 'Malipo ya Mikopo',
+    pharmacy_sales: 'Mauzo ya Duka la Dawa', medicine_stock: 'Hesabu ya Dawa', medicine_expiry: 'Ripoti ya Muda wa Mwisho', pharmacy_purchases: 'Manunuzi ya Duka la Dawa',
   },
   summaryLabels: {
     totalSales: 'Jumla ya Mauzo', totalRevenue: 'Jumla ya Mapato', totalDiscount: 'Jumla ya Punguzo', averageSale: 'Wastani wa Mauzo',
@@ -200,6 +204,7 @@ export const sw = {
     suspendedUsers: 'Waliosimamishwa', lockedUsers: 'Waliofungwa',
     totalLoans: 'Jumla ya Mikopo', totalDisbursed: 'Jumla Iliyotolewa', totalOutstanding: 'Jumla Inayodaiwa',
     totalRepayments: 'Jumla ya Malipo', totalCollected: 'Jumla Iliyokusanywa',
+    totalMedicines: 'Jumla ya Dawa', totalStockValue: 'Thamani ya Hesabu', expiredCount: 'Zilizoisha Muda', expiringSoonCount: 'Zinakaribia Kuisha',
   },
   breakdowns: {
     byDay: 'Kwa Siku', byBranch: 'Kwa Tawi', topCustomers: 'Wateja Bora', byCategory: 'Kwa Kategoria',
@@ -207,11 +212,12 @@ export const sw = {
     supplierBalances: 'Salio za Wasambazaji', byRole: 'Kwa Jukumu', salesByDay: 'Mauzo kwa Siku', salesByBranch: 'Mauzo kwa Tawi',
     expensesByCategory: 'Matumizi kwa Aina',
     byStatus: 'Kwa Hali', byProduct: 'Kwa Aina ya Mkopo', byMethod: 'Kwa Njia ya Malipo',
+    byMedicine: 'Kwa Dawa', expiringBatches: 'Vipande Vinavyokaribia Kuisha',
   },
   breakdownHeaders: {
     date: 'Tarehe', branch: 'Tawi', category: 'Kategoria', product: 'Bidhaa', supplier: 'Msambazaji',
     reason: 'Sababu', role: 'Jukumu', customer: 'Mteja', name: 'Jina',
-    status: 'Hali', method: 'Njia',
+    status: 'Hali', method: 'Njia', medicine: 'Dawa', medicineBatch: 'Dawa / Kipande',
   },
   filterLabels: {
     cashier: 'Mhudumu', status: 'Hali',

@@ -1,0 +1,232 @@
+{
+  "medicines": {
+    "list": {
+      "title": "Dawa",
+      "subtitle": "Simamia dawa zinazopatikana katika duka lako la dawa.",
+      "newMedicine": "Dawa Mpya",
+      "searchPlaceholder": "Tafuta dawa...",
+      "emptyMessage": "Hakuna dawa bado.",
+      "viewMedicine": "Angalia dawa",
+      "allCategories": "Aina Zote",
+      "allStatuses": "Hali Zote"
+    },
+    "columns": {
+      "name": "Jina",
+      "category": "Aina",
+      "unit": "Kipimo",
+      "sellingPrice": "Bei ya Kuuza",
+      "stock": "Hesabu",
+      "status": "Hali"
+    },
+    "stockStatus": {
+      "outOfStock": "Haipo Stoo",
+      "lowStock": "Hesabu Ndogo",
+      "inStock": "Ipo Stoo"
+    },
+    "status": {
+      "active": "Hai",
+      "inactive": "Haifanyi Kazi"
+    },
+    "form": {
+      "newTitle": "Dawa Mpya",
+      "editTitle": "Hariri Dawa",
+      "newSubtitle": "Ongeza dawa mpya kwenye orodha yako.",
+      "editSubtitle": "Sasisha maelezo ya dawa hii.",
+      "nameLabel": "Jina la Dawa",
+      "nameRequired": "Jina linahitajika",
+      "categoryLabel": "Aina",
+      "categoryRequired": "Aina inahitajika",
+      "selectCategory": "Chagua aina",
+      "unitLabel": "Kipimo",
+      "unitRequired": "Kipimo kinahitajika",
+      "sellingPriceLabel": "Bei ya Kuuza",
+      "sellingPriceRequired": "Bei ya kuuza inahitajika",
+      "reorderLevelLabel": "Kiwango cha Kuagiza Tena",
+      "reorderLevelRequired": "Kiwango cha kuagiza tena kinahitajika",
+      "descriptionLabel": "Maelezo (si lazima)",
+      "statusLabel": "Hali",
+      "save": "Hifadhi Dawa",
+      "createSuccess": "Dawa imeongezwa",
+      "updateSuccess": "Dawa imesasishwa",
+      "saveError": "Imeshindwa kuhifadhi dawa"
+    },
+    "units": {
+      "unit": "Kipande", "tablet": "Kidonge", "capsule": "Kapsuli", "bottle": "Chupa",
+      "box": "Kasha", "vial": "Chupa Ndogo", "tube": "Mrija", "sachet": "Kifurushi", "pack": "Pakiti"
+    },
+    "detail": {
+      "backToMedicines": "Rudi kwa Dawa",
+      "edit": "Hariri",
+      "currentStock": "Hesabu ya Sasa",
+      "reorderLevel": "Kiwango cha Kuagiza Tena",
+      "sellingPrice": "Bei ya Kuuza",
+      "category": "Aina",
+      "batchesTitle": "Vipande",
+      "noBatches": "Hakuna vipande vya hesabu bado — pokea hesabu kuongeza kimoja.",
+      "batchColumns": {
+        "batchNumber": "Namba ya Kipande",
+        "quantity": "Idadi",
+        "expiryDate": "Tarehe ya Mwisho",
+        "buyingPrice": "Bei ya Kununua",
+        "status": "Hali"
+      },
+      "movementsTitle": "Mienendo ya Hivi Karibuni ya Hesabu",
+      "noMovements": "Hakuna mienendo ya hesabu bado.",
+      "movementColumns": {
+        "date": "Tarehe",
+        "type": "Aina",
+        "quantityChange": "Mabadiliko",
+        "batch": "Kipande"
+      },
+      "movementType": {
+        "purchase": "Manunuzi",
+        "sale": "Mauzo",
+        "adjustment": "Marekebisho"
+      }
+    },
+    "deleteBlocked": "Haiwezekani kufuta dawa ambayo bado ina hesabu."
+  },
+  "expiry": {
+    "list": {
+      "title": "Ufuatiliaji wa Muda wa Mwisho",
+      "subtitle": "Fuatilia vipande kwa hali ya muda wa mwisho kwa dawa zote.",
+      "emptyMessage": "Hakuna vipande vilivyopatikana kwa kichujio hiki.",
+      "allBranches": "Matawi Yote"
+    },
+    "tabs": {
+      "all": "Vyote",
+      "expired": "Vilivyoisha",
+      "expiring_soon": "Vinakaribia Kuisha",
+      "valid": "Salama"
+    },
+    "columns": {
+      "medicine": "Dawa",
+      "batch": "Namba ya Kipande",
+      "expiryDate": "Tarehe ya Mwisho",
+      "quantity": "Idadi",
+      "daysRemaining": "Siku Zilizobaki",
+      "status": "Hali",
+      "branch": "Tawi"
+    },
+    "status": {
+      "expired": "Imeisha",
+      "expiring_soon": "Inakaribia Kuisha",
+      "valid": "Salama"
+    }
+  },
+  "sales": {
+    "list": {
+      "title": "Mauzo ya Duka la Dawa",
+      "subtitle": "Historia ya mauzo na utoaji wa dawa.",
+      "newSale": "Mauzo Mapya",
+      "searchPlaceholder": "Tafuta kwa namba ya mauzo au mteja...",
+      "emptyMessage": "Hakuna mauzo bado.",
+      "viewSale": "Angalia mauzo"
+    },
+    "columns": {
+      "saleNumber": "Namba ya Mauzo",
+      "customer": "Mteja",
+      "branch": "Tawi",
+      "total": "Jumla",
+      "paymentMethod": "Njia ya Malipo",
+      "date": "Tarehe"
+    },
+    "walkIn": "Mteja wa Kawaida",
+    "paymentMethods": {
+      "cash": "Taslimu",
+      "mobile_money": "Pesa za Simu",
+      "bank_transfer": "Uhamisho wa Benki",
+      "card": "Kadi",
+      "other": "Nyingine"
+    },
+    "form": {
+      "newTitle": "Mauzo Mapya ya Duka la Dawa",
+      "newSubtitle": "Uza dawa kutoka hesabu inayopatikana isiyoisha muda.",
+      "branchLabel": "Tawi",
+      "branchRequired": "Tawi linahitajika",
+      "selectBranch": "Chagua tawi",
+      "customerLabel": "Mteja (si lazima)",
+      "selectCustomer": "Mteja wa kawaida",
+      "paymentMethodLabel": "Njia ya Malipo",
+      "itemsTitle": "Dawa",
+      "addLine": "Ongeza Dawa",
+      "removeLine": "Ondoa mstari",
+      "selectMedicine": "Chagua dawa",
+      "quantityLabel": "Idadi",
+      "estimatedUnitPrice": "Bei ya Kadirio",
+      "estimatedTotal": "Jumla ya Kadirio",
+      "estimatedNote": "Bei ya mwisho inathibitishwa kutoka kwa vipande halisi vilivyotolewa (vinavyoisha muda mapema kwanza).",
+      "completeSale": "Kamilisha Mauzo",
+      "createSuccess": "Mauzo yamekamilika",
+      "createError": "Imeshindwa kukamilisha mauzo"
+    },
+    "itemColumns": {
+      "medicine": "Dawa",
+      "batch": "Namba ya Kipande",
+      "quantity": "Idadi",
+      "unitPrice": "Bei ya Kipimo",
+      "lineTotal": "Jumla Ndogo"
+    },
+    "detail": {
+      "backToSales": "Rudi kwa Mauzo",
+      "itemsTitle": "Vitu Vilivyotolewa",
+      "totalLabel": "Jumla"
+    }
+  },
+  "purchases": {
+    "list": {
+      "title": "Manunuzi ya Duka la Dawa",
+      "subtitle": "Hesabu iliyopokelewa kutoka kwa wasambazaji.",
+      "newPurchase": "Pokea Hesabu",
+      "searchPlaceholder": "Tafuta kwa namba ya manunuzi au msambazaji...",
+      "emptyMessage": "Hakuna manunuzi bado.",
+      "viewPurchase": "Angalia manunuzi"
+    },
+    "columns": {
+      "purchaseNumber": "Namba ya Manunuzi",
+      "supplier": "Msambazaji",
+      "branch": "Tawi",
+      "total": "Jumla",
+      "date": "Tarehe"
+    },
+    "form": {
+      "newTitle": "Pokea Hesabu",
+      "newSubtitle": "Rekodi dawa zilizopokelewa kutoka kwa msambazaji, na maelezo ya kipande na muda wa mwisho.",
+      "detailsTitle": "Maelezo ya Manunuzi",
+      "supplierLabel": "Msambazaji",
+      "supplierRequired": "Msambazaji anahitajika",
+      "selectSupplier": "Chagua msambazaji",
+      "branchLabel": "Tawi",
+      "branchRequired": "Tawi linahitajika",
+      "selectBranch": "Chagua tawi",
+      "referenceLabel": "Kumbukumbu (si lazima)",
+      "purchaseDateLabel": "Tarehe ya Manunuzi",
+      "itemsTitle": "Dawa Zilizopokelewa",
+      "addLine": "Ongeza Dawa",
+      "removeLine": "Ondoa mstari",
+      "selectMedicine": "Chagua dawa",
+      "batchNumberLabel": "Namba ya Kipande",
+      "quantityLabel": "Idadi",
+      "buyingPriceLabel": "Bei ya Kununua",
+      "sellingPriceLabel": "Bei ya Kuuza (si lazima)",
+      "expiryDateLabel": "Tarehe ya Mwisho",
+      "totalLabel": "Jumla",
+      "save": "Pokea Hesabu",
+      "createSuccess": "Hesabu imepokelewa",
+      "createError": "Imeshindwa kupokea hesabu"
+    },
+    "itemColumns": {
+      "medicine": "Dawa",
+      "batch": "Namba ya Kipande",
+      "expiryDate": "Tarehe ya Mwisho",
+      "quantity": "Idadi",
+      "buyingPrice": "Bei ya Kununua",
+      "lineTotal": "Jumla Ndogo"
+    },
+    "detail": {
+      "backToPurchases": "Rudi kwa Manunuzi",
+      "itemsTitle": "Vitu Vilivyopokelewa",
+      "totalLabel": "Jumla"
+    }
+  }
+}

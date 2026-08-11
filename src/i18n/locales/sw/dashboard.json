@@ -43,6 +43,18 @@
     "portfolioAtRiskSubtitle": "Jumla isiyolipwa kwenye malipo yaliyochelewa",
     "todayCollections": "Makusanyo ya Leo",
     "todayCollectionsSubtitle": "Malipo yaliyopokewa leo",
+    "totalMedicines": "Jumla ya Dawa",
+    "totalMedicinesSubtitle": "Dawa hai kwenye orodha",
+    "outOfStockCount": "Haipo Stoo",
+    "outOfStockCountSubtitle": "Dawa zenye hesabu sifuri",
+    "expiredCount": "Dawa Zilizoisha Muda",
+    "expiredCountSubtitle": "Vipande vilivyopita tarehe ya mwisho",
+    "expiringSoonCount": "Zinakaribia Kuisha",
+    "expiringSoonCountSubtitle": "Vipande vinavyoisha ndani ya siku 30",
+    "todaySalesCount": "Mauzo ya Leo",
+    "todaySalesCountSubtitle": "Mauzo yaliyokamilika leo",
+    "todayRevenue": "Mapato ya Leo",
+    "todayRevenueSubtitle": "Katika matawi yote",
     "trendVsYesterday": "{{percent}}% ikilinganishwa na jana"
   },
   "charts": {
@@ -102,6 +114,22 @@
     "status_completed": "Imekamilika",
     "status_defaulted": "Haijalipwa",
     "status_written_off": "Imefutwa"
+  },
+  "expiryAlerts": {
+    "title": "Tahadhari za Muda wa Mwisho",
+    "empty": "Hakuna vipande vinavyokaribia kuisha.",
+    "medicine": "Dawa",
+    "batch": "Namba ya Kipande",
+    "expiryDate": "Tarehe ya Mwisho",
+    "quantity": "Idadi"
+  },
+  "recentSales": {
+    "title": "Mauzo ya Hivi Karibuni",
+    "empty": "Hakuna mauzo bado.",
+    "customer": "Mteja",
+    "amount": "Kiasi",
+    "date": "Tarehe",
+    "walkIn": "Mteja wa Kawaida"
   },
   "loadError": "Imeshindwa kupakia taarifa za dashibodi."
 }

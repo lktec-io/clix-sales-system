@@ -29,6 +29,9 @@ import loanRoutes from './loan.routes.js';
 import loanRepaymentRoutes from './loanRepayment.routes.js';
 import savingsRoutes from './savings.routes.js';
 import loanGroupRoutes from './loanGroup.routes.js';
+import medicineRoutes from './medicine.routes.js';
+import pharmacySaleRoutes from './pharmacySale.routes.js';
+import pharmacyPurchaseRoutes from './pharmacyPurchase.routes.js';
 
 const router = Router();
 
@@ -68,5 +71,8 @@ router.use('/loans', loanRoutes);
 router.use('/repayments', loanRepaymentRoutes);
 router.use('/savings', savingsRoutes);
 router.use('/groups', loanGroupRoutes);
+router.use('/medicines', medicineRoutes);
+router.use('/pharmacy/sales', pharmacySaleRoutes);
+router.use('/pharmacy/purchases', pharmacyPurchaseRoutes);
 
 export default router;

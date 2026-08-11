@@ -1,0 +1,232 @@
+{
+  "medicines": {
+    "list": {
+      "title": "Medicines",
+      "subtitle": "Manage the medicines your pharmacy stocks.",
+      "newMedicine": "New Medicine",
+      "searchPlaceholder": "Search medicines...",
+      "emptyMessage": "No medicines yet.",
+      "viewMedicine": "View medicine",
+      "allCategories": "All Categories",
+      "allStatuses": "All Statuses"
+    },
+    "columns": {
+      "name": "Name",
+      "category": "Category",
+      "unit": "Unit",
+      "sellingPrice": "Selling Price",
+      "stock": "Stock",
+      "status": "Status"
+    },
+    "stockStatus": {
+      "outOfStock": "Out of Stock",
+      "lowStock": "Low Stock",
+      "inStock": "In Stock"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "form": {
+      "newTitle": "New Medicine",
+      "editTitle": "Edit Medicine",
+      "newSubtitle": "Add a new medicine to your catalog.",
+      "editSubtitle": "Update this medicine's details.",
+      "nameLabel": "Medicine Name",
+      "nameRequired": "Name is required",
+      "categoryLabel": "Category",
+      "categoryRequired": "Category is required",
+      "selectCategory": "Select a category",
+      "unitLabel": "Unit",
+      "unitRequired": "Unit is required",
+      "sellingPriceLabel": "Selling Price",
+      "sellingPriceRequired": "Selling price is required",
+      "reorderLevelLabel": "Reorder Level",
+      "reorderLevelRequired": "Reorder level is required",
+      "descriptionLabel": "Description (optional)",
+      "statusLabel": "Status",
+      "save": "Save Medicine",
+      "createSuccess": "Medicine created",
+      "updateSuccess": "Medicine updated",
+      "saveError": "Failed to save medicine"
+    },
+    "units": {
+      "unit": "Unit", "tablet": "Tablet", "capsule": "Capsule", "bottle": "Bottle",
+      "box": "Box", "vial": "Vial", "tube": "Tube", "sachet": "Sachet", "pack": "Pack"
+    },
+    "detail": {
+      "backToMedicines": "Back to Medicines",
+      "edit": "Edit",
+      "currentStock": "Current Stock",
+      "reorderLevel": "Reorder Level",
+      "sellingPrice": "Selling Price",
+      "category": "Category",
+      "batchesTitle": "Batches",
+      "noBatches": "No stock batches yet — receive stock to add one.",
+      "batchColumns": {
+        "batchNumber": "Batch #",
+        "quantity": "Quantity",
+        "expiryDate": "Expiry Date",
+        "buyingPrice": "Buying Price",
+        "status": "Status"
+      },
+      "movementsTitle": "Recent Stock Movements",
+      "noMovements": "No stock movements yet.",
+      "movementColumns": {
+        "date": "Date",
+        "type": "Type",
+        "quantityChange": "Change",
+        "batch": "Batch"
+      },
+      "movementType": {
+        "purchase": "Purchase",
+        "sale": "Sale",
+        "adjustment": "Adjustment"
+      }
+    },
+    "deleteBlocked": "Cannot delete a medicine that still has stock."
+  },
+  "expiry": {
+    "list": {
+      "title": "Expiry Tracking",
+      "subtitle": "Track batches by expiry status across all medicines.",
+      "emptyMessage": "No batches found for this filter.",
+      "allBranches": "All Branches"
+    },
+    "tabs": {
+      "all": "All",
+      "expired": "Expired",
+      "expiring_soon": "Expiring Soon",
+      "valid": "Safe Stock"
+    },
+    "columns": {
+      "medicine": "Medicine",
+      "batch": "Batch #",
+      "expiryDate": "Expiry Date",
+      "quantity": "Quantity",
+      "daysRemaining": "Days Remaining",
+      "status": "Status",
+      "branch": "Branch"
+    },
+    "status": {
+      "expired": "Expired",
+      "expiring_soon": "Expiring Soon",
+      "valid": "Safe"
+    }
+  },
+  "sales": {
+    "list": {
+      "title": "Pharmacy Sales",
+      "subtitle": "Medicine sales and dispensing history.",
+      "newSale": "New Sale",
+      "searchPlaceholder": "Search by sale number or customer...",
+      "emptyMessage": "No sales yet.",
+      "viewSale": "View sale"
+    },
+    "columns": {
+      "saleNumber": "Sale #",
+      "customer": "Customer",
+      "branch": "Branch",
+      "total": "Total",
+      "paymentMethod": "Payment Method",
+      "date": "Date"
+    },
+    "walkIn": "Walk-in",
+    "paymentMethods": {
+      "cash": "Cash",
+      "mobile_money": "Mobile Money",
+      "bank_transfer": "Bank Transfer",
+      "card": "Card",
+      "other": "Other"
+    },
+    "form": {
+      "newTitle": "New Pharmacy Sale",
+      "newSubtitle": "Sell medicines from available, non-expired stock.",
+      "branchLabel": "Branch",
+      "branchRequired": "Branch is required",
+      "selectBranch": "Select a branch",
+      "customerLabel": "Customer (optional)",
+      "selectCustomer": "Walk-in customer",
+      "paymentMethodLabel": "Payment Method",
+      "itemsTitle": "Medicines",
+      "addLine": "Add Medicine",
+      "removeLine": "Remove line",
+      "selectMedicine": "Select a medicine",
+      "quantityLabel": "Quantity",
+      "estimatedUnitPrice": "Est. Unit Price",
+      "estimatedTotal": "Estimated Total",
+      "estimatedNote": "Final pricing is confirmed from the actual batch(es) dispensed (earliest-expiry first).",
+      "completeSale": "Complete Sale",
+      "createSuccess": "Sale completed",
+      "createError": "Failed to complete sale"
+    },
+    "itemColumns": {
+      "medicine": "Medicine",
+      "batch": "Batch #",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "lineTotal": "Subtotal"
+    },
+    "detail": {
+      "backToSales": "Back to Sales",
+      "itemsTitle": "Items Dispensed",
+      "totalLabel": "Total"
+    }
+  },
+  "purchases": {
+    "list": {
+      "title": "Pharmacy Purchases",
+      "subtitle": "Stock received from suppliers.",
+      "newPurchase": "Receive Stock",
+      "searchPlaceholder": "Search by purchase number or supplier...",
+      "emptyMessage": "No purchases yet.",
+      "viewPurchase": "View purchase"
+    },
+    "columns": {
+      "purchaseNumber": "Purchase #",
+      "supplier": "Supplier",
+      "branch": "Branch",
+      "total": "Total",
+      "date": "Date"
+    },
+    "form": {
+      "newTitle": "Receive Stock",
+      "newSubtitle": "Record medicines received from a supplier, with batch and expiry details.",
+      "detailsTitle": "Purchase Details",
+      "supplierLabel": "Supplier",
+      "supplierRequired": "Supplier is required",
+      "selectSupplier": "Select a supplier",
+      "branchLabel": "Branch",
+      "branchRequired": "Branch is required",
+      "selectBranch": "Select a branch",
+      "referenceLabel": "Reference (optional)",
+      "purchaseDateLabel": "Purchase Date",
+      "itemsTitle": "Medicines Received",
+      "addLine": "Add Medicine",
+      "removeLine": "Remove line",
+      "selectMedicine": "Select a medicine",
+      "batchNumberLabel": "Batch #",
+      "quantityLabel": "Quantity",
+      "buyingPriceLabel": "Buying Price",
+      "sellingPriceLabel": "Selling Price (optional)",
+      "expiryDateLabel": "Expiry Date",
+      "totalLabel": "Total",
+      "save": "Receive Stock",
+      "createSuccess": "Stock received",
+      "createError": "Failed to receive stock"
+    },
+    "itemColumns": {
+      "medicine": "Medicine",
+      "batch": "Batch #",
+      "expiryDate": "Expiry Date",
+      "quantity": "Quantity",
+      "buyingPrice": "Buying Price",
+      "lineTotal": "Subtotal"
+    },
+    "detail": {
+      "backToPurchases": "Back to Purchases",
+      "itemsTitle": "Items Received",
+      "totalLabel": "Total"
+    }
+  }
+}
