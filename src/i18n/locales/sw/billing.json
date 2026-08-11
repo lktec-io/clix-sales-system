@@ -39,9 +39,13 @@
     "currentPlanBadge": "Mpango wa sasa",
     "pendingPaymentBanner": "Uboreshaji wa mpango wako unasubiri uthibitisho wa malipo. Hii inaweza kuchukua muda kidogo — angalia tena hivi karibuni.",
     "instructionsIntro": "Uboreshaji umeombwa. Namba ya kumbukumbu {{reference}} kwa {{amount}} — timu yetu itathibitisha malipo yako hivi karibuni.",
+    "instructionsPush": "Angalia simu yako ({{phone}}) kwa ujumbe wa malipo na weka PIN yako kuthibitisha {{amount}}. Namba ya kumbukumbu {{reference}}.",
     "upgradeRequested": "Uboreshaji umeombwa. Tutathibitisha malipo yako hivi karibuni.",
     "checkoutTitle": "Boresha hadi {{plan}}",
     "checkoutIntro": "Chagua mzunguko wa malipo ili kuendelea. Ombi lako litakaguliwa na kuthibitishwa na timu yetu.",
+    "mobileMoneyNetwork": "Mtandao wa Pesa za Simu",
+    "mobileMoneyNumber": "Namba ya Pesa za Simu",
+    "mobileMoneyHelp": "Utapokea ujumbe kwenye simu hii kuthibitisha malipo.",
     "confirmUpgrade": "Omba Uboreshaji",
     "cancel": "Ghairi",
     "cycleOptions": {
@@ -63,7 +67,9 @@
       "issueDate": "Tarehe ya Kutolewa",
       "event": "Tukio",
       "date": "Tarehe",
-      "reference": "Namba ya Kumbukumbu"
+      "reference": "Namba ya Kumbukumbu",
+      "paymentMethod": "Njia ya Malipo",
+      "completedDate": "Ilikamilika"
     },
     "viewInvoice": "Angalia"
   },

@@ -95,4 +95,26 @@ export const env = {
     apiKey: process.env.CLOUDINARY_API_KEY || '',
     apiSecret: process.env.CLOUDINARY_API_SECRET || '',
   },
+
+  // Phase 6B — see backend/services/paymentProviders/azampayPaymentProvider
+  // .js. Not in REQUIRED_VARS: with these unset, PAYMENT_PROVIDER stays
+  // (or falls back to) 'manual', so an environment without AzamPay
+  // credentials still boots and runs fine on the existing manual/offline
+  // payment path — exactly the same "optional, graceful fallback" pattern
+  // cloudinary above already uses.
+  payment: {
+    provider: process.env.PAYMENT_PROVIDER || 'manual',
+    azampay: {
+      appName: process.env.AZAMPAY_APP_NAME || '',
+      clientId: process.env.AZAMPAY_CLIENT_ID || '',
+      clientSecret: process.env.AZAMPAY_CLIENT_SECRET || '',
+      authUrl: process.env.AZAMPAY_AUTH_URL || 'https://authenticator-sandbox.azampay.co.tz',
+      checkoutUrl: process.env.AZAMPAY_CHECKOUT_URL || 'https://sandbox.azampay.co.tz',
+      // Not confirmed against AzamPay's current merchant documentation —
+      // see azampayPaymentProvider.js's own header comment. Left unset,
+      // verifyWebhookSignature() fails closed (rejects every callback)
+      // rather than silently accepting unverified ones.
+      callbackSecret: process.env.AZAMPAY_CALLBACK_SECRET || '',
+    },
+  },
 };

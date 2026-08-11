@@ -19,6 +19,16 @@ function daysRemainingLabel(t, count) {
 
 const CYCLES = ['monthly', 'quarterly', 'yearly'];
 const CYCLE_PRICE_FIELD = { monthly: 'priceMonthly', quarterly: 'priceQuarterly', yearly: 'priceYearly' };
+// Display labels for the raw network codes GET /billing/payment-methods
+// reports — falls back to the raw code itself for any network not listed
+// here, so an unrecognized/renamed code still renders instead of breaking.
+const MNO_NETWORK_LABELS = {
+  Mpesa: 'M-Pesa (Vodacom)',
+  TigoPesa: 'Tigo Pesa / Mixx by Yas',
+  AirtelMoney: 'Airtel Money',
+  HaloPesa: 'HaloPesa',
+  AzamPesa: 'AzamPesa',
+};
 
 function BillingOverview() {
   const { t } = useTranslation('billing');
@@ -30,9 +40,12 @@ function BillingOverview() {
   const [error, setError] = useState('');
   const [checkoutPlan, setCheckoutPlan] = useState(null);
   const [checkoutCycle, setCheckoutCycle] = useState('monthly');
+  const [checkoutPhone, setCheckoutPhone] = useState('');
+  const [checkoutNetwork, setCheckoutNetwork] = useState('');
   const [checkoutSubmitting, setCheckoutSubmitting] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
   const [pendingInstructions, setPendingInstructions] = useState(null);
+  const [paymentMethods, setPaymentMethods] = useState(null);
 
   const fetchInvoices = useCallback((params) => billingService.listMyInvoices(params), []);
   const invoicesTable = useTable(fetchInvoices);
@@ -54,7 +67,10 @@ function BillingOverview() {
   useEffect(() => {
     let cancelled = false;
 
-    loadBillingSummary()
+    Promise.all([loadBillingSummary(), paymentService.getPaymentMethods()])
+      .then(([, methods]) => {
+        if (!cancelled) setPaymentMethods(methods);
+      })
       .catch((err) => {
         if (!cancelled) setError(err.response?.data?.message || 'Failed to load billing information.');
       })
@@ -67,9 +83,13 @@ function BillingOverview() {
     };
   }, [loadBillingSummary]);
 
+  const requiresMobileMoney = paymentMethods?.supportedMethods?.includes('mobile_money');
+
   const openCheckout = (plan) => {
     setCheckoutError('');
     setCheckoutCycle('monthly');
+    setCheckoutPhone('');
+    setCheckoutNetwork(paymentMethods?.mnoNetworks?.[0] || '');
     setCheckoutPlan(plan);
   };
 
@@ -77,7 +97,12 @@ function BillingOverview() {
     setCheckoutError('');
     setCheckoutSubmitting(true);
     try {
-      const result = await paymentService.checkout({ planId: checkoutPlan.id, billingCycle: checkoutCycle });
+      const result = await paymentService.checkout({
+        planId: checkoutPlan.id,
+        billingCycle: checkoutCycle,
+        phoneNumber: requiresMobileMoney ? checkoutPhone : undefined,
+        mnoNetwork: requiresMobileMoney ? checkoutNetwork : undefined,
+      });
       setCheckoutPlan(null);
       setPendingInstructions(result.checkout?.instructions || null);
       toast.success(t('overview.upgradeRequested'));
@@ -118,12 +143,14 @@ function BillingOverview() {
   const paymentColumns = [
     { key: 'internal_reference', label: t('overview.columns.reference') },
     { key: 'amount', label: t('overview.columns.total'), render: (row) => formatCurrency(row.amount, row.currency) },
+    { key: 'payment_method', label: t('overview.columns.paymentMethod'), render: (row) => row.payment_method || '—' },
     { key: 'status', label: t('overview.columns.status'), render: (row) => (
       <span className={`badge ${row.status === 'succeeded' ? 'badge-success' : row.status === 'failed' ? 'badge-danger' : 'badge-neutral'}`}>
         {t(`paymentState.${row.status}`)}
       </span>
     ) },
     { key: 'created_at', label: t('overview.columns.date'), render: (row) => new Date(row.created_at).toLocaleString() },
+    { key: 'paid_at', label: t('overview.columns.completedDate'), render: (row) => (row.paid_at ? new Date(row.paid_at).toLocaleString() : '—') },
   ];
 
   return (
@@ -143,7 +170,13 @@ function BillingOverview() {
 
       {pendingInstructions && (
         <div className="alert alert-info mb-4" role="status">
-          {t('overview.instructionsIntro', { reference: pendingInstructions.reference, amount: formatCurrency(pendingInstructions.amount, pendingInstructions.currency) })}
+          {pendingInstructions.type === 'push'
+            ? t('overview.instructionsPush', {
+              reference: pendingInstructions.reference,
+              amount: formatCurrency(pendingInstructions.amount, pendingInstructions.currency),
+              phone: pendingInstructions.phoneNumber,
+            })
+            : t('overview.instructionsIntro', { reference: pendingInstructions.reference, amount: formatCurrency(pendingInstructions.amount, pendingInstructions.currency) })}
         </div>
       )}
 
@@ -217,7 +250,8 @@ function BillingOverview() {
             <button type="button" className="btn btn-secondary" onClick={() => setCheckoutPlan(null)}>{t('overview.cancel')}</button>
             <button
               type="button" className={`btn btn-primary ${checkoutSubmitting ? 'btn-loading' : ''}`}
-              disabled={checkoutSubmitting} onClick={submitCheckout}
+              disabled={checkoutSubmitting || (requiresMobileMoney && (!checkoutPhone || !checkoutNetwork))}
+              onClick={submitCheckout}
             >
               {t('overview.confirmUpgrade')}
             </button>
@@ -236,6 +270,28 @@ function BillingOverview() {
                 ))}
               </select>
             </div>
+
+            {requiresMobileMoney && (
+              <>
+                <div className="form-group">
+                  <label className="form-label form-label-required" htmlFor="checkoutNetwork">{t('overview.mobileMoneyNetwork')}</label>
+                  <select id="checkoutNetwork" className="form-control" value={checkoutNetwork} onChange={(event) => setCheckoutNetwork(event.target.value)}>
+                    {(paymentMethods?.mnoNetworks || []).map((network) => (
+                      <option key={network} value={network}>{MNO_NETWORK_LABELS[network] || network}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label form-label-required" htmlFor="checkoutPhone">{t('overview.mobileMoneyNumber')}</label>
+                  <input
+                    id="checkoutPhone" type="tel" className="form-control" placeholder="07XXXXXXXX"
+                    value={checkoutPhone} onChange={(event) => setCheckoutPhone(event.target.value)}
+                  />
+                  <span className="form-help">{t('overview.mobileMoneyHelp')}</span>
+                </div>
+              </>
+            )}
+
             <div className="billing-plan-price mt-3">
               {formatCurrency(checkoutPlan[CYCLE_PRICE_FIELD[checkoutCycle]], checkoutPlan.currency)}
               <span>{t(`overview.cyclePriceSuffix.${checkoutCycle}`)}</span>

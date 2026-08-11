@@ -58,12 +58,17 @@ function PaymentList() {
   const columns = [
     { key: 'internal_reference', label: 'Reference', render: (row) => <code>{row.internal_reference}</code> },
     { key: 'company_name', label: 'Tenant' },
+    { key: 'plan_name', label: 'Plan', render: (row) => row.plan_name || '—' },
+    { key: 'invoice_number', label: 'Invoice', render: (row) => row.invoice_number || '—' },
     { key: 'amount', label: 'Amount', render: (row) => formatCurrency(row.amount, row.currency) },
+    { key: 'payment_method', label: 'Method', render: (row) => row.payment_method || '—' },
     { key: 'provider', label: 'Provider' },
+    { key: 'provider_transaction_id', label: 'Transaction Ref', render: (row) => (row.provider_transaction_id ? <code>{row.provider_transaction_id}</code> : '—') },
     { key: 'status', label: 'Status', render: (row) => (
       <span className={`badge ${statusBadgeClass(row.status)}`}>{row.status}</span>
     ) },
     { key: 'created_at', label: 'Requested', render: (row) => new Date(row.created_at).toLocaleString() },
+    { key: 'paid_at', label: 'Completed', render: (row) => (row.paid_at ? new Date(row.paid_at).toLocaleString() : '—') },
     { key: 'actions', label: '', render: (row) => (
       row.status === 'pending' || row.status === 'processing' ? (
         <div className="table-actions">

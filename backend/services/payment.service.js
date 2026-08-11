@@ -32,8 +32,27 @@ async function findActivePlan(planId) {
 // Always lands the subscription in 'pending_payment' — a tenant can never
 // skip payment the way an admin's direct changePlan() override can. This
 // is what actually creates the pending state a payment then confirms.
-export async function initiateCheckout(tenantId, { planId, billingCycle }, actingUser) {
+export async function initiateCheckout(tenantId, { planId, billingCycle, phoneNumber, mnoNetwork }, actingUser) {
   const plan = await findActivePlan(planId);
+  const amount = priceForCycle(plan, billingCycle);
+  const internalReference = await generateCode('PAYMENT', 'PAY', { tenantId, padLength: 8 });
+  const providerName = getActiveProviderName();
+  const provider = getProvider(providerName);
+
+  // Deliberately called BEFORE any tenant_subscriptions/invoice/payment
+  // row is written. The manual provider's createCheckout() can never
+  // fail, so the original sequence (commit pending_payment, THEN call the
+  // provider) was safe for it — but a real gateway's createCheckout() can
+  // genuinely fail (bad phone number, gateway timeout, invalid
+  // credentials), and if that happened AFTER committing pending_payment,
+  // the tenant would hit the exact same "stuck in pending_payment forever"
+  // bug rejectPaymentManually was fixed for, just via a different path. By
+  // attempting the external call FIRST, a gateway failure here leaves
+  // nothing to revert — the tenant's subscription is untouched and they
+  // can simply retry.
+  const checkout = await provider.createCheckout({
+    amount, currency: plan.currency, reference: internalReference, tenantId, planId: plan.id, billingCycle, phoneNumber, mnoNetwork,
+  });
 
   // The guard-then-write below runs inside one locked transaction — two
   // concurrent checkout requests for the same tenant (double-click, a
@@ -88,10 +107,6 @@ export async function initiateCheckout(tenantId, { planId, billingCycle }, actin
     tenantId, subscriptionId: subscription.id, eventId, plan, billingCycle, periodStart: startDate, periodEnd: endDate,
   });
 
-  const amount = priceForCycle(plan, billingCycle);
-  const internalReference = await generateCode('PAYMENT', 'PAY', { tenantId, padLength: 8 });
-  const providerName = getActiveProviderName();
-
   const payment = await paymentRepository.create({
     tenantId,
     subscriptionId: subscription.id,
@@ -102,11 +117,8 @@ export async function initiateCheckout(tenantId, { planId, billingCycle }, actin
     provider: providerName,
     internalReference,
     status: 'pending',
-  });
-
-  const provider = getProvider(providerName);
-  const checkout = await provider.createCheckout({
-    amount, currency: plan.currency, reference: internalReference, tenantId, planId: plan.id, billingCycle,
+    paymentMethod: provider.SUPPORTED_METHODS?.[0] || null,
+    metadata: checkout.providerReference ? { providerReference: checkout.providerReference } : null,
   });
 
   await activityLogRepository.create({

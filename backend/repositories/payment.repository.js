@@ -87,7 +87,11 @@ export async function findAllForPlatform({ page = 1, limit = 20, tenantId, statu
   const offset = (page - 1) * limit;
 
   const [rows] = await pool.query(
-    `SELECT p.*, t.company_name FROM payments p JOIN tenants t ON t.id = p.tenant_id
+    `SELECT p.*, t.company_name, sp.name AS plan_name, i.invoice_number
+     FROM payments p
+     JOIN tenants t ON t.id = p.tenant_id
+     LEFT JOIN subscription_plans sp ON sp.id = p.plan_id
+     LEFT JOIN invoices i ON i.id = p.invoice_id
      ${whereClause} ORDER BY p.created_at DESC LIMIT ? OFFSET ?`,
     [...params, limit, offset],
   );

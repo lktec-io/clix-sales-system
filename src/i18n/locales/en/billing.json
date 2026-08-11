@@ -39,9 +39,13 @@
     "currentPlanBadge": "Current plan",
     "pendingPaymentBanner": "Your plan upgrade is awaiting payment confirmation. This can take a moment — check back soon.",
     "instructionsIntro": "Upgrade requested. Reference {{reference}} for {{amount}} — our team will confirm your payment shortly.",
+    "instructionsPush": "Check your phone ({{phone}}) for a payment prompt and enter your PIN to approve {{amount}}. Reference {{reference}}.",
     "upgradeRequested": "Upgrade requested. We'll confirm your payment shortly.",
     "checkoutTitle": "Upgrade to {{plan}}",
     "checkoutIntro": "Choose a billing cycle to continue. Your request will be reviewed and confirmed by our team.",
+    "mobileMoneyNetwork": "Mobile Money Network",
+    "mobileMoneyNumber": "Mobile Money Number",
+    "mobileMoneyHelp": "You'll receive a prompt on this phone to approve the payment.",
     "confirmUpgrade": "Request Upgrade",
     "cancel": "Cancel",
     "cycleOptions": {
@@ -63,7 +67,9 @@
       "issueDate": "Issue Date",
       "event": "Event",
       "date": "Date",
-      "reference": "Reference"
+      "reference": "Reference",
+      "paymentMethod": "Payment Method",
+      "completedDate": "Completed"
     },
     "viewInvoice": "View"
   },

@@ -2,16 +2,18 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { success } from '../utils/apiResponse.js';
 import { logger } from '../config/logger.js';
 import * as paymentService from '../services/payment.service.js';
+import { getProvider } from '../services/paymentProviders/index.js';
 
-// The generic envelope every provider adapter must normalize its own
-// webhook payload into before it reaches here (Step 5's architecture —
-// no real provider is wired up yet, so nothing calls this in production
-// today; verifyWebhookSignature.js already rejects every call until one
-// is). Never reads tenantId/planId/subscriptionId from the body — those
-// are only ever re-derived server-side from the stored `payments` row via
-// internalReference, exactly per Step 15.
+// Each provider adapter's own parseWebhookPayload() translates its
+// provider-specific body into this one generic envelope (Step 7 — "keep
+// provider-specific terminology inside the provider adapter") before
+// anything below ever touches it. Never reads tenantId/planId/
+// subscriptionId from the body — those are only ever re-derived
+// server-side from the stored `payments` row via internalReference,
+// exactly per Step 15.
 export const handleWebhook = asyncHandler(async (req, res) => {
-  const { internalReference, providerTransactionId, status, amount, paymentMethod, metadata } = req.body;
+  const provider = getProvider(req.params.provider);
+  const { internalReference, providerTransactionId, status, amount, paymentMethod, metadata } = provider.parseWebhookPayload(req.body);
 
   if (!internalReference || !status) {
     return success(res, { message: 'Ignored: missing internalReference or status', status: 200 });
@@ -28,7 +30,9 @@ export const handleWebhook = asyncHandler(async (req, res) => {
     if (status === 'succeeded') {
       await paymentService.confirmPaymentFromWebhook({ internalReference, providerTransactionId, amount, paymentMethod, metadata });
     } else if (status === 'failed') {
-      await paymentService.failPaymentFromWebhook({ internalReference, providerTransactionId, failureReason: metadata?.failureReason, metadata });
+      await paymentService.failPaymentFromWebhook({
+        internalReference, providerTransactionId, failureReason: metadata?.failureReason || metadata?.message, metadata,
+      });
     }
   } catch (err) {
     logger.error('Payment webhook could not be applied', { internalReference, status, message: err.message });

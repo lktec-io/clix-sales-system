@@ -20,6 +20,7 @@ router.get('/me/invoices', invoiceController.listMine);
 router.get('/me/invoices/:id', invoiceController.getMine);
 router.get('/me/invoices/:id/pdf', invoiceController.downloadMinePdf);
 router.get('/me/payments', paymentController.listMine);
+router.get('/payment-methods', paymentController.getPaymentMethods);
 router.post('/checkout', checkoutValidator, validateRequest, paymentController.checkout);
 
 export default router;

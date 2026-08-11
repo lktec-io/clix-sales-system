@@ -1,6 +1,15 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { success } from '../utils/apiResponse.js';
 import * as paymentService from '../services/payment.service.js';
+import { getActiveProviderInfo } from '../services/paymentProviders/index.js';
+
+// Lets BillingOverview.jsx show only the payment method(s) actually
+// configured (Step 9) instead of hardcoding provider knowledge in the
+// frontend — e.g. a phone-number field only appears when the active
+// provider genuinely needs one.
+export const getPaymentMethods = asyncHandler(async (req, res) => {
+  return success(res, { data: getActiveProviderInfo() });
+});
 
 export const checkout = asyncHandler(async (req, res) => {
   const data = await paymentService.initiateCheckout(req.user.tenantId, req.body, req.user);
