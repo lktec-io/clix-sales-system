@@ -49,7 +49,7 @@ export async function register({
     throw new ApiError(409, 'An account with this email already exists.');
   }
 
-  const superAdminRole = await roleRepository.findByName('Super Administrator');
+  const superAdminRole = await roleRepository.findByName('Super Administrator', null);
   if (!superAdminRole) {
     throw new ApiError(500, 'Server is not set up correctly (Super Administrator role missing). Contact support.');
   }

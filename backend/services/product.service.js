@@ -101,6 +101,7 @@ export async function createProduct(data, actorId, tenantId) {
 
   const product = await productRepository.create({ ...data, code, userId: actorId, tenantId });
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: null,
     description: `Product "${product.name}" (${product.code}) created`,
@@ -126,6 +127,7 @@ export async function updateProduct(id, data, actorId, tenantId) {
 
   const product = await productRepository.update(id, tenantId, { ...data, userId: actorId });
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: null,
     description: `Product "${product.name}" (${product.code}) updated`,
@@ -201,6 +203,7 @@ export async function deleteProduct(id, actorId, tenantId) {
 
   await cleanupProductImageFiles(existing.images);
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: null,
     description: hadHistory
@@ -226,6 +229,7 @@ export async function restoreProduct(id, actorId, tenantId) {
 
   const restored = await productRepository.restore(id, tenantId, actorId);
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: null,
     description: `Product "${existing.name}" (${existing.code}) restored from archive`,
@@ -262,6 +266,7 @@ export async function permanentlyDeleteProduct(id, actorId, tenantId) {
 
   await cleanupProductImageFiles(existing.images);
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: null,
     description: `Product "${existing.name}" (${existing.code}) permanently deleted from archive`,

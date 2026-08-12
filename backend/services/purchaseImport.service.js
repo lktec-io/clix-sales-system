@@ -1,6 +1,7 @@
 import ExcelJS from 'exceljs';
 import { pool } from '../config/db.js';
 import { ApiError } from '../utils/apiError.js';
+import { getAccessibleBranchIds } from '../utils/branchScope.js';
 import { generateCode } from '../repositories/sequence.repository.js';
 import * as categoryRepository from '../repositories/category.repository.js';
 import * as supplierRepository from '../repositories/supplier.repository.js';
@@ -296,9 +297,13 @@ async function ensureCategory(name, actorId, tenantId, connection, categoryCache
 // single bad row (an unexpected DB error slipping past pre-validation)
 // rolls back only that row's writes and is recorded as skipped — the rest
 // of the group's rows, and every other supplier's group, still commit.
-export async function commitImport(rawRows, { branchId }, actorId, tenantId) {
+export async function commitImport(rawRows, { branchId }, actorId, tenantId, user) {
   const branch = await branchRepository.findById(branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
+  const accessibleBranchIds = await getAccessibleBranchIds(user);
+  if (accessibleBranchIds !== null && !accessibleBranchIds.includes(branchId)) {
+    throw new ApiError(403, 'You do not have access to this branch');
+  }
   if (!rawRows?.length) throw new ApiError(400, 'No rows to import');
 
   const { rows: revalidated } = await validateRows(rawRows, tenantId);

@@ -62,7 +62,7 @@ export async function getUser(id, tenantId) {
 export async function createUser(data, actorId, tenantId) {
   await assertNoConflict(tenantId, { email: data.email, username: data.username, phone: data.phone });
 
-  const role = await roleRepository.findById(data.roleId);
+  const role = await roleRepository.findById(data.roleId, tenantId);
   if (!role) throw new ApiError(400, 'Selected role does not exist');
 
   const passwordHash = await hashPassword(data.password);
@@ -85,6 +85,7 @@ export async function createUser(data, actorId, tenantId) {
   }
 
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: data.branchId || null,
     description: `User "${user.first_name} ${user.last_name}" created`,
@@ -100,7 +101,7 @@ export async function updateUser(id, data, actorId, tenantId) {
 
   await assertNoConflict(tenantId, { email: data.email, username: data.username, phone: data.phone }, id);
 
-  const role = await roleRepository.findById(data.roleId);
+  const role = await roleRepository.findById(data.roleId, tenantId);
   if (!role) throw new ApiError(400, 'Selected role does not exist');
 
   await userRepository.update(id, tenantId, {
@@ -120,6 +121,7 @@ export async function updateUser(id, data, actorId, tenantId) {
   }
 
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: data.branchId || null,
     description: `User "${data.firstName} ${data.lastName}" updated`,
@@ -139,6 +141,7 @@ export async function changeStatus(id, status, actorId, tenantId) {
 
   const user = await userRepository.updateStatus(id, status, actorId);
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: existing.branch_id,
     description: `User "${existing.first_name} ${existing.last_name}" status changed to ${status}`,
@@ -155,6 +158,7 @@ export async function adminResetPassword(id, newPassword, actorId, tenantId) {
   const passwordHash = await hashPassword(newPassword);
   await userRepository.updatePasswordHash(id, passwordHash);
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: existing.branch_id,
     description: `Password reset by administrator for "${existing.first_name} ${existing.last_name}"`,
@@ -172,6 +176,7 @@ export async function deleteUser(id, actorId, tenantId) {
 
   await userRepository.softDelete(id, actorId);
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: existing.branch_id,
     description: `User "${existing.first_name} ${existing.last_name}" deleted`,

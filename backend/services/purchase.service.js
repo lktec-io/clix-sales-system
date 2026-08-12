@@ -11,6 +11,19 @@ import * as activityLogRepository from '../repositories/activityLog.repository.j
 import * as notificationRepository from '../repositories/notification.repository.js';
 import { formatCurrency } from '../utils/formatCurrency.js';
 
+// Mirrors the identical private helper already duplicated in
+// sale.service.js/expense.service.js/inventory.service.js/return.service.js/
+// transfer.service.js — every other branch-owned mutation in this codebase
+// checks this before writing; purchases had no such check at all, meaning
+// a Manager/Cashier restricted to one branch could submit any branchId
+// belonging to their own tenant and have stock silently incremented there.
+async function assertBranchAccess(user, branchId) {
+  const branchIds = await getAccessibleBranchIds(user);
+  if (branchIds !== null && !branchIds.includes(branchId)) {
+    throw new ApiError(403, 'You do not have access to this branch');
+  }
+}
+
 export async function listPurchases(query, user) {
   const page = Number(query.page) || 1;
   const limit = Math.min(Number(query.limit) || 20, 100);
@@ -40,12 +53,13 @@ export async function getPurchase(id, tenantId) {
 // no partial purchase, no partial stock increment. recordMovement() is
 // passed this transaction's own connection so it participates in the same
 // unit of work instead of committing independently.
-export async function createPurchase(data, actorId, tenantId) {
+export async function createPurchase(data, actorId, tenantId, user) {
   const supplier = await supplierRepository.findById(data.supplierId, tenantId);
   if (!supplier) throw new ApiError(400, 'Selected supplier does not exist');
 
   const branch = await branchRepository.findById(data.branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
+  await assertBranchAccess(user, data.branchId);
 
   if (!data.items?.length) throw new ApiError(400, 'Add at least one product to the purchase');
 
@@ -126,6 +140,19 @@ export async function createPurchase(data, actorId, tenantId) {
 export async function addPayment(data, actorId, tenantId) {
   const supplier = await supplierRepository.findById(data.supplierId, tenantId);
   if (!supplier) throw new ApiError(404, 'Supplier not found');
+
+  // Without this, a purchaseOrderId belonging to ANOTHER tenant (or a
+  // different supplier within the same tenant) could be passed straight
+  // through to the repository, creating a supplier_payments row whose
+  // purchase_order_id FK points at data that doesn't belong to either the
+  // caller's tenant or the supplier being paid.
+  if (data.purchaseOrderId) {
+    const purchaseOrder = await purchaseRepository.findById(data.purchaseOrderId, tenantId);
+    if (!purchaseOrder) throw new ApiError(400, 'Selected purchase order does not exist');
+    if (Number(purchaseOrder.supplier_id) !== Number(data.supplierId)) {
+      throw new ApiError(400, 'Selected purchase order does not belong to this supplier');
+    }
+  }
 
   await purchaseRepository.addPayment({
     supplierId: data.supplierId,

@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FiTrash2, FiCamera, FiPlus, FiMinus, FiClock, FiShoppingCart, FiUserPlus, FiPercent, FiPrinter, FiDownload, FiCheckCircle } from 'react-icons/fi';
 import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import SearchInput from '../../components/common/SearchInput';
-import QRScanner from '../../components/common/QRScanner';
 import EmptyState from '../../components/common/EmptyState';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermission } from '../../hooks/usePermission';
@@ -18,6 +17,12 @@ import * as saleService from '../../services/saleService';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { splitFullName } from '../../utils/splitFullName';
 import '../../styles/pages/POS.css';
+
+// html5-qrcode is a genuinely heavy dependency (camera + barcode decoding)
+// used only inside the scanner modal, which most POS sessions never open —
+// lazy-loading it keeps that weight out of POS's own eager chunk, fetched
+// only the moment a cashier actually taps "Scan".
+const QRScanner = lazy(() => import('../../components/common/QRScanner'));
 
 function POS() {
   const { t } = useTranslation(['sales', 'common']);
@@ -745,7 +750,9 @@ function POS() {
       </div>
 
       <Modal open={scannerOpen} onClose={() => setScannerOpen(false)} title={t('sales:pos.scanBarcodeModalTitle')} size="sm">
-        <QRScanner onScan={handleScan} onError={handleScannerError} />
+        <Suspense fallback={null}>
+          {scannerOpen && <QRScanner onScan={handleScan} onError={handleScannerError} />}
+        </Suspense>
       </Modal>
 
       <ConfirmDialog

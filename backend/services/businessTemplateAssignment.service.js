@@ -51,6 +51,19 @@ export async function resolveSelectedTemplateId(businessTemplateId) {
 // throws and the caller (tenant.controller.js) sees a real error to log/retry
 // on, instead of a partial write nobody notices.
 export async function assignTemplate(tenantId, businessTemplateId) {
+  // resolveSelectedTemplateId() already checks this for the signup path
+  // before assignTemplate() is ever called — this is the platform-admin
+  // reassignment path's ONLY guard (platformTenant.service.js#setBusinessTemplate
+  // previously called this directly with no active-status check at all,
+  // meaning any archived template id — General Business/Wholesale/
+  // Hardware/Clothing/School/SACCOS — could be assigned to a live tenant
+  // via that single endpoint). Checking here, the one place both callers
+  // converge, closes it for both instead of just the signup path.
+  const template = await businessTemplateRepository.findById(businessTemplateId);
+  if (!template || template.status !== 'active') {
+    throw new ApiError(400, 'Selected business type is not available.');
+  }
+
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();

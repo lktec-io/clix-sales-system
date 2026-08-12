@@ -694,13 +694,6 @@
   }
 }
 
-.navbar-notification-footer {
-  padding: var(--space-2) var(--space-4);
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  justify-content: center;
-}
-
 @media (max-width: 768px) {
   .navbar-menu-btn { display: inline-flex; }
   .navbar-logo { display: block; max-width: 96px; }

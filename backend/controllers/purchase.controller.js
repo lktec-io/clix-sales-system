@@ -15,7 +15,7 @@ export const getById = asyncHandler(async (req, res) => {
 });
 
 export const create = asyncHandler(async (req, res) => {
-  const purchase = await purchaseService.createPurchase(req.body, req.user.id, req.user.tenantId);
+  const purchase = await purchaseService.createPurchase(req.body, req.user.id, req.user.tenantId, req.user);
   return success(res, { message: 'Purchase recorded and inventory updated', data: purchase, status: 201 });
 });
 
@@ -44,6 +44,6 @@ export const previewImport = asyncHandler(async (req, res) => {
 });
 
 export const commitImport = asyncHandler(async (req, res) => {
-  const result = await purchaseImportService.commitImport(req.body.rows, { branchId: Number(req.body.branchId) }, req.user.id, req.user.tenantId);
+  const result = await purchaseImportService.commitImport(req.body.rows, { branchId: Number(req.body.branchId) }, req.user.id, req.user.tenantId, req.user);
   return success(res, { message: 'Import complete', data: result, status: 201 });
 });

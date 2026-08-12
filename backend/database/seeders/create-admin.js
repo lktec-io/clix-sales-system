@@ -80,7 +80,7 @@ async function main() {
     return;
   }
 
-  const role = await roleRepository.findByName('Super Administrator');
+  const role = await roleRepository.findByName('Super Administrator', null);
   if (!role) {
     console.error('\nThe "Super Administrator" role was not found. Run seeders/001_seed_roles_permissions.sql first.');
     process.exitCode = 1;

@@ -6,7 +6,7 @@ import * as roleService from '../services/role.service.js';
 // GET / stays a minimal read-only lookup (used by dropdowns outside this
 // module too); everything else is the full Phase 4 management surface.
 export const list = asyncHandler(async (req, res) => {
-  const roles = await roleRepository.findAll();
+  const roles = await roleRepository.findAll(req.user.tenantId);
   return success(res, { data: roles });
 });
 
@@ -31,7 +31,7 @@ export const remove = asyncHandler(async (req, res) => {
 });
 
 export const getPermissions = asyncHandler(async (req, res) => {
-  const permissionIds = await roleService.getRolePermissionIds(Number(req.params.id));
+  const permissionIds = await roleService.getRolePermissionIds(Number(req.params.id), req.user.tenantId);
   return success(res, { data: permissionIds });
 });
 

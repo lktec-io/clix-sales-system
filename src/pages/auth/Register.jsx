@@ -280,7 +280,13 @@ function Register() {
         {/* Honeypot — hidden from real users and assistive tech, never
             styled or labelled like a real field. A bot's generic form-filler
             that blanket-fills every input trips this; a human never sees it. */}
-        <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px',
+            overflow: 'hidden', clip: 'rect(0,0,0,0)', clipPath: 'inset(50%)', whiteSpace: 'nowrap', border: 0,
+          }}
+        >
           <label htmlFor="website">Website</label>
           <input id="website" type="text" tabIndex={-1} autoComplete="off" {...register('website')} />
         </div>

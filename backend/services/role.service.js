@@ -4,8 +4,8 @@ import * as permissionRepository from '../repositories/permission.repository.js'
 import * as activityLogRepository from '../repositories/activityLog.repository.js';
 import { invalidatePermissionCache } from '../middlewares/authorize.js';
 
-export async function listRoles() {
-  return roleRepository.findAll();
+export async function listRoles(tenantId) {
+  return roleRepository.findAll(tenantId);
 }
 
 export async function listPermissions() {
@@ -18,18 +18,19 @@ export async function listPermissions() {
   return grouped;
 }
 
-export async function getRolePermissionIds(roleId) {
-  const role = await roleRepository.findById(roleId);
+export async function getRolePermissionIds(roleId, tenantId) {
+  const role = await roleRepository.findById(roleId, tenantId);
   if (!role) throw new ApiError(404, 'Role not found');
   return permissionRepository.getIdsForRole(roleId);
 }
 
-export async function createRole(data, actorId) {
-  const existing = await roleRepository.findByName(data.name);
+export async function createRole(data, actorId, tenantId) {
+  const existing = await roleRepository.findByName(data.name, tenantId);
   if (existing) throw new ApiError(409, 'A role with this name already exists');
 
-  const role = await roleRepository.create({ name: data.name, description: data.description, userId: actorId });
+  const role = await roleRepository.create({ name: data.name, description: data.description, userId: actorId, tenantId });
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: null,
     description: `Role "${role.name}" created`,
@@ -39,21 +40,25 @@ export async function createRole(data, actorId) {
   return role;
 }
 
-export async function updateRole(id, data, actorId) {
-  const existing = await roleRepository.findById(id);
+export async function updateRole(id, data, actorId, tenantId) {
+  const existing = await roleRepository.findById(id, tenantId);
   if (!existing) throw new ApiError(404, 'Role not found');
 
   if (existing.is_system && data.name !== existing.name) {
     throw new ApiError(400, 'System roles cannot be renamed');
   }
+  if (existing.is_system) {
+    throw new ApiError(400, 'System roles cannot be edited');
+  }
 
-  const conflict = await roleRepository.findByName(data.name);
+  const conflict = await roleRepository.findByName(data.name, tenantId);
   if (conflict && conflict.id !== id) {
     throw new ApiError(409, 'A role with this name already exists');
   }
 
-  const role = await roleRepository.update(id, { name: data.name, description: data.description, userId: actorId });
+  const role = await roleRepository.update(id, tenantId, { name: data.name, description: data.description, userId: actorId });
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: null,
     description: `Role "${role.name}" updated`,
@@ -63,8 +68,8 @@ export async function updateRole(id, data, actorId) {
   return role;
 }
 
-export async function deleteRole(id, actorId) {
-  const existing = await roleRepository.findById(id);
+export async function deleteRole(id, actorId, tenantId) {
+  const existing = await roleRepository.findById(id, tenantId);
   if (!existing) throw new ApiError(404, 'Role not found');
   if (existing.is_system) throw new ApiError(400, 'System roles cannot be deleted');
 
@@ -73,9 +78,10 @@ export async function deleteRole(id, actorId) {
     throw new ApiError(409, `Cannot delete this role — ${userCount} user(s) are still assigned to it`);
   }
 
-  await roleRepository.softDelete(id, actorId);
+  await roleRepository.softDelete(id, tenantId, actorId);
   invalidatePermissionCache(id);
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: null,
     description: `Role "${existing.name}" deleted`,
@@ -84,14 +90,16 @@ export async function deleteRole(id, actorId) {
   });
 }
 
-export async function setRolePermissions(id, permissionIds, actorId) {
-  const role = await roleRepository.findById(id);
+export async function setRolePermissions(id, permissionIds, actorId, tenantId) {
+  const role = await roleRepository.findById(id, tenantId);
   if (!role) throw new ApiError(404, 'Role not found');
+  if (role.is_system) throw new ApiError(400, 'System role permissions cannot be edited here');
 
   await permissionRepository.replaceForRole(id, permissionIds);
   invalidatePermissionCache(id);
 
   await activityLogRepository.create({
+    tenantId,
     userId: actorId,
     branchId: null,
     description: `Permissions updated for role "${role.name}"`,

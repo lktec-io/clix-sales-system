@@ -145,7 +145,7 @@ function RoleList() {
         footer={
           <>
             <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>{t('common:actions.cancel')}</button>
-            <button type="submit" form="role-form" className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
+            <button type="submit" form="role-form" className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting || editingRole?.is_system}>
               {editingRole ? t('common:actions.saveChanges') : t('settings:roles.createRole')}
             </button>
           </>
@@ -166,7 +166,7 @@ function RoleList() {
           </div>
           <div className="form-group">
             <label className="form-label" htmlFor="description">{t('settings:roles.description')}</label>
-            <textarea id="description" className="form-control" {...register('description')} />
+            <textarea id="description" className="form-control" disabled={editingRole?.is_system} {...register('description')} />
           </div>
         </form>
       </Modal>

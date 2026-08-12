@@ -10,7 +10,7 @@ import { ApiError } from '../utils/apiError.js';
 // irreversible one, only for cleaning up test/trial tenants.
 //
 // Built by reading every CREATE TABLE/ALTER TABLE statement across
-// migrations 001-037 to build a complete tenant_id ownership map, then
+// migrations 001-040 to build a complete tenant_id ownership map, then
 // ordering deletes child-before-parent so every ON DELETE RESTRICT
 // constraint (the vast majority of this schema's tenant_id FKs) is
 // satisfied at the moment each DELETE runs, rather than relying on
@@ -20,13 +20,22 @@ import { ApiError } from '../utils/apiError.js';
 // explicit and reviewable rather than generated from an automated table
 // scan, for the same reason.
 //
-// Tables NEVER touched by this function (global/shared, or reference-only
-// via a nullable tenant_id that SET NULLs automatically): roles,
-// permissions, role_permissions, modules, business_templates,
-// template_modules, template_default_settings, subscription_plans,
-// platform_admins, platform_refresh_tokens, platform_audit_logs (tenant_id
-// is nullable + ON DELETE SET NULL — the audit trail survives, correctly,
-// with tenant_id nulled), platform_notifications (same pattern),
+// roles is PARTIALLY tenant-owned as of 040_add_tenant_id_to_roles.sql —
+// the 4 seeded system roles (Super Administrator/Manager/Cashier/Store
+// Keeper) stay tenant_id NULL, shared globally and never deleted here;
+// only a tenant's own custom roles (tenant_id = this tenant) are removed,
+// in Phase 5 below, after users (users.role_id -> roles is RESTRICT, so a
+// tenant's users must be gone first) and after role_permissions (Phase 1,
+// role_permissions.role_id -> roles is CASCADE but deleted explicitly
+// anyway for the same reason every other CASCADE child here is).
+//
+// Tables NEVER touched by this function (fully global/shared, or
+// reference-only via a nullable tenant_id that SET NULLs automatically):
+// permissions, modules, business_templates, template_modules,
+// template_default_settings, subscription_plans, platform_admins,
+// platform_refresh_tokens, platform_audit_logs (tenant_id is nullable +
+// ON DELETE SET NULL — the audit trail survives, correctly, with
+// tenant_id nulled), platform_notifications (same pattern),
 // platform_settings, system_backups, email_logs.
 //
 // IMPORTANT — static-code-audit basis, not live-DB-verified: this was
@@ -67,7 +76,7 @@ const DELETE_PHASES = [
     'DELETE FROM audit_logs WHERE tenant_id = ?',
     'DELETE FROM activity_logs WHERE tenant_id = ?',
     'DELETE pi2 FROM purchase_items pi2 JOIN purchase_orders po ON po.id = pi2.purchase_order_id WHERE po.tenant_id = ?',
-    'DELETE st FROM savings_transactions st JOIN savings_accounts sa ON sa.id = st.savings_account_id WHERE sa.tenant_id = ?',
+    'DELETE FROM savings_transactions WHERE tenant_id = ?',
     'DELETE FROM payments WHERE tenant_id = ?',
     'DELETE FROM subscription_events WHERE tenant_id = ?',
     'DELETE FROM tenant_modules WHERE tenant_id = ?',
@@ -77,6 +86,7 @@ const DELETE_PHASES = [
     'DELETE FROM system_settings WHERE tenant_id = ?',
     'DELETE FROM document_sequences WHERE tenant_id = ?',
     'DELETE FROM sms_logs WHERE tenant_id = ?',
+    'DELETE rp FROM role_permissions rp JOIN roles r ON r.id = rp.role_id WHERE r.tenant_id = ?',
   ],
   // Phase 2 — depends only on Phase 1 being cleared.
   [
@@ -118,9 +128,13 @@ const DELETE_PHASES = [
   ],
   // Phase 5 — users before branches (branches.manager_id -> users is
   // SET NULL / non-blocking; users.branch_id -> branches is RESTRICT).
+  // roles goes last in this phase — users.role_id -> roles is RESTRICT,
+  // so a tenant's custom roles can't be deleted until its users already
+  // are (done by the first statement in this same phase).
   [
     'DELETE FROM users WHERE tenant_id = ?',
     'DELETE FROM branches WHERE tenant_id = ?',
+    'DELETE FROM roles WHERE tenant_id = ?',
   ],
 ];
 
