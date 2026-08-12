@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as authService from '../services/authService';
 import * as tenantService from '../services/tenantService';
 import { setAccessToken, clearAccessToken } from '../utils/tokenStorage';
-import { setOnSessionExpired } from '../services/apiClient';
+import { setOnSessionExpired, setOnTokenRefreshed } from '../services/apiClient';
 import { AuthContext } from './authContextInstance';
 
 function AuthProvider({ children }) {
@@ -19,10 +19,37 @@ function AuthProvider({ children }) {
   // login() makes restoreSession's callback a no-op if login has begun.
   const restoreSupersededRef = useRef(false);
 
+  // Tracks whichever user this tab is currently rendering, read inside
+  // apiClient.js's refresh-callback below without that callback becoming a
+  // dependency of the effect that registers it (a plain ref, not state).
+  const currentUserIdRef = useRef(null);
+  useEffect(() => {
+    currentUserIdRef.current = user?.id ?? null;
+  }, [user]);
+
   useEffect(() => {
     setOnSessionExpired(() => {
       setUser(null);
       setSessionExpired(true);
+    });
+
+    // See apiClient.js's own comment on setOnTokenRefreshed for the full
+    // scenario: the refresh-token cookie has no per-tab binding, so a
+    // silent mid-session refresh in THIS tab can come back with a
+    // DIFFERENT user than the one already on screen, if some other tab on
+    // this browser logged in as someone else in the meantime. Silently
+    // adopting that new identity would keep this tab's stale page chrome
+    // (company name, user name) while every subsequent API call quietly
+    // started returning a different tenant's data — exactly the
+    // cross-tenant-looking symptom this exists to close off. Reusing the
+    // existing sessionExpired flow forces a clean, explicit re-login
+    // instead, the same safe outcome an actually-expired session already
+    // produces.
+    setOnTokenRefreshed((refreshedUser) => {
+      if (currentUserIdRef.current !== null && refreshedUser?.id !== currentUserIdRef.current) {
+        setUser(null);
+        setSessionExpired(true);
+      }
     });
   }, []);
 

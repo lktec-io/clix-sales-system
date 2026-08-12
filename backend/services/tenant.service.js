@@ -12,6 +12,7 @@ import * as companyRepository from '../repositories/company.repository.js';
 import * as roleRepository from '../repositories/role.repository.js';
 import * as permissionRepository from '../repositories/permission.repository.js';
 import * as activityLogRepository from '../repositories/activityLog.repository.js';
+import * as businessTemplateRepository from '../repositories/businessTemplate.repository.js';
 
 const TRIAL_DAYS = 14;
 const MAX_COMPANY_CODE_ATTEMPTS = 5;
@@ -156,7 +157,14 @@ export async function register({
   return { ...tokens, user: userWithPermissions };
 }
 
+// businessTemplateSlug drives the tenant-facing UI's business-identity
+// theming (accent color/icon per template — see
+// src/constants/businessThemes.js) — server-derived from the authenticated
+// tenant row's business_template_id, never client-supplied, per the
+// explicit "never trust a theme identifier from the browser" requirement.
 export async function getMyTenant(tenant) {
+  const template = await businessTemplateRepository.findById(tenant.business_template_id);
+
   return {
     companyName: tenant.company_name,
     companyCode: tenant.company_code,
@@ -164,5 +172,7 @@ export async function getMyTenant(tenant) {
     subscriptionStatus: tenant.subscription_status,
     trialStartedAt: tenant.trial_started_at,
     trialEndsAt: tenant.trial_ends_at,
+    businessTemplateSlug: template?.slug || null,
+    businessTemplateName: template?.name || null,
   };
 }

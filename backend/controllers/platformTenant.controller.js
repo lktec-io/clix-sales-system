@@ -27,6 +27,16 @@ export const activate = asyncHandler(async (req, res) => {
   return success(res, { message: 'Tenant activated', data: tenant });
 });
 
+export const remove = asyncHandler(async (req, res) => {
+  const tenant = await platformTenantService.deleteTenant(Number(req.params.id), req.body.confirmCompanyName, req.platformAdmin, req.ip);
+  return success(res, { message: 'Tenant deleted', data: tenant });
+});
+
+export const restore = asyncHandler(async (req, res) => {
+  const tenant = await platformTenantService.restoreTenant(Number(req.params.id), req.platformAdmin, req.ip);
+  return success(res, { message: 'Tenant restored', data: tenant });
+});
+
 export const extendTrial = asyncHandler(async (req, res) => {
   const tenant = await platformTenantService.extendTrial(Number(req.params.id), Number(req.body.days), req.platformAdmin, req.ip);
   return success(res, { message: 'Trial extended', data: tenant });

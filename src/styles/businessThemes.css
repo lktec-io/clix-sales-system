@@ -1,0 +1,47 @@
+/* Business-template identity layer — set via [data-business-template] on
+   <html> (src/contexts/ModuleContext.jsx, mirroring ThemeContext.jsx's own
+   data-theme pattern). Deliberately narrow: three new tokens per template,
+   never a redefinition of --color-primary/--color-accent/etc. — the
+   Aurora/Midnight/Frost theme in themes.css still owns the page's actual
+   color scheme. This only feeds a small, restrained set of business-
+   identity touches (Sidebar brand accent, Dashboard header chip, KPICard's
+   default icon tint) — see Section 8's explicit "not overdesigned"
+   requirement. Falls back to --color-primary/-rgb when no template slug is
+   set (logged out, or an edge-case tenant with no template) — every
+   consumer of --business-accent already has a sane default, never a blank
+   value. */
+
+:root {
+  --business-accent: var(--color-primary);
+  --business-accent-rgb: var(--color-primary-rgb);
+}
+
+[data-business-template='retail-store'] {
+  --business-accent: #2F6BFF;
+  --business-accent-rgb: 47, 107, 255;
+}
+
+[data-business-template='pharmacy'] {
+  --business-accent: #0EA5A4;
+  --business-accent-rgb: 14, 165, 164;
+}
+
+[data-business-template='restaurant'] {
+  --business-accent: #F97316;
+  --business-accent-rgb: 249, 115, 22;
+}
+
+[data-business-template='microfinance'] {
+  --business-accent: #7C5CFC;
+  --business-accent-rgb: 124, 92, 252;
+}
+
+[data-business-template='cosmetics-shop'] {
+  --business-accent: #EC4899;
+  --business-accent-rgb: 236, 72, 153;
+}
+
+[data-business-template='electronics-shop'] {
+  --business-accent: #06B6D4;
+  --business-accent-rgb: 6, 182, 212;
+}

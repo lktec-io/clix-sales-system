@@ -12,6 +12,10 @@ export const suspendValidator = [
   body('reason').optional({ values: 'falsy' }).trim().isLength({ max: 255 }),
 ];
 
+export const deleteTenantValidator = [
+  body('confirmCompanyName').trim().notEmpty().withMessage('Type the company name to confirm deletion'),
+];
+
 export const setBusinessTemplateValidator = [
   body('businessTemplateId').isInt({ min: 1 }).withMessage('businessTemplateId is required'),
 ];

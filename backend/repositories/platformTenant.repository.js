@@ -17,6 +17,13 @@ export async function findAll({ page = 1, limit = 20, search, status, subscripti
   if (status) {
     conditions.push('status = ?');
     params.push(status);
+  } else {
+    // No explicit status filter — keep the default "browse my tenants"
+    // view clean by excluding deleted ones, mirroring how a normal file
+    // browser hides its trash by default. Still fully reachable via the
+    // status filter (status = 'deleted') — nothing is hidden, just not
+    // cluttering the everyday view.
+    conditions.push("status != 'deleted'");
   }
   if (subscriptionStatus) {
     conditions.push('subscription_status = ?');
@@ -44,10 +51,18 @@ export async function getKpiCounts() {
   );
 
   const counts = {
-    total: 0, active: 0, trial: 0, expired: 0, suspended: 0,
+    total: 0, active: 0, trial: 0, expired: 0, suspended: 0, deleted: 0,
   };
   for (const row of rows) {
     const total = Number(row.total);
+    // A deleted (closed) tenant isn't a "real" tenant for headline KPI
+    // purposes — tracked in its own bucket, excluded from `total`, exactly
+    // like the trash folder of a mail client isn't counted in "total
+    // emails".
+    if (row.status === 'deleted') {
+      counts.deleted += total;
+      continue;
+    }
     counts.total += total;
     if (row.status === 'suspended') counts.suspended += total;
     else if (row.subscription_status === 'trial') counts.trial += total;
@@ -152,6 +167,20 @@ export async function suspend(tenantId) {
 
 export async function activate(tenantId) {
   await pool.query("UPDATE tenants SET status = 'active' WHERE id = ?", [tenantId]);
+  return findById(tenantId);
+}
+
+// See 036_add_deleted_tenant_status.sql for why this is a status flip, not
+// a real DELETE. Guarded by `AND status != 'deleted'` so a double-submit
+// or a stale confirmation dialog can never re-run this on an
+// already-deleted tenant.
+export async function softDelete(tenantId) {
+  const [result] = await pool.query("UPDATE tenants SET status = 'deleted' WHERE id = ? AND status != 'deleted'", [tenantId]);
+  return { affected: result.affectedRows > 0, tenant: await findById(tenantId) };
+}
+
+export async function restore(tenantId) {
+  await pool.query("UPDATE tenants SET status = 'active' WHERE id = ? AND status = 'deleted'", [tenantId]);
   return findById(tenantId);
 }
 

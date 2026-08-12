@@ -14,6 +14,23 @@ export function setOnSessionExpired(callback) {
   onSessionExpired = callback;
 }
 
+// The refresh-token cookie (httpOnly, path /api/v1/auth) is shared by every
+// tab open on this browser — it has no per-tab/per-session binding. If a
+// second tab logs in as a different tenant/user, that login overwrites the
+// SAME cookie for every other open tab. A tab that was already showing
+// tenant A keeps rendering tenant A's stale UI, but the moment its access
+// token expires and this interceptor silently refreshes below, the cookie
+// it sends now belongs to tenant B — so it silently receives tenant B's
+// access token and starts fetching tenant B's data (notifications,
+// dashboard, everything) underneath tenant A's cached page chrome. This
+// callback lets AuthContext compare the refreshed user's identity against
+// whichever user it's currently rendering, and force a clean
+// re-authentication instead of silently mixing two tenants' data in one tab.
+let onTokenRefreshed = () => {};
+export function setOnTokenRefreshed(callback) {
+  onTokenRefreshed = callback;
+}
+
 apiClient.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
@@ -44,6 +61,7 @@ apiClient.interceptors.response.use(
       }
       const { data } = await refreshPromise;
       setAccessToken(data.data.accessToken);
+      onTokenRefreshed(data.data.user);
       config.headers.Authorization = `Bearer ${data.data.accessToken}`;
       return apiClient(config);
     } catch (refreshError) {

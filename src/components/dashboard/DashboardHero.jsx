@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { FiMapPin } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
+import { useModules } from '../../hooks/useModules';
+import { resolveBusinessTheme } from '../../constants/businessThemes';
 import '../../styles/components/DashboardHero.css';
 
 function useLiveClock() {
@@ -19,6 +21,9 @@ function useLiveClock() {
 function DashboardHero() {
   const { t, i18n } = useTranslation(['dashboard', 'common']);
   const { user } = useAuth();
+  const { businessTemplateSlug } = useModules();
+  const businessTheme = resolveBusinessTheme(businessTemplateSlug);
+  const BusinessIcon = businessTheme.icon;
   const now = useLiveClock();
 
   function getGreeting(hour) {
@@ -50,6 +55,11 @@ function DashboardHero() {
       </motion.div>
 
       <div className="dashboard-hero-meta">
+        {businessTheme.label && (
+          <span className="dashboard-hero-chip dashboard-hero-chip-business">
+            <BusinessIcon aria-hidden="true" /> {businessTheme.label}
+          </span>
+        )}
         <span className="dashboard-hero-chip">{dateLabel}</span>
         <span className="dashboard-hero-chip dashboard-hero-chip-time">{timeLabel}</span>
         <span className="dashboard-hero-chip">

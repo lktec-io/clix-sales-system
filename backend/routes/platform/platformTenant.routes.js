@@ -3,7 +3,7 @@ import * as platformTenantController from '../../controllers/platformTenant.cont
 import { authenticatePlatform } from '../../middlewares/authenticatePlatform.js';
 import { validateRequest } from '../../middlewares/validateRequest.js';
 import {
-  trialDaysValidator, resetTrialValidator, suspendValidator,
+  trialDaysValidator, resetTrialValidator, suspendValidator, deleteTenantValidator,
   setBusinessTemplateValidator, setModuleOverrideValidator,
 } from '../../validators/platformTenant.validator.js';
 
@@ -17,6 +17,8 @@ router.get('/:id/users', platformTenantController.listUsers);
 
 router.post('/:id/suspend', suspendValidator, validateRequest, platformTenantController.suspend);
 router.post('/:id/activate', platformTenantController.activate);
+router.post('/:id/delete', deleteTenantValidator, validateRequest, platformTenantController.remove);
+router.post('/:id/restore', platformTenantController.restore);
 router.post('/:id/extend-trial', trialDaysValidator, validateRequest, platformTenantController.extendTrial);
 router.post('/:id/reduce-trial', trialDaysValidator, validateRequest, platformTenantController.reduceTrial);
 router.post('/:id/reset-trial', resetTrialValidator, validateRequest, platformTenantController.resetTrial);

@@ -84,6 +84,53 @@ export async function activateTenant(tenantId, admin, ipAddress) {
   return updated;
 }
 
+// See 036_add_deleted_tenant_status.sql — a status flip, not a real
+// DELETE. `confirmCompanyName` must match the tenant's actual company name
+// exactly: the UI already gates this behind a type-to-confirm field, but
+// enforcing it here too means the API itself can't be casually called
+// (direct request, script, typo) without the caller actually knowing which
+// tenant they're deleting — the same "you must prove you meant this"
+// property a client-side-only check can't guarantee. Immediately blocks
+// all access for every user of this tenant via the exact same
+// resolveTenant() `status !== 'active'` check 'suspended' already relies
+// on — no new enforcement code path.
+export async function deleteTenant(tenantId, confirmCompanyName, admin, ipAddress) {
+  const tenant = await findOwnedTenant(tenantId);
+  if (tenant.status === 'deleted') throw new ApiError(400, 'Tenant is already deleted');
+  if (confirmCompanyName !== tenant.company_name) {
+    throw new ApiError(400, 'Company name confirmation does not match.');
+  }
+
+  const { affected, tenant: updated } = await platformTenantRepository.softDelete(tenantId);
+  if (!affected) throw new ApiError(409, 'Tenant could not be deleted — it may have already changed status.');
+
+  invalidateTenantCache(tenantId);
+  await logAction(admin.id, 'tenant.delete', `Deleted "${tenant.company_name}" (all data retained; account permanently deactivated)`, tenantId, ipAddress);
+  await platformNotificationRepository.fanOutToAllAdmins({
+    type: 'danger',
+    category: 'tenant_deleted',
+    title: 'Tenant deleted',
+    message: `"${tenant.company_name}" was deleted by ${admin.firstName} ${admin.lastName}.`,
+    tenantId,
+  });
+  return updated;
+}
+
+// Reverses an accidental/mistaken deletion. Deliberately not exposed next
+// to Activate for a normal 'suspended' tenant — only ever shown for a
+// 'deleted' one — so it can never be confused with routine
+// suspend/activate. All the tenant's underlying data was never touched by
+// deleteTenant() above, so restoring is a clean, complete undo.
+export async function restoreTenant(tenantId, admin, ipAddress) {
+  const tenant = await findOwnedTenant(tenantId);
+  if (tenant.status !== 'deleted') throw new ApiError(400, 'Tenant is not deleted');
+
+  const updated = await platformTenantRepository.restore(tenantId);
+  invalidateTenantCache(tenantId);
+  await logAction(admin.id, 'tenant.restore', `Restored "${tenant.company_name}" from deleted`, tenantId, ipAddress);
+  return updated;
+}
+
 export async function extendTrial(tenantId, days, admin, ipAddress) {
   const tenant = await findOwnedTenant(tenantId);
   const updated = await platformTenantRepository.extendTrial(tenantId, days);

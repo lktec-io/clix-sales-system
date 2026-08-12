@@ -13,7 +13,10 @@ import { PLATFORM_ROUTES } from '../../../constants/routes';
 const STATUS_OPTIONS = [
   { value: 'active', label: 'Active' },
   { value: 'suspended', label: 'Suspended' },
+  { value: 'deleted', label: 'Deleted' },
 ];
+
+const STATUS_LABELS = { active: 'Active', suspended: 'Suspended', deleted: 'Deleted' };
 
 const SUBSCRIPTION_OPTIONS = [
   { value: 'trial', label: 'Trial' },
@@ -58,7 +61,7 @@ function TenantList() {
     ) },
     { key: 'status', label: 'Status', render: (row) => (
       <span className={`badge ${row.status === 'active' ? 'badge-success' : 'badge-danger'}`}>
-        {row.status === 'active' ? 'Active' : 'Suspended'}
+        {STATUS_LABELS[row.status] || row.status}
       </span>
     ) },
     { key: 'subscription_status', label: 'Plan', render: (row) => (
@@ -73,14 +76,19 @@ function TenantList() {
         <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`${PLATFORM_ROUTES.TENANTS}/${row.id}`)} aria-label="View tenant">
           <FiEye />
         </button>
-        <button
-          type="button"
-          className="btn btn-ghost btn-icon"
-          onClick={() => setPendingToggle(row)}
-          aria-label={row.status === 'active' ? 'Suspend tenant' : 'Activate tenant'}
-        >
-          {row.status === 'active' ? <FiSlash /> : <FiCheckCircle />}
-        </button>
+        {/* Deleted tenants are only ever restored from TenantDetail's
+            dedicated flow — no quick row-level toggle for that state, to
+            keep restore as deliberate as delete itself. */}
+        {row.status !== 'deleted' && (
+          <button
+            type="button"
+            className="btn btn-ghost btn-icon"
+            onClick={() => setPendingToggle(row)}
+            aria-label={row.status === 'active' ? 'Suspend tenant' : 'Activate tenant'}
+          >
+            {row.status === 'active' ? <FiSlash /> : <FiCheckCircle />}
+          </button>
+        )}
       </div>
     ) },
   ];

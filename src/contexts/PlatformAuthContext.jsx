@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as platformAuthService from '../services/platformAuthService';
 import { setPlatformAccessToken, clearPlatformAccessToken } from '../utils/platformTokenStorage';
-import { setOnPlatformSessionExpired } from '../services/platformApiClient';
+import { setOnPlatformSessionExpired, setOnTokenRefreshed } from '../services/platformApiClient';
 import { PlatformAuthContext } from './platformAuthContextInstance';
 
 // Structurally identical to AuthContext.jsx, deliberately — but zero
@@ -16,10 +16,24 @@ function PlatformAuthProvider({ children }) {
 
   const restoreSupersededRef = useRef(false);
 
+  // See AuthContext.jsx's identical currentUserIdRef for why this exists —
+  // the platformRefreshToken cookie has no per-tab binding either.
+  const currentAdminIdRef = useRef(null);
+  useEffect(() => {
+    currentAdminIdRef.current = admin?.id ?? null;
+  }, [admin]);
+
   useEffect(() => {
     setOnPlatformSessionExpired(() => {
       setAdmin(null);
       setSessionExpired(true);
+    });
+
+    setOnTokenRefreshed((refreshedAdmin) => {
+      if (currentAdminIdRef.current !== null && refreshedAdmin?.id !== currentAdminIdRef.current) {
+        setAdmin(null);
+        setSessionExpired(true);
+      }
     });
   }, []);
 

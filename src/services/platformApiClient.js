@@ -20,6 +20,16 @@ export function setOnPlatformSessionExpired(callback) {
   onPlatformSessionExpired = callback;
 }
 
+// See apiClient.js's identical setOnTokenRefreshed for the full scenario —
+// the platformRefreshToken cookie is shared across every platform-admin
+// tab on this browser the same way the tenant refreshToken cookie is, so a
+// second admin logging in on another tab can silently swap which admin a
+// still-open tab's next token refresh resolves to.
+let onTokenRefreshed = () => {};
+export function setOnTokenRefreshed(callback) {
+  onTokenRefreshed = callback;
+}
+
 platformApiClient.interceptors.request.use((config) => {
   const token = getPlatformAccessToken();
   if (token) {
@@ -50,6 +60,7 @@ platformApiClient.interceptors.response.use(
       }
       const { data } = await refreshPromise;
       setPlatformAccessToken(data.data.accessToken);
+      onTokenRefreshed(data.data.admin);
       config.headers.Authorization = `Bearer ${data.data.accessToken}`;
       return platformApiClient(config);
     } catch (refreshError) {

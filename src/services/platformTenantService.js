@@ -25,6 +25,16 @@ export async function activateTenant(id) {
   return data.data;
 }
 
+export async function deleteTenant(id, confirmCompanyName) {
+  const { data } = await platformApiClient.post(`/tenants/${id}/delete`, { confirmCompanyName });
+  return data.data;
+}
+
+export async function restoreTenant(id) {
+  const { data } = await platformApiClient.post(`/tenants/${id}/restore`);
+  return data.data;
+}
+
 export async function extendTrial(id, days) {
   const { data } = await platformApiClient.post(`/tenants/${id}/extend-trial`, { days });
   return data.data;

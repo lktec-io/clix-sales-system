@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { FiArrowLeft, FiUsers, FiGrid, FiClock, FiSlash, FiCheckCircle } from 'react-icons/fi';
+import { FiArrowLeft, FiUsers, FiGrid, FiClock, FiSlash, FiCheckCircle, FiTrash2, FiRotateCcw, FiAlertTriangle } from 'react-icons/fi';
 import KPICard from '../../../components/dashboard/KPICard';
 import Table from '../../../components/common/Table';
 import Pagination from '../../../components/common/Pagination';
@@ -41,7 +41,16 @@ function TenantDetail() {
   const [error, setError] = useState('');
   const [actionError, setActionError] = useState('');
   const [trialModal, setTrialModal] = useState(null); // 'extend' | 'reduce' | 'reset' | null
-  const [pendingConfirm, setPendingConfirm] = useState(null); // 'suspend' | 'activate' | 'activate-subscription' | 'expire' | null
+  const [pendingConfirm, setPendingConfirm] = useState(null); // 'suspend' | 'activate' | 'activate-subscription' | 'expire' | 'restore' | null
+
+  // Delete is deliberately its own state, not folded into pendingConfirm's
+  // generic ConfirmDialog — it needs a type-the-company-name field
+  // ConfirmDialog's fixed API doesn't support, per the explicit "must NOT
+  // be a casual accidental click" requirement.
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   // Phase 4 — Subscription & Billing card. Loaded via its own effect/state,
   // separate from `detail` above (a different endpoint, a different table)
@@ -145,9 +154,25 @@ function TenantDetail() {
       else if (pendingConfirm === 'activate') await platformTenantService.activateTenant(id);
       else if (pendingConfirm === 'activate-subscription') await platformTenantService.activateSubscription(id);
       else if (pendingConfirm === 'expire') await platformTenantService.expireImmediately(id);
+      else if (pendingConfirm === 'restore') await platformTenantService.restoreTenant(id);
       await load();
     } catch (err) {
       setActionError(err.response?.data?.message || 'Action failed.');
+    }
+  };
+
+  const submitDelete = async () => {
+    setDeleteError('');
+    setDeleteSubmitting(true);
+    try {
+      await platformTenantService.deleteTenant(id, deleteConfirmName);
+      setDeleteModalOpen(false);
+      setDeleteConfirmName('');
+      await load();
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || 'Failed to delete tenant.');
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
 
@@ -242,14 +267,27 @@ function TenantDetail() {
             <p className="page-subtitle">{tenant.company_code} · Registered {new Date(tenant.created_at).toLocaleDateString()}</p>
           </div>
         </div>
-        <div className="page-actions flex gap-2">
-          {tenant.status === 'active' ? (
-            <button type="button" className="btn btn-danger" onClick={() => setPendingConfirm('suspend')}><FiSlash aria-hidden="true" /> Suspend</button>
+        <div className="page-actions flex gap-2" style={{ flexWrap: 'wrap' }}>
+          {tenant.status === 'deleted' ? (
+            <button type="button" className="btn btn-primary" onClick={() => setPendingConfirm('restore')}><FiRotateCcw aria-hidden="true" /> Restore</button>
           ) : (
-            <button type="button" className="btn btn-primary" onClick={() => setPendingConfirm('activate')}><FiCheckCircle aria-hidden="true" /> Activate</button>
+            <>
+              {tenant.status === 'active' ? (
+                <button type="button" className="btn btn-danger" onClick={() => setPendingConfirm('suspend')}><FiSlash aria-hidden="true" /> Suspend</button>
+              ) : (
+                <button type="button" className="btn btn-primary" onClick={() => setPendingConfirm('activate')}><FiCheckCircle aria-hidden="true" /> Activate</button>
+              )}
+              <button type="button" className="btn btn-danger" onClick={() => setDeleteModalOpen(true)}><FiTrash2 aria-hidden="true" /> Delete Tenant</button>
+            </>
           )}
         </div>
       </div>
+
+      {tenant.status === 'deleted' && (
+        <div className="alert alert-danger mb-4" role="alert">
+          <FiAlertTriangle aria-hidden="true" /> This tenant has been deleted. All users are blocked from logging in. Their data is retained (not erased) and everything is fully restorable.
+        </div>
+      )}
 
       {actionError && <div className="alert alert-danger mb-4" role="alert">{actionError}</div>}
 
@@ -519,6 +557,53 @@ function TenantDetail() {
         confirmLabel="Activate Subscription"
         variant="primary"
       />
+      <ConfirmDialog
+        open={pendingConfirm === 'restore'}
+        onClose={() => setPendingConfirm(null)}
+        onConfirm={runConfirmedAction}
+        title="Restore tenant"
+        message={`Restore "${tenant.company_name}"? All their data was retained — access will be fully reinstated immediately.`}
+        confirmLabel="Restore"
+        variant="primary"
+      />
+
+      <Modal
+        open={deleteModalOpen}
+        onClose={() => { setDeleteModalOpen(false); setDeleteConfirmName(''); setDeleteError(''); }}
+        title="Delete tenant"
+        size="sm"
+        footer={
+          <>
+            <button type="button" className="btn btn-secondary" onClick={() => { setDeleteModalOpen(false); setDeleteConfirmName(''); }}>Cancel</button>
+            <button
+              type="button" className={`btn btn-danger ${deleteSubmitting ? 'btn-loading' : ''}`}
+              disabled={deleteSubmitting || deleteConfirmName !== tenant.company_name}
+              onClick={submitDelete}
+            >
+              Delete Tenant
+            </button>
+          </>
+        }
+      >
+        {deleteError && <div className="alert alert-danger mb-4" role="alert">{deleteError}</div>}
+        <p className="text-sm mb-3">
+          This will immediately block every user of <strong>{tenant.company_name}</strong> from logging in. Their data is
+          retained (not erased) for billing and audit purposes, and this can be undone by restoring the tenant later.
+        </p>
+        <div className="form-group">
+          <label className="form-label form-label-required" htmlFor="deleteConfirmName">
+            Type <strong>{tenant.company_name}</strong> to confirm
+          </label>
+          <input
+            id="deleteConfirmName"
+            type="text"
+            className="form-control"
+            value={deleteConfirmName}
+            onChange={(event) => setDeleteConfirmName(event.target.value)}
+            autoComplete="off"
+          />
+        </div>
+      </Modal>
       <ConfirmDialog
         open={pendingConfirm === 'expire'}
         onClose={() => setPendingConfirm(null)}
