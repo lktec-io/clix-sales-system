@@ -297,17 +297,38 @@
   .platform-sidebar {
     position: static;
     height: auto;
+    /* Grid items default to min-width: auto, meaning a grid column can
+       never shrink below its content's intrinsic width. On desktop this
+       column is a fixed --sidebar-width and .platform-sidebar-inner
+       stacks vertically, so it never mattered — but on mobile the row
+       below packs the brand mark + every nav icon + logout into one
+       unwrapped flex row, and without min-width: 0 here that row's
+       intrinsic width was forcing the WHOLE .platform-shell grid wider
+       than the viewport (pushing navbar/main off-screen with it) instead
+       of just scrolling its own contents. Same fix already applied to
+       .platform-main below, for the same reason. */
+    min-width: 0;
   }
 
   .platform-sidebar-inner {
     flex-direction: row;
     align-items: center;
     padding: var(--space-3);
+    /* A flex item's default is also min-width: auto — .platform-sidebar
+       -nav's own overflow-x: auto right below is worthless unless this
+       row is actually allowed to be narrower than its content first. */
+    min-width: 0;
+  }
+
+  .platform-sidebar-brand,
+  .platform-sidebar-logout {
+    flex-shrink: 0;
   }
 
   .platform-sidebar-nav {
     flex-direction: row;
     overflow-x: auto;
+    min-width: 0;
   }
 
   .platform-sidebar-link span,
