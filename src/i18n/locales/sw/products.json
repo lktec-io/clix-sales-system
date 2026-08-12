@@ -75,11 +75,6 @@
     "uploadImageError": "Imeshindwa kupakia picha."
   },
   "quickAdd": {
-    "name": "Jina",
-    "code": "Msimbo",
-    "create": "Unda",
-    "cancel": "Ghairi",
-    "createError": "Imeshindwa kuunda.",
     "addCategoryTitle": "Ongeza Kategoria",
     "addBrandTitle": "Ongeza Chapa"
   },

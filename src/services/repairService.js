@@ -89,3 +89,13 @@ export async function cancelRepair(id, notes) {
   const { data } = await apiClient.post(`/repairs/${id}/cancel`, { notes });
   return data.data;
 }
+
+export async function getSmsHistory(id) {
+  const { data } = await apiClient.get(`/repairs/${id}/sms`);
+  return data.data;
+}
+
+export async function sendSms(id, message) {
+  const { data } = await apiClient.post(`/repairs/${id}/sms`, { message });
+  return data.data;
+}

@@ -38,9 +38,12 @@ export const repairIntakeValidator = [
   body('imei2').optional({ values: 'falsy' }).isLength({ max: 20 }),
   body('deviceColor').optional({ values: 'falsy' }).isLength({ max: 50 }),
   body('reportedProblem').trim().notEmpty().withMessage('Reported problem is required').isLength({ max: 1000 }),
+  body('estimatedCost').optional({ values: 'falsy' }).isFloat({ min: 0 }),
   body('deviceCondition').optional().isObject().custom(isValidDeviceCondition).withMessage('Invalid device condition value'),
   body('accessoriesReceived').optional().isObject(),
   body('expectedCompletionAt').optional({ values: 'falsy' }).isISO8601(),
+  body('depositAmount').optional({ values: 'falsy' }).isFloat({ min: 0.01 }),
+  body('depositPaymentMethod').if(body('depositAmount').exists({ values: 'falsy' })).isIn(PAYMENT_METHODS).withMessage('Invalid deposit payment method'),
 ];
 
 export const repairDiagnosisValidator = [
@@ -65,4 +68,8 @@ export const repairPaymentValidator = [
 
 export const repairNotesValidator = [
   body('notes').optional({ values: 'falsy' }).isLength({ max: 500 }),
+];
+
+export const repairMessageValidator = [
+  body('message').trim().notEmpty().withMessage('Message is required').isLength({ max: 480 }),
 ];

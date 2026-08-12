@@ -7,77 +7,10 @@ import * as productService from '../../services/productService';
 import * as categoryService from '../../services/categoryService';
 import * as brandService from '../../services/brandService';
 import QRCodeDisplay from '../../components/products/QRCodeDisplay';
-import Modal from '../../components/common/Modal';
+import QuickAddModal from '../../components/common/QuickAddModal';
 import PageSkeleton from '../../components/common/PageSkeleton';
 import { useToast } from '../../hooks/useToast';
 import '../../styles/pages/ProductForm.css';
-
-// Shared by both the Category and Brand "+ Add" popups below -- each needs
-// exactly the two fields the backend actually requires (name + code; see
-// backend/validators/category.validator.js and brand.validator.js),
-// nothing else, so a new item can be created without ever leaving the
-// product form.
-function QuickAddModal({ open, title, onClose, onCreate }) {
-  const { t } = useTranslation(['products', 'common']);
-  const [name, setName] = useState('');
-  const [code, setCode] = useState('');
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  const resetFields = () => {
-    setName('');
-    setCode('');
-    setError('');
-  };
-
-  const handleClose = () => {
-    resetFields();
-    onClose();
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError('');
-    setSubmitting(true);
-    try {
-      await onCreate({ name: name.trim(), code: code.trim() });
-      resetFields();
-    } catch (err) {
-      setError(err.response?.data?.message || t('products:quickAdd.createError'));
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      title={title}
-      size="sm"
-      footer={
-        <>
-          <button type="button" className="btn btn-secondary" onClick={handleClose}>{t('products:quickAdd.cancel')}</button>
-          <button type="submit" form="quick-add-form" className={`btn btn-primary ${submitting ? 'btn-loading' : ''}`} disabled={submitting}>
-            {t('products:quickAdd.create')}
-          </button>
-        </>
-      }
-    >
-      {error && <div className="alert alert-danger mb-4" role="alert">{error}</div>}
-      <form id="quick-add-form" onSubmit={handleSubmit} noValidate>
-        <div className="form-group">
-          <label className="form-label form-label-required" htmlFor="quick-add-name">{t('products:quickAdd.name')}</label>
-          <input id="quick-add-name" className="form-control" value={name} onChange={(e) => setName(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label className="form-label form-label-required" htmlFor="quick-add-code">{t('products:quickAdd.code')}</label>
-          <input id="quick-add-code" className="form-control" value={code} onChange={(e) => setCode(e.target.value)} required />
-        </div>
-      </form>
-    </Modal>
-  );
-}
 
 function ProductForm() {
   const { t } = useTranslation(['products', 'common']);

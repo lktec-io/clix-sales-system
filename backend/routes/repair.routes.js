@@ -7,7 +7,7 @@ import { requireModule } from '../middlewares/requireModule.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import {
   repairIntakeValidator, repairDiagnosisValidator, repairTechnicianValidator,
-  repairPartValidator, repairPaymentValidator, repairNotesValidator,
+  repairPartValidator, repairPaymentValidator, repairNotesValidator, repairMessageValidator,
 } from '../validators/repair.validator.js';
 
 const router = Router();
@@ -34,5 +34,8 @@ router.post('/:id/ready', authorize('repairs.manage'), requireActiveTrial, repai
 router.post('/:id/payments', authorize('repairs.manage'), requireActiveTrial, repairPaymentValidator, validateRequest, repairController.recordPayment);
 router.post('/:id/complete', authorize('repairs.manage'), requireActiveTrial, repairController.completeCollection);
 router.post('/:id/cancel', authorize('repairs.manage'), requireActiveTrial, repairNotesValidator, validateRequest, repairController.cancel);
+
+router.get('/:id/sms', authorize('repairs.manage'), repairController.smsHistory);
+router.post('/:id/sms', authorize('repairs.manage'), requireActiveTrial, repairMessageValidator, validateRequest, repairController.sendMessage);
 
 export default router;

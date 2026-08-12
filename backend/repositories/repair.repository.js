@@ -99,13 +99,13 @@ export async function create(data, connection) {
   const [result] = await connection.query(
     `INSERT INTO repairs (
        tenant_id, branch_id, repair_number, customer_id, device_type, brand, model,
-       serial_number, imei_1, imei_2, device_color, reported_problem, device_condition,
+       serial_number, imei_1, imei_2, device_color, reported_problem, estimated_cost, device_condition,
        accessories_received, expected_completion_at, created_by
-     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.tenantId, data.branchId, data.repairNumber, data.customerId, data.deviceType, data.brand, data.model,
       data.serialNumber || null, data.imei1 || null, data.imei2 || null, data.deviceColor || null,
-      data.reportedProblem, JSON.stringify(data.deviceCondition || {}), JSON.stringify(data.accessoriesReceived || {}),
+      data.reportedProblem, data.estimatedCost ?? null, JSON.stringify(data.deviceCondition || {}), JSON.stringify(data.accessoriesReceived || {}),
       data.expectedCompletionAt || null, data.createdBy,
     ],
   );

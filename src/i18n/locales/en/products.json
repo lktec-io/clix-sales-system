@@ -75,11 +75,6 @@
     "uploadImageError": "Failed to upload image."
   },
   "quickAdd": {
-    "name": "Name",
-    "code": "Code",
-    "create": "Create",
-    "cancel": "Cancel",
-    "createError": "Failed to create.",
     "addCategoryTitle": "Add Category",
     "addBrandTitle": "Add Brand"
   },

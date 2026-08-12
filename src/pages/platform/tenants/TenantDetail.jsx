@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { FiArrowLeft, FiUsers, FiGrid, FiClock, FiSlash, FiCheckCircle, FiTrash2, FiRotateCcw, FiAlertTriangle } from 'react-icons/fi';
+import { FiArrowLeft, FiUsers, FiGrid, FiClock, FiSlash, FiCheckCircle, FiTrash2, FiRotateCcw, FiAlertTriangle, FiAlertOctagon } from 'react-icons/fi';
 import KPICard from '../../../components/dashboard/KPICard';
 import Table from '../../../components/common/Table';
 import Pagination from '../../../components/common/Pagination';
@@ -22,6 +22,8 @@ const TRIAL_ACTION_LABELS = {
   reduce: 'Reduce Trial',
   reset: 'Reset Trial',
 };
+
+const HARD_DELETE_PHRASE = 'PERMANENTLY DELETE';
 
 const BILLING_ACTION_LABELS = {
   upgrade: 'Upgrade Plan',
@@ -51,6 +53,20 @@ function TenantDetail() {
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+
+  // TRUE, PERMANENT deletion — a separate action from Delete Tenant above
+  // (that one is a reversible status flip; this one genuinely destroys the
+  // tenant's data with no restore path). Lives in its own "Danger Zone"
+  // card, its own modal, and requires a second, distinct typed phrase on
+  // top of the company name so it can never be triggered by the same
+  // muscle-memory click that soft-deletes a tenant.
+  const [hardDeleteModalOpen, setHardDeleteModalOpen] = useState(false);
+  const [hardDeleteConfirmName, setHardDeleteConfirmName] = useState('');
+  const [hardDeleteConfirmPhrase, setHardDeleteConfirmPhrase] = useState('');
+  const [hardDeleteSubmitting, setHardDeleteSubmitting] = useState(false);
+  const [hardDeleteError, setHardDeleteError] = useState('');
+  const [hardDeletePreview, setHardDeletePreview] = useState(null);
+  const [hardDeletePreviewLoading, setHardDeletePreviewLoading] = useState(false);
 
   // Phase 4 — Subscription & Billing card. Loaded via its own effect/state,
   // separate from `detail` above (a different endpoint, a different table)
@@ -173,6 +189,40 @@ function TenantDetail() {
       setDeleteError(err.response?.data?.message || 'Failed to delete tenant.');
     } finally {
       setDeleteSubmitting(false);
+    }
+  };
+
+  const openHardDeleteModal = async () => {
+    setHardDeleteError('');
+    setHardDeleteModalOpen(true);
+    setHardDeletePreviewLoading(true);
+    try {
+      const preview = await platformTenantService.getHardDeletePreview(id);
+      setHardDeletePreview(preview);
+    } catch (err) {
+      setHardDeleteError(err.response?.data?.message || 'Failed to load deletion preview.');
+    } finally {
+      setHardDeletePreviewLoading(false);
+    }
+  };
+
+  const closeHardDeleteModal = () => {
+    setHardDeleteModalOpen(false);
+    setHardDeleteConfirmName('');
+    setHardDeleteConfirmPhrase('');
+    setHardDeleteError('');
+    setHardDeletePreview(null);
+  };
+
+  const submitHardDelete = async () => {
+    setHardDeleteError('');
+    setHardDeleteSubmitting(true);
+    try {
+      await platformTenantService.hardDeleteTenant(id, hardDeleteConfirmName, hardDeleteConfirmPhrase);
+      navigate(PLATFORM_ROUTES.TENANTS, { replace: true });
+    } catch (err) {
+      setHardDeleteError(err.response?.data?.message || 'Failed to permanently delete tenant.');
+      setHardDeleteSubmitting(false);
     }
   };
 
@@ -500,6 +550,21 @@ function TenantDetail() {
         </div>
       </div>
 
+      <div className="card mt-5" style={{ borderColor: 'var(--color-danger)' }}>
+        <div className="card-header"><span className="card-title flex items-center gap-2"><FiAlertOctagon aria-hidden="true" /> Danger Zone</span></div>
+        <div className="card-body">
+          <p className="text-sm mb-3">
+            Permanently and irreversibly delete <strong>{tenant.company_name}</strong> and every record it owns —
+            users, branches, sales, inventory, invoices, payments, notifications, and all other business data. This is
+            separate from Delete Tenant above: there is no restore afterward. Use this only to clean up test or trial
+            tenants you are certain you no longer need.
+          </p>
+          <button type="button" className="btn btn-danger" onClick={openHardDeleteModal}>
+            <FiAlertOctagon aria-hidden="true" /> Delete Permanently
+          </button>
+        </div>
+      </div>
+
       <Modal
         open={Boolean(trialModal)}
         onClose={() => setTrialModal(null)}
@@ -604,6 +669,79 @@ function TenantDetail() {
           />
         </div>
       </Modal>
+      <Modal
+        open={hardDeleteModalOpen}
+        onClose={closeHardDeleteModal}
+        title="Delete tenant permanently"
+        size="sm"
+        footer={
+          <>
+            <button type="button" className="btn btn-secondary" onClick={closeHardDeleteModal}>Cancel</button>
+            <button
+              type="button" className={`btn btn-danger ${hardDeleteSubmitting ? 'btn-loading' : ''}`}
+              disabled={
+                hardDeleteSubmitting || hardDeletePreviewLoading
+                || hardDeleteConfirmName !== tenant.company_name
+                || hardDeleteConfirmPhrase !== HARD_DELETE_PHRASE
+              }
+              onClick={submitHardDelete}
+            >
+              Delete Permanently
+            </button>
+          </>
+        }
+      >
+        {hardDeleteError && <div className="alert alert-danger mb-4" role="alert">{hardDeleteError}</div>}
+        <div className="alert alert-danger mb-4" role="alert">
+          <FiAlertTriangle aria-hidden="true" /> This cannot be undone. Every row this tenant owns will be permanently
+          destroyed, not just hidden.
+        </div>
+
+        {hardDeletePreviewLoading ? (
+          <p className="text-sm text-secondary mb-3">Loading what will be deleted…</p>
+        ) : hardDeletePreview ? (
+          <div className="mb-3">
+            <p className="text-sm mb-2">
+              This will destroy <strong>{hardDeletePreview.totalRows.toLocaleString()}</strong> total records across
+              {' '}{Object.keys(hardDeletePreview.rowCounts).length} tables, including:
+            </p>
+            <ul className="text-sm text-secondary" style={{ margin: 0, paddingLeft: '1.25rem', maxHeight: 160, overflowY: 'auto' }}>
+              {Object.entries(hardDeletePreview.rowCounts)
+                .filter(([, count]) => count)
+                .sort(([, a], [, b]) => b - a)
+                .map(([table, count]) => <li key={table}>{table}: {count.toLocaleString()}</li>)}
+            </ul>
+          </div>
+        ) : null}
+
+        <div className="form-group">
+          <label className="form-label form-label-required" htmlFor="hardDeleteConfirmName">
+            Type <strong>{tenant.company_name}</strong> to confirm
+          </label>
+          <input
+            id="hardDeleteConfirmName"
+            type="text"
+            className="form-control"
+            value={hardDeleteConfirmName}
+            onChange={(event) => setHardDeleteConfirmName(event.target.value)}
+            autoComplete="off"
+          />
+        </div>
+        <div className="form-group mb-0">
+          <label className="form-label form-label-required" htmlFor="hardDeleteConfirmPhrase">
+            Type <strong>{HARD_DELETE_PHRASE}</strong> to confirm
+          </label>
+          <input
+            id="hardDeleteConfirmPhrase"
+            type="text"
+            className="form-control"
+            value={hardDeleteConfirmPhrase}
+            onChange={(event) => setHardDeleteConfirmPhrase(event.target.value)}
+            autoComplete="off"
+          />
+        </div>
+      </Modal>
+
       <ConfirmDialog
         open={pendingConfirm === 'expire'}
         onClose={() => setPendingConfirm(null)}

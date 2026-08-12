@@ -9,7 +9,17 @@ import * as customerRepository from '../repositories/customer.repository.js';
 import * as branchRepository from '../repositories/branch.repository.js';
 import * as userRepository from '../repositories/user.repository.js';
 import * as activityLogRepository from '../repositories/activityLog.repository.js';
+import * as smsService from './sms.service.js';
 import { formatCurrency } from '../utils/formatCurrency.js';
+
+// Fire-and-forget — an SMS provider being slow, unconfigured, or erroring
+// must never delay or fail the repair operation that triggered it.
+// sms.service.js already logs every outcome (including "not configured")
+// to sms_logs, so nothing here needs its own error handling beyond
+// swallowing the rejection.
+function notifyCustomer(tenantId, repair, category, actorId) {
+  smsService.sendRepairNotification({ tenantId, repair, category, sentBy: actorId }).catch(() => {});
+}
 
 function round2(value) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
@@ -83,6 +93,13 @@ export async function createIntake(data, actorId, tenantId) {
 
   const repairNumber = await generateCode('REPAIR', 'REP', { tenantId, padLength: 6, includeYear: true });
 
+  // A deposit at intake reuses the exact same repair_payments/amount_paid
+  // mechanism recordPayment() uses later (Step 3 of the repair lifecycle
+  // already needed this — no new payment concept for "deposit"), just
+  // folded into this same transaction so a repair is never created with a
+  // deposit that silently failed to record, or vice versa.
+  const depositAmount = data.depositAmount ? Number(data.depositAmount) : 0;
+
   const connection = await pool.getConnection();
   let repairId;
   try {
@@ -90,6 +107,12 @@ export async function createIntake(data, actorId, tenantId) {
     repairId = await repairRepository.create({ ...data, tenantId, repairNumber, createdBy: actorId }, connection);
     if (data.technicianId) {
       await repairRepository.update(repairId, tenantId, { technicianId: data.technicianId }, connection);
+    }
+    if (depositAmount > 0) {
+      await repairRepository.createPayment({
+        repairId, amount: depositAmount, paymentMethod: data.depositPaymentMethod, receivedBy: actorId,
+      }, connection);
+      await repairRepository.addPaidAmount(repairId, depositAmount, connection);
     }
     // No initial history row here — the repair is created with status
     // 'received' (the table's own DEFAULT) and received_at already
@@ -108,11 +131,15 @@ export async function createIntake(data, actorId, tenantId) {
 
   await activityLogRepository.create({
     tenantId, userId: actorId, branchId: data.branchId,
-    description: `Repair "${repairNumber}" opened for ${data.brand} ${data.model}`,
+    description: depositAmount > 0
+      ? `Repair "${repairNumber}" opened for ${data.brand} ${data.model} — deposit ${formatCurrency(depositAmount)} received`
+      : `Repair "${repairNumber}" opened for ${data.brand} ${data.model}`,
     referenceType: 'repair', referenceId: repairId,
   });
 
-  return repairRepository.findById(repairId, tenantId);
+  const repair = await repairRepository.findById(repairId, tenantId);
+  notifyCustomer(tenantId, repair, 'repair_received', actorId);
+  return repair;
 }
 
 // Diagnosis notes + estimated labor charge can be recorded any time before
@@ -152,7 +179,9 @@ export async function sendForApproval(id, actorId, tenantId) {
   if (!repair.diagnosis) throw new ApiError(400, 'Record a diagnosis before sending for customer approval');
   const moved = await repairRepository.transitionStatus(id, tenantId, ['diagnosis'], 'waiting_approval', actorId, null);
   if (!moved) throw new ApiError(409, 'Repair was already moved by someone else — please refresh');
-  return getRepair(id, tenantId);
+  const updated = await getRepair(id, tenantId);
+  notifyCustomer(tenantId, updated, 'repair_diagnosis_update', actorId);
+  return updated;
 }
 
 export async function markUnrepairable(id, notes, actorId, tenantId) {
@@ -237,7 +266,23 @@ export async function markReady(id, actorId, tenantId) {
   await assertTransition(id, tenantId, 'ready_for_collection');
   const moved = await repairRepository.transitionStatus(id, tenantId, ['in_repair'], 'ready_for_collection', actorId, null);
   if (!moved) throw new ApiError(409, 'Repair was already moved by someone else — please refresh');
-  return getRepair(id, tenantId);
+  const updated = await getRepair(id, tenantId);
+  notifyCustomer(tenantId, updated, 'repair_ready_for_collection', actorId);
+  return updated;
+}
+
+// Manual "send a custom message" action — a technician typing a one-off
+// note to the customer, separate from the three automatic notifications
+// above. Goes through the exact same rate-limit/log/fail-safe path.
+export async function sendCustomMessage(id, message, actorId, tenantId) {
+  const repair = await getRepair(id, tenantId);
+  if (!message?.trim()) throw new ApiError(400, 'Message is required');
+  return smsService.sendCustomRepairMessage({ tenantId, repair, message: message.trim(), sentBy: actorId });
+}
+
+export async function getSmsHistory(id, tenantId) {
+  await getRepair(id, tenantId);
+  return smsService.getSmsHistoryForRepair(tenantId, id);
 }
 
 // Partial payments are supported at any non-terminal status (a customer

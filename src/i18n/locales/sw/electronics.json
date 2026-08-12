@@ -34,6 +34,14 @@
       "rejected": "Imekataliwa",
       "unrepairable": "Haiwezi Kutengenezwa"
     },
+    "stepper": {
+      "received": "Kimepokewa",
+      "diagnosis": "Uchunguzi",
+      "approval": "Idhini",
+      "repair": "Matengenezo",
+      "ready": "Tayari",
+      "collected": "Kimechukuliwa"
+    },
     "deviceTypes": {
       "smartphone": "Simu Janja",
       "tablet": "Kompyuta Kibao",
@@ -74,6 +82,11 @@
       "reportedProblemLabel": "Tatizo Alilotoa Mteja",
       "reportedProblemRequired": "Tatizo lililotolewa linahitajika",
       "expectedCompletionLabel": "Ukamilishaji Unaotarajiwa (si lazima)",
+      "estimateSection": "Makadirio na Amana",
+      "estimatedCostLabel": "Gharama ya Makadirio (si lazima)",
+      "estimatedCostHelp": "Makadirio ya awali kwa mteja — kiasi cha mwisho kinawekwa baada ya uchunguzi.",
+      "depositAmountLabel": "Amana Iliyopokewa (si lazima)",
+      "depositPaymentMethodLabel": "Njia ya Malipo ya Amana",
       "accessoriesSection": "Vifaa Vilivyopokewa",
       "accessories": {
         "charger": "Chaja",
@@ -113,6 +126,14 @@
       }
     },
     "detail": {
+      "journeyLabel": "Hatua za tengenezo",
+      "sendSms": "Tuma SMS",
+      "smsToLabel": "Kwa:",
+      "smsMessageLabel": "Ujumbe",
+      "smsSentToast": "SMS imetumwa.",
+      "smsNotConfiguredToast": "SMS bado haijawekwa kwa mfumo huu — ujumbe haukutumwa.",
+      "smsRateLimitedToast": "Kiwango cha juu cha SMS kwa saa hii kimefikiwa. Jaribu tena baadaye.",
+      "smsFailedToast": "Imeshindwa kutuma SMS.",
       "backToRepairs": "Rudi kwa Matengenezo",
       "customerDeviceSection": "Mteja na Kifaa",
       "conditionSection": "Hali ya Kifaa",

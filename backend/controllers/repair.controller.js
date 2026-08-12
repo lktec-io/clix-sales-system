@@ -91,3 +91,13 @@ export const cancel = asyncHandler(async (req, res) => {
   const repair = await repairService.cancelRepair(Number(req.params.id), req.body.notes, req.user.id, req.user.tenantId);
   return success(res, { message: 'Repair cancelled', data: repair });
 });
+
+export const sendMessage = asyncHandler(async (req, res) => {
+  const result = await repairService.sendCustomMessage(Number(req.params.id), req.body.message, req.user.id, req.user.tenantId);
+  return success(res, { message: 'Message queued', data: result, status: 201 });
+});
+
+export const smsHistory = asyncHandler(async (req, res) => {
+  const data = await repairService.getSmsHistory(Number(req.params.id), req.user.tenantId);
+  return success(res, { data });
+});

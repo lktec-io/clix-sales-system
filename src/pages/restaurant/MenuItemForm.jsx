@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FiPlus } from 'react-icons/fi';
 import PageSkeleton from '../../components/common/PageSkeleton';
+import QuickAddModal from '../../components/common/QuickAddModal';
 import * as menuItemService from '../../services/menuItemService';
 import * as categoryService from '../../services/categoryService';
 import { useToast } from '../../hooks/useToast';
@@ -14,6 +16,7 @@ function MenuItemForm() {
   const isEdit = Boolean(id);
   const toast = useToast();
   const [categories, setCategories] = useState([]);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(isEdit);
 
@@ -21,6 +24,7 @@ function MenuItemForm() {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: { name: '', categoryId: '', sellingPrice: '', description: '', isAvailable: true },
@@ -64,6 +68,14 @@ function MenuItemForm() {
     }
   };
 
+  const handleCreateCategory = async ({ name, code }) => {
+    const created = await categoryService.createCategory({ name, code });
+    const refreshed = await categoryService.listActiveCategories();
+    setCategories(refreshed);
+    setValue('categoryId', String(created.id), { shouldValidate: true });
+    setCategoryModalOpen(false);
+  };
+
   if (loading) {
     return <PageSkeleton />;
   }
@@ -90,7 +102,12 @@ function MenuItemForm() {
 
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label" htmlFor="categoryId">{t('restaurant:menu.form.categoryLabel')}</label>
+                <div className="flex items-center justify-between">
+                  <label className="form-label" htmlFor="categoryId">{t('restaurant:menu.form.categoryLabel')}</label>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => setCategoryModalOpen(true)}>
+                    <FiPlus aria-hidden="true" /> {t('common:quickAdd.addCategory')}
+                  </button>
+                </div>
                 <select id="categoryId" className="form-control" {...register('categoryId')}>
                   <option value="">{t('restaurant:menu.form.selectCategory')}</option>
                   {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -124,6 +141,13 @@ function MenuItemForm() {
           </button>
         </div>
       </form>
+
+      <QuickAddModal
+        open={categoryModalOpen}
+        title={t('common:quickAdd.addCategory')}
+        onClose={() => setCategoryModalOpen(false)}
+        onCreate={handleCreateCategory}
+      />
     </div>
   );
 }

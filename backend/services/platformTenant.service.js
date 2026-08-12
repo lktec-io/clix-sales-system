@@ -8,6 +8,7 @@ import * as businessTemplateRepository from '../repositories/businessTemplate.re
 import * as businessTemplateAssignmentService from './businessTemplateAssignment.service.js';
 import * as tenantModuleRepository from '../repositories/tenantModule.repository.js';
 import { invalidateTenantModulesCache } from './moduleResolution.service.js';
+import { hardDeleteTenant as executeHardDelete, countTenantOwnedRows } from './tenantHardDelete.service.js';
 
 async function findOwnedTenant(id) {
   const tenant = await platformTenantRepository.findById(id);
@@ -129,6 +130,86 @@ export async function restoreTenant(tenantId, admin, ipAddress) {
   invalidateTenantCache(tenantId);
   await logAction(admin.id, 'tenant.restore', `Restored "${tenant.company_name}" from deleted`, tenantId, ipAddress);
   return updated;
+}
+
+// TRUE, PERMANENT deletion — separate and distinct from deleteTenant()
+// above (which only flips tenants.status to 'deleted' and keeps every
+// row). This one genuinely destroys the tenant and everything it owns via
+// tenantHardDelete.service.js's phase-ordered, transaction-wrapped
+// deletes. There is no restore path afterward — restoreTenant() above
+// only works on a soft-deleted tenant, and once this runs the tenants row
+// itself is gone, so there is nothing left to restore.
+//
+// Two independent confirmations are required, not one: the company name
+// (same UX as the existing soft-delete, so an admin must still know which
+// tenant they're deleting) AND a literal typed phrase distinct from any
+// value a script or muscle-memory click could supply by accident. This
+// mirrors how the codebase already treats "recoverable" vs "unrecoverable"
+// actions differently in spirit, just raised one notch since a hard
+// delete admits no recovery.
+//
+// Audit logging happens in two separate, independently-committed writes
+// bracketing the deletion — not inside the same transaction as the
+// deletion itself — precisely so a "before" record survives even if the
+// deletion later fails/rolls back partway, and so the "after" record can
+// still be written once the tenants row (and thus the FK the "before" log
+// pointed at) no longer exists. Both writes go to platform_audit_logs,
+// which is a global table never touched by the tenant-owned deletion
+// phases.
+// Read-only — lets the admin see exactly what a hard delete would destroy
+// (row counts per table) before they type either confirmation value. Never
+// mutates anything, so it can be called freely (e.g. every time the
+// confirmation dialog opens) without any audit trail of its own.
+export async function getHardDeletePreview(tenantId) {
+  const tenant = await findOwnedTenant(tenantId);
+  const rowCounts = await countTenantOwnedRows(tenantId);
+  const totalRows = Object.values(rowCounts).reduce((sum, n) => sum + (n || 0), 0);
+  return { tenant, rowCounts, totalRows };
+}
+
+export async function hardDeleteTenant(tenantId, confirmCompanyName, confirmPhrase, admin, ipAddress) {
+  const REQUIRED_PHRASE = 'PERMANENTLY DELETE';
+  const tenant = await findOwnedTenant(tenantId);
+
+  if (confirmCompanyName !== tenant.company_name) {
+    throw new ApiError(400, 'Company name confirmation does not match.');
+  }
+  if (confirmPhrase !== REQUIRED_PHRASE) {
+    throw new ApiError(400, `Type "${REQUIRED_PHRASE}" exactly to confirm permanent deletion.`);
+  }
+
+  await logAction(
+    admin.id, 'tenant.hard_delete_initiated',
+    `Started PERMANENT deletion of "${tenant.company_name}" (tenant #${tenantId}, status was "${tenant.status}") — this is irreversible`,
+    tenantId, ipAddress,
+  );
+
+  const result = await executeHardDelete(tenantId);
+
+  invalidateTenantCache(tenantId);
+  invalidateTenantModulesCache(tenantId);
+
+  // tenantId is intentionally omitted below (not null-passed) — the
+  // tenants row is gone, so platform_audit_logs.tenant_id must not
+  // reference it; the company name in the description is the durable
+  // record instead.
+  await platformAuditLogRepository.create({
+    platformAdminId: admin.id,
+    action: 'tenant.hard_delete_completed',
+    description: `PERMANENTLY deleted "${result.companyName}" (was tenant #${tenantId}) and all of its data`,
+    tenantId: null,
+    ipAddress,
+  });
+
+  await platformNotificationRepository.fanOutToAllAdmins({
+    type: 'danger',
+    category: 'tenant_hard_deleted',
+    title: 'Tenant permanently deleted',
+    message: `"${result.companyName}" was permanently deleted by ${admin.firstName} ${admin.lastName}. This cannot be undone.`,
+    tenantId: null,
+  });
+
+  return { companyName: result.companyName };
 }
 
 export async function extendTrial(tenantId, days, admin, ipAddress) {

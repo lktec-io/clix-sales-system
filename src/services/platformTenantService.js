@@ -30,6 +30,16 @@ export async function deleteTenant(id, confirmCompanyName) {
   return data.data;
 }
 
+export async function getHardDeletePreview(id) {
+  const { data } = await platformApiClient.get(`/tenants/${id}/hard-delete-preview`);
+  return data.data;
+}
+
+export async function hardDeleteTenant(id, confirmCompanyName, confirmPhrase) {
+  const { data } = await platformApiClient.post(`/tenants/${id}/hard-delete`, { confirmCompanyName, confirmPhrase });
+  return data.data;
+}
+
 export async function restoreTenant(id) {
   const { data } = await platformApiClient.post(`/tenants/${id}/restore`);
   return data.data;

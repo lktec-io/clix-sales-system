@@ -1,4 +1,12 @@
 {
+  "quickAdd": {
+    "name": "Jina",
+    "code": "Msimbo",
+    "create": "Unda",
+    "cancel": "Ghairi",
+    "createError": "Imeshindwa kuunda.",
+    "addCategory": "Ongeza Kategoria"
+  },
   "actions": {
     "save": "Hifadhi",
     "cancel": "Ghairi",

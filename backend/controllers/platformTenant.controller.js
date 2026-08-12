@@ -32,6 +32,18 @@ export const remove = asyncHandler(async (req, res) => {
   return success(res, { message: 'Tenant deleted', data: tenant });
 });
 
+export const hardDeletePreview = asyncHandler(async (req, res) => {
+  const preview = await platformTenantService.getHardDeletePreview(Number(req.params.id));
+  return success(res, { data: preview });
+});
+
+export const hardDelete = asyncHandler(async (req, res) => {
+  const result = await platformTenantService.hardDeleteTenant(
+    Number(req.params.id), req.body.confirmCompanyName, req.body.confirmPhrase, req.platformAdmin, req.ip,
+  );
+  return success(res, { message: 'Tenant permanently deleted', data: result });
+});
+
 export const restore = asyncHandler(async (req, res) => {
   const tenant = await platformTenantService.restoreTenant(Number(req.params.id), req.platformAdmin, req.ip);
   return success(res, { message: 'Tenant restored', data: tenant });

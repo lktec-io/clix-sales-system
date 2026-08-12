@@ -16,6 +16,11 @@ export const deleteTenantValidator = [
   body('confirmCompanyName').trim().notEmpty().withMessage('Type the company name to confirm deletion'),
 ];
 
+export const hardDeleteTenantValidator = [
+  body('confirmCompanyName').trim().notEmpty().withMessage('Type the company name to confirm permanent deletion'),
+  body('confirmPhrase').trim().equals('PERMANENTLY DELETE').withMessage('Type "PERMANENTLY DELETE" exactly to confirm'),
+];
+
 export const setBusinessTemplateValidator = [
   body('businessTemplateId').isInt({ min: 1 }).withMessage('businessTemplateId is required'),
 ];

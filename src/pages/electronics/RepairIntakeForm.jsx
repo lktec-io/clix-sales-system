@@ -38,17 +38,21 @@ function RepairIntakeForm() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       customerId: '', branchId: '', technicianId: '', deviceType: 'smartphone',
       brand: '', model: '', serialNumber: '', imei1: '', imei2: '', deviceColor: '',
-      reportedProblem: '', expectedCompletionAt: '',
+      reportedProblem: '', estimatedCost: '', expectedCompletionAt: '',
+      depositAmount: '', depositPaymentMethod: 'cash',
       accessories: { charger: false, cable: false, battery: false, sim: false, memoryCard: false, bag: false, other: false },
       condition: { screen: 'good', body: 'good', backCover: 'good', camera: 'working', chargingPort: 'working', buttons: 'working', battery: 'good' },
       conditionNotes: '',
     },
   });
+
+  const depositAmount = watch('depositAmount');
 
   useEffect(() => {
     customerService.listActiveCustomers().then(setCustomers);
@@ -73,7 +77,10 @@ function RepairIntakeForm() {
       imei2: values.imei2?.trim() || undefined,
       deviceColor: values.deviceColor?.trim() || undefined,
       reportedProblem: values.reportedProblem.trim(),
+      estimatedCost: values.estimatedCost === '' ? undefined : Number(values.estimatedCost),
       expectedCompletionAt: values.expectedCompletionAt || undefined,
+      depositAmount: values.depositAmount === '' ? undefined : Number(values.depositAmount),
+      depositPaymentMethod: values.depositAmount === '' ? undefined : values.depositPaymentMethod,
       accessoriesReceived: values.accessories,
       deviceCondition: { ...values.condition, notes: values.conditionNotes?.trim() || undefined },
     };
@@ -176,6 +183,35 @@ function RepairIntakeForm() {
               <label className="form-label form-label-required" htmlFor="reportedProblem">{t('electronics:repairs.form.reportedProblemLabel')}</label>
               <textarea id="reportedProblem" className={`form-control ${errors.reportedProblem ? 'form-control-error' : ''}`} rows={3} {...register('reportedProblem', { required: t('electronics:repairs.form.reportedProblemRequired') })} />
               {errors.reportedProblem && <span className="form-error">{errors.reportedProblem.message}</span>}
+            </div>
+          </div>
+        </div>
+
+        <div className="card mb-5">
+          <div className="card-header"><span className="card-title">{t('electronics:repairs.form.estimateSection')}</span></div>
+          <div className="card-body">
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label" htmlFor="estimatedCost">{t('electronics:repairs.form.estimatedCostLabel')}</label>
+                <input id="estimatedCost" type="number" min="0" step="0.01" className="form-control" {...register('estimatedCost')} />
+                <span className="form-help">{t('electronics:repairs.form.estimatedCostHelp')}</span>
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="depositAmount">{t('electronics:repairs.form.depositAmountLabel')}</label>
+                <input id="depositAmount" type="number" min="0" step="0.01" className="form-control" {...register('depositAmount')} />
+              </div>
+              {depositAmount && (
+                <div className="form-group">
+                  <label className="form-label" htmlFor="depositPaymentMethod">{t('electronics:repairs.form.depositPaymentMethodLabel')}</label>
+                  <select id="depositPaymentMethod" className="form-control" {...register('depositPaymentMethod')}>
+                    <option value="cash">{t('electronics:repairs.paymentMethods.cash')}</option>
+                    <option value="mobile_money">{t('electronics:repairs.paymentMethods.mobile_money')}</option>
+                    <option value="bank_transfer">{t('electronics:repairs.paymentMethods.bank_transfer')}</option>
+                    <option value="card">{t('electronics:repairs.paymentMethods.card')}</option>
+                    <option value="other">{t('electronics:repairs.paymentMethods.other')}</option>
+                  </select>
+                </div>
+              )}
             </div>
           </div>
         </div>

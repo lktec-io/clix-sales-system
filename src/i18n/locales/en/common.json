@@ -1,4 +1,12 @@
 {
+  "quickAdd": {
+    "name": "Name",
+    "code": "Code",
+    "create": "Create",
+    "cancel": "Cancel",
+    "createError": "Failed to create.",
+    "addCategory": "Add Category"
+  },
   "actions": {
     "save": "Save",
     "cancel": "Cancel",

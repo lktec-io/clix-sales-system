@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiPrinter, FiPlus, FiCheck, FiX, FiDollarSign, FiSend } from 'react-icons/fi';
+import { FiArrowLeft, FiPrinter, FiPlus, FiCheck, FiX, FiDollarSign, FiSend, FiChevronRight, FiMessageSquare } from 'react-icons/fi';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Modal from '../../components/common/Modal';
 import PageSkeleton from '../../components/common/PageSkeleton';
@@ -24,6 +24,19 @@ const STATUS_BADGE = {
 const CONDITION_KEYS = ['screen', 'body', 'backCover', 'camera', 'chargingPort', 'buttons', 'battery'];
 const CONDITION_FIELD_TO_JSON = { backCover: 'backCover', chargingPort: 'chargingPort' };
 
+// The device's journey shown as a forward-looking stepper — distinct from
+// the chronological .repair-timeline list below it, which stays a log.
+// 'approved' and 'waiting_approval' share the Approval stage (both are
+// "in approval"); 'diagnosis' status just skips ahead of the Diagnosis
+// stage. Terminal statuses (cancelled/rejected/unrepairable) are
+// deliberately NOT mapped here — they get their own "-ended" treatment
+// rather than being forced onto the happy-path sequence.
+const STAGE_KEYS = ['received', 'diagnosis', 'approval', 'repair', 'ready', 'collected'];
+const STATUS_TO_STAGE_INDEX = {
+  received: 0, diagnosis: 1, waiting_approval: 2, approved: 2, in_repair: 3, ready_for_collection: 4, completed: 5,
+};
+const TERMINAL_STATUSES = ['cancelled', 'rejected', 'unrepairable'];
+
 function RepairDetail() {
   const { t, i18n } = useTranslation(['electronics', 'common']);
   const { id } = useParams();
@@ -38,6 +51,9 @@ function RepairDetail() {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [partModalOpen, setPartModalOpen] = useState(false);
   const [actionError, setActionError] = useState('');
+  const [smsModalOpen, setSmsModalOpen] = useState(false);
+  const [smsMessage, setSmsMessage] = useState('');
+  const [smsSending, setSmsSending] = useState(false);
 
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const formatDate = (isoString) => (isoString ? new Date(isoString).toLocaleDateString(dateLocale, { dateStyle: 'medium' }) : '—');
@@ -118,6 +134,28 @@ function RepairDetail() {
     }
   };
 
+  // Reports whatever actually happened, including the "not configured" and
+  // "rate limited" states, rather than a generic success/fail — the
+  // backend always logs a real outcome, even when no SMS provider is set
+  // up, and the UI must be honest about that instead of implying it sent.
+  const submitSms = async () => {
+    if (!smsMessage.trim()) return;
+    setSmsSending(true);
+    try {
+      const result = await repairService.sendSms(repair.id, smsMessage.trim());
+      if (result.status === 'sent') toast.success(t('electronics:repairs.detail.smsSentToast'));
+      else if (result.status === 'skipped_not_configured') toast.info(t('electronics:repairs.detail.smsNotConfiguredToast'));
+      else if (result.status === 'skipped_rate_limited') toast.warning(t('electronics:repairs.detail.smsRateLimitedToast'));
+      else toast.error(t('electronics:repairs.detail.smsFailedToast'));
+      setSmsModalOpen(false);
+      setSmsMessage('');
+    } catch (err) {
+      toast.error(err.response?.data?.message || t('electronics:repairs.detail.smsFailedToast'));
+    } finally {
+      setSmsSending(false);
+    }
+  };
+
   const assignTechnician = async (technicianId) => {
     if (!technicianId) return;
     setActionError('');
@@ -146,6 +184,13 @@ function RepairDetail() {
   const canComplete = canManage && repair.status === 'ready_for_collection';
   const canCancel = canManage && !['completed', 'cancelled', 'rejected', 'unrepairable'].includes(repair.status);
 
+  const isEnded = TERMINAL_STATUSES.includes(repair.status);
+  const reachedStageIndex = repair.history.reduce((max, h) => {
+    const idx = STATUS_TO_STAGE_INDEX[h.to_status];
+    return idx !== undefined ? Math.max(max, idx) : max;
+  }, 0);
+  const currentStageIndex = isEnded ? reachedStageIndex : (STATUS_TO_STAGE_INDEX[repair.status] ?? 0);
+
   return (
     <div className="repair-detail-page">
       <div className="repair-print-header">
@@ -165,6 +210,11 @@ function RepairDetail() {
           <button type="button" className="btn btn-secondary" onClick={() => window.print()}>
             <FiPrinter aria-hidden="true" /> {t('electronics:repairs.detail.print')}
           </button>
+          {canManage && (
+            <button type="button" className="btn btn-secondary" onClick={() => setSmsModalOpen(true)}>
+              <FiMessageSquare aria-hidden="true" /> {t('electronics:repairs.detail.sendSms')}
+            </button>
+          )}
           {canStartDiagnosis && (
             <button type="button" className="btn btn-primary" onClick={() => runAction(() => repairService.startDiagnosis(repair.id))}>
               {t('electronics:repairs.detail.startDiagnosis')}
@@ -216,6 +266,32 @@ function RepairDetail() {
             </button>
           )}
         </div>
+      </div>
+
+      <div className="repair-stepper no-print" role="list" aria-label={t('electronics:repairs.detail.journeyLabel')}>
+        {STAGE_KEYS.map((stageKey, index) => {
+          const state = index < currentStageIndex || (index === currentStageIndex && isEnded)
+            ? 'done'
+            : index === currentStageIndex ? 'current' : 'upcoming';
+          return (
+            <span key={stageKey} className="flex items-center" style={{ gap: 'var(--space-1)' }}>
+              <span role="listitem" className={`repair-stepper-step ${state === 'done' ? 'repair-stepper-step-done' : state === 'current' ? 'repair-stepper-step-current' : ''}`}>
+                {state === 'done' && <FiCheck className="repair-stepper-step-icon" aria-hidden="true" />}
+                {t(`electronics:repairs.stepper.${stageKey}`)}
+              </span>
+              {index < STAGE_KEYS.length - 1 && <FiChevronRight className="repair-stepper-connector" aria-hidden="true" />}
+            </span>
+          );
+        })}
+        {isEnded && (
+          <>
+            <FiChevronRight className="repair-stepper-connector" aria-hidden="true" />
+            <span role="listitem" className="repair-stepper-step repair-stepper-step-ended">
+              <FiX className="repair-stepper-step-icon" aria-hidden="true" />
+              {t(`electronics:repairs.status.${repair.status}`)}
+            </span>
+          </>
+        )}
       </div>
 
       {actionError && <div className="alert alert-danger mb-4 no-print" role="alert">{actionError}</div>}
@@ -475,6 +551,33 @@ function RepairDetail() {
             </select>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        open={smsModalOpen}
+        onClose={() => { setSmsModalOpen(false); setSmsMessage(''); }}
+        title={t('electronics:repairs.detail.sendSms')}
+        size="sm"
+        footer={
+          <>
+            <button type="button" className="btn btn-secondary" onClick={() => { setSmsModalOpen(false); setSmsMessage(''); }}>{t('common:actions.cancel')}</button>
+            <button
+              type="button" className={`btn btn-primary ${smsSending ? 'btn-loading' : ''}`}
+              disabled={smsSending || !smsMessage.trim()} onClick={submitSms}
+            >
+              {t('electronics:repairs.detail.sendSms')}
+            </button>
+          </>
+        }
+      >
+        <p className="text-sm text-secondary mb-3">{t('electronics:repairs.detail.smsToLabel')} {repair.customer_phone || '—'}</p>
+        <div className="form-group mb-0">
+          <label className="form-label form-label-required" htmlFor="smsMessage">{t('electronics:repairs.detail.smsMessageLabel')}</label>
+          <textarea
+            id="smsMessage" className="form-control" rows={4} maxLength={480}
+            value={smsMessage} onChange={(e) => setSmsMessage(e.target.value)}
+          />
+        </div>
       </Modal>
     </div>
   );

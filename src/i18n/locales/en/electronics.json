@@ -34,6 +34,14 @@
       "rejected": "Rejected",
       "unrepairable": "Unrepairable"
     },
+    "stepper": {
+      "received": "Received",
+      "diagnosis": "Diagnosis",
+      "approval": "Approval",
+      "repair": "Repair",
+      "ready": "Ready",
+      "collected": "Collected"
+    },
     "deviceTypes": {
       "smartphone": "Smartphone",
       "tablet": "Tablet",
@@ -74,6 +82,11 @@
       "reportedProblemLabel": "Customer's Reported Problem",
       "reportedProblemRequired": "Reported problem is required",
       "expectedCompletionLabel": "Expected Completion (optional)",
+      "estimateSection": "Estimate & Deposit",
+      "estimatedCostLabel": "Estimated Cost (optional)",
+      "estimatedCostHelp": "A rough estimate for the customer — the final amount is set after diagnosis.",
+      "depositAmountLabel": "Deposit Received (optional)",
+      "depositPaymentMethodLabel": "Deposit Payment Method",
       "accessoriesSection": "Accessories Received",
       "accessories": {
         "charger": "Charger",
@@ -113,6 +126,14 @@
       }
     },
     "detail": {
+      "journeyLabel": "Repair journey",
+      "sendSms": "Send SMS",
+      "smsToLabel": "To:",
+      "smsMessageLabel": "Message",
+      "smsSentToast": "SMS sent.",
+      "smsNotConfiguredToast": "SMS is not configured for this system yet — the message was not sent.",
+      "smsRateLimitedToast": "SMS limit reached for this hour. Try again later.",
+      "smsFailedToast": "Failed to send SMS.",
       "backToRepairs": "Back to Repairs",
       "customerDeviceSection": "Customer & Device",
       "conditionSection": "Device Condition",
