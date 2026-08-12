@@ -23,6 +23,6 @@ export const getById = asyncHandler(async (req, res) => {
 });
 
 export const create = asyncHandler(async (req, res) => {
-  const sale = await pharmacySaleService.sellMedicines(req.body, req.user.id, req.user.tenantId);
+  const sale = await pharmacySaleService.sellMedicines(req.body, req.user.id, req.user.tenantId, req.user);
   return success(res, { message: 'Sale completed', data: sale, status: 201 });
 });

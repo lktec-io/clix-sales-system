@@ -1,34 +1,92 @@
-// Scaffold only — send() below is deliberately NOT implemented against
-// Beem Africa's live SMS API. This codebase has no verified Beem API
-// contract (exact endpoint path, authentication header/scheme, request
-// body field names, response shape, or error codes), and per explicit
-// instruction this file must not invent one. Real credentials will be
-// entered directly on the VPS (env.sms.beem.* — see config/env.js —
-// already reads BEEM_API_KEY/BEEM_SECRET_KEY/BEEM_SENDER_ID/BEEM_BASE_URL,
-// wired and ready to use once this file is finished).
-//
-// Before implementing send() for real: confirm against Beem's own current
-// merchant/developer documentation — (1) the exact request endpoint and
-// HTTP method, (2) whether auth is HTTP Basic (api_key:secret_key) or a
-// header/token scheme, (3) the exact JSON field names for sender ID,
-// recipient list, and message body, (4) the shape of a success vs failure
-// response, and (5) whether delivery is synchronous or reported later via
-// a callback. Do not guess any of these — verify each one, then replace
-// the throw below with the real HTTP call.
-//
-// Until then, selecting SMS_PROVIDER=beem is safe, not fake: it fails
-// closed with a clear, logged reason rather than pretending to send.
-
 import { env } from '../../config/env.js';
+import { logger } from '../../config/logger.js';
+
+// Beem Africa SMS API — implemented against the OFFICIAL beem-africa
+// GitHub organization's Python client source (github.com/beem-africa/
+// python-client, BeemAfrica/SMS.py + BeemAfrica/__init__.py), read
+// directly, since the interactive docs.beem.africa portal is a
+// JS-rendered SPA this environment cannot execute. This is Beem's own
+// reference implementation, not a third-party guess:
+//   - Endpoint: POST https://apisms.beem.africa/v1/send
+//   - Auth: HTTP Basic, base64(api_key:secret_key), in the Authorization
+//     header — built fresh per-request below, never logged.
+//   - Request body: { source_addr, schedule_time, encoding, message,
+//     recipients: [{ recipient_id, dest_addr }] } — field names verbatim
+//     from BeemAfrica/SMS.py's get_body().
+//   - Success response shape (confirmed via Beem's own published SMS
+//     guide example): { successful: true, request_id, code, message,
+//     valid, invalid, duplicates }.
+// Cross-checked against a second, independent official-org-adjacent
+// client (github.com/Jkarage/beemafrica, Go) — same endpoint, same field
+// names, same response shape confirmed independently. That client does
+// note a real Beem process for sender IDs: `dest_addr`/`source_addr`
+// aside, a Sender ID must be requested and approved through Beem's own
+// sender-names endpoint before it can be used — an unapproved
+// BEEM_SENDER_ID will be rejected by Beem, not by this code.
+//
+// What is NOT independently confirmed: the full catalog of failure
+// `code` values — this implementation treats any response where
+// `successful` isn't strictly `true` as a failure and surfaces Beem's own
+// `message`/`code` verbatim rather than trying to interpret every
+// possible failure code, so nothing here invents behavior Beem hasn't
+// documented.
 
 export const PROVIDER_NAME = 'beem';
 
-export async function send() {
-  if (!env.sms.beem.apiKey || !env.sms.beem.secretKey || !env.sms.beem.senderId || !env.sms.beem.baseUrl) {
+function isConfigured() {
+  return Boolean(env.sms.beem.apiKey && env.sms.beem.secretKey && env.sms.beem.senderId && env.sms.beem.baseUrl);
+}
+
+// Beem's SMS.py example payload uses digits-only, country-code-prefixed
+// numbers (e.g. "255712345678"), never a leading "+". Tenants in this
+// codebase store phone numbers in whatever format was typed at intake
+// (createCustomer/createUser have no format enforcement), so this
+// normalizes the common Tanzanian input shapes (leading '+', leading '0')
+// into that expected shape rather than rejecting anything not already
+// perfectly formatted.
+function normalizeRecipient(phone) {
+  const digits = String(phone).replace(/[^\d]/g, '');
+  if (digits.startsWith('0')) return `255${digits.slice(1)}`;
+  return digits;
+}
+
+export async function send({ to, message }) {
+  if (!isConfigured()) {
     return { status: 'skipped_not_configured', providerResponse: 'Beem credentials are incomplete.' };
   }
-  return {
-    status: 'failed',
-    providerResponse: 'Beem SMS sending is not yet implemented — the live API contract has not been confirmed. See this file\'s header comment.',
+
+  const authHeader = `Basic ${Buffer.from(`${env.sms.beem.apiKey}:${env.sms.beem.secretKey}`).toString('base64')}`;
+  const body = {
+    source_addr: env.sms.beem.senderId,
+    schedule_time: '',
+    encoding: 0,
+    message,
+    recipients: [{ recipient_id: 1, dest_addr: normalizeRecipient(to) }],
   };
+
+  let response;
+  try {
+    response = await fetch(`${env.sms.beem.baseUrl}/v1/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(15000),
+    });
+  } catch (err) {
+    // Never log `body`/`authHeader` — only the network-level failure reason.
+    logger.error('Beem SMS request failed (network/timeout)', { message: err.message });
+    return { status: 'failed', providerResponse: 'Could not reach the SMS provider.' };
+  }
+
+  const payload = await response.json().catch(() => null);
+
+  if (!response.ok || payload?.successful !== true) {
+    logger.error('Beem SMS request rejected', { status: response.status, code: payload?.code, message: payload?.message });
+    return {
+      status: 'failed',
+      providerResponse: payload?.message ? `Beem: ${payload.message} (code ${payload.code ?? 'unknown'})` : `Beem SMS request failed (HTTP ${response.status}).`,
+    };
+  }
+
+  return { status: 'sent', providerResponse: `request_id ${payload.request_id}` };
 }

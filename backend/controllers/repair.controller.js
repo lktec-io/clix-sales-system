@@ -23,7 +23,7 @@ export const getById = asyncHandler(async (req, res) => {
 });
 
 export const create = asyncHandler(async (req, res) => {
-  const repair = await repairService.createIntake(req.body, req.user.id, req.user.tenantId);
+  const repair = await repairService.createIntake(req.body, req.user.id, req.user.tenantId, req.user);
   return success(res, { message: 'Repair intake created', data: repair, status: 201 });
 });
 

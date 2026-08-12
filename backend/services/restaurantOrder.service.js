@@ -14,6 +14,14 @@ function round2(value) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+// Mirrors sale.service.js/purchase.service.js's identical helper.
+async function assertBranchAccess(user, branchId) {
+  const branchIds = await getAccessibleBranchIds(user);
+  if (branchIds !== null && !branchIds.includes(branchId)) {
+    throw new ApiError(403, 'You do not have access to this branch');
+  }
+}
+
 // One authoritative state machine (see 033_create_restaurant_tables.sql's
 // own header comment) — every transition in this file is checked against
 // this map before it's allowed to happen; nothing else in the codebase
@@ -63,11 +71,12 @@ export async function getOrder(id, tenantId) {
 // surface small on purpose. Prices are always looked up server-side from
 // menu_items.selling_price; nothing about the total is ever taken from the
 // request body.
-export async function createOrder(data, actorId, tenantId) {
+export async function createOrder(data, actorId, tenantId, user) {
   if (!data.items?.length) throw new ApiError(400, 'Add at least one menu item to the order');
 
   const branch = await branchRepository.findById(data.branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
+  await assertBranchAccess(user, data.branchId);
 
   let table = null;
   if (data.tableId) {

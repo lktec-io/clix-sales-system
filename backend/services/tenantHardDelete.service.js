@@ -40,10 +40,20 @@ import { ApiError } from '../utils/apiError.js';
 //
 // IMPORTANT — static-code-audit basis, not live-DB-verified: this was
 // built by reading migration source files, not by introspecting a running
-// database's actual information_schema. Run the read-only pre-flight
-// check this file also exports (countTenantOwnedRows) against a real
-// tenant on staging before ever using this in production, and confirm the
-// affected-row counts look sane before trusting a real deletion.
+// database's actual information_schema (no live database was reachable
+// in the environment this was built in). What HAS been done: a script
+// that parses every CREATE TABLE in database/migrations/*.sql for a
+// tenant_id column and diffs it against every DELETE statement below
+// confirms all 41 direct-tenant_id tables are covered (zero gaps); a
+// second script that parses every `ON DELETE RESTRICT` constraint in the
+// same migrations and checks it against the phase order below confirms
+// all 79 relevant RESTRICT dependency pairs are satisfied child-before-
+// parent (zero ordering violations). Both are static-code-level
+// guarantees, not a substitute for actually running this against a real
+// database — run the read-only pre-flight check this file also exports
+// (countTenantOwnedRows) against a real tenant on staging before ever
+// using this in production, and confirm the affected-row counts look
+// sane before trusting a real deletion.
 
 // Each entry is a raw SQL statement scoped to one tenant. Direct tables
 // filter on their own tenant_id column; indirect tables (no tenant_id of

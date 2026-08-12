@@ -13,7 +13,7 @@ export const getById = asyncHandler(async (req, res) => {
 });
 
 export const apply = asyncHandler(async (req, res) => {
-  const loan = await loanService.applyForLoan(req.body, req.user.id, req.user.tenantId);
+  const loan = await loanService.applyForLoan(req.body, req.user.id, req.user.tenantId, req.user);
   return success(res, { message: 'Loan application submitted', data: loan, status: 201 });
 });
 

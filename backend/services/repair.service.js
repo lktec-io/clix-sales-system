@@ -25,6 +25,14 @@ function round2(value) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+// Mirrors sale.service.js/purchase.service.js's identical helper.
+async function assertBranchAccess(user, branchId) {
+  const branchIds = await getAccessibleBranchIds(user);
+  if (branchIds !== null && !branchIds.includes(branchId)) {
+    throw new ApiError(403, 'You do not have access to this branch');
+  }
+}
+
 // One authoritative state machine — every transition below is checked
 // against this map first. CANCELLED is reachable from any non-terminal
 // state; REJECTED only follows a customer declining the estimate;
@@ -79,9 +87,10 @@ export async function getRepair(id, tenantId) {
   return repair;
 }
 
-export async function createIntake(data, actorId, tenantId) {
+export async function createIntake(data, actorId, tenantId, user) {
   const branch = await branchRepository.findById(data.branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
+  await assertBranchAccess(user, data.branchId);
 
   const customer = await customerRepository.findById(data.customerId, tenantId);
   if (!customer) throw new ApiError(400, 'Selected customer does not exist');

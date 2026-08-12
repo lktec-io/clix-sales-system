@@ -23,7 +23,7 @@ export const getById = asyncHandler(async (req, res) => {
 });
 
 export const create = asyncHandler(async (req, res) => {
-  const order = await restaurantOrderService.createOrder(req.body, req.user.id, req.user.tenantId);
+  const order = await restaurantOrderService.createOrder(req.body, req.user.id, req.user.tenantId, req.user);
   return success(res, { message: 'Order opened', data: order, status: 201 });
 });
 

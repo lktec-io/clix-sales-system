@@ -15,6 +15,14 @@ function round2(value) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+// Mirrors sale.service.js/purchase.service.js's identical helper.
+async function assertBranchAccess(user, branchId) {
+  const branchIds = await getAccessibleBranchIds(user);
+  if (branchIds !== null && !branchIds.includes(branchId)) {
+    throw new ApiError(403, 'You do not have access to this branch');
+  }
+}
+
 export async function listPurchases(query, user) {
   const page = Number(query.page) || 1;
   const limit = Math.min(Number(query.limit) || 20, 100);
@@ -38,7 +46,7 @@ export async function getPurchase(id, tenantId) {
 // exact (medicine, branch) is topped up rather than duplicated, so
 // receiving the same batch twice (e.g. a split delivery) accumulates
 // quantity onto one row instead of fragmenting FEFO ordering across two.
-export async function receiveStock(data, actorId, tenantId) {
+export async function receiveStock(data, actorId, tenantId, user) {
   if (!data.items?.length) throw new ApiError(400, 'Add at least one medicine to the purchase');
 
   const supplier = await supplierRepository.findById(data.supplierId, tenantId);
@@ -46,6 +54,7 @@ export async function receiveStock(data, actorId, tenantId) {
 
   const branch = await branchRepository.findById(data.branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
+  await assertBranchAccess(user, data.branchId);
 
   for (const item of data.items) {
     if (!(Number(item.quantity) > 0)) throw new ApiError(400, 'Quantity must be greater than zero for every item');

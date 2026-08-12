@@ -11,8 +11,12 @@
   width: 56px;
   height: 56px;
   border-radius: 9999px;
-  background-color: rgba(15, 23, 42, 0.06);
-  color: var(--color-primary);
+  /* Falls back to --color-primary's own wash when no business template is
+     set (e.g. Platform Admin) — businessThemes.css already defines
+     --business-accent-rgb as an alias of --color-primary-rgb in that
+     case, so this never needs its own fallback logic. */
+  background-color: rgba(var(--business-accent-rgb), 0.1);
+  color: var(--business-accent);
   display: flex;
   align-items: center;
   justify-content: center;

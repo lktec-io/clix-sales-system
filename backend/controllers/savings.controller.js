@@ -27,6 +27,7 @@ export const recordTransaction = asyncHandler(async (req, res) => {
     { ...req.body, savingsAccountId: Number(req.params.id) },
     req.user.id,
     req.user.tenantId,
+    req.user,
   );
   return success(res, { message: 'Transaction recorded', data: account, status: 201 });
 });

@@ -1,5 +1,6 @@
 import { pool } from '../config/db.js';
 import { ApiError } from '../utils/apiError.js';
+import { getAccessibleBranchIds } from '../utils/branchScope.js';
 import { generateCode } from '../repositories/sequence.repository.js';
 import * as savingsAccountRepository from '../repositories/savingsAccount.repository.js';
 import * as customerRepository from '../repositories/customer.repository.js';
@@ -9,6 +10,14 @@ import { formatCurrency } from '../utils/formatCurrency.js';
 
 function round2(value) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+// Mirrors sale.service.js/purchase.service.js's identical helper.
+async function assertBranchAccess(user, branchId) {
+  const branchIds = await getAccessibleBranchIds(user);
+  if (branchIds !== null && !branchIds.includes(branchId)) {
+    throw new ApiError(403, 'You do not have access to this branch');
+  }
 }
 
 export async function listAccounts(query, tenantId) {
@@ -53,9 +62,10 @@ export async function openAccount(data, actorId, tenantId) {
 // concurrent withdrawals can never both compute a "balance before" that's
 // gone stale by the time either writes — the second waits for the first's
 // transaction to commit, then reads the already-updated balance.
-export async function recordTransaction(data, actorId, tenantId) {
+export async function recordTransaction(data, actorId, tenantId, user) {
   const branch = await branchRepository.findById(data.branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
+  await assertBranchAccess(user, data.branchId);
 
   const amount = Number(data.amount);
   if (amount <= 0) throw new ApiError(400, 'Amount must be greater than zero');

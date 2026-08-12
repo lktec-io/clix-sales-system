@@ -15,6 +15,17 @@ function round2(value) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+// Mirrors the identical private helper in sale.service.js/purchase.service.js
+// and siblings — without it, a Cashier/attendant restricted to one branch
+// could submit any branchId in their own tenant and have stock dispensed
+// from a branch they have no assignment to.
+async function assertBranchAccess(user, branchId) {
+  const branchIds = await getAccessibleBranchIds(user);
+  if (branchIds !== null && !branchIds.includes(branchId)) {
+    throw new ApiError(403, 'You do not have access to this branch');
+  }
+}
+
 export async function listSales(query, user) {
   const page = Number(query.page) || 1;
   const limit = Math.min(Number(query.limit) || 20, 100);
@@ -40,11 +51,12 @@ export async function getSale(id, tenantId) {
 // rolls back, then sees the already-decremented quantity. An expired batch
 // is never even a candidate (findSellableBatchesForUpdate excludes it at
 // the SQL level) — there is no code path that can dispense one.
-export async function sellMedicines(data, actorId, tenantId) {
+export async function sellMedicines(data, actorId, tenantId, user) {
   if (!data.items?.length) throw new ApiError(400, 'Add at least one medicine to the sale');
 
   const branch = await branchRepository.findById(data.branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
+  await assertBranchAccess(user, data.branchId);
 
   if (data.customerId) {
     const customer = await customerRepository.findById(data.customerId, tenantId);

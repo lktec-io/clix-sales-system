@@ -4,6 +4,14 @@ import * as restaurantTableRepository from '../repositories/restaurantTable.repo
 import * as branchRepository from '../repositories/branch.repository.js';
 import * as activityLogRepository from '../repositories/activityLog.repository.js';
 
+// Mirrors sale.service.js/purchase.service.js's identical helper.
+async function assertBranchAccess(user, branchId) {
+  const branchIds = await getAccessibleBranchIds(user);
+  if (branchIds !== null && !branchIds.includes(branchId)) {
+    throw new ApiError(403, 'You do not have access to this branch');
+  }
+}
+
 export async function listTables(query, user) {
   const branchIds = await getAccessibleBranchIds(user);
   return restaurantTableRepository.findAll({
@@ -23,9 +31,10 @@ export async function getTable(id, tenantId) {
   return table;
 }
 
-export async function createTable(data, userId, tenantId) {
+export async function createTable(data, userId, tenantId, user) {
   const branch = await branchRepository.findById(data.branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
+  await assertBranchAccess(user, data.branchId);
   const table = await restaurantTableRepository.create({ ...data, tenantId });
   await activityLogRepository.create({
     tenantId, userId, branchId: data.branchId,

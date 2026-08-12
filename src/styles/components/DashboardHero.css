@@ -9,8 +9,12 @@
   border-radius: var(--radius-lg);
   padding: var(--space-8) var(--space-8);
   margin-bottom: var(--space-6);
+  /* The radial highlight is business-tinted (a subtle wash of the tenant's
+     template accent) layered over the user's own chosen Aurora/Midnight/
+     Frost --gradient-hero — the base theme is never replaced, just given
+     one small business-specific accent on its most-viewed page. */
   background-image:
-    radial-gradient(circle at 90% 20%, rgba(200, 155, 60, 0.14), transparent 45%),
+    radial-gradient(circle at 90% 20%, rgba(var(--business-accent-rgb), 0.22), transparent 45%),
     var(--gradient-hero);
   background-size: 220% 220%;
   animation: hero-gradient-shift 16s ease-in-out infinite;

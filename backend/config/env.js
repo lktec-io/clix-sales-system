@@ -124,10 +124,10 @@ export const env = {
   // back to noopSmsProvider, which never sends and never throws, so an
   // environment with no SMS credentials still boots and runs normally.
   // See backend/services/smsProviders/beemSmsProvider.js's header comment
-  // — its actual send() call is intentionally NOT implemented against
-  // Beem's live API yet, since that contract (endpoint, auth headers,
-  // payload shape) has not been confirmed; do not assume the BEEM_* names
-  // below are correct without checking Beem's own current documentation.
+  // — implemented against Beem's own official GitHub client source
+  // (github.com/beem-africa/python-client), not invented. baseUrl defaults
+  // to Beem's real production host so a deploy that only sets the 3
+  // credential values still works.
   sms: {
     provider: process.env.SMS_PROVIDER || 'none',
     rateLimitPerHour: Number(process.env.SMS_RATE_LIMIT_PER_HOUR) || 100,
@@ -135,7 +135,7 @@ export const env = {
       apiKey: process.env.BEEM_API_KEY || '',
       secretKey: process.env.BEEM_SECRET_KEY || '',
       senderId: process.env.BEEM_SENDER_ID || '',
-      baseUrl: process.env.BEEM_BASE_URL || '',
+      baseUrl: process.env.BEEM_BASE_URL || 'https://apisms.beem.africa',
     },
   },
 };

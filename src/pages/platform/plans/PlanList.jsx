@@ -186,16 +186,16 @@ function PlanList() {
             <label className="form-label" htmlFor="description">Description</label>
             <textarea id="description" className="form-control" {...register('description')} />
           </div>
-          <div className="flex gap-2">
-            <div className="form-group" style={{ flex: 1 }}>
+          <div className="flex gap-2" style={{ flexWrap: 'wrap' }}>
+            <div className="form-group" style={{ flex: '1 1 140px' }}>
               <label className="form-label form-label-required" htmlFor="priceMonthly">Monthly Price</label>
               <input id="priceMonthly" type="number" min="0" step="0.01" className="form-control" {...register('priceMonthly', { required: true, min: 0 })} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: '1 1 140px' }}>
               <label className="form-label form-label-required" htmlFor="priceQuarterly">Quarterly Price</label>
               <input id="priceQuarterly" type="number" min="0" step="0.01" className="form-control" {...register('priceQuarterly', { required: true, min: 0 })} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: '1 1 140px' }}>
               <label className="form-label form-label-required" htmlFor="priceYearly">Yearly Price</label>
               <input id="priceYearly" type="number" min="0" step="0.01" className="form-control" {...register('priceYearly', { required: true, min: 0 })} />
             </div>

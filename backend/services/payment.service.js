@@ -164,7 +164,16 @@ async function applyConfirmedPayment(payment, { providerTransactionId, paymentMe
     throw new ApiError(400, 'Payment amount does not match the invoice amount.');
   }
 
-  const updatedPayment = await paymentRepository.markSucceeded(payment.id, { providerTransactionId, paymentMethod, metadata });
+  const { affected, payment: updatedPayment } = await paymentRepository.markSucceeded(payment.id, { providerTransactionId, paymentMethod, metadata });
+  if (!affected) {
+    // Lost the race to a concurrent confirmation (webhook retry vs. a
+    // platform admin's manual click, or two webhook deliveries) — the
+    // other caller already flipped this row to 'succeeded' between our
+    // status check above and this UPDATE. Same idempotent no-op as the
+    // "already succeeded" branch at the top of this function, just
+    // caught at write-time instead of read-time.
+    return { payment: updatedPayment, invoice: null, subscription: null, alreadyProcessed: true };
+  }
 
   let result = { invoice: null, subscription: null };
   if (payment.invoice_id) {

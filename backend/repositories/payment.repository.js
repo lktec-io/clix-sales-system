@@ -103,15 +103,22 @@ export async function findAllForPlatform({ page = 1, limit = 20, tenantId, statu
 // Every mutation below is a narrow, single-purpose status transition —
 // mirrors tenantSubscription.repository.js's own convention (activate(),
 // cancel(), resume() as distinct setters rather than one generic update).
+// WHERE ... status IN ('pending','processing') makes this a
+// compare-and-swap: two near-simultaneous confirmations for the same
+// payment (a webhook retry racing a platform admin's manual click) can
+// each pass an earlier, unlocked status read, but only the first UPDATE
+// actually flips a row — the second affects zero rows, and its caller
+// (payment.service.js#applyConfirmedPayment) treats that as the already-
+// processed, idempotent no-op it already handles for a plain re-read.
 export async function markSucceeded(id, { providerTransactionId, paymentMethod, metadata }) {
-  await pool.query(
+  const [result] = await pool.query(
     `UPDATE payments
      SET status = 'succeeded', paid_at = NOW(), provider_transaction_id = ?, payment_method = ?,
          metadata = ?, failure_reason = NULL
-     WHERE id = ?`,
+     WHERE id = ? AND status IN ('pending', 'processing')`,
     [providerTransactionId || null, paymentMethod || null, metadata ? JSON.stringify(metadata) : null, id],
   );
-  return findById(id);
+  return { affected: result.affectedRows > 0, payment: await findById(id) };
 }
 
 export async function markFailed(id, { failureReason, providerTransactionId, metadata }) {

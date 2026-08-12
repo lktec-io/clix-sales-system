@@ -18,6 +18,14 @@ const PERIOD_DAYS = { daily: 1, weekly: 7, monthly: 30 };
 const DURATION_UNIT_DAYS = { days: 1, weeks: 7, months: 30 };
 const PERIODS_PER_YEAR = { daily: 365, weekly: 52, monthly: 12 };
 
+// Mirrors sale.service.js/purchase.service.js's identical helper.
+async function assertBranchAccess(user, branchId) {
+  const branchIds = await getAccessibleBranchIds(user);
+  if (branchIds !== null && !branchIds.includes(branchId)) {
+    throw new ApiError(403, 'You do not have access to this branch');
+  }
+}
+
 function round2(value) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
@@ -112,12 +120,13 @@ export async function getLoan(id, tenantId) {
 
 const DURATION_UNIT_TO_FREQUENCY = { days: 'daily', weeks: 'weekly', months: 'monthly' };
 
-export async function applyForLoan(data, actorId, tenantId) {
+export async function applyForLoan(data, actorId, tenantId, user) {
   const customer = await customerRepository.findById(data.customerId, tenantId);
   if (!customer) throw new ApiError(400, 'Selected borrower does not exist');
 
   const branch = await branchRepository.findById(data.branchId, tenantId);
   if (!branch) throw new ApiError(400, 'Selected branch does not exist');
+  await assertBranchAccess(user, data.branchId);
 
   const requestedAmount = Number(data.requestedAmount);
   if (requestedAmount <= 0) throw new ApiError(400, 'Loan amount must be greater than zero');

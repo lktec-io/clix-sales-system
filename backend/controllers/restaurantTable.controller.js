@@ -23,7 +23,7 @@ export const getById = asyncHandler(async (req, res) => {
 });
 
 export const create = asyncHandler(async (req, res) => {
-  const table = await restaurantTableService.createTable(req.body, req.user.id, req.user.tenantId);
+  const table = await restaurantTableService.createTable(req.body, req.user.id, req.user.tenantId, req.user);
   return success(res, { message: 'Table created', data: table, status: 201 });
 });
 

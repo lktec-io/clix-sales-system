@@ -1,25 +1,20 @@
 import { pool } from '../config/db.js';
 
-// tenantId is accepted but not yet required at every call site — some
-// services haven't been threaded through with tenant context yet (tracked
-// separately). When omitted, activity_logs.tenant_id falls back to its
-// column DEFAULT (tenant 1), matching today's single-tenant behavior
-// exactly. Pass it whenever the caller has it — findRecent() below is the
-// one place this data is ever read back, and it does require tenantId.
+// tenantId is required, not defaulted. It used to silently fall back to
+// the column's DEFAULT (tenant 1) when omitted — that was a real bug (see
+// product.service.js/user.service.js history): every activity from every
+// tenant OTHER than tenant 1 was silently logged against tenant 1,
+// vanishing from the acting tenant's own feed and leaking into tenant 1's.
+// All 83 call sites across services/*.js now pass tenantId explicitly
+// (verified), so failing loudly here for any future caller that forgets
+// it is strictly safer than silently misattributing the row again.
 export async function create({ tenantId, userId, branchId, description, referenceType, referenceId }) {
-  if (tenantId) {
-    await pool.query(
-      `INSERT INTO activity_logs (tenant_id, user_id, branch_id, description, reference_type, reference_id)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [tenantId, userId, branchId || null, description, referenceType || null, referenceId || null],
-    );
-  } else {
-    await pool.query(
-      `INSERT INTO activity_logs (user_id, branch_id, description, reference_type, reference_id)
-       VALUES (?, ?, ?, ?, ?)`,
-      [userId, branchId || null, description, referenceType || null, referenceId || null],
-    );
-  }
+  if (!tenantId) throw new Error('activityLogRepository.create() requires tenantId');
+  await pool.query(
+    `INSERT INTO activity_logs (tenant_id, user_id, branch_id, description, reference_type, reference_id)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [tenantId, userId, branchId || null, description, referenceType || null, referenceId || null],
+  );
 }
 
 export async function findRecent(tenantId, limit = 20) {
