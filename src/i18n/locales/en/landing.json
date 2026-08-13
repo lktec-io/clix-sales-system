@@ -10,8 +10,72 @@
     "ctaPrimary": "Start Free Trial",
     "noCreditCard": "No credit card required · 14-day free trial"
   },
+  "demoSection": {
+    "title": "See it in action",
+    "subtitle": "A short, simulated walkthrough of the actual system — pick a business above to see its own workflow."
+  },
+  "demoPreview": {
+    "browserTitle": "Clix Business System",
+    "liveLabel": "Live Product Preview",
+    "sampleDataNote": "Sample data for illustration only",
+    "retail-store": {
+      "scenes": [
+        { "caption": "Dashboard overview" },
+        { "caption": "Product added to catalog" },
+        { "caption": "Stock updated" },
+        { "caption": "Sale in progress" },
+        { "caption": "Sale completed" }
+      ]
+    },
+    "pharmacy": {
+      "scenes": [
+        { "caption": "Medicine inventory" },
+        { "caption": "Checking expiry & stock" },
+        { "caption": "Expiry tracking dashboard" },
+        { "caption": "Dispensing medicine" },
+        { "caption": "Transaction completed" }
+      ]
+    },
+    "restaurant": {
+      "scenes": [
+        { "caption": "Restaurant dashboard" },
+        { "caption": "Menu item selected" },
+        { "caption": "Order sent to table" },
+        { "caption": "Order being prepared" },
+        { "caption": "Order completed" }
+      ]
+    },
+    "microfinance": {
+      "scenes": [
+        { "caption": "Lending dashboard" },
+        { "caption": "Borrower profile" },
+        { "caption": "Loan issued" },
+        { "caption": "Repayment recorded" },
+        { "caption": "Loan progress updated" }
+      ]
+    },
+    "cosmetics-shop": {
+      "scenes": [
+        { "caption": "Beauty product catalog" },
+        { "caption": "Category & stock details" },
+        { "caption": "Inventory overview" },
+        { "caption": "Sale in progress" },
+        { "caption": "Order completed" }
+      ]
+    },
+    "electronics-shop": {
+      "scenes": [
+        { "caption": "Device intake" },
+        { "caption": "Condition & diagnosis" },
+        { "caption": "Repairs dashboard" },
+        { "caption": "Repair in progress" },
+        { "caption": "Ready for collection" }
+      ]
+    }
+  },
   "businessSelector": {
-    "prompt": "Built for your business:",
+    "platformName": "Clix Business Management Platform",
+    "prompt": "Choose the system built for your business.",
     "retail-store": "Retail & Sales",
     "pharmacy": "Pharmacy",
     "electronics-shop": "Electronics & Repairs",
@@ -24,55 +88,61 @@
       "eyebrow": "Retail & Sales Management",
       "title": "Run Your Store With Confidence",
       "subtitle": "Products, inventory, sales, customers and suppliers — a fast, professional system built for retail stores, supermarkets and mini markets.",
-      "ctaSecondary": "See How It Works",
+      "ctaSecondary": "Explore Demo",
       "statOne": "Real-time stock tracking",
       "statTwo": "Sales & inventory in sync",
-      "statThree": "Multi-branch ready"
+      "statThree": "Multi-branch ready",
+      "capabilities": ["Sales", "Inventory", "Purchases", "Customers", "Reports"]
     },
     "pharmacy": {
       "eyebrow": "Pharmacy & Medical Store Management",
       "title": "Manage Your Pharmacy Professionally",
       "subtitle": "Medicine inventory, dispensing, sales and suppliers, with expiry tracking built in — an accurate, compliant system for pharmacies and drug dispensing centers.",
-      "ctaSecondary": "See How It Works",
+      "ctaSecondary": "Explore Demo",
       "statOne": "Expiry & batch tracking",
       "statTwo": "Accurate dispensing records",
-      "statThree": "Supplier & stock management"
+      "statThree": "Supplier & stock management",
+      "capabilities": ["Medicines", "Dispensing", "Expiry Tracking", "Suppliers", "Reports"]
     },
     "electronics-shop": {
       "eyebrow": "Repair Shop Software",
       "title": "Run Your Repair Shop Like a Professional Service Center",
       "subtitle": "Device intake, diagnosis, parts and repair tracking, customer updates, sales and inventory — everything a phone or computer repair business needs in one system.",
-      "ctaSecondary": "See How It Works",
+      "ctaSecondary": "Explore Demo",
       "statOne": "Intake to collection tracking",
       "statTwo": "Parts & inventory in sync",
-      "statThree": "Customer SMS updates"
+      "statThree": "Customer SMS updates",
+      "capabilities": ["Repairs", "Devices", "Parts", "Customers", "Sales"]
     },
     "cosmetics-shop": {
       "eyebrow": "Beauty & Cosmetics Retail",
       "title": "Run Your Beauty Business With Confidence",
       "subtitle": "Products, perfumes and beauty inventory, sales, customers and reports — a refined system built for cosmetics and beauty retailers.",
-      "ctaSecondary": "Explore Features",
+      "ctaSecondary": "Explore Demo",
       "statOne": "Product & stock management",
       "statTwo": "Best-seller insights",
-      "statThree": "Customer favorites tracked"
+      "statThree": "Customer favorites tracked",
+      "capabilities": ["Beauty Products", "Inventory", "Sales", "Customers", "Reports"]
     },
     "restaurant": {
       "eyebrow": "Restaurant & Café Management",
       "title": "Run Your Restaurant Without the Chaos",
       "subtitle": "Menu, orders, tables, sales and inventory — a fast, reliable system built for restaurants, cafés and takeaway businesses.",
-      "ctaSecondary": "See Restaurant Features",
+      "ctaSecondary": "Explore Demo",
       "statOne": "Order to table, tracked live",
       "statTwo": "Menu performance insights",
-      "statThree": "Multi-branch ready"
+      "statThree": "Multi-branch ready",
+      "capabilities": ["Menu", "Orders", "Tables", "Kitchen Workflow", "Reports"]
     },
     "microfinance": {
       "eyebrow": "Financial Institution Software",
       "title": "Grow Your Lending Business With Confidence",
       "subtitle": "Borrowers, loans, repayments, savings and financial reports — a trusted, professional system built for microfinance institutions.",
-      "ctaSecondary": "See How It Works",
+      "ctaSecondary": "Explore Demo",
       "statOne": "Loan & repayment tracking",
       "statTwo": "Borrower savings management",
-      "statThree": "Financial reporting built in"
+      "statThree": "Financial reporting built in",
+      "capabilities": ["Borrowers", "Loans", "Repayments", "Savings", "Financial Reports"]
     }
   },
   "features": {
@@ -114,12 +184,14 @@
       "features": ["Everything in Growth", "Dedicated account manager", "Custom integrations", "SLA guarantee"]
     }
   },
-  "testimonials": {
-    "title": "Trusted by businesses like yours",
-    "subtitle": "Join retailers and wholesalers already running on Clix.",
-    "placeholder1": { "quote": "Clix brought every branch onto one screen — stock, sales, and reports finally agree with each other.", "name": "Retail Owner", "role": "Electronics & Appliances" },
-    "placeholder2": { "quote": "Setup took an afternoon, not a month. Our cashiers were checking out customers the same day.", "name": "Store Manager", "role": "General Merchandise" },
-    "placeholder3": { "quote": "Having the system in Kiswahili made onboarding the whole team painless.", "name": "Operations Lead", "role": "Wholesale Distribution" }
+  "trust": {
+    "title": "Built specifically for your business",
+    "subtitle": "No invented numbers, no fake reviews — just what the product actually does.",
+    "fact1": "Six dedicated business systems — Retail, Pharmacy, Restaurant, Microfinance, Cosmetics & Beauty, and Electronics — not one generic template with a different label.",
+    "fact2": "14-day free trial, no credit card required to start.",
+    "fact3": "Fully bilingual — English and Kiswahili throughout the system, including receipts and reports.",
+    "fact4": "Multi-branch ready from day one, with role-based access per branch.",
+    "fact5": "Every business's data is isolated from every other — nothing is ever shared across tenants."
   },
   "faq": {
     "title": "Frequently asked questions",
@@ -133,7 +205,6 @@
     "tagline": "Sales & inventory management for growing businesses.",
     "product": "Product",
     "company": "Company",
-    "legal": "Legal",
     "rights": "All rights reserved."
   }
 }

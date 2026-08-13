@@ -1,36 +1,39 @@
 import { useTranslation } from 'react-i18next';
-import { FiUser } from 'react-icons/fi';
+import { FiGrid, FiClock, FiGlobe, FiMapPin, FiShield } from 'react-icons/fi';
 
-const PLACEHOLDER_KEYS = ['placeholder1', 'placeholder2', 'placeholder3'];
+// Replaces a prior version that rendered three fabricated customer quotes
+// (invented names/roles, presented as real testimonials with no
+// disclosure) — an explicit product decision to never fabricate social
+// proof. This shows honest, verifiable facts about what the product
+// actually does instead — no invented customer counts, no uptime
+// percentages, no reviews. See landing:trust.* — every fact here traces to
+// real, checkable product behavior (six real templates, the real trial
+// engine, real bilingual i18n coverage, real multi-branch/tenant-isolation
+// architecture).
+const FACT_ICONS = [FiGrid, FiClock, FiGlobe, FiMapPin, FiShield];
+const FACT_KEYS = ['fact1', 'fact2', 'fact3', 'fact4', 'fact5'];
 
-// Real customer testimonials will replace these once the first cohort of
-// tenants has been live long enough to ask — the layout/markup below is
-// production-ready, only the copy is a placeholder (explicitly requested
-// as "Testimonials placeholder" in the Phase 2 spec).
 function Testimonials() {
   const { t } = useTranslation('landing');
 
   return (
     <section className="landing-section">
       <div className="landing-section-header">
-        <h2>{t('testimonials.title')}</h2>
-        <p>{t('testimonials.subtitle')}</p>
+        <h2>{t('trust.title')}</h2>
+        <p>{t('trust.subtitle')}</p>
       </div>
 
-      <div className="landing-testimonials-grid">
-        {PLACEHOLDER_KEYS.map((key) => (
-          <figure key={key} className="landing-testimonial-card">
-            <blockquote>&ldquo;{t(`testimonials.${key}.quote`)}&rdquo;</blockquote>
-            <figcaption>
-              <span className="landing-testimonial-avatar"><FiUser aria-hidden="true" /></span>
-              <span>
-                <strong>{t(`testimonials.${key}.name`)}</strong>
-                <span className="landing-testimonial-role">{t(`testimonials.${key}.role`)}</span>
-              </span>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
+      <ul className="landing-trust-grid">
+        {FACT_KEYS.map((key, index) => {
+          const Icon = FACT_ICONS[index];
+          return (
+            <li key={key} className="landing-trust-card">
+              <span className="landing-trust-icon"><Icon aria-hidden="true" /></span>
+              <p>{t(`trust.${key}`)}</p>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }

@@ -1,0 +1,398 @@
+/* Demo preview — a "browser frame" showing a short, looping, simulated
+   product walkthrough per business (Part 6/7). Rendered inside
+   .landing-page, so it inherits that page's fixed --landing-* tokens
+   (Landing.css) — this file never references the app's theme-reactive
+   --color-* / --gradient-* tokens, keeping it just as theme-independent as
+   the rest of the public page. Colors below are deliberately literal hex
+   values matching businessThemes.js's own per-template accents (that
+   system is keyed off the AUTHENTICATED tenant's data-business-template
+   attribute, which has no meaning on the public landing page — this is a
+   separate, local "which business is the visitor previewing" selection,
+   so the same six accents are simply restated here rather than shared via
+   a CSS custom property). */
+
+.demo-preview-frame {
+  max-width: 480px;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--landing-card-bg);
+  box-shadow: var(--landing-shadow-lg);
+  border: 1px solid var(--landing-border);
+}
+
+.demo-preview-titlebar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: #1E293B;
+}
+
+.demo-preview-titlebar-dots {
+  display: inline-flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.demo-preview-titlebar-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.demo-preview-titlebar-text {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.demo-preview-body {
+  position: relative;
+  min-height: 200px;
+  padding: var(--space-6) var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  background: var(--landing-bg-alt);
+  overflow: hidden;
+}
+
+.demo-preview-live-badge {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--landing-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.demo-preview-live-badge::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #EF4444;
+  animation: demo-live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes demo-live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* ---------- Scene shapes ---------- */
+
+.demo-scene {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96px;
+}
+
+.demo-scene-dashboard {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.demo-stat-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--landing-card-bg);
+  border: 1px solid var(--landing-border);
+  min-width: 96px;
+}
+
+.demo-stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--landing-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.demo-stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--landing-text-secondary);
+}
+
+.demo-scene-catalog {
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.demo-catalog-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--landing-card-bg);
+  border: 2px solid rgba(var(--landing-primary-rgb), 0.35);
+  color: var(--landing-primary);
+  font-size: 1.4rem;
+  animation: demo-catalog-select 2.4s ease-in-out infinite;
+}
+
+@keyframes demo-catalog-select {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--landing-primary-rgb), 0.25); }
+  50% { box-shadow: 0 0 0 8px rgba(var(--landing-primary-rgb), 0); }
+}
+
+.demo-catalog-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--landing-text-primary);
+}
+
+.demo-catalog-meta {
+  font-size: var(--font-size-xs);
+  color: var(--landing-text-secondary);
+}
+
+.demo-scene-detail {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 280px;
+}
+
+.demo-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--landing-card-bg);
+  border: 1px solid var(--landing-border);
+  font-size: var(--font-size-sm);
+  animation: demo-detail-reveal 0.5s ease-out both;
+}
+
+.demo-detail-label {
+  color: var(--landing-text-secondary);
+}
+
+.demo-detail-value {
+  color: var(--landing-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+@keyframes demo-detail-reveal {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.demo-scene-transaction {
+  min-height: 96px;
+}
+
+.demo-transaction-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-full);
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--landing-success);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Pure-CSS "processing -> success" morph, no JS timer needed: the spinner
+   rotates twice (1.8s total) then fades out over the next 0.3s; the check
+   starts invisible/scaled-down and pops in starting at that same 1.8s
+   mark. Both animate only opacity/transform (never `display`, which
+   isn't reliably animatable) so there's no layout jump between the two
+   states. */
+.demo-transaction-spinner {
+  animation: demo-spin 0.9s linear 2 forwards, demo-fade-out 0.3s ease-out 1.8s forwards;
+}
+
+.demo-transaction-check {
+  opacity: 0;
+  transform: scale(0.5);
+  animation: demo-check-pop 0.4s ease-out 1.8s forwards;
+}
+
+@keyframes demo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes demo-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes demo-check-pop {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.demo-scene-result {
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.demo-result-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.14);
+  color: var(--landing-success);
+  font-size: 1.25rem;
+  margin-bottom: var(--space-1);
+  animation: demo-check-pop 0.4s ease-out both;
+}
+
+.demo-result-amount {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--landing-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.demo-result-unit {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--landing-text-secondary);
+}
+
+.demo-result-label {
+  font-size: var(--font-size-xs);
+  color: var(--landing-text-secondary);
+}
+
+/* ---------- Caption, indicators, note ---------- */
+
+.demo-preview-caption {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--landing-text-secondary);
+  text-align: center;
+}
+
+.demo-preview-indicators {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  background: var(--landing-card-bg);
+}
+
+.demo-preview-indicator {
+  width: 20px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--landing-border);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.demo-preview-indicator:hover {
+  background: rgba(var(--landing-primary-rgb), 0.4);
+}
+
+.demo-preview-indicator.is-active {
+  background: var(--landing-primary);
+}
+
+.demo-preview-indicator:focus-visible {
+  outline: 2px solid var(--landing-primary);
+  outline-offset: 2px;
+}
+
+.demo-preview-note {
+  margin: 0;
+  padding: 0 0 var(--space-3);
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--landing-text-secondary);
+  opacity: 0.75;
+  background: var(--landing-card-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-preview-live-badge::before,
+  .demo-catalog-icon,
+  .demo-transaction-check,
+  .demo-result-check,
+  .demo-detail-row {
+    animation: none;
+  }
+  /* Show only the settled end state — a static spinner sitting next to a
+     static checkmark would be a confusing "half-finished" image, so the
+     spinner is hidden entirely rather than just frozen mid-rotation. */
+  .demo-transaction-spinner {
+    display: none;
+  }
+  .demo-result-check,
+  .demo-transaction-check {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Static placeholder shown only while the lazy-loaded DemoPreview chunk
+   is still fetching — same frame dimensions, no content, no animation of
+   its own (avoids a flash of competing motion right before the real
+   component mounts and takes over). */
+.demo-preview-skeleton .demo-preview-body {
+  background: linear-gradient(90deg, var(--landing-bg-alt) 25%, var(--landing-card-bg) 50%, var(--landing-bg-alt) 75%);
+  background-size: 200% 100%;
+  animation: demo-skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes demo-skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-preview-skeleton .demo-preview-body {
+    animation: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .demo-preview-body {
+    min-height: 176px;
+    padding: var(--space-5) var(--space-4) var(--space-3);
+  }
+
+  .demo-scene-dashboard {
+    gap: var(--space-3);
+  }
+
+  .demo-stat-tile {
+    min-width: 76px;
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .demo-stat-value {
+    font-size: var(--font-size-lg);
+  }
+}

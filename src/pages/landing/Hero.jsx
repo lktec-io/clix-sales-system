@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -6,17 +5,20 @@ import { FiShield, FiGlobe, FiGrid } from 'react-icons/fi';
 import { ROUTES } from '../../constants/routes';
 import { BUSINESS_EXPERIENCES } from '../../constants/businessExperiences';
 
-// Every active business template now has a dedicated hero identity (copy
-// in landing:businessHero.<slug>.*, motif in BUSINESS_EXPERIENCES) — this
-// is the full, final pill order, matching businessThemes.js's own key
-// order. Retail Store is the default selection, mirroring the platform's
-// own "Retail Store is the default template" convention
+// Every active business template has a dedicated hero identity (copy in
+// landing:businessHero.<slug>.*, motif in BUSINESS_EXPERIENCES) — this is
+// the full, final pill order, matching businessThemes.js's own key order.
+// Retail Store is the default selection, mirroring the platform's own
+// "Retail Store is the default template" convention
 // (businessTemplateAssignment.service.js's DEFAULT_TEMPLATE_ID).
 const SELECTOR_SLUGS = ['retail-store', 'pharmacy', 'restaurant', 'microfinance', 'cosmetics-shop', 'electronics-shop'];
 
-function Hero() {
+// activeSlug/onSelectSlug are lifted into Landing.jsx (not local state
+// here) so the Demo section below can react to the same selection without
+// prop-drilling through a shared context for what is, on this one public
+// page, a single parent-child relationship.
+function Hero({ activeSlug, onSelectSlug }) {
   const { t } = useTranslation('landing');
-  const [activeSlug, setActiveSlug] = useState('retail-store');
   const experience = BUSINESS_EXPERIENCES[activeSlug];
 
   return (
@@ -31,6 +33,8 @@ function Hero() {
       />
 
       <div className="landing-hero-inner">
+        <span className="landing-hero-platform-name">{t('businessSelector.platformName')}</span>
+
         <div className="landing-hero-selector" role="group" aria-label={t('businessSelector.prompt')}>
           <span className="landing-hero-selector-label">{t('businessSelector.prompt')}</span>
           <div className="landing-hero-selector-pills">
@@ -39,7 +43,7 @@ function Hero() {
                 key={slug}
                 type="button"
                 className={`landing-hero-pill ${activeSlug === slug ? 'is-active' : ''}`}
-                onClick={() => setActiveSlug(slug)}
+                onClick={() => onSelectSlug(slug)}
                 aria-pressed={activeSlug === slug}
               >
                 {t(`businessSelector.${slug}`)}
@@ -69,7 +73,7 @@ function Hero() {
           transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
           <Link to={`${ROUTES.REGISTER}?template=${activeSlug}`} className="btn btn-primary btn-lg">{t('hero.ctaPrimary')}</Link>
-          <Link to="#features" className="btn btn-outline btn-lg">{t(`businessHero.${activeSlug}.ctaSecondary`)}</Link>
+          <Link to="#demo" className="btn btn-outline btn-lg">{t(`businessHero.${activeSlug}.ctaSecondary`)}</Link>
         </motion.div>
 
         <motion.p

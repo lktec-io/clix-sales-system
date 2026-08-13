@@ -1,10 +1,47 @@
 /* Public marketing page — full-bleed, not the authenticated app shell.
    Desktop-first, matching the rest of this codebase's responsive convention
-   (base styles target desktop, media queries step down through breakpoints). */
+   (base styles target desktop, media queries step down through breakpoints).
+
+   THEME INDEPENDENCE — read before adding any color here: the public
+   landing page must look identical no matter what theme (Aurora/Midnight/
+   Frost, light/dark) a visitor previously chose inside the authenticated
+   app, or what data-theme value happens to be sitting in localStorage from
+   a past session. ThemeProvider stamps data-theme onto <html> globally,
+   and every var(--color-*)/var(--gradient-*)/var(--glass-*) token in
+   theme.css is redefined per data-theme value — so this page must NOT
+   reference any of those tokens. Instead, every color below is a fixed
+   --landing-* custom property declared once on .landing-page (the root
+   element Landing.jsx renders), which CSS custom-property inheritance
+   then makes available to every selector in this file. This is a scoped
+   override, not a global !important fight: nothing here touches
+   theme.css, and nothing in theme.css can reach in and change these
+   values. Structural tokens (spacing/font-size/font-weight/radius/
+   transition/z-index/line-height) are safe to keep using directly — they
+   are NOT redefined per theme anywhere in themes.css, confirmed by
+   grepping it before writing this file. */
 
 .landing-page {
-  background: var(--color-page-bg);
-  color: var(--color-text-primary);
+  --landing-bg: #F8FAFC;
+  --landing-bg-alt: #F1F5F9;
+  --landing-card-bg: #FFFFFF;
+  --landing-navbar-bg: rgba(255, 255, 255, 0.85);
+  --landing-border: #E2E8F0;
+  --landing-text-primary: #0F172A;
+  --landing-text-secondary: #64748B;
+  --landing-text-inverse: #FFFFFF;
+  --landing-primary: #0F172A;
+  --landing-primary-rgb: 15, 23, 42;
+  --landing-success: #10B981;
+  --landing-footer-bg: #111827;
+  --landing-footer-text: #E2E8F0;
+  --landing-glass-blur: 20px;
+  --landing-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --landing-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.14);
+  --landing-gradient-hero: linear-gradient(115deg, #071A3D 0%, #123A73 45%, #0E7A57 85%, #123A73 100%);
+  --landing-gradient-primary: linear-gradient(135deg, #2F6BFF 0%, #10B981 100%);
+
+  background: var(--landing-bg);
+  color: var(--landing-text-primary);
   overflow-x: hidden;
 }
 
@@ -13,15 +50,41 @@
   color: inherit;
 }
 
+/* The shared .btn-primary/.btn-outline classes (buttons.css) read
+   var(--color-primary)/var(--color-primary-hover)/var(--color-accent-hover)
+   — all theme-reactive. Scoped overrides here pin the landing page's
+   buttons to the same fixed palette as everything else on this page,
+   regardless of the visitor's stored theme. (.landing-hero .btn-outline
+   below still wins on the dark hero specifically — same specificity,
+   later in the cascade — this just covers every other section.) */
+.landing-page .btn-primary {
+  background-image: linear-gradient(135deg, #0F172A 0%, #1E293B 55%, #16A34A 100%);
+  color: #ffffff;
+}
+
+.landing-page .btn-primary:hover:not(:disabled) {
+  background-image: linear-gradient(135deg, #1E293B 0%, #0F172A 45%, #22C55E 100%);
+}
+
+.landing-page .btn-outline {
+  border-color: #0F172A;
+  color: #0F172A;
+}
+
+.landing-page .btn-outline:hover:not(:disabled) {
+  background-color: #0F172A;
+  color: #ffffff;
+}
+
 /* ---------- Nav ---------- */
 
 .landing-nav {
   position: sticky;
   top: 0;
   z-index: var(--z-navbar);
-  background: var(--color-navbar-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border-bottom: 1px solid var(--color-border);
+  background: var(--landing-navbar-bg);
+  backdrop-filter: blur(var(--landing-glass-blur));
+  border-bottom: 1px solid var(--landing-border);
 }
 
 .landing-nav-inner {
@@ -49,16 +112,16 @@
 .landing-nav-links a {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
+  color: var(--landing-text-secondary);
   transition: color var(--transition-fast);
 }
 
 .landing-nav-links a:hover {
-  color: var(--color-text-primary);
+  color: var(--landing-text-primary);
 }
 
 .landing-nav-login {
-  color: var(--color-text-primary) !important;
+  color: var(--landing-text-primary) !important;
 }
 
 .landing-nav-toggle {
@@ -66,7 +129,7 @@
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: var(--color-text-primary);
+  color: var(--landing-text-primary);
   cursor: pointer;
 }
 
@@ -75,8 +138,8 @@
 .landing-hero {
   position: relative;
   overflow: hidden;
-  background: var(--gradient-hero);
-  color: var(--color-text-inverse);
+  background: var(--landing-gradient-hero);
+  color: var(--landing-text-inverse);
   padding: var(--space-10) var(--page-padding-desktop) var(--space-9);
   text-align: center;
 }
@@ -92,11 +155,17 @@
   gap: var(--space-4);
 }
 
+.landing-hero-platform-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.9);
+}
+
 /* Business selector — swaps the hero's copy + motif below without
-   navigating away. 'general' (no business picked) shows the platform's
-   default retail-oriented copy; picking one of the three covered
-   businesses swaps in its dedicated headline/motif and carries the
-   selection into Start Trial via a ?template= query param. */
+   navigating away. Every one of the six active templates has its own
+   dedicated headline/motif; the selection carries into Start Trial via a
+   ?template= query param. */
 .landing-hero-selector {
   display: flex;
   flex-direction: column;
@@ -138,10 +207,18 @@
   color: #ffffff;
 }
 
+.landing-hero-pill:focus-visible,
+.landing-nav-toggle:focus-visible,
+.landing-faq-question:focus-visible,
+.landing-nav-links a:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
 .landing-hero-pill.is-active {
   background: rgba(255, 255, 255, 0.94);
   border-color: #ffffff;
-  color: var(--color-text-primary);
+  color: var(--landing-text-primary);
 }
 
 .landing-hero-eyebrow {
@@ -221,7 +298,7 @@
 
 .landing-section-alt {
   max-width: none;
-  background: var(--color-gray-light);
+  background: var(--landing-bg-alt);
 }
 
 .landing-section-alt > * {
@@ -246,7 +323,45 @@
 }
 
 .landing-section-header p {
-  color: var(--color-text-secondary);
+  color: var(--landing-text-secondary);
+}
+
+/* ---------- Demo (Part 6/7/10) ---------- */
+
+.landing-demo-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.landing-capabilities-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  max-width: 640px;
+}
+
+.landing-capability-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--landing-text-primary);
+  background: var(--landing-card-bg);
+  border: 1px solid var(--landing-border);
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-4);
+}
+
+.landing-capability-chip svg {
+  color: var(--landing-success);
+  flex-shrink: 0;
 }
 
 /* ---------- Features ---------- */
@@ -258,11 +373,11 @@
 }
 
 .landing-feature-card {
-  background: var(--color-card-bg);
-  border: 1px solid var(--color-border);
+  background: var(--landing-card-bg);
+  border: 1px solid var(--landing-border);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--landing-shadow-sm);
 }
 
 .landing-feature-icon {
@@ -272,7 +387,7 @@
   width: 44px;
   height: 44px;
   border-radius: var(--radius-md);
-  background: var(--gradient-primary);
+  background: var(--landing-gradient-primary);
   color: #ffffff;
   font-size: 1.25rem;
   margin-bottom: var(--space-4);
@@ -284,7 +399,7 @@
 }
 
 .landing-feature-card p {
-  color: var(--color-text-secondary);
+  color: var(--landing-text-secondary);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-base);
 }
@@ -299,18 +414,18 @@
 
 .landing-pricing-card {
   position: relative;
-  background: var(--color-card-bg);
-  border: 1px solid var(--color-border);
+  background: var(--landing-card-bg);
+  border: 1px solid var(--landing-border);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--landing-shadow-sm);
 }
 
 .landing-pricing-card.is-featured {
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-lg);
+  border-color: var(--landing-primary);
+  box-shadow: var(--landing-shadow-lg);
   transform: translateY(-8px);
 }
 
@@ -319,7 +434,7 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--gradient-primary);
+  background: var(--landing-gradient-primary);
   color: #ffffff;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
@@ -347,11 +462,11 @@
 
 .landing-pricing-period {
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  color: var(--landing-text-secondary);
 }
 
 .landing-pricing-description {
-  color: var(--color-text-secondary);
+  color: var(--landing-text-secondary);
   font-size: var(--font-size-sm);
   margin-bottom: var(--space-5);
 }
@@ -374,62 +489,51 @@
 }
 
 .landing-pricing-features li svg {
-  color: var(--color-success);
+  color: var(--landing-success);
   flex-shrink: 0;
   margin-top: 3px;
 }
 
-/* ---------- Testimonials ---------- */
+/* ---------- Trust (honest product facts, never fabricated social proof) ---------- */
 
-.landing-testimonials-grid {
+.landing-trust-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-5);
 }
 
-.landing-testimonial-card {
-  background: var(--color-card-bg);
-  border: 1px solid var(--color-border);
+.landing-trust-card {
+  background: var(--landing-card-bg);
+  border: 1px solid var(--landing-border);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
-  box-shadow: var(--shadow-sm);
-  margin: 0;
-}
-
-.landing-testimonial-card blockquote {
-  margin: 0 0 var(--space-5);
-  font-size: var(--font-size-md);
-  line-height: var(--line-height-base);
-  color: var(--color-text-primary);
-}
-
-.landing-testimonial-card figcaption {
+  box-shadow: var(--landing-shadow-sm);
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-3);
 }
 
-.landing-testimonial-avatar {
+.landing-trust-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  background: var(--color-gray-light);
-  color: var(--color-text-secondary);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: rgba(var(--landing-primary-rgb), 0.08);
+  color: var(--landing-primary);
+  font-size: 1.1rem;
   flex-shrink: 0;
 }
 
-.landing-testimonial-card figcaption > span {
-  display: flex;
-  flex-direction: column;
+.landing-trust-card p {
+  margin: 0;
   font-size: var(--font-size-sm);
-}
-
-.landing-testimonial-role {
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-xs);
+  line-height: var(--line-height-base);
+  color: var(--landing-text-primary);
 }
 
 /* ---------- FAQ ---------- */
@@ -441,8 +545,8 @@
 }
 
 .landing-faq-item {
-  background: var(--color-card-bg);
-  border: 1px solid var(--color-border);
+  background: var(--landing-card-bg);
+  border: 1px solid var(--landing-border);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
@@ -459,7 +563,7 @@
   padding: var(--space-4) var(--space-5);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
+  color: var(--landing-text-primary);
   cursor: pointer;
 }
 
@@ -474,7 +578,7 @@
 
 .landing-faq-answer {
   padding: 0 var(--space-5) var(--space-5);
-  color: var(--color-text-secondary);
+  color: var(--landing-text-secondary);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-base);
 }
@@ -482,8 +586,8 @@
 /* ---------- Footer ---------- */
 
 .landing-footer {
-  background: var(--color-sidebar-bg);
-  color: var(--color-text-on-sidebar);
+  background: var(--landing-footer-bg);
+  color: var(--landing-footer-text);
 }
 
 .landing-footer-inner {
@@ -546,7 +650,7 @@
 @media (max-width: 1024px) {
   .landing-features-grid,
   .landing-pricing-grid,
-  .landing-testimonials-grid {
+  .landing-trust-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -559,13 +663,13 @@
   .landing-nav-links {
     position: fixed;
     inset: var(--navbar-height) 0 auto 0;
-    background: var(--color-navbar-bg);
-    backdrop-filter: blur(var(--glass-blur));
+    background: var(--landing-navbar-bg);
+    backdrop-filter: blur(var(--landing-glass-blur));
     flex-direction: column;
     align-items: stretch;
     padding: var(--space-4);
     gap: var(--space-3);
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--landing-border);
     display: none;
   }
 
@@ -579,7 +683,7 @@
 
   .landing-features-grid,
   .landing-pricing-grid,
-  .landing-testimonials-grid {
+  .landing-trust-grid {
     grid-template-columns: 1fr;
   }
 
