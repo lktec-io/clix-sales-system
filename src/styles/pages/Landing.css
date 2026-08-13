@@ -73,6 +73,8 @@
 /* ---------- Hero ---------- */
 
 .landing-hero {
+  position: relative;
+  overflow: hidden;
   background: var(--gradient-hero);
   color: var(--color-text-inverse);
   padding: var(--space-10) var(--page-padding-desktop) var(--space-9);
@@ -80,12 +82,66 @@
 }
 
 .landing-hero-inner {
+  position: relative;
+  z-index: 1;
   max-width: 780px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-4);
+}
+
+/* Business selector — swaps the hero's copy + motif below without
+   navigating away. 'general' (no business picked) shows the platform's
+   default retail-oriented copy; picking one of the three covered
+   businesses swaps in its dedicated headline/motif and carries the
+   selection into Start Trial via a ?template= query param. */
+.landing-hero-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.landing-hero-selector-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.landing-hero-selector-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.landing-hero-pill {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-4);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.landing-hero-pill:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.landing-hero-pill.is-active {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: #ffffff;
+  color: var(--color-text-primary);
 }
 
 .landing-hero-eyebrow {

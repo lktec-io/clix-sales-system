@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   FiEye, FiEyeOff, FiCheck, FiShoppingBag, FiGrid, FiPackage,
@@ -37,6 +37,8 @@ function Register() {
   const { t } = useTranslation('register');
   const { register: registerTenant } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const requestedSlug = searchParams.get('template');
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState('');
   const [templates, setTemplates] = useState([]);
@@ -67,12 +69,14 @@ function Register() {
       .then((data) => {
         if (cancelled) return;
         setTemplates(data);
-        // Pre-select Retail Store (the platform default) so the picker
-        // never looks "empty" — the user can still change it. Falls back
-        // to the first template if Retail Store isn't present for some
-        // reason (e.g. a platform admin archived it), rather than leaving
-        // no visual selection at all.
-        const defaultTemplate = data.find((template) => template.slug === 'retail-store') || data[0];
+        // Carries the landing page's business-selector pill choice
+        // through (?template=electronics-shop) so a visitor who already
+        // said "I run a repair shop" doesn't have to pick it again here.
+        // Falls back to Retail Store (the platform default) when there's
+        // no query param or it doesn't match a real, active template —
+        // never trusted blindly, just used as a pre-selection hint.
+        const requestedTemplate = requestedSlug && data.find((template) => template.slug === requestedSlug);
+        const defaultTemplate = requestedTemplate || data.find((template) => template.slug === 'retail-store') || data[0];
         if (defaultTemplate) setValue('businessTemplateId', defaultTemplate.id);
       })
       .catch(() => {
@@ -86,7 +90,7 @@ function Register() {
     return () => {
       cancelled = true;
     };
-  }, [setValue]);
+  }, [setValue, requestedSlug]);
 
   const onSubmit = async (values) => {
     setFormError('');

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { useModules } from '../../hooks/useModules';
 import { resolveBusinessTheme } from '../../constants/businessThemes';
+import { resolveBusinessExperience } from '../../constants/businessExperiences';
 import '../../styles/components/DashboardHero.css';
 
 function useLiveClock() {
@@ -24,6 +25,11 @@ function DashboardHero() {
   const { businessTemplateSlug } = useModules();
   const businessTheme = resolveBusinessTheme(businessTemplateSlug);
   const BusinessIcon = businessTheme.icon;
+  // Only Electronics/Cosmetics/Restaurant get a dedicated motif today —
+  // resolveBusinessExperience() returns null for every other template
+  // (Retail/Pharmacy/Microfinance), which keeps their existing generic
+  // .dashboard-hero-orb treatment untouched below.
+  const experience = resolveBusinessExperience(businessTemplateSlug);
   const now = useLiveClock();
 
   function getGreeting(hour) {
@@ -46,7 +52,11 @@ function DashboardHero() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     >
-      <span className="dashboard-hero-orb" aria-hidden="true" />
+      {experience ? (
+        <span className={`business-motif business-motif-compact ${experience.motifClass}`} aria-hidden="true" />
+      ) : (
+        <span className="dashboard-hero-orb" aria-hidden="true" />
+      )}
 
       <motion.div className="dashboard-hero-greeting-block" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.1 }}>
         <span className="dashboard-hero-eyebrow">{greeting}</span>

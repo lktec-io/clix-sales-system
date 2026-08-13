@@ -1,7 +1,9 @@
 {
   "list": {
     "title": "Products",
+    "titleCosmetics": "Beauty Products",
     "subtitle": "Manage your product catalog",
+    "subtitleCosmetics": "Manage your beauty products and perfumes",
     "newProduct": "New Product",
     "archivedProducts": "Archived Products",
     "searchPlaceholder": "Search by name or code...",

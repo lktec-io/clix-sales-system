@@ -10,6 +10,7 @@ import ViewToggle from '../../components/common/ViewToggle';
 import { useTable } from '../../hooks/useTable';
 import { usePermission } from '../../hooks/usePermission';
 import { useToast } from '../../hooks/useToast';
+import { useModules } from '../../hooks/useModules';
 import * as productService from '../../services/productService';
 import * as categoryService from '../../services/categoryService';
 import * as brandService from '../../services/brandService';
@@ -20,6 +21,12 @@ import '../../styles/components/ViewToggle.css';
 function ProductList() {
   const { t } = useTranslation(['products', 'common']);
   const navigate = useNavigate();
+  // Presentation-only terminology swap for Cosmetics & Beauty — same
+  // Products module/table/API as every other template, just a page
+  // heading a beauty retailer recognizes. Nothing else (routes,
+  // permissions, data) branches on this.
+  const { businessTemplateSlug } = useModules();
+  const isCosmetics = businessTemplateSlug === 'cosmetics-shop';
   const canCreate = usePermission('products.create');
   const canEdit = usePermission('products.edit');
   const canDelete = usePermission('products.delete');
@@ -144,8 +151,8 @@ function ProductList() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">{t('products:list.title')}</h1>
-          <p className="page-subtitle">{t('products:list.subtitle')}</p>
+          <h1 className="page-title">{t(isCosmetics ? 'products:list.titleCosmetics' : 'products:list.title')}</h1>
+          <p className="page-subtitle">{t(isCosmetics ? 'products:list.subtitleCosmetics' : 'products:list.subtitle')}</p>
         </div>
         <div className="page-actions">
           {canDelete && (

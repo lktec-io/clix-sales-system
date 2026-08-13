@@ -1,0 +1,162 @@
+/* Business-experience motion/background layer — Electronics, Cosmetics &
+   Beauty, and Restaurant only (the three templates this pass covers).
+   Layers ON TOP of the existing --gradient-hero (Aurora/Midnight/Frost),
+   never replacing it — same "additive, not destructive" pattern
+   businessThemes.css already established for --business-accent.
+
+   Every motif here is a single absolutely-positioned, overflow-hidden,
+   pointer-events:none layer sized to its container (not the viewport), so
+   it can never cause horizontal scroll regardless of where it's mounted.
+   All motion is transform/opacity/background-position only (GPU-cheap,
+   no layout thrash) and every keyframe is wrapped in a
+   prefers-reduced-motion guard — the reduced-motion variant is a static
+   frame, not a faster/smaller version of the same animation. */
+
+.business-motif {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================================
+   ELECTRONICS — technical, precise: circuit traces + pulsing nodes.
+   Cyan/electric-blue on the existing dark hero gradient, deliberately
+   sparse and linear (drafting-table precision), never organic.
+   ============================================================ */
+.business-motif-electronics {
+  background-image:
+    linear-gradient(90deg, transparent 0%, rgba(56, 224, 255, 0.16) 50%, transparent 100%),
+    repeating-linear-gradient(0deg, transparent 0, transparent 38px, rgba(56, 224, 255, 0.07) 39px, transparent 40px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 46px, rgba(56, 224, 255, 0.05) 47px, transparent 48px);
+  background-size: 220% 100%, 100% 100%, 100% 100%;
+  animation: electronics-scan 7s linear infinite;
+}
+
+.business-motif-electronics::before,
+.business-motif-electronics::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #5EEBFF;
+  box-shadow: 0 0 10px 2px rgba(94, 235, 255, 0.7);
+  animation: electronics-node-pulse 2.6s ease-in-out infinite;
+}
+
+.business-motif-electronics::before { top: 28%; left: 18%; animation-delay: 0s; }
+.business-motif-electronics::after { top: 62%; left: 74%; animation-delay: 1.3s; }
+
+@keyframes electronics-scan {
+  0% { background-position: -60% 0, 0 0, 0 0; }
+  100% { background-position: 160% 0, 0 0, 0 0; }
+}
+
+@keyframes electronics-node-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .business-motif-electronics { animation: none; background-position: 50% 0, 0 0, 0 0; }
+  .business-motif-electronics::before,
+  .business-motif-electronics::after { animation: none; opacity: 0.7; }
+}
+
+/* ============================================================
+   COSMETICS & BEAUTY — premium, elegant: slow soft-focus blooms.
+   Blush/champagne/plum, large-radius blurred blobs drifting slowly —
+   the opposite of Electronics' sharp linear precision.
+   ============================================================ */
+.business-motif-cosmetics::before,
+.business-motif-cosmetics::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(38px);
+  animation: cosmetics-drift 18s ease-in-out infinite;
+}
+
+.business-motif-cosmetics::before {
+  width: 46%;
+  aspect-ratio: 1;
+  top: -10%;
+  right: 4%;
+  background: radial-gradient(circle, rgba(240, 179, 200, 0.38), transparent 70%);
+  animation-delay: 0s;
+}
+
+.business-motif-cosmetics::after {
+  width: 36%;
+  aspect-ratio: 1;
+  bottom: -14%;
+  left: 8%;
+  background: radial-gradient(circle, rgba(196, 154, 217, 0.3), transparent 70%);
+  animation-delay: 6s;
+}
+
+@keyframes cosmetics-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-4%, 5%) scale(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .business-motif-cosmetics::before,
+  .business-motif-cosmetics::after { animation: none; }
+}
+
+/* ============================================================
+   RESTAURANT — warm, energetic, service-paced: flowing warm blobs with
+   a gentle upward "steam" drift. Faster and warmer than Cosmetics'
+   slow bloom, still controlled — never busy.
+   ============================================================ */
+.business-motif-restaurant::before,
+.business-motif-restaurant::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(34px);
+  animation: restaurant-rise 9s ease-in-out infinite;
+}
+
+.business-motif-restaurant::before {
+  width: 38%;
+  aspect-ratio: 1;
+  bottom: -16%;
+  left: 12%;
+  background: radial-gradient(circle, rgba(255, 145, 77, 0.34), transparent 70%);
+  animation-delay: 0s;
+}
+
+.business-motif-restaurant::after {
+  width: 30%;
+  aspect-ratio: 1;
+  bottom: -10%;
+  right: 16%;
+  background: radial-gradient(circle, rgba(255, 92, 92, 0.26), transparent 70%);
+  animation-delay: 3s;
+}
+
+@keyframes restaurant-rise {
+  0% { transform: translateY(0) scale(1); opacity: 0.7; }
+  50% { transform: translateY(-14%) scale(1.08); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 0.7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .business-motif-restaurant::before,
+  .business-motif-restaurant::after { animation: none; opacity: 0.85; }
+}
+
+/* Smaller, subtler sizing when the same motif is reused inside the
+   (much smaller) dashboard hero rather than the full landing hero. */
+.business-motif-compact.business-motif-electronics {
+  background-size: 220% 100%, 100% 100%, 100% 100%;
+  opacity: 0.6;
+}
+.business-motif-compact.business-motif-cosmetics::before { width: 60%; filter: blur(28px); }
+.business-motif-compact.business-motif-cosmetics::after { width: 46%; filter: blur(24px); }
+.business-motif-compact.business-motif-restaurant::before { width: 50%; filter: blur(24px); }
+.business-motif-compact.business-motif-restaurant::after { width: 40%; filter: blur(22px); }

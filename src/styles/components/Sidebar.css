@@ -29,6 +29,24 @@
   border-bottom: 2px solid var(--business-accent);
 }
 
+/* Per-business nav-item shape — Electronics/Cosmetics/Restaurant only
+   (the three templates this pass differentiates). A structural cue, not a
+   recolor: sharp/structured for a technical service business, soft/round
+   for a premium beauty brand, warm/round for hospitality. Everything else
+   (spacing, layout, the accent-driven active-state color above) stays
+   identical across all six templates — only the corner treatment moves. */
+[data-business-template='electronics-shop'] .sidebar-link {
+  border-radius: var(--radius-sm);
+}
+
+[data-business-template='cosmetics-shop'] .sidebar-link {
+  border-radius: var(--radius-lg);
+}
+
+[data-business-template='restaurant'] .sidebar-link {
+  border-radius: var(--radius-md);
+}
+
 .sidebar-brand-mark {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);

@@ -17,6 +17,42 @@
     "statLanguages": "English & Kiswahili",
     "statUptime": "Bank-grade security"
   },
+  "businessSelector": {
+    "prompt": "Built for your business:",
+    "general": "Retail & More",
+    "electronics-shop": "Electronics & Repairs",
+    "cosmetics-shop": "Cosmetics & Beauty",
+    "restaurant": "Restaurant"
+  },
+  "businessHero": {
+    "electronics-shop": {
+      "eyebrow": "Repair Shop Software",
+      "title": "Run Your Repair Shop Like a Professional Service Center",
+      "subtitle": "Device intake, diagnosis, parts and repair tracking, customer updates, sales and inventory — everything a phone or computer repair business needs in one system.",
+      "ctaSecondary": "See How It Works",
+      "statOne": "Intake to collection tracking",
+      "statTwo": "Parts & inventory in sync",
+      "statThree": "Customer SMS updates"
+    },
+    "cosmetics-shop": {
+      "eyebrow": "Beauty & Cosmetics Retail",
+      "title": "Run Your Beauty Business With Confidence",
+      "subtitle": "Products, perfumes and beauty inventory, sales, customers and reports — a refined system built for cosmetics and beauty retailers.",
+      "ctaSecondary": "Explore Features",
+      "statOne": "Product & stock management",
+      "statTwo": "Best-seller insights",
+      "statThree": "Customer favorites tracked"
+    },
+    "restaurant": {
+      "eyebrow": "Restaurant & Café Management",
+      "title": "Run Your Restaurant Without the Chaos",
+      "subtitle": "Menu, orders, tables, sales and inventory — a fast, reliable system built for restaurants, cafés and takeaway businesses.",
+      "ctaSecondary": "See Restaurant Features",
+      "statOne": "Order to table, tracked live",
+      "statTwo": "Menu performance insights",
+      "statThree": "Multi-branch ready"
+    }
+  },
   "features": {
     "title": "Everything your business needs, built in",
     "subtitle": "No plugins, no add-ons — one system that grows with you.",

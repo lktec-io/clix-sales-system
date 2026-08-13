@@ -1,7 +1,9 @@
 {
   "list": {
     "title": "Bidhaa",
+    "titleCosmetics": "Bidhaa za Urembo",
     "subtitle": "Simamia orodha yako ya bidhaa",
+    "subtitleCosmetics": "Simamia bidhaa zako za urembo na manukato",
     "newProduct": "Bidhaa Mpya",
     "archivedProducts": "Bidhaa Zilizofutwa",
     "searchPlaceholder": "Tafuta kwa jina au msimbo...",
