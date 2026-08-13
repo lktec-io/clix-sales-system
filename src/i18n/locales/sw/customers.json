@@ -1,7 +1,9 @@
 {
   "list": {
     "title": "Wateja",
+    "titleMicrofinance": "Wakopaji",
     "subtitle": "Simamia wateja na historia yao ya manunuzi/marejesho",
+    "subtitleMicrofinance": "Simamia wakopaji na historia yao ya mikopo",
     "newCustomer": "Mteja Mpya",
     "searchPlaceholder": "Tafuta kwa jina, namba ya simu, msimbo...",
     "emptyMessage": "Hakuna wateja waliopatikana",

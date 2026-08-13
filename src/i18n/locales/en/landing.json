@@ -7,24 +7,37 @@
     "startTrial": "Start Free Trial"
   },
   "hero": {
-    "eyebrow": "Sales & Inventory, Simplified",
-    "title": "Run your entire business from one dashboard",
-    "subtitle": "Point of sale, inventory, purchases, expenses and reports — built for retailers and wholesalers across Tanzania. Set up in minutes, not weeks.",
     "ctaPrimary": "Start Free Trial",
-    "ctaSecondary": "Log In",
-    "noCreditCard": "No credit card required · 14-day free trial",
-    "statBranches": "Multi-branch ready",
-    "statLanguages": "English & Kiswahili",
-    "statUptime": "Bank-grade security"
+    "noCreditCard": "No credit card required · 14-day free trial"
   },
   "businessSelector": {
     "prompt": "Built for your business:",
-    "general": "Retail & More",
+    "retail-store": "Retail & Sales",
+    "pharmacy": "Pharmacy",
     "electronics-shop": "Electronics & Repairs",
     "cosmetics-shop": "Cosmetics & Beauty",
-    "restaurant": "Restaurant"
+    "restaurant": "Restaurant",
+    "microfinance": "Microfinance"
   },
   "businessHero": {
+    "retail-store": {
+      "eyebrow": "Retail & Sales Management",
+      "title": "Run Your Store With Confidence",
+      "subtitle": "Products, inventory, sales, customers and suppliers — a fast, professional system built for retail stores, supermarkets and mini markets.",
+      "ctaSecondary": "See How It Works",
+      "statOne": "Real-time stock tracking",
+      "statTwo": "Sales & inventory in sync",
+      "statThree": "Multi-branch ready"
+    },
+    "pharmacy": {
+      "eyebrow": "Pharmacy & Medical Store Management",
+      "title": "Manage Your Pharmacy Professionally",
+      "subtitle": "Medicine inventory, dispensing, sales and suppliers, with expiry tracking built in — an accurate, compliant system for pharmacies and drug dispensing centers.",
+      "ctaSecondary": "See How It Works",
+      "statOne": "Expiry & batch tracking",
+      "statTwo": "Accurate dispensing records",
+      "statThree": "Supplier & stock management"
+    },
     "electronics-shop": {
       "eyebrow": "Repair Shop Software",
       "title": "Run Your Repair Shop Like a Professional Service Center",
@@ -51,6 +64,15 @@
       "statOne": "Order to table, tracked live",
       "statTwo": "Menu performance insights",
       "statThree": "Multi-branch ready"
+    },
+    "microfinance": {
+      "eyebrow": "Financial Institution Software",
+      "title": "Grow Your Lending Business With Confidence",
+      "subtitle": "Borrowers, loans, repayments, savings and financial reports — a trusted, professional system built for microfinance institutions.",
+      "ctaSecondary": "See How It Works",
+      "statOne": "Loan & repayment tracking",
+      "statTwo": "Borrower savings management",
+      "statThree": "Financial reporting built in"
     }
   },
   "features": {

@@ -17,13 +17,13 @@
 }
 
 [data-business-template='retail-store'] {
-  --business-accent: #2F6BFF;
-  --business-accent-rgb: 47, 107, 255;
+  --business-accent: #059669;
+  --business-accent-rgb: 5, 150, 105;
 }
 
 [data-business-template='pharmacy'] {
-  --business-accent: #0EA5A4;
-  --business-accent-rgb: 14, 165, 164;
+  --business-accent: #1E88E5;
+  --business-accent-rgb: 30, 136, 229;
 }
 
 [data-business-template='restaurant'] {
@@ -32,8 +32,8 @@
 }
 
 [data-business-template='microfinance'] {
-  --business-accent: #7C5CFC;
-  --business-accent-rgb: 124, 92, 252;
+  --business-accent: #C9A227;
+  --business-accent-rgb: 201, 162, 39;
 }
 
 [data-business-template='cosmetics-shop'] {

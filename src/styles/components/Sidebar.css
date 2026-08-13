@@ -29,22 +29,41 @@
   border-bottom: 2px solid var(--business-accent);
 }
 
-/* Per-business nav-item shape — Electronics/Cosmetics/Restaurant only
-   (the three templates this pass differentiates). A structural cue, not a
-   recolor: sharp/structured for a technical service business, soft/round
-   for a premium beauty brand, warm/round for hospitality. Everything else
+/* Per-business nav-item shape — a structural cue, not a recolor, across
+   all six templates. Two axes (corner radius + label letter-spacing) so
+   all six stay genuinely distinct from each other even though there are
+   only three radius tokens to draw from: Electronics and Retail both read
+   "sharp," but Electronics' extra letter-spacing gives it a more
+   technical/structured feel than Retail's plain, fast, clean labels.
+   Same idea for Cosmetics/Microfinance (both generously rounded) and
+   Pharmacy/Restaurant (both moderately rounded). Everything else
    (spacing, layout, the accent-driven active-state color above) stays
-   identical across all six templates — only the corner treatment moves. */
+   identical across all six — only these two properties move. */
+[data-business-template='retail-store'] .sidebar-link {
+  border-radius: var(--radius-sm);
+}
+
 [data-business-template='electronics-shop'] .sidebar-link {
   border-radius: var(--radius-sm);
+  letter-spacing: 0.02em;
+}
+
+[data-business-template='pharmacy'] .sidebar-link {
+  border-radius: var(--radius-md);
+  letter-spacing: 0.015em;
+}
+
+[data-business-template='restaurant'] .sidebar-link {
+  border-radius: var(--radius-md);
 }
 
 [data-business-template='cosmetics-shop'] .sidebar-link {
   border-radius: var(--radius-lg);
 }
 
-[data-business-template='restaurant'] .sidebar-link {
-  border-radius: var(--radius-md);
+[data-business-template='microfinance'] .sidebar-link {
+  border-radius: var(--radius-lg);
+  letter-spacing: 0.015em;
 }
 
 .sidebar-brand-mark {

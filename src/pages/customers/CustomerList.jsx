@@ -13,6 +13,7 @@ import CustomerFormFields from '../../components/forms/CustomerFormFields';
 import { useTable } from '../../hooks/useTable';
 import { usePermission } from '../../hooks/usePermission';
 import { useToast } from '../../hooks/useToast';
+import { useModules } from '../../hooks/useModules';
 import * as customerService from '../../services/customerService';
 import { splitFullName } from '../../utils/splitFullName';
 import '../../styles/components/ViewToggle.css';
@@ -22,6 +23,12 @@ const DEFAULT_VALUES = { fullName: '', phone: '', email: '', address: '', notes:
 function CustomerList() {
   const { t } = useTranslation(['customers', 'common']);
   const navigate = useNavigate();
+  // Presentation-only terminology swap for Microfinance — same
+  // Customers module/table/API as every other template (Microfinance
+  // reuses it for borrowers rather than a dedicated module), just a page
+  // heading a lender recognizes.
+  const { businessTemplateSlug } = useModules();
+  const isMicrofinance = businessTemplateSlug === 'microfinance';
   const canCreate = usePermission('customers.create');
   const canEdit = usePermission('customers.edit');
   const canDelete = usePermission('customers.delete');
@@ -174,8 +181,8 @@ function CustomerList() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">{t('customers:list.title')}</h1>
-          <p className="page-subtitle">{t('customers:list.subtitle')}</p>
+          <h1 className="page-title">{t(isMicrofinance ? 'customers:list.titleMicrofinance' : 'customers:list.title')}</h1>
+          <p className="page-subtitle">{t(isMicrofinance ? 'customers:list.subtitleMicrofinance' : 'customers:list.subtitle')}</p>
         </div>
         {canCreate && (
           <div className="page-actions">

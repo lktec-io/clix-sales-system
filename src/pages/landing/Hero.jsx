@@ -6,45 +6,29 @@ import { FiShield, FiGlobe, FiGrid } from 'react-icons/fi';
 import { ROUTES } from '../../constants/routes';
 import { BUSINESS_EXPERIENCES } from '../../constants/businessExperiences';
 
-// Order matters — this is the pill order rendered below. 'general' is the
-// default (no business-specific motif/copy), matching the platform's own
-// Retail-Store-is-the-default convention (businessTemplateAssignment
-// .service.js's DEFAULT_TEMPLATE_ID).
-const SELECTOR_SLUGS = ['general', 'electronics-shop', 'cosmetics-shop', 'restaurant'];
+// Every active business template now has a dedicated hero identity (copy
+// in landing:businessHero.<slug>.*, motif in BUSINESS_EXPERIENCES) — this
+// is the full, final pill order, matching businessThemes.js's own key
+// order. Retail Store is the default selection, mirroring the platform's
+// own "Retail Store is the default template" convention
+// (businessTemplateAssignment.service.js's DEFAULT_TEMPLATE_ID).
+const SELECTOR_SLUGS = ['retail-store', 'pharmacy', 'restaurant', 'microfinance', 'cosmetics-shop', 'electronics-shop'];
 
 function Hero() {
   const { t } = useTranslation('landing');
-  const [activeSlug, setActiveSlug] = useState('general');
-  const experience = BUSINESS_EXPERIENCES[activeSlug] || null;
-  const isBusinessSelected = activeSlug !== 'general';
-
-  const eyebrow = isBusinessSelected ? t(`businessHero.${activeSlug}.eyebrow`) : t('hero.eyebrow');
-  const title = isBusinessSelected ? t(`businessHero.${activeSlug}.title`) : t('hero.title');
-  const subtitle = isBusinessSelected ? t(`businessHero.${activeSlug}.subtitle`) : t('hero.subtitle');
-  const ctaSecondaryLabel = isBusinessSelected ? t(`businessHero.${activeSlug}.ctaSecondary`) : t('hero.ctaSecondary');
-  const statOne = isBusinessSelected ? t(`businessHero.${activeSlug}.statOne`) : t('hero.statBranches');
-  const statTwo = isBusinessSelected ? t(`businessHero.${activeSlug}.statTwo`) : t('hero.statLanguages');
-  const statThree = isBusinessSelected ? t(`businessHero.${activeSlug}.statThree`) : t('hero.statUptime');
-  // "Log In" only makes sense as the secondary CTA in the general state —
-  // once a business is picked, the secondary CTA becomes "See how it
-  // works" style copy pointing at Features instead, matching the master
-  // prompt's per-business secondary-CTA spec. Login is still reachable
-  // from LandingNav in both states.
-  const secondaryHref = isBusinessSelected ? '#features' : ROUTES.LOGIN;
-  const registerHref = isBusinessSelected ? `${ROUTES.REGISTER}?template=${activeSlug}` : ROUTES.REGISTER;
+  const [activeSlug, setActiveSlug] = useState('retail-store');
+  const experience = BUSINESS_EXPERIENCES[activeSlug];
 
   return (
-    <section className={`landing-hero ${isBusinessSelected ? 'landing-hero-business' : ''}`}>
-      {experience && (
-        <motion.div
-          key={activeSlug}
-          className={`business-motif ${experience.motifClass}`}
-          aria-hidden="true"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6 }}
-        />
-      )}
+    <section className="landing-hero landing-hero-business">
+      <motion.div
+        key={activeSlug}
+        className={`business-motif ${experience.motifClass}`}
+        aria-hidden="true"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      />
 
       <div className="landing-hero-inner">
         <div className="landing-hero-selector" role="group" aria-label={t('businessSelector.prompt')}>
@@ -72,9 +56,9 @@ function Hero() {
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span className="landing-hero-eyebrow">{eyebrow}</span>
-            <h1 className="landing-hero-title">{title}</h1>
-            <p className="landing-hero-subtitle">{subtitle}</p>
+            <span className="landing-hero-eyebrow">{t(`businessHero.${activeSlug}.eyebrow`)}</span>
+            <h1 className="landing-hero-title">{t(`businessHero.${activeSlug}.title`)}</h1>
+            <p className="landing-hero-subtitle">{t(`businessHero.${activeSlug}.subtitle`)}</p>
           </motion.div>
         </AnimatePresence>
 
@@ -84,8 +68,8 @@ function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
-          <Link to={registerHref} className="btn btn-primary btn-lg">{t('hero.ctaPrimary')}</Link>
-          <Link to={secondaryHref} className="btn btn-outline btn-lg">{ctaSecondaryLabel}</Link>
+          <Link to={`${ROUTES.REGISTER}?template=${activeSlug}`} className="btn btn-primary btn-lg">{t('hero.ctaPrimary')}</Link>
+          <Link to="#features" className="btn btn-outline btn-lg">{t(`businessHero.${activeSlug}.ctaSecondary`)}</Link>
         </motion.div>
 
         <motion.p
@@ -103,9 +87,9 @@ function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <span><FiGrid aria-hidden="true" /> {statOne}</span>
-          <span><FiGlobe aria-hidden="true" /> {statTwo}</span>
-          <span><FiShield aria-hidden="true" /> {statThree}</span>
+          <span><FiGrid aria-hidden="true" /> {t(`businessHero.${activeSlug}.statOne`)}</span>
+          <span><FiGlobe aria-hidden="true" /> {t(`businessHero.${activeSlug}.statTwo`)}</span>
+          <span><FiShield aria-hidden="true" /> {t(`businessHero.${activeSlug}.statThree`)}</span>
         </motion.div>
       </div>
     </section>

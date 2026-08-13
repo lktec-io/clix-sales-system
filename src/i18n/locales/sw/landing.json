@@ -7,24 +7,37 @@
     "startTrial": "Anza Jaribio la Bure"
   },
   "hero": {
-    "eyebrow": "Mauzo na Hisa, Kwa Urahisi",
-    "title": "Endesha biashara yako yote kutoka dashibodi moja",
-    "subtitle": "Mauzo, hisa, manunuzi, matumizi na ripoti — imejengwa kwa ajili ya wauzaji rejareja na jumla kote Tanzania. Anzisha kwa dakika, si wiki.",
     "ctaPrimary": "Anza Jaribio la Bure",
-    "ctaSecondary": "Ingia",
-    "noCreditCard": "Hakuna kadi inayohitajika · Jaribio la siku 14 bila malipo",
-    "statBranches": "Tayari kwa matawi mengi",
-    "statLanguages": "Kiingereza na Kiswahili",
-    "statUptime": "Usalama wa hali ya juu"
+    "noCreditCard": "Hakuna kadi inayohitajika · Jaribio la siku 14 bila malipo"
   },
   "businessSelector": {
     "prompt": "Imejengwa kwa ajili ya biashara yako:",
-    "general": "Rejareja na Zaidi",
+    "retail-store": "Rejareja na Mauzo",
+    "pharmacy": "Duka la Dawa",
     "electronics-shop": "Elektroniki na Matengenezo",
     "cosmetics-shop": "Vipodozi na Urembo",
-    "restaurant": "Mkahawa"
+    "restaurant": "Mkahawa",
+    "microfinance": "Fedha Ndogo"
   },
   "businessHero": {
+    "retail-store": {
+      "eyebrow": "Usimamizi wa Rejareja na Mauzo",
+      "title": "Endesha Duka Lako kwa Ujasiri",
+      "subtitle": "Bidhaa, hisa, mauzo, wateja na wasambazaji — mfumo wa haraka na wa kitaalamu uliojengwa kwa ajili ya maduka, supermarket na minimarket.",
+      "ctaSecondary": "Angalia Jinsi Inavyofanya Kazi",
+      "statOne": "Ufuatiliaji wa hisa muda halisi",
+      "statTwo": "Mauzo na hisa vinaendana",
+      "statThree": "Tayari kwa matawi mengi"
+    },
+    "pharmacy": {
+      "eyebrow": "Usimamizi wa Duka la Dawa",
+      "title": "Simamia Duka Lako la Dawa kwa Kitaalamu",
+      "subtitle": "Hisa za dawa, utoaji wa dawa, mauzo na wasambazaji, ikiwa na ufuatiliaji wa muda wa kuisha — mfumo sahihi na unaozingatia sheria kwa maduka ya dawa.",
+      "ctaSecondary": "Angalia Jinsi Inavyofanya Kazi",
+      "statOne": "Ufuatiliaji wa muda wa kuisha na kundi",
+      "statTwo": "Rekodi sahihi za utoaji dawa",
+      "statThree": "Usimamizi wa wasambazaji na hisa"
+    },
     "electronics-shop": {
       "eyebrow": "Programu ya Duka la Matengenezo",
       "title": "Endesha Duka Lako la Matengenezo Kama Kituo cha Huduma cha Kitaalamu",
@@ -51,6 +64,15 @@
       "statOne": "Oda hadi mezani, zinafuatiliwa moja kwa moja",
       "statTwo": "Uelewa wa utendaji wa menyu",
       "statThree": "Tayari kwa matawi mengi"
+    },
+    "microfinance": {
+      "eyebrow": "Programu ya Taasisi ya Fedha",
+      "title": "Kuza Biashara Yako ya Mikopo kwa Ujasiri",
+      "subtitle": "Wakopaji, mikopo, malipo, akiba na ripoti za kifedha — mfumo unaotegemewa na wa kitaalamu kwa taasisi za fedha ndogo.",
+      "ctaSecondary": "Angalia Jinsi Inavyofanya Kazi",
+      "statOne": "Ufuatiliaji wa mikopo na malipo",
+      "statTwo": "Usimamizi wa akiba za wakopaji",
+      "statThree": "Ripoti za kifedha zimejumuishwa"
     }
   },
   "features": {

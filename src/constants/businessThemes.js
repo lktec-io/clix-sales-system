@@ -19,10 +19,16 @@ import {
 // the correct fallback for any slug not listed here, not a sign this map
 // is incomplete.
 export const BUSINESS_THEMES = {
-  'retail-store': { accent: '#2F6BFF', accentRgb: '47, 107, 255', icon: FiShoppingBag, label: 'Retail' },
-  pharmacy: { accent: '#0EA5A4', accentRgb: '14, 165, 164', icon: FiPlusSquare, label: 'Pharmacy' },
+  // Emerald — paired with the shared dark navy hero base for a "navy +
+  // emerald" retail identity; fast/clean/inventory-driven.
+  'retail-store': { accent: '#059669', accentRgb: '5, 150, 105', icon: FiShoppingBag, label: 'Retail' },
+  // Medical blue — trust/accuracy/compliance; soft green appears in the
+  // pharmacy motif (businessExperiences.css) as the secondary healthcare cue.
+  pharmacy: { accent: '#1E88E5', accentRgb: '30, 136, 229', icon: FiPlusSquare, label: 'Pharmacy' },
   restaurant: { accent: '#F97316', accentRgb: '249, 115, 22', icon: FiCoffee, label: 'Restaurant' },
-  microfinance: { accent: '#7C5CFC', accentRgb: '124, 92, 252', icon: FiTrendingUp, label: 'Microfinance' },
+  // Gold — paired with the shared deep-navy hero base for a "deep blue +
+  // gold" financial-institution identity; premium/authoritative.
+  microfinance: { accent: '#C9A227', accentRgb: '201, 162, 39', icon: FiTrendingUp, label: 'Microfinance' },
   'cosmetics-shop': { accent: '#EC4899', accentRgb: '236, 72, 153', icon: FiDroplet, label: 'Cosmetics & Beauty' },
   'electronics-shop': { accent: '#06B6D4', accentRgb: '6, 182, 212', icon: FiCpu, label: 'Electronics & Repairs' },
 };

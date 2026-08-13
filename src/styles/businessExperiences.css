@@ -150,6 +150,141 @@
   .business-motif-restaurant::after { animation: none; opacity: 0.85; }
 }
 
+/* ============================================================
+   RETAIL — fast, clean, inventory-driven: a sharp product "card" and a
+   small stock-movement "particle" drifting steadily upward. Sharp
+   corners (never blurred/soft like Cosmetics), emerald on the shared
+   dark hero base — "navy + emerald."
+   ============================================================ */
+.business-motif-retail::before,
+.business-motif-retail::after {
+  content: '';
+  position: absolute;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(16, 214, 148, 0.4);
+  background: rgba(16, 214, 148, 0.12);
+  animation: retail-drift 10s ease-in-out infinite;
+}
+
+.business-motif-retail::before {
+  width: 16%;
+  aspect-ratio: 4 / 3;
+  bottom: 8%;
+  left: 10%;
+  transform: rotate(-6deg);
+  animation-delay: 0s;
+}
+
+.business-motif-retail::after {
+  width: 8%;
+  aspect-ratio: 1;
+  top: 18%;
+  right: 14%;
+  transform: rotate(10deg);
+  animation-delay: 2.5s;
+}
+
+@keyframes retail-drift {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-10%) rotate(-2deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .business-motif-retail::before,
+  .business-motif-retail::after { animation: none; }
+}
+
+/* ============================================================
+   PHARMACY — trust, accuracy, healthcare: a medical cross (clip-path,
+   soft pulse) + a floating capsule. Medical blue with a soft-green
+   capsule accent — the one motif that deliberately keeps its shapes
+   crisp (never blurred) to read as clinical, not decorative.
+   ============================================================ */
+.business-motif-pharmacy::before {
+  content: '';
+  position: absolute;
+  width: 14%;
+  aspect-ratio: 1;
+  top: 20%;
+  right: 16%;
+  background: rgba(94, 179, 255, 0.28);
+  clip-path: polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%);
+  animation: pharmacy-pulse 2.6s ease-in-out infinite;
+}
+
+.business-motif-pharmacy::after {
+  content: '';
+  position: absolute;
+  width: 12%;
+  aspect-ratio: 3 / 1;
+  bottom: 14%;
+  left: 12%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(110, 214, 168, 0.32) 50%, rgba(255, 255, 255, 0.18) 50%);
+  animation: pharmacy-float 8s ease-in-out infinite;
+}
+
+@keyframes pharmacy-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.12); }
+}
+
+@keyframes pharmacy-float {
+  0%, 100% { transform: translateY(0) rotate(-8deg); }
+  50% { transform: translateY(-8%) rotate(-14deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .business-motif-pharmacy::before,
+  .business-motif-pharmacy::after { animation: none; opacity: 0.6; }
+}
+
+/* ============================================================
+   MICROFINANCE — trust, growth, authority: an ascending growth wedge +
+   a slow-drifting gold coin. Deep blue (shared hero base) + gold —
+   the one motif with a deliberately slower, weightier motion (premium
+   institution, not a busy retail feed).
+   ============================================================ */
+.business-motif-microfinance::before {
+  content: '';
+  position: absolute;
+  width: 30%;
+  height: 22%;
+  bottom: 10%;
+  left: 12%;
+  background: linear-gradient(115deg, transparent 45%, rgba(224, 184, 76, 0.28) 46%, transparent 54%);
+  clip-path: polygon(0% 100%, 100% 0%, 100% 100%);
+  animation: microfinance-rise 12s ease-in-out infinite;
+}
+
+.business-motif-microfinance::after {
+  content: '';
+  position: absolute;
+  width: 9%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  top: 22%;
+  right: 18%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 224, 130, 0.55), rgba(201, 162, 39, 0.22) 70%);
+  border: 1px solid rgba(224, 184, 76, 0.4);
+  animation: microfinance-coin 14s ease-in-out infinite;
+}
+
+@keyframes microfinance-rise {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(-6%); opacity: 1; }
+}
+
+@keyframes microfinance-coin {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-9%) rotate(180deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .business-motif-microfinance::before,
+  .business-motif-microfinance::after { animation: none; opacity: 0.8; }
+}
+
 /* Smaller, subtler sizing when the same motif is reused inside the
    (much smaller) dashboard hero rather than the full landing hero. */
 .business-motif-compact.business-motif-electronics {
@@ -160,3 +295,9 @@
 .business-motif-compact.business-motif-cosmetics::after { width: 46%; filter: blur(24px); }
 .business-motif-compact.business-motif-restaurant::before { width: 50%; filter: blur(24px); }
 .business-motif-compact.business-motif-restaurant::after { width: 40%; filter: blur(22px); }
+.business-motif-compact.business-motif-retail::before { width: 22%; }
+.business-motif-compact.business-motif-retail::after { width: 11%; }
+.business-motif-compact.business-motif-pharmacy::before { width: 18%; }
+.business-motif-compact.business-motif-pharmacy::after { width: 16%; }
+.business-motif-compact.business-motif-microfinance::before { width: 38%; }
+.business-motif-compact.business-motif-microfinance::after { width: 12%; }

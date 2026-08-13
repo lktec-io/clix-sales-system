@@ -1,7 +1,9 @@
 {
   "list": {
     "title": "Customers",
+    "titleMicrofinance": "Borrowers",
     "subtitle": "Manage customers and their purchase/return history",
+    "subtitleMicrofinance": "Manage borrowers and their loan history",
     "newCustomer": "New Customer",
     "searchPlaceholder": "Search by name, phone, code...",
     "emptyMessage": "No customers found",
