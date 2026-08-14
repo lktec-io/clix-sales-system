@@ -45,6 +45,12 @@
   overflow-x: hidden;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .landing-page {
+    scroll-behavior: smooth;
+  }
+}
+
 .landing-page a {
   text-decoration: none;
   color: inherit;
@@ -294,6 +300,10 @@
   max-width: 1180px;
   margin: 0 auto;
   padding: var(--space-9) var(--page-padding-desktop);
+  /* Every #features/#pricing/#faq/#demo anchor target is a .landing-section
+     — without this, the sticky .landing-nav (position:sticky, top:0) would
+     cover the section's heading right after an anchor scroll lands. */
+  scroll-margin-top: var(--navbar-height);
 }
 
 .landing-section-alt {
@@ -406,9 +416,19 @@
 
 /* ---------- Pricing ---------- */
 
+.landing-pricing-status {
+  text-align: center;
+  color: var(--landing-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
 .landing-pricing-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* auto-fit rather than a fixed repeat(3,...) — the actual plan count
+     now comes from the live subscription_plans data (Part 4), not a
+     hardcoded 3-card mock, so this needs to look right whether there are
+     2, 3, or more active plans, without an empty trailing column. */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-5);
 }
 
@@ -649,7 +669,6 @@
 
 @media (max-width: 1024px) {
   .landing-features-grid,
-  .landing-pricing-grid,
   .landing-trust-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -659,7 +678,25 @@
   }
 }
 
+/* Hidden on desktop entirely — .landing-nav-links renders inline there and
+   `open` effectively never becomes relevant, but this belt-and-suspenders
+   media query means the overlay can never appear above 768px even if
+   something unexpected toggled `open`. */
+.landing-nav-overlay {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  .landing-nav-overlay {
+    display: block;
+    position: fixed;
+    inset: var(--navbar-height) 0 0 0;
+    background: rgba(15, 23, 42, 0.35);
+    border: none;
+    padding: 0;
+    cursor: default;
+  }
+
   .landing-nav-links {
     position: fixed;
     inset: var(--navbar-height) 0 auto 0;
@@ -682,7 +719,6 @@
   }
 
   .landing-features-grid,
-  .landing-pricing-grid,
   .landing-trust-grid {
     grid-template-columns: 1fr;
   }

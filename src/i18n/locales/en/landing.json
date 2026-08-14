@@ -1,5 +1,6 @@
 {
   "nav": {
+    "howItWorks": "How It Works",
     "features": "Features",
     "pricing": "Pricing",
     "faq": "FAQ",
@@ -157,32 +158,12 @@
   },
   "pricing": {
     "title": "Simple, transparent pricing",
-    "subtitle": "Start free. Upgrade when you're ready — no surprises.",
-    "trial": {
-      "name": "Free Trial",
-      "price": "TZS 0",
-      "period": "for 14 days",
-      "description": "Full access to every feature, no card required.",
-      "cta": "Start Free Trial",
-      "features": ["All features unlocked", "Unlimited products", "Up to 3 branches", "Email support"]
-    },
-    "growth": {
-      "name": "Growth",
-      "badge": "Most Popular",
-      "price": "Coming Soon",
-      "period": "per month",
-      "description": "For growing businesses ready to scale.",
-      "cta": "Start Free Trial",
-      "features": ["Everything in Free Trial", "Unlimited branches", "Priority support", "Advanced reports"]
-    },
-    "enterprise": {
-      "name": "Enterprise",
-      "price": "Custom",
-      "period": "contact us",
-      "description": "For large operations with custom needs.",
-      "cta": "Start Free Trial",
-      "features": ["Everything in Growth", "Dedicated account manager", "Custom integrations", "SLA guarantee"]
-    }
+    "subtitle": "Start with a 14-day free trial on any plan — no card required. Upgrade when you're ready.",
+    "loading": "Loading plans…",
+    "loadError": "Plans are temporarily unavailable. Please try again shortly.",
+    "recommendedBadge": "Most Popular",
+    "perMonth": "per month",
+    "startTrialCta": "Start Free Trial"
   },
   "trust": {
     "title": "Built specifically for your business",

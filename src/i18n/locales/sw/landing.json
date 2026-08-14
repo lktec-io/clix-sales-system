@@ -1,5 +1,6 @@
 {
   "nav": {
+    "howItWorks": "Jinsi Inavyofanya Kazi",
     "features": "Vipengele",
     "pricing": "Bei",
     "faq": "Maswali",
@@ -157,32 +158,12 @@
   },
   "pricing": {
     "title": "Bei rahisi na wazi",
-    "subtitle": "Anza bure. Boresha ukiwa tayari — hakuna mshangao.",
-    "trial": {
-      "name": "Jaribio la Bure",
-      "price": "TZS 0",
-      "period": "kwa siku 14",
-      "description": "Ufikiaji kamili wa vipengele vyote, hakuna kadi inayohitajika.",
-      "cta": "Anza Jaribio la Bure",
-      "features": ["Vipengele vyote vimefunguliwa", "Bidhaa bila kikomo", "Hadi matawi 3", "Msaada kwa barua pepe"]
-    },
-    "growth": {
-      "name": "Ukuaji",
-      "badge": "Maarufu Zaidi",
-      "price": "Inakuja Hivi Karibuni",
-      "period": "kwa mwezi",
-      "description": "Kwa biashara zinazokua na ziko tayari kupanuka.",
-      "cta": "Anza Jaribio la Bure",
-      "features": ["Kila kitu cha Jaribio la Bure", "Matawi bila kikomo", "Msaada wa kipaumbele", "Ripoti za kina"]
-    },
-    "enterprise": {
-      "name": "Kampuni Kubwa",
-      "price": "Maalum",
-      "period": "wasiliana nasi",
-      "description": "Kwa shughuli kubwa zenye mahitaji maalum.",
-      "cta": "Anza Jaribio la Bure",
-      "features": ["Kila kitu cha Ukuaji", "Msimamizi maalum wa akaunti", "Muunganisho maalum", "Uhakikisho wa huduma"]
-    }
+    "subtitle": "Anza na jaribio la bure la siku 14 kwenye mpango wowote — hakuna kadi inayohitajika. Boresha ukiwa tayari.",
+    "loading": "Inapakia mipango…",
+    "loadError": "Mipango haipatikani kwa sasa. Tafadhali jaribu tena baadaye.",
+    "recommendedBadge": "Maarufu Zaidi",
+    "perMonth": "kwa mwezi",
+    "startTrialCta": "Anza Jaribio la Bure"
   },
   "trust": {
     "title": "Imejengwa mahususi kwa biashara yako",

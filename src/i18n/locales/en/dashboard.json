@@ -112,7 +112,12 @@
     "newSale": "New Sale",
     "newCustomer": "New Customer",
     "newExpense": "New Expense",
-    "reports": "Reports"
+    "reports": "Reports",
+    "newRepair": "New Repair",
+    "newOrder": "New Order",
+    "newLoan": "New Loan",
+    "newMenuItem": "New Menu Item",
+    "receiveStock": "Receive Stock"
   },
   "loanPortfolio": {
     "title": "Loan Portfolio",

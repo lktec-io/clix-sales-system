@@ -112,7 +112,12 @@
     "newSale": "Uzo Mpya",
     "newCustomer": "Mteja Mpya",
     "newExpense": "Tumizi Jipya",
-    "reports": "Ripoti"
+    "reports": "Ripoti",
+    "newRepair": "Tengenezo Jipya",
+    "newOrder": "Oda Mpya",
+    "newLoan": "Mkopo Mpya",
+    "newMenuItem": "Kipengee Kipya cha Menyu",
+    "receiveStock": "Pokea Hisa"
   },
   "loanPortfolio": {
     "title": "Mikopo Yote",

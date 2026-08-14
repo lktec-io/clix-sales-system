@@ -73,7 +73,12 @@ function Hero({ activeSlug, onSelectSlug }) {
           transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
           <Link to={`${ROUTES.REGISTER}?template=${activeSlug}`} className="btn btn-primary btn-lg">{t('hero.ctaPrimary')}</Link>
-          <Link to="#demo" className="btn btn-outline btn-lg">{t(`businessHero.${activeSlug}.ctaSecondary`)}</Link>
+          {/* A plain anchor, not react-router's <Link> — this is a same-page
+              scroll to #demo below, not a route change, and react-router's
+              <Link to="#demo"> does not reliably trigger the browser's native
+              hash-scroll behavior. Matches LandingNav.jsx's own #features/
+              #pricing/#faq links, which use the same plain-<a> pattern. */}
+          <a href="#demo" className="btn btn-outline btn-lg">{t(`businessHero.${activeSlug}.ctaSecondary`)}</a>
         </motion.div>
 
         <motion.p

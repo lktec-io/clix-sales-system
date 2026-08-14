@@ -17,7 +17,7 @@ function Landing() {
   const [activeSlug, setActiveSlug] = useState('retail-store');
 
   return (
-    <div className="landing-page">
+    <div className="landing-page" id="top">
       <LandingNav />
       <Hero activeSlug={activeSlug} onSelectSlug={setActiveSlug} />
       <Demo activeSlug={activeSlug} />

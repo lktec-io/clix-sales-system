@@ -8,12 +8,20 @@ import { validateRequest } from '../middlewares/validateRequest.js';
 import { checkoutValidator } from '../validators/payment.validator.js';
 
 const router = Router();
+
+// Deliberately registered BEFORE router.use(authenticate) below — the
+// public landing page (an unauthenticated visitor) needs the real active
+// plan list/pricing to display, and subscriptionPlanService.listPublicPlans()
+// already returns only marketing-safe fields (name, price, features,
+// currency — never anything tenant-specific). Every other route in this
+// file is registered after the authenticate() call and stays protected.
+router.get('/plans', subscriptionPlanController.listPublic);
+
 router.use(authenticate);
 
 // Every endpoint below is scoped to req.user.tenantId — never a
 // client-supplied id — so a tenant can only ever see their own
 // subscription, invoices, and billing history (Step 12).
-router.get('/plans', subscriptionPlanController.listPublic);
 router.get('/me/subscription', tenantSubscriptionController.getMySubscription);
 router.get('/me/history', tenantSubscriptionController.getMyHistory);
 router.get('/me/invoices', invoiceController.listMine);

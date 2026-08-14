@@ -17,6 +17,7 @@ function LandingFooter() {
         <div className="landing-footer-links">
           <div>
             <span className="landing-footer-heading">{t('footer.product')}</span>
+            <a href="#demo">{t('nav.howItWorks')}</a>
             <a href="#features">{t('nav.features')}</a>
             <a href="#pricing">{t('nav.pricing')}</a>
             <a href="#faq">{t('nav.faq')}</a>

@@ -1,12 +1,39 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FiCheck } from 'react-icons/fi';
 import { ROUTES } from '../../constants/routes';
+import * as billingService from '../../services/billingService';
+import { formatCurrency } from '../../utils/formatCurrency';
 
-const PLAN_KEYS = ['trial', 'growth', 'enterprise'];
-
+// Real plans from subscription_plans (via the now-public GET /billing/plans
+// — see backend/routes/billing.routes.js's comment on why that one route
+// is registered ahead of authenticate()) — never hardcoded/mock pricing.
+// Every tenant always starts on a free trial regardless of which plan
+// they're looking at here, so every card's CTA points at the same
+// Register flow rather than pre-selecting a paid plan at signup.
 function Pricing() {
   const { t } = useTranslation('landing');
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    billingService.getPlans()
+      .then((data) => {
+        if (!cancelled) setPlans(data);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section id="pricing" className="landing-section landing-section-alt">
@@ -15,33 +42,42 @@ function Pricing() {
         <p>{t('pricing.subtitle')}</p>
       </div>
 
-      <div className="landing-pricing-grid">
-        {PLAN_KEYS.map((key) => {
-          const badge = t(`pricing.${key}.badge`, { defaultValue: '' });
-          return (
-            <div key={key} className={`landing-pricing-card ${key === 'growth' ? 'is-featured' : ''}`}>
-              {badge && <span className="landing-pricing-badge">{badge}</span>}
-              <h3>{t(`pricing.${key}.name`)}</h3>
+      {loading && (
+        <p className="landing-pricing-status">{t('pricing.loading')}</p>
+      )}
+
+      {!loading && loadError && (
+        <p className="landing-pricing-status">{t('pricing.loadError')}</p>
+      )}
+
+      {!loading && !loadError && (
+        <div className="landing-pricing-grid">
+          {plans.map((plan) => (
+            <div key={plan.id} className={`landing-pricing-card ${plan.isRecommended ? 'is-featured' : ''}`}>
+              {plan.isRecommended && <span className="landing-pricing-badge">{t('pricing.recommendedBadge')}</span>}
+              <h3>{plan.name}</h3>
               <div className="landing-pricing-amount">
-                <span className="landing-pricing-price">{t(`pricing.${key}.price`)}</span>
-                <span className="landing-pricing-period">{t(`pricing.${key}.period`)}</span>
+                <span className="landing-pricing-price">{formatCurrency(plan.priceMonthly, plan.currency)}</span>
+                <span className="landing-pricing-period">{t('pricing.perMonth')}</span>
               </div>
-              <p className="landing-pricing-description">{t(`pricing.${key}.description`)}</p>
-              <ul className="landing-pricing-features">
-                {t(`pricing.${key}.features`, { returnObjects: true }).map((feature) => (
-                  <li key={feature}><FiCheck aria-hidden="true" /> {feature}</li>
-                ))}
-              </ul>
+              {plan.description && <p className="landing-pricing-description">{plan.description}</p>}
+              {Array.isArray(plan.features) && plan.features.length > 0 && (
+                <ul className="landing-pricing-features">
+                  {plan.features.map((feature) => (
+                    <li key={feature}><FiCheck aria-hidden="true" /> {feature}</li>
+                  ))}
+                </ul>
+              )}
               <Link
                 to={ROUTES.REGISTER}
-                className={`btn btn-block ${key === 'growth' ? 'btn-primary' : 'btn-outline'}`}
+                className={`btn btn-block ${plan.isRecommended ? 'btn-primary' : 'btn-outline'}`}
               >
-                {t(`pricing.${key}.cta`)}
+                {t('pricing.startTrialCta')}
               </Link>
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
