@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiBriefcase, FiMapPin, FiUsers, FiShield, FiTag, FiPercent } from 'react-icons/fi';
+import { FiBriefcase, FiMapPin, FiUsers, FiShield, FiTag, FiLayers, FiPercent } from 'react-icons/fi';
 
 function useTabs(t) {
   return [
@@ -8,6 +8,7 @@ function useTabs(t) {
     { to: '/settings/branches', label: t('tabs.branches'), icon: FiMapPin },
     { to: '/settings/users', label: t('tabs.users'), icon: FiUsers },
     { to: '/settings/permissions', label: t('tabs.roles'), icon: FiShield },
+    { to: '/settings/categories', label: t('tabs.categories'), icon: FiLayers },
     { to: '/settings/expense-categories', label: t('tabs.expenseCategories'), icon: FiTag },
     { to: '/settings/system', label: t('tabs.taxAndEmail'), icon: FiPercent },
   ];

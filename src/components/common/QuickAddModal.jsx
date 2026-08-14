@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Modal from './Modal';
+import { useToast } from '../../hooks/useToast';
 
 // Extracted from ProductForm.jsx's own local QuickAddModal (Category/Brand
 // "+ Add" popups) — reused as-is by MedicineForm.jsx and MenuItemForm.jsx,
@@ -17,6 +18,7 @@ import Modal from './Modal';
 // correctly; only the create-affordance was missing in two forms.
 function QuickAddModal({ open, title, onClose, onCreate }) {
   const { t } = useTranslation('common');
+  const toast = useToast();
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
@@ -40,6 +42,7 @@ function QuickAddModal({ open, title, onClose, onCreate }) {
     try {
       await onCreate({ name: name.trim(), code: code.trim() });
       resetFields();
+      toast.success(t('quickAdd.createSuccess'));
     } catch (err) {
       setError(err.response?.data?.message || t('quickAdd.createError'));
     } finally {

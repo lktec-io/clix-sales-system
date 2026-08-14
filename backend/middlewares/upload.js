@@ -7,6 +7,7 @@ import { generateRandomToken } from '../utils/tokenUtils.js';
 import { cloudinary, cloudinaryEnabled } from '../config/cloudinary.js';
 import { logger } from '../config/logger.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { ApiError } from '../utils/apiError.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOADS_ROOT = path.join(__dirname, '..', 'uploads');
@@ -88,8 +89,24 @@ export function createUploader({ subfolder, cloudinaryFolder = subfolder, allowe
 
   return {
     single(fieldName) {
-      if (!cloudinaryEnabled) return uploader.single(fieldName);
-      return [uploader.single(fieldName), cloudinaryUploadMiddleware(cloudinaryFolder)];
+      // Multer surfaces size/type rejections as callback errors, not thrown
+      // exceptions — without this wrapper they skip straight to the generic
+      // 500 branch in errorHandler.js (neither an ApiError nor ER_DUP_ENTRY),
+      // showing the user "Internal server error" for what's really their own
+      // oversized/wrong-type file. Converting here, where maxSizeMb is known,
+      // is the only place that can produce the exact required copy.
+      const base = uploader.single(fieldName);
+      const withFriendlyErrors = (req, res, next) => {
+        base(req, res, (err) => {
+          if (!err) return next();
+          if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+            return next(new ApiError(400, `Image is too large. Maximum size is ${maxSizeMb} MB.`));
+          }
+          return next(new ApiError(400, 'Unsupported image format. Please upload JPG, PNG or WebP.'));
+        });
+      };
+      if (!cloudinaryEnabled) return withFriendlyErrors;
+      return [withFriendlyErrors, cloudinaryUploadMiddleware(cloudinaryFolder)];
     },
   };
 }

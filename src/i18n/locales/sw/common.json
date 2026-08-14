@@ -5,6 +5,7 @@
     "create": "Unda",
     "cancel": "Ghairi",
     "createError": "Imeshindwa kuunda.",
+    "createSuccess": "Imeundwa kikamilifu.",
     "addCategory": "Ongeza Kategoria"
   },
   "actions": {
@@ -104,6 +105,10 @@
   "misc": {
     "companyLogo": "Nembo ya Kampuni",
     "avatar": "Picha ya Wasifu"
+  },
+  "imageUpload": {
+    "tooLarge": "Picha ni kubwa mno. Kiwango cha juu ni 2 MB.",
+    "unsupportedFormat": "Aina ya picha haikubaliki. Tafadhali pakia JPG, PNG au WebP."
   },
   "chart": {
     "total": "Jumla",

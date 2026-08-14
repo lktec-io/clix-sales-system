@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiPlus, FiEye } from 'react-icons/fi';
+import { FiPlus, FiEye, FiUpload } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
 import SearchInput from '../../components/common/SearchInput';
+import MedicineImportModal from './MedicineImportModal';
 import { useTable } from '../../hooks/useTable';
 import { usePermission } from '../../hooks/usePermission';
 import * as medicineService from '../../services/medicineService';
@@ -27,13 +28,14 @@ function MedicineList() {
   const navigate = useNavigate();
   const canCreate = usePermission('medicines.manage');
   const [categories, setCategories] = useState([]);
+  const [importOpen, setImportOpen] = useState(false);
 
   useEffect(() => {
     categoryService.listActiveCategories().then(setCategories);
   }, []);
 
   const fetchMedicines = useCallback((params) => medicineService.listMedicines(params), []);
-  const { items, meta, loading, page, setPage, search, setSearch, filters, setFilters } = useTable(fetchMedicines);
+  const { items, meta, loading, page, setPage, search, setSearch, filters, setFilters, refetch } = useTable(fetchMedicines);
 
   const columns = [
     { key: 'name', label: t('pharmacy:medicines.columns.name') },
@@ -64,6 +66,9 @@ function MedicineList() {
         </div>
         {canCreate && (
           <div className="page-actions">
+            <button type="button" className="btn btn-secondary" onClick={() => setImportOpen(true)}>
+              <FiUpload aria-hidden="true" /> {t('pharmacy:import.title')}
+            </button>
             <button type="button" className="btn btn-primary" onClick={() => navigate('/medicines/new')}>
               <FiPlus aria-hidden="true" /> {t('pharmacy:medicines.list.newMedicine')}
             </button>
@@ -95,6 +100,8 @@ function MedicineList() {
         <Table columns={columns} rows={items} loading={loading} emptyMessage={t('pharmacy:medicines.list.emptyMessage')} />
         <Pagination page={page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={setPage} />
       </div>
+
+      <MedicineImportModal open={importOpen} onClose={() => setImportOpen(false)} onImported={refetch} />
     </div>
   );
 }

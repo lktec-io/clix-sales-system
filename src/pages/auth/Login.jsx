@@ -6,6 +6,32 @@ import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
 import { ROUTES } from '../../constants/routes';
 
+// Maps every backend login failure mode to a professional, translated
+// message — never the raw ApiError text, a status code, or an AxiosError.
+// Keyed by HTTP status (stable) rather than by matching the backend's exact
+// message string (fragile — a future wording tweak in auth.service.js would
+// silently fall through to the generic bucket instead of breaking visibly).
+function mapLoginError(err, t) {
+  if (!err.response) {
+    return t('login.errors.network');
+  }
+
+  const status = err.response.status;
+  const message = err.response.data?.message || '';
+
+  if (status === 401) {
+    return t('login.errors.invalidCredentials');
+  }
+  if (status === 403) {
+    if (/locked/i.test(message)) return t('login.errors.accountLocked');
+    return t('login.errors.accountSuspended');
+  }
+  if (status === 429) {
+    return t('login.errors.tooManyAttempts');
+  }
+  return t('login.errors.serverError');
+}
+
 function Login() {
   const { t } = useTranslation('auth');
   const { login } = useAuth();
@@ -28,7 +54,7 @@ function Login() {
       const redirectTo = location.state?.from?.pathname || ROUTES.DASHBOARD;
       navigate(redirectTo, { replace: true });
     } catch (err) {
-      setFormError(err.response?.data?.message || t('login.genericError'));
+      setFormError(mapLoginError(err, t));
     }
   };
 

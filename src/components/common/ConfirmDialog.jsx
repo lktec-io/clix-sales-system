@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Modal from './Modal';
 
-function ConfirmDialog({ open, onClose, onConfirm, title, message, confirmLabel, variant = 'danger' }) {
+function ConfirmDialog({ open, onClose, onConfirm, title, message, confirmLabel, variant = 'danger', error }) {
   const { t } = useTranslation('common');
   const [submitting, setSubmitting] = useState(false);
 
@@ -11,6 +11,11 @@ function ConfirmDialog({ open, onClose, onConfirm, title, message, confirmLabel,
     try {
       await onConfirm();
       onClose();
+    } catch {
+      // Swallow — a rejecting onConfirm means the caller wants the dialog to
+      // stay open (e.g. to keep a friendly error visible via the `error`
+      // prop) rather than close silently. The caller owns its own error
+      // state; this just stops the rejection propagating as unhandled.
     } finally {
       setSubmitting(false);
     }
@@ -38,6 +43,7 @@ function ConfirmDialog({ open, onClose, onConfirm, title, message, confirmLabel,
         </>
       }
     >
+      {error && <div className="alert alert-danger mb-3" role="alert">{error}</div>}
       <p className="text-sm text-secondary">{message}</p>
     </Modal>
   );

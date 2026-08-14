@@ -8,6 +8,7 @@ import { useCompany } from '../../hooks/useCompany';
 import SettingsTabs from '../../components/common/SettingsTabs';
 import PageSkeleton from '../../components/common/PageSkeleton';
 import * as companyService from '../../services/companyService';
+import { validateImageFile } from '../../utils/imageValidation';
 import '../../styles/pages/CompanySettings.css';
 import '../../styles/pages/Notifications.css';
 
@@ -90,8 +91,15 @@ function CompanySettings() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setUploadingLogo(true);
     setFormError('');
+    const validationError = validateImageFile(file, t);
+    if (validationError) {
+      setFormError(validationError);
+      event.target.value = '';
+      return;
+    }
+
+    setUploadingLogo(true);
     try {
       const profile = await companyService.uploadLogo(file);
       setLogoPath(profile.logo_path);

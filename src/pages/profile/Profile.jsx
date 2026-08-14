@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import { useLanguage } from '../../hooks/useLanguage';
 import * as authService from '../../services/authService';
+import { validateImageFile } from '../../utils/imageValidation';
 import '../../styles/pages/CompanySettings.css';
 
 function Profile() {
@@ -49,8 +50,15 @@ function Profile() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setUploadingAvatar(true);
     setProfileError('');
+    const validationError = validateImageFile(file, t);
+    if (validationError) {
+      setProfileError(validationError);
+      event.target.value = '';
+      return;
+    }
+
+    setUploadingAvatar(true);
     try {
       const updated = await authService.uploadProfileAvatar(file);
       setAvatarPath(updated.avatar_path);

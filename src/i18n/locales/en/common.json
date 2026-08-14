@@ -5,6 +5,7 @@
     "create": "Create",
     "cancel": "Cancel",
     "createError": "Failed to create.",
+    "createSuccess": "Created successfully.",
     "addCategory": "Add Category"
   },
   "actions": {
@@ -104,6 +105,10 @@
   "misc": {
     "companyLogo": "Company logo",
     "avatar": "Avatar"
+  },
+  "imageUpload": {
+    "tooLarge": "Image is too large. Maximum size is 2 MB.",
+    "unsupportedFormat": "Unsupported image format. Please upload JPG, PNG or WebP."
   },
   "chart": {
     "total": "Total",

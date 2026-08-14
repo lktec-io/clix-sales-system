@@ -4,6 +4,7 @@
     "branches": "Matawi",
     "users": "Watumiaji",
     "roles": "Majukumu",
+    "categories": "Jamii",
     "expenseCategories": "Aina za Matumizi",
     "taxAndEmail": "Kodi na Barua Pepe"
   },
@@ -175,6 +176,37 @@
     "deleteTitle": "Futa jukumu",
     "deleteMessage": "Futa jukumu \"{{name}}\"? Hii huzuiwa iwapo bado kuna watumiaji waliopewa jukumu hili.",
     "deleteSuccess": "Jukumu limefutwa."
+  },
+  "categories": {
+    "pageTitle": "Jamii",
+    "pageSubtitle": "Simamia jamii zinazotumika pamoja katika bidhaa, dawa na vipengele vya menyu",
+    "newCategory": "Jamii Mpya",
+    "searchPlaceholder": "Tafuta kwa jina au msimbo...",
+    "emptyMessage": "Hakuna jamii zilizopatikana",
+    "editAria": "Hariri jamii",
+    "deleteAria": "Futa jamii",
+    "columns": {
+      "name": "Jina la Jamii",
+      "code": "Msimbo"
+    },
+    "editTitle": "Hariri Jamii",
+    "newTitle": "Jamii Mpya",
+    "name": "Jina la Jamii",
+    "nameRequired": "Jina la jamii linahitajika",
+    "code": "Msimbo",
+    "codeRequired": "Msimbo wa jamii unahitajika",
+    "description": "Maelezo",
+    "status": "Hali",
+    "createCategory": "Unda Jamii",
+    "updateSuccess": "Jamii imesasishwa.",
+    "createSuccess": "Jamii imeundwa.",
+    "saveError": "Imeshindwa kuhifadhi jamii. Tafadhali jaribu tena.",
+    "deleteTitle": "Futa jamii",
+    "deleteMessage": "Futa \"{{name}}\"? Hii huzuiwa iwapo bado kuna bidhaa, dawa au vipengele vya menyu vinavyoitumia.",
+    "deleteSuccess": "Jamii imefutwa.",
+    "deleteError": "Imeshindwa kufuta jamii. Tafadhali jaribu tena.",
+    "alreadyExists": "Jamii hii tayari ipo.",
+    "inUse": "Jamii hii haiwezi kufutwa kwa sababu inatumika."
   },
   "expenseCategories": {
     "pageTitle": "Aina za Matumizi",

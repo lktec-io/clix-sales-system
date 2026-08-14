@@ -4,6 +4,7 @@
     "branches": "Branches",
     "users": "Users",
     "roles": "Roles",
+    "categories": "Categories",
     "expenseCategories": "Expense Categories",
     "taxAndEmail": "Tax & Email"
   },
@@ -175,6 +176,37 @@
     "deleteTitle": "Delete role",
     "deleteMessage": "Delete the \"{{name}}\" role? This is blocked if any users are still assigned to it.",
     "deleteSuccess": "Role deleted."
+  },
+  "categories": {
+    "pageTitle": "Categories",
+    "pageSubtitle": "Manage the shared categories used across products, medicines, and menu items",
+    "newCategory": "New Category",
+    "searchPlaceholder": "Search by name or code...",
+    "emptyMessage": "No categories found",
+    "editAria": "Edit category",
+    "deleteAria": "Delete category",
+    "columns": {
+      "name": "Category Name",
+      "code": "Code"
+    },
+    "editTitle": "Edit Category",
+    "newTitle": "New Category",
+    "name": "Category Name",
+    "nameRequired": "Category name is required",
+    "code": "Code",
+    "codeRequired": "Category code is required",
+    "description": "Description",
+    "status": "Status",
+    "createCategory": "Create Category",
+    "updateSuccess": "Category updated.",
+    "createSuccess": "Category created.",
+    "saveError": "Unable to save category. Please try again.",
+    "deleteTitle": "Delete category",
+    "deleteMessage": "Delete \"{{name}}\"? This is blocked if any products, medicines, or menu items still reference it.",
+    "deleteSuccess": "Category deleted.",
+    "deleteError": "Unable to delete category. Please try again.",
+    "alreadyExists": "Category already exists.",
+    "inUse": "Cannot delete this category because it is being used."
   },
   "expenseCategories": {
     "pageTitle": "Expense Categories",

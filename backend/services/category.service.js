@@ -63,9 +63,9 @@ export async function deleteCategory(id, actorId, tenantId) {
   const existing = await categoryRepository.findById(id, tenantId);
   if (!existing) throw new ApiError(404, 'Category not found');
 
-  const productCount = await categoryRepository.countProducts(id, tenantId);
-  if (productCount > 0) {
-    throw new ApiError(409, `Cannot delete this category — ${productCount} product(s) still reference it`);
+  const usageCount = await categoryRepository.countUsage(id, tenantId);
+  if (usageCount > 0) {
+    throw new ApiError(409, `Category cannot be deleted because it is currently being used by ${usageCount} item(s).`);
   }
 
   await categoryRepository.softDelete(id, tenantId, actorId);

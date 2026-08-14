@@ -80,10 +80,26 @@ export async function softDelete(id, tenantId, userId) {
   await pool.query('UPDATE categories SET deleted_at = NOW(), updated_by = ? WHERE id = ? AND tenant_id = ?', [userId, id, tenantId]);
 }
 
-export async function countProducts(id, tenantId) {
-  const [rows] = await pool.query(
+// The `categories` table is shared across every business vertical —
+// Retail/Cosmetics/Electronics use it via `products`, Pharmacy via
+// `medicines`, Restaurant via `menu_items` (031/033's own migration
+// comments confirm this is deliberate reuse, not three separate category
+// systems). A delete-safety check that only counted `products` would
+// silently allow deleting a category still in active use by a Pharmacy or
+// Restaurant tenant — this counts across all three so "cannot delete,
+// N item(s) reference it" is accurate for every template.
+export async function countUsage(id, tenantId) {
+  const [[{ total: products }]] = await pool.query(
     'SELECT COUNT(*) AS total FROM products WHERE category_id = ? AND tenant_id = ? AND deleted_at IS NULL',
     [id, tenantId],
   );
-  return rows[0].total;
+  const [[{ total: medicines }]] = await pool.query(
+    'SELECT COUNT(*) AS total FROM medicines WHERE category_id = ? AND tenant_id = ? AND deleted_at IS NULL',
+    [id, tenantId],
+  );
+  const [[{ total: menuItems }]] = await pool.query(
+    'SELECT COUNT(*) AS total FROM menu_items WHERE category_id = ? AND tenant_id = ? AND deleted_at IS NULL',
+    [id, tenantId],
+  );
+  return products + medicines + menuItems;
 }
