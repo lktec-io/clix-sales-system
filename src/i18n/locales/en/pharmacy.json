@@ -8,7 +8,8 @@
       "emptyMessage": "No medicines yet.",
       "viewMedicine": "View medicine",
       "allCategories": "All Categories",
-      "allStatuses": "All Statuses"
+      "allStatuses": "All Statuses",
+      "allStock": "All Stock Levels"
     },
     "columns": {
       "name": "Name",
@@ -34,11 +35,12 @@
       "editSubtitle": "Update this medicine's details.",
       "nameLabel": "Medicine Name",
       "nameRequired": "Name is required",
+      "barcodeLabel": "Barcode (optional)",
       "categoryLabel": "Category",
       "categoryRequired": "Category is required",
       "selectCategory": "Select a category",
-      "unitLabel": "Unit",
-      "unitRequired": "Unit is required",
+      "unitLabel": "Selling Unit",
+      "unitRequired": "Selling unit is required",
       "sellingPriceLabel": "Selling Price",
       "sellingPriceRequired": "Selling price is required",
       "reorderLevelLabel": "Reorder Level",
@@ -48,7 +50,15 @@
       "save": "Save Medicine",
       "createSuccess": "Medicine created",
       "updateSuccess": "Medicine updated",
-      "saveError": "Failed to save medicine"
+      "saveError": "Failed to save medicine",
+      "addOpeningStock": "Add opening stock (optional)",
+      "openingStockHint": "Record the stock you already have for this medicine, with its batch and expiry details — the same information Receive Stock captures, just in one step.",
+      "branchLabel": "Branch",
+      "selectBranch": "Select a branch",
+      "quantityLabel": "Quantity",
+      "buyingPriceLabel": "Buying Price",
+      "batchNumberLabel": "Batch Number",
+      "expiryDateLabel": "Expiry Date"
     },
     "units": {
       "unit": "Unit", "tablet": "Tablet", "capsule": "Capsule", "bottle": "Bottle",
@@ -114,6 +124,52 @@
       "valid": "Safe"
     }
   },
+  "pos": {
+    "selectBranchPlaceholder": "Select a branch to sell from",
+    "selectBranchToView": "Select a branch to view sellable medicines.",
+    "searchPlaceholder": "Search medicine by name or barcode",
+    "saleHistory": "Sale History",
+    "inStock": "{{count}} {{unit}} in stock",
+    "inCart": "{{count}} in cart",
+    "noMedicinesFound": "No sellable medicines found.",
+    "cart": "Cart ({{count}})",
+    "clearCart": "Clear Cart",
+    "cartEmptyTitle": "Cart is empty",
+    "cartEmptyDescription": "Search for a medicine to begin.",
+    "removeItemAria": "Remove {{name}}",
+    "qty": "Qty",
+    "decreaseQtyAria": "Decrease quantity of {{name}}",
+    "increaseQtyAria": "Increase quantity of {{name}}",
+    "customerOptional": "Customer (Optional)",
+    "quickAdd": "Quick Add",
+    "walkInCustomer": "Walk-in customer",
+    "total": "Total",
+    "paymentMethod": "Payment Method",
+    "completeSale": "Complete Sale",
+    "quickAddCustomerTitle": "Quick Add Customer",
+    "addAndSelect": "Add & Select",
+    "fullName": "Full Name",
+    "phoneNumber": "Phone Number",
+    "saleCompleted": "Sale Completed",
+    "print": "Print",
+    "downloadPdf": "Download PDF",
+    "newSale": "New Sale",
+    "payment": {
+      "cash": "Cash",
+      "mobileMoney": "Mobile Money",
+      "card": "Card"
+    },
+    "toast": {
+      "noMedicineFoundFor": "No medicine found for \"{{query}}\".",
+      "medicineLookupFailed": "Medicine lookup failed.",
+      "nameAndPhoneRequired": "Name and phone are required.",
+      "customerAddedAndSelected": "{{name}} added and selected.",
+      "failedToAddCustomer": "Failed to add customer.",
+      "checkoutFailed": "Unable to complete sale. Please check the medicine stock and try again.",
+      "failedToOpenReceipt": "Failed to open the receipt.",
+      "failedToDownloadReceipt": "Failed to download the receipt."
+    }
+  },
   "sales": {
     "list": {
       "title": "Pharmacy Sales",
@@ -130,6 +186,16 @@
       "total": "Total",
       "paymentMethod": "Payment Method",
       "date": "Date"
+    },
+    "dateFilter": {
+      "quickRangeLabel": "Filter by date",
+      "allTime": "All Time",
+      "today": "Today",
+      "week": "This Week",
+      "month": "This Month",
+      "custom": "Custom",
+      "from": "From",
+      "to": "To"
     },
     "walkIn": "Walk-in",
     "paymentMethods": {

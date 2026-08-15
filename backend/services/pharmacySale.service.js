@@ -33,6 +33,7 @@ export async function listSales(query, user) {
   const { rows, total } = await pharmacySaleRepository.findAll({
     tenantId: user.tenantId, page, limit, search: query.search,
     branchId: query.branchId ? Number(query.branchId) : undefined, branchIds,
+    dateFrom: query.dateFrom, dateTo: query.dateTo,
   });
   return { items: rows, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } };
 }
@@ -41,6 +42,33 @@ export async function getSale(id, tenantId) {
   const sale = await pharmacySaleRepository.findById(id, tenantId);
   if (!sale) throw new ApiError(404, 'Sale not found');
   return sale;
+}
+
+// Reshapes a pharmacy sale into the exact field names
+// receiptService.js#buildReceiptPdf already expects (built for `sales`/
+// `sale_items`) — reused as-is rather than building a second PDF engine.
+// Pharmacy sales have no discount/tax concept and a single payment method
+// per sale (not an array of partial payments like retail), so those map to
+// the simplest valid shape: zero discount/tax, one payment covering the
+// full total.
+export async function getSaleForReceipt(id, tenantId) {
+  const sale = await getSale(id, tenantId);
+  return {
+    ...sale,
+    cashier_first_name: sale.sold_by_first_name,
+    cashier_last_name: sale.sold_by_last_name,
+    subtotal: sale.total_amount,
+    discount_amount: 0,
+    tax_amount: 0,
+    items: sale.items.map((item) => ({
+      product_name: item.medicine_name,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      discount_amount: 0,
+      line_total: item.line_total,
+    })),
+    payments: [{ payment_method: sale.payment_method, amount: sale.total_amount }],
+  };
 }
 
 // The core FEFO dispensing transaction: for each requested medicine, walk

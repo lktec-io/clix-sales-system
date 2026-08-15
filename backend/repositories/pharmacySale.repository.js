@@ -25,7 +25,7 @@ export async function findById(id, tenantId) {
   return { ...rows[0], items };
 }
 
-export async function findAll({ tenantId, page = 1, limit = 20, search, branchId, branchIds }) {
+export async function findAll({ tenantId, page = 1, limit = 20, search, branchId, dateFrom, dateTo, branchIds }) {
   const scope = buildScope({ tenantId, tenantColumn: 's.tenant_id', branchIds, branchColumn: 's.branch_id' });
   const conditions = ['1 = 1'];
   const params = [];
@@ -38,6 +38,17 @@ export async function findAll({ tenantId, page = 1, limit = 20, search, branchId
   if (branchId) {
     conditions.push('s.branch_id = ?');
     params.push(branchId);
+  }
+  // s.created_at is a DATETIME — compared by DATE() so a "Today"/"This
+  // Week" filter (plain YYYY-MM-DD boundaries, same as expense.repository.js's
+  // dateFrom/dateTo convention) matches on calendar date, not clock time.
+  if (dateFrom) {
+    conditions.push('DATE(s.created_at) >= ?');
+    params.push(dateFrom);
+  }
+  if (dateTo) {
+    conditions.push('DATE(s.created_at) <= ?');
+    params.push(dateTo);
   }
 
   const whereClause = `WHERE ${conditions.join(' AND ')} ${scope.clause}`;
@@ -79,14 +90,48 @@ export async function createItem({ saleId, medicineId, batchId, quantity, unitPr
 // key here would silently overwrite retail's figure for any tenant (never
 // happens today since Pharmacy/Retail are different templates with
 // different resolved widgets, but the merge itself doesn't know that).
+//
+// medicinesSoldCount/todayProfit are new (KPI dashboard rebuild). todayProfit
+// intentionally REUSES retail's own key name (dashboard.repository.js#getKpis)
+// rather than inventing a Pharmacy-specific one — it's the exact same concept
+// (today's completed-sale revenue minus cost of goods sold), just computed
+// against pharmacy_sale_items/medicine_batches instead of sale_items/products.
+// Same safe-to-share reasoning as todayOrders/todaySales between Retail and
+// Restaurant: Pharmacy and Retail are mutually exclusive templates, so the
+// flat-object merge in dashboard.service.js#getKpis() never has both sides
+// populated for the same tenant, and no template's dashboard_widgets list
+// currently gates "todayProfit" except Pharmacy's (see migration 043).
 export async function getSalesSummary(tenantId, branchIds) {
   const scope = buildScope({ tenantId, tenantColumn: 'tenant_id', branchIds, branchColumn: 'branch_id' });
-  const [[row]] = await pool.query(
+  const [[salesRow]] = await pool.query(
     `SELECT COUNT(*) AS todaySalesCount, COALESCE(SUM(total_amount), 0) AS todayRevenue
      FROM pharmacy_sales WHERE status = 'completed' AND DATE(created_at) = CURDATE() ${scope.clause}`,
     scope.params,
   );
-  return { todaySalesCount: Number(row.todaySalesCount), todayRevenue: Number(row.todayRevenue) };
+
+  // medicinesSoldCount/todayProfit need each sale item joined to the exact
+  // batch it was dispensed from (batch_id — the FEFO allocation recorded by
+  // sellMedicines() in pharmacySale.service.js) so cost is the real
+  // buying_price of the batch actually sold, not an estimate. Same
+  // tenant/branch/today scope as above, just aliased onto the joined
+  // pharmacy_sales row.
+  const itemScope = buildScope({ tenantId, tenantColumn: 'ps.tenant_id', branchIds, branchColumn: 'ps.branch_id' });
+  const [[itemsRow]] = await pool.query(
+    `SELECT COALESCE(SUM(psi.quantity), 0) AS medicinesSoldCount,
+            COALESCE(SUM(psi.line_total), 0) - COALESCE(SUM(psi.quantity * mb.buying_price), 0) AS todayProfit
+     FROM pharmacy_sale_items psi
+     JOIN pharmacy_sales ps ON ps.id = psi.sale_id
+     JOIN medicine_batches mb ON mb.id = psi.batch_id
+     WHERE ps.status = 'completed' AND DATE(ps.created_at) = CURDATE() ${itemScope.clause}`,
+    itemScope.params,
+  );
+
+  return {
+    todaySalesCount: Number(salesRow.todaySalesCount),
+    todayRevenue: Number(salesRow.todayRevenue),
+    medicinesSoldCount: Number(itemsRow.medicinesSoldCount),
+    todayProfit: Number(itemsRow.todayProfit),
+  };
 }
 
 export async function findRecent(tenantId, branchIds, limit = 5) {

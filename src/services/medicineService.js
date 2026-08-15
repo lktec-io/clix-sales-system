@@ -38,3 +38,17 @@ export async function listExpiring(params) {
   const { data } = await apiClient.get('/medicines/expiring', { params });
   return data.data;
 }
+
+// Powers the Pharmacy POS's search-and-add grid — mirrors
+// productService.js#listSellableProducts exactly.
+export async function listSellableMedicines(params) {
+  const { data } = await apiClient.get('/medicines/sellable', { params });
+  return data.data;
+}
+
+// Exact-match barcode lookup, for a typed/scanned code — resolves to null,
+// not an error, when nothing matches.
+export async function lookupSellableMedicineByBarcode(params) {
+  const { data } = await apiClient.get('/medicines/lookup', { params });
+  return data.data;
+}

@@ -28,25 +28,40 @@ async function getActiveRegistry() {
 // tenant's business template's setting; anything not covered by either
 // resolves to disabled (safe default-deny — matches the migration's own
 // "absence of a row means disabled" convention).
+//
+// Ordering: a module's position is its global `navigation_order` UNLESS the
+// tenant's template has set a `sort_order_override` for it in
+// template_modules (NULL by default for every template). This is what lets
+// one template reorder its own nav (e.g. Pharmacy putting Sales before
+// Medicines) without moving a shared module like Customers/Suppliers for
+// every other template that reuses it — those keep the exact global order
+// they've always had since their template_modules rows have no override.
 export async function resolveEnabledModulesForTenant(tenantId) {
   const cached = tenantModulesCache.get(tenantId);
   if (cached && cached.expiresAt > Date.now()) return cached.value;
 
   const [tenant, registry] = await Promise.all([tenantRepository.findById(tenantId), getActiveRegistry()]);
 
-  const [enabledTemplateKeys, overrides] = await Promise.all([
-    templateModuleRepository.findEnabledModuleKeysForTemplate(tenant.business_template_id),
+  const [templateModules, overrides] = await Promise.all([
+    templateModuleRepository.findEnabledModulesForTemplate(tenant.business_template_id),
     tenantModuleRepository.findOverridesForTenant(tenantId),
   ]);
 
-  const templateEnabledSet = new Set(enabledTemplateKeys);
+  const templateEnabledSet = new Set(templateModules.map((row) => row.key));
+  const sortOverrideByKey = new Map(templateModules.map((row) => [row.key, row.sort_order_override]));
   const overrideMap = new Map(overrides.map((row) => [row.key, Boolean(row.is_enabled)]));
 
-  const resolved = registry.filter((module) => {
-    if (module.is_core) return true;
-    if (overrideMap.has(module.key)) return overrideMap.get(module.key);
-    return templateEnabledSet.has(module.key);
-  });
+  const resolved = registry
+    .filter((module) => {
+      if (module.is_core) return true;
+      if (overrideMap.has(module.key)) return overrideMap.get(module.key);
+      return templateEnabledSet.has(module.key);
+    })
+    .map((module) => {
+      const sortOverride = sortOverrideByKey.get(module.key);
+      return sortOverride == null ? module : { ...module, navigation_order: sortOverride };
+    })
+    .sort((a, b) => a.navigation_order - b.navigation_order || a.id - b.id);
 
   tenantModulesCache.set(tenantId, { value: resolved, expiresAt: Date.now() + CACHE_TTL_MS });
   return resolved;

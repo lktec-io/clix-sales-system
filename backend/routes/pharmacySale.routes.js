@@ -15,6 +15,7 @@ router.get('/summary', pharmacySaleController.summary);
 router.get('/recent', pharmacySaleController.recent);
 router.get('/', pharmacySaleController.list);
 router.get('/:id', pharmacySaleController.getById);
+router.get('/:id/receipt', pharmacySaleController.receipt);
 router.post('/', authorize('pharmacy_sales.create'), requireActiveTrial, pharmacySaleValidator, validateRequest, pharmacySaleController.create);
 
 export default router;

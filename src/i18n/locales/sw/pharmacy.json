@@ -8,7 +8,8 @@
       "emptyMessage": "Hakuna dawa bado.",
       "viewMedicine": "Angalia dawa",
       "allCategories": "Aina Zote",
-      "allStatuses": "Hali Zote"
+      "allStatuses": "Hali Zote",
+      "allStock": "Viwango Vyote vya Hesabu"
     },
     "columns": {
       "name": "Jina",
@@ -34,11 +35,12 @@
       "editSubtitle": "Sasisha maelezo ya dawa hii.",
       "nameLabel": "Jina la Dawa",
       "nameRequired": "Jina linahitajika",
+      "barcodeLabel": "Barcode (si lazima)",
       "categoryLabel": "Aina",
       "categoryRequired": "Aina inahitajika",
       "selectCategory": "Chagua aina",
-      "unitLabel": "Kipimo",
-      "unitRequired": "Kipimo kinahitajika",
+      "unitLabel": "Kipimo cha Kuuza",
+      "unitRequired": "Kipimo cha kuuza kinahitajika",
       "sellingPriceLabel": "Bei ya Kuuza",
       "sellingPriceRequired": "Bei ya kuuza inahitajika",
       "reorderLevelLabel": "Kiwango cha Kuagiza Tena",
@@ -48,7 +50,15 @@
       "save": "Hifadhi Dawa",
       "createSuccess": "Dawa imeongezwa",
       "updateSuccess": "Dawa imesasishwa",
-      "saveError": "Imeshindwa kuhifadhi dawa"
+      "saveError": "Imeshindwa kuhifadhi dawa",
+      "addOpeningStock": "Ongeza hesabu ya awali (si lazima)",
+      "openingStockHint": "Rekodi hesabu uliyonayo tayari ya dawa hii, pamoja na kipande na tarehe ya mwisho — taarifa zile zile Pokea Stoo inazochukua, kwa hatua moja tu.",
+      "branchLabel": "Tawi",
+      "selectBranch": "Chagua tawi",
+      "quantityLabel": "Idadi",
+      "buyingPriceLabel": "Bei ya Kununua",
+      "batchNumberLabel": "Namba ya Kipande",
+      "expiryDateLabel": "Tarehe ya Mwisho"
     },
     "units": {
       "unit": "Kipande", "tablet": "Kidonge", "capsule": "Kapsuli", "bottle": "Chupa",
@@ -114,6 +124,52 @@
       "valid": "Salama"
     }
   },
+  "pos": {
+    "selectBranchPlaceholder": "Chagua tawi la kuuzia",
+    "selectBranchToView": "Chagua tawi kuona dawa zinazoweza kuuzwa.",
+    "searchPlaceholder": "Tafuta dawa kwa jina au barcode",
+    "saleHistory": "Historia ya Mauzo",
+    "inStock": "{{count}} {{unit}} zipo stoo",
+    "inCart": "{{count}} kwenye kikapu",
+    "noMedicinesFound": "Hakuna dawa zinazoweza kuuzwa zilizopatikana.",
+    "cart": "Kikapu ({{count}})",
+    "clearCart": "Futa Kikapu",
+    "cartEmptyTitle": "Kikapu ki tupu",
+    "cartEmptyDescription": "Tafuta dawa ili kuanza.",
+    "removeItemAria": "Ondoa {{name}}",
+    "qty": "Idadi",
+    "decreaseQtyAria": "Punguza idadi ya {{name}}",
+    "increaseQtyAria": "Ongeza idadi ya {{name}}",
+    "customerOptional": "Mteja (Si Lazima)",
+    "quickAdd": "Ongeza Haraka",
+    "walkInCustomer": "Mteja wa kawaida",
+    "total": "Jumla",
+    "paymentMethod": "Njia ya Malipo",
+    "completeSale": "Kamilisha Mauzo",
+    "quickAddCustomerTitle": "Ongeza Mteja Haraka",
+    "addAndSelect": "Ongeza na Chagua",
+    "fullName": "Jina Kamili",
+    "phoneNumber": "Namba ya Simu",
+    "saleCompleted": "Mauzo Yamekamilika",
+    "print": "Chapisha",
+    "downloadPdf": "Pakua PDF",
+    "newSale": "Mauzo Mapya",
+    "payment": {
+      "cash": "Fedha Taslimu",
+      "mobileMoney": "Pesa za Simu",
+      "card": "Kadi"
+    },
+    "toast": {
+      "noMedicineFoundFor": "Hakuna dawa iliyopatikana kwa \"{{query}}\".",
+      "medicineLookupFailed": "Utafutaji wa dawa umeshindwa.",
+      "nameAndPhoneRequired": "Jina na namba ya simu vinahitajika.",
+      "customerAddedAndSelected": "{{name}} ameongezwa na kuchaguliwa.",
+      "failedToAddCustomer": "Imeshindwa kuongeza mteja.",
+      "checkoutFailed": "Imeshindwa kukamilisha mauzo. Tafadhali angalia hesabu ya dawa na ujaribu tena.",
+      "failedToOpenReceipt": "Imeshindwa kufungua risiti.",
+      "failedToDownloadReceipt": "Imeshindwa kupakua risiti."
+    }
+  },
   "sales": {
     "list": {
       "title": "Mauzo ya Duka la Dawa",
@@ -130,6 +186,16 @@
       "total": "Jumla",
       "paymentMethod": "Njia ya Malipo",
       "date": "Tarehe"
+    },
+    "dateFilter": {
+      "quickRangeLabel": "Chuja kwa tarehe",
+      "allTime": "Muda Wote",
+      "today": "Leo",
+      "week": "Wiki Hii",
+      "month": "Mwezi Huu",
+      "custom": "Chagua Mwenyewe",
+      "from": "Kuanzia",
+      "to": "Hadi"
     },
     "walkIn": "Mteja wa Kawaida",
     "paymentMethods": {

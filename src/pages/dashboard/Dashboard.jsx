@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
-  FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle, FiUserCheck, FiCreditCard, FiAlertOctagon, FiClock, FiBox, FiCheckCircle, FiTool,
+  FiDollarSign, FiTrendingUp, FiShoppingBag, FiAlertTriangle, FiUserCheck, FiCreditCard, FiAlertOctagon, FiClock, FiBox, FiCheckCircle, FiTool, FiPackage,
 } from 'react-icons/fi';
 import KPICard from '../../components/dashboard/KPICard';
 import ChartCard from '../../components/dashboard/ChartCard';
@@ -63,6 +63,12 @@ function useKpiDefs(t) {
     { key: 'expiringSoonCount', label: t('kpi.expiringSoonCount'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.expiringSoonCountSubtitle'), accent: '#F59E0B' },
     { key: 'todaySalesCount', label: t('kpi.todaySalesCount'), icon: FiShoppingBag, formatter: formatNumber, subtitle: t('kpi.todaySalesCountSubtitle'), accent: '#8B5CF6' },
     { key: 'todayRevenue', label: t('kpi.todayRevenue'), icon: FiDollarSign, formatter: formatCurrency, subtitle: t('kpi.todayRevenueSubtitle'), accent: '#10B981' },
+    { key: 'medicinesSoldCount', label: t('kpi.medicinesSoldCount'), icon: FiPackage, formatter: formatNumber, subtitle: t('kpi.medicinesSoldCountSubtitle'), accent: '#0D9488' },
+    // Reuses the same "todayProfit" key retail's own KPI set already
+    // computes (dashboard.repository.js#getKpis) — see the repository
+    // comment in pharmacySale.repository.js#getSalesSummary for why sharing
+    // this key is safe (Pharmacy/Retail are mutually exclusive templates).
+    { key: 'todayProfit', label: t('kpi.todayProfit'), icon: FiTrendingUp, formatter: formatCurrency, subtitle: t('kpi.todayProfitSubtitle'), accent: '#059669' },
     // Restaurant — gated by the 'restaurant_orders'/'tables' modules'
     // dashboard_widgets columns (033_create_restaurant_tables.sql).
     // todaySales/todayOrders above are reused directly (same meaning as

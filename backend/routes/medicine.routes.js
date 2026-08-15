@@ -18,6 +18,10 @@ router.use(authenticate);
 // depends on this lookup, same reasoning customer.routes.js/active and
 // supplier.routes.js/active are exempt for their own dependent modules.
 router.get('/active', medicineController.listActive);
+// Same reasoning, for the POS's search grid and barcode lookup — mirrors
+// product.routes.js's identical /sellable + /lookup exemption exactly.
+router.get('/sellable', authorize('medicines.view'), medicineController.sellable);
+router.get('/lookup', authorize('medicines.view'), medicineController.lookupByBarcode);
 
 router.use(requireModule('medicines'));
 

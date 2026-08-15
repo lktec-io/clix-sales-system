@@ -18,6 +18,16 @@ export const listExpiring = asyncHandler(async (req, res) => {
   return success(res, { data: { items, meta } });
 });
 
+export const sellable = asyncHandler(async (req, res) => {
+  const medicines = await medicineService.getSellableMedicines(req.query, req.user);
+  return success(res, { data: medicines });
+});
+
+export const lookupByBarcode = asyncHandler(async (req, res) => {
+  const medicine = await medicineService.getSellableMedicineByBarcode(req.query, req.user);
+  return success(res, { data: medicine });
+});
+
 export const list = asyncHandler(async (req, res) => {
   const { items, meta } = await medicineService.listMedicines(req.query, req.user.tenantId);
   return success(res, { data: { items, meta } });
@@ -29,7 +39,7 @@ export const getById = asyncHandler(async (req, res) => {
 });
 
 export const create = asyncHandler(async (req, res) => {
-  const medicine = await medicineService.createMedicine(req.body, req.user.id, req.user.tenantId);
+  const medicine = await medicineService.createMedicine(req.body, req.user.id, req.user.tenantId, req.user);
   return success(res, { message: 'Medicine created', data: medicine, status: 201 });
 });
 

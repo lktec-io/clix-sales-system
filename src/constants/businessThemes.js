@@ -22,9 +22,9 @@ export const BUSINESS_THEMES = {
   // Emerald — paired with the shared dark navy hero base for a "navy +
   // emerald" retail identity; fast/clean/inventory-driven.
   'retail-store': { accent: '#059669', accentRgb: '5, 150, 105', icon: FiShoppingBag, label: 'Retail' },
-  // Medical blue — trust/accuracy/compliance; soft green appears in the
-  // pharmacy motif (businessExperiences.css) as the secondary healthcare cue.
-  pharmacy: { accent: '#1E88E5', accentRgb: '30, 136, 229', icon: FiPlusSquare, label: 'Pharmacy' },
+  // Professional teal (Tailwind teal-600) — clean, trustworthy retail-
+  // pharmacy identity without leaning on clinical/hospital blue imagery.
+  pharmacy: { accent: '#0D9488', accentRgb: '13, 148, 136', icon: FiPlusSquare, label: 'Pharmacy' },
   restaurant: { accent: '#F97316', accentRgb: '249, 115, 22', icon: FiCoffee, label: 'Restaurant' },
   // Gold — paired with the shared deep-navy hero base for a "deep blue +
   // gold" financial-institution identity; premium/authoritative.

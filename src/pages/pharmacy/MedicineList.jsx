@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FiPlus, FiEye, FiUpload } from 'react-icons/fi';
 import Table from '../../components/common/Table';
@@ -29,13 +29,20 @@ function MedicineList() {
   const canCreate = usePermission('medicines.manage');
   const [categories, setCategories] = useState([]);
   const [importOpen, setImportOpen] = useState(false);
+  // Lets a future Dashboard "Low Stock" KPI card link straight to a
+  // pre-filtered list (e.g. /medicines?stockStatus=low) without this page
+  // needing anything from Dashboard.jsx — only the initial filter value is
+  // read from the URL, matching stockStatus's own values below.
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     categoryService.listActiveCategories().then(setCategories);
   }, []);
 
   const fetchMedicines = useCallback((params) => medicineService.listMedicines(params), []);
-  const { items, meta, loading, page, setPage, search, setSearch, filters, setFilters, refetch } = useTable(fetchMedicines);
+  const { items, meta, loading, page, setPage, search, setSearch, filters, setFilters, refetch } = useTable(fetchMedicines, {
+    initialFilters: { stockStatus: searchParams.get('stockStatus') || undefined },
+  });
 
   const columns = [
     { key: 'name', label: t('pharmacy:medicines.columns.name') },
@@ -95,6 +102,15 @@ function MedicineList() {
             <option value="">{t('pharmacy:medicines.list.allStatuses')}</option>
             <option value="active">{t('pharmacy:medicines.status.active')}</option>
             <option value="inactive">{t('pharmacy:medicines.status.inactive')}</option>
+          </select>
+          <select
+            className="form-control"
+            value={filters.stockStatus || ''}
+            onChange={(e) => setFilters((prev) => ({ ...prev, stockStatus: e.target.value || undefined }))}
+          >
+            <option value="">{t('pharmacy:medicines.list.allStock')}</option>
+            <option value="low">{t('pharmacy:medicines.stockStatus.lowStock')}</option>
+            <option value="out">{t('pharmacy:medicines.stockStatus.outOfStock')}</option>
           </select>
         </div>
         <Table columns={columns} rows={items} loading={loading} emptyMessage={t('pharmacy:medicines.list.emptyMessage')} />

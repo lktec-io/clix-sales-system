@@ -22,8 +22,8 @@
 }
 
 [data-business-template='pharmacy'] {
-  --business-accent: #1E88E5;
-  --business-accent-rgb: 30, 136, 229;
+  --business-accent: #0D9488;
+  --business-accent-rgb: 13, 148, 136;
 }
 
 [data-business-template='restaurant'] {

@@ -7,6 +7,7 @@ import PageSkeleton from '../../components/common/PageSkeleton';
 import QuickAddModal from '../../components/common/QuickAddModal';
 import * as medicineService from '../../services/medicineService';
 import * as categoryService from '../../services/categoryService';
+import * as branchService from '../../services/branchService';
 import { useToast } from '../../hooks/useToast';
 
 const UNITS = ['unit', 'tablet', 'capsule', 'bottle', 'box', 'vial', 'tube', 'sachet', 'pack'];
@@ -19,6 +20,8 @@ function MedicineForm() {
   const toast = useToast();
   const [categories, setCategories] = useState([]);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [branches, setBranches] = useState([]);
+  const [addOpeningStock, setAddOpeningStock] = useState(false);
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(isEdit);
 
@@ -30,19 +33,27 @@ function MedicineForm() {
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      name: '', categoryId: '', unit: 'unit', sellingPrice: '', reorderLevel: '', description: '', status: 'active',
+      name: '', barcode: '', categoryId: '', unit: 'unit', sellingPrice: '', reorderLevel: '', description: '', status: 'active',
+      stockQuantity: '', stockBuyingPrice: '', stockBatchNumber: '', stockExpiryDate: '', stockBranchId: '',
     },
   });
 
   useEffect(() => {
     categoryService.listActiveCategories().then(setCategories);
-  }, []);
+    if (!isEdit) {
+      branchService.listActiveBranches().then((rows) => {
+        setBranches(rows);
+        if (rows.length === 1) setValue('stockBranchId', rows[0].id);
+      });
+    }
+  }, [isEdit, setValue]);
 
   useEffect(() => {
     if (!isEdit) return;
     medicineService.getMedicine(id).then((medicine) => {
       reset({
         name: medicine.name,
+        barcode: medicine.barcode || '',
         categoryId: medicine.category_id || '',
         unit: medicine.unit,
         sellingPrice: medicine.selling_price,
@@ -58,6 +69,7 @@ function MedicineForm() {
     setFormError('');
     const payload = {
       name: values.name.trim(),
+      barcode: values.barcode?.trim() || undefined,
       categoryId: values.categoryId ? Number(values.categoryId) : undefined,
       unit: values.unit,
       sellingPrice: Number(values.sellingPrice),
@@ -65,6 +77,16 @@ function MedicineForm() {
       description: values.description?.trim() || undefined,
       status: values.status,
     };
+
+    if (!isEdit && addOpeningStock && Number(values.stockQuantity) > 0) {
+      payload.initialStock = {
+        quantity: Number(values.stockQuantity),
+        buyingPrice: values.stockBuyingPrice ? Number(values.stockBuyingPrice) : undefined,
+        batchNumber: values.stockBatchNumber.trim(),
+        expiryDate: values.stockExpiryDate,
+        branchId: Number(values.stockBranchId),
+      };
+    }
 
     try {
       const medicine = isEdit
@@ -124,6 +146,13 @@ function MedicineForm() {
                 {errors.categoryId && <span className="form-error">{errors.categoryId.message}</span>}
               </div>
               <div className="form-group">
+                <label className="form-label" htmlFor="barcode">{t('pharmacy:medicines.form.barcodeLabel')}</label>
+                <input id="barcode" className="form-control" {...register('barcode')} />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
                 <label className="form-label form-label-required" htmlFor="unit">{t('pharmacy:medicines.form.unitLabel')}</label>
                 <select id="unit" className="form-control" {...register('unit', { required: t('pharmacy:medicines.form.unitRequired') })}>
                   {UNITS.map((u) => <option key={u} value={u}>{t(`pharmacy:medicines.units.${u}`)}</option>)}
@@ -160,6 +189,56 @@ function MedicineForm() {
             </div>
           </div>
         </div>
+
+        {!isEdit && (
+          <div className="card mt-5">
+            <div className="card-header">
+              <label className="form-checkbox" htmlFor="addOpeningStock" style={{ margin: 0 }}>
+                <input
+                  id="addOpeningStock"
+                  type="checkbox"
+                  checked={addOpeningStock}
+                  onChange={(e) => setAddOpeningStock(e.target.checked)}
+                />
+                <span className="card-title">{t('pharmacy:medicines.form.addOpeningStock')}</span>
+              </label>
+            </div>
+            {addOpeningStock && (
+              <div className="card-body">
+                <p className="text-sm text-secondary mb-4">{t('pharmacy:medicines.form.openingStockHint')}</p>
+                <div className="form-row">
+                  {branches.length > 1 && (
+                    <div className="form-group">
+                      <label className="form-label form-label-required" htmlFor="stockBranchId">{t('pharmacy:medicines.form.branchLabel')}</label>
+                      <select id="stockBranchId" className="form-control" {...register('stockBranchId', { required: addOpeningStock })}>
+                        <option value="">{t('pharmacy:medicines.form.selectBranch')}</option>
+                        {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                      </select>
+                    </div>
+                  )}
+                  <div className="form-group">
+                    <label className="form-label form-label-required" htmlFor="stockQuantity">{t('pharmacy:medicines.form.quantityLabel')}</label>
+                    <input id="stockQuantity" type="number" min="1" step="1" className="form-control" {...register('stockQuantity', { required: addOpeningStock, min: 1 })} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="stockBuyingPrice">{t('pharmacy:medicines.form.buyingPriceLabel')}</label>
+                    <input id="stockBuyingPrice" type="number" min="0" step="0.01" className="form-control" {...register('stockBuyingPrice')} />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label form-label-required" htmlFor="stockBatchNumber">{t('pharmacy:medicines.form.batchNumberLabel')}</label>
+                    <input id="stockBatchNumber" className="form-control" {...register('stockBatchNumber', { required: addOpeningStock })} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label form-label-required" htmlFor="stockExpiryDate">{t('pharmacy:medicines.form.expiryDateLabel')}</label>
+                    <input id="stockExpiryDate" type="date" className="form-control" {...register('stockExpiryDate', { required: addOpeningStock })} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="form-actions">
           <button type="button" className="btn btn-secondary" onClick={() => navigate('/medicines')}>{t('common:actions.cancel')}</button>

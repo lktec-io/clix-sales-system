@@ -57,7 +57,7 @@ const EMPTY_MICROFINANCE_KPIS = {
 
 const EMPTY_PHARMACY_KPIS = {
   totalMedicines: 0, lowStockCount: 0, outOfStockCount: 0, expiredCount: 0, expiringSoonCount: 0,
-  todaySalesCount: 0, todayRevenue: 0,
+  todaySalesCount: 0, todayRevenue: 0, medicinesSoldCount: 0, todayProfit: 0,
 };
 
 // todayOrders/todaySales are the exact same keys (and meaning) as retail's

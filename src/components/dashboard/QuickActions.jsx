@@ -28,7 +28,7 @@ const ACTION_DEFS = {
   repairs: { labelKey: 'newRepair', icon: FiTool, to: '/repairs/new', accent: '#06B6D4' },
   restaurant_orders: { labelKey: 'newOrder', icon: FiCoffee, to: '/restaurant/orders/new', accent: '#F97316' },
   loans: { labelKey: 'newLoan', icon: FiTrendingUp, to: '/loans/new', accent: '#C9A227' },
-  pharmacy_sales: { labelKey: 'newSale', icon: FiDollarSign, to: '/pharmacy/sales/new', accent: '#1E88E5' },
+  pharmacy_sales: { labelKey: 'newSale', icon: FiDollarSign, to: '/pharmacy/sales/new', accent: '#0D9488' },
   sales: { labelKey: 'newSale', icon: FiDollarSign, to: '/pos', accent: '#2F6BFF' },
   menu: { labelKey: 'newMenuItem', icon: FiShoppingBag, to: '/menu/new', accent: '#F97316' },
   pharmacy_purchases: { labelKey: 'receiveStock', icon: FiTruck, to: '/pharmacy/purchases/new', accent: '#10B981' },

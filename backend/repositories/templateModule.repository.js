@@ -15,18 +15,22 @@ export async function findForTemplate(templateId) {
   return rows;
 }
 
-// Used only by the resolver — enabled, non-core, currently-active module
-// keys for a template. Core modules are handled separately by the resolver
-// itself (always enabled, never read from this table).
-export async function findEnabledModuleKeysForTemplate(templateId) {
+// Used only by the resolver — enabled, non-core, currently-active modules
+// for a template: `key` (to build the enabled-set) plus
+// `sort_order_override` (a per-template nav position override — NULL means
+// "use the module's global navigation_order", today's existing default for
+// every template that has never set one). Core modules are handled
+// separately by the resolver itself (always enabled, never read from this
+// table).
+export async function findEnabledModulesForTemplate(templateId) {
   const [rows] = await pool.query(
-    `SELECT m.\`key\`
+    `SELECT m.\`key\`, tm.sort_order_override
      FROM template_modules tm
      JOIN modules m ON m.id = tm.module_id
      WHERE tm.business_template_id = ? AND tm.is_enabled = TRUE AND m.is_active = TRUE`,
     [templateId],
   );
-  return rows.map((row) => row.key);
+  return rows;
 }
 
 export async function setEnabled(templateId, moduleId, isEnabled) {

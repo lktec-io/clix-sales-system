@@ -10,6 +10,32 @@ import { usePermission } from '../../hooks/usePermission';
 import * as pharmacySaleService from '../../services/pharmacySaleService';
 import { formatCurrency } from '../../utils/formatCurrency';
 
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// Monday-based week start, matching ReportsCenter.jsx's own startOfWeekIso()
+// — the one other place in the app that already defines "this week".
+function startOfWeekIso() {
+  const now = new Date();
+  const day = now.getDay();
+  const diffToMonday = day === 0 ? 6 : day - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - diffToMonday);
+  return monday.toISOString().slice(0, 10);
+}
+
+function firstOfMonthIso() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+}
+
+const DATE_PRESETS = {
+  today: () => [todayIso(), todayIso()],
+  week: () => [startOfWeekIso(), todayIso()],
+  month: () => [firstOfMonthIso(), todayIso()],
+};
+
 function PharmacySaleList() {
   const { t, i18n } = useTranslation(['pharmacy', 'common']);
   const navigate = useNavigate();
@@ -18,8 +44,35 @@ function PharmacySaleList() {
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const formatDate = (isoString) => new Date(isoString).toLocaleDateString(dateLocale, { dateStyle: 'medium' });
 
-  const fetchSales = useCallback((params) => pharmacySaleService.listSales(params), []);
-  const { items, meta, loading, page, setPage, search, setSearch } = useTable(fetchSales);
+  // Sale history's date-range filter (Today/This Week/This Month/Custom) is
+  // a real dateFrom/dateTo query param — pharmacySale.repository.js#findAll
+  // filters on DATE(s.created_at) server-side, the same convention
+  // expense.repository.js's own dateFrom/dateTo already uses — so this stays
+  // correct under normal pagination instead of only ever showing whatever
+  // fits in one fetched page. `period`/`customFrom`/`customTo` live in
+  // useTable's `filters` purely so changing them resets to page 1 (its own
+  // existing filtersKey-change effect) and to drive the controls below;
+  // fetchSales translates them into the actual dateFrom/dateTo sent to the API.
+  const fetchSales = useCallback((params) => {
+    const { period, customFrom, customTo, ...rest } = params;
+    let dateFrom;
+    let dateTo;
+    if (period === 'today' || period === 'week' || period === 'month') {
+      [dateFrom, dateTo] = DATE_PRESETS[period]();
+    } else if (period === 'custom') {
+      dateFrom = customFrom || undefined;
+      dateTo = customTo || undefined;
+    }
+    return pharmacySaleService.listSales({ ...rest, dateFrom, dateTo });
+  }, []);
+  const { items, meta, loading, page, setPage, search, setSearch, filters, setFilters } = useTable(fetchSales, {
+    initialFilters: { period: 'all', customFrom: '', customTo: '' },
+  });
+  const { period, customFrom, customTo } = filters;
+
+  const setPeriod = (value) => setFilters((prev) => ({ ...prev, period: value }));
+  const setCustomFrom = (value) => setFilters((prev) => ({ ...prev, customFrom: value }));
+  const setCustomTo = (value) => setFilters((prev) => ({ ...prev, customTo: value }));
 
   const columns = [
     { key: 'sale_number', label: t('pharmacy:sales.columns.saleNumber') },
@@ -64,6 +117,36 @@ function PharmacySaleList() {
       <div className="card">
         <div className="table-toolbar">
           <SearchInput value={search} onChange={setSearch} placeholder={t('pharmacy:sales.list.searchPlaceholder')} />
+          <select
+            className="form-control"
+            value={period}
+            onChange={(e) => setPeriod(e.target.value)}
+            aria-label={t('pharmacy:sales.dateFilter.quickRangeLabel')}
+          >
+            <option value="all">{t('pharmacy:sales.dateFilter.allTime')}</option>
+            <option value="today">{t('pharmacy:sales.dateFilter.today')}</option>
+            <option value="week">{t('pharmacy:sales.dateFilter.week')}</option>
+            <option value="month">{t('pharmacy:sales.dateFilter.month')}</option>
+            <option value="custom">{t('pharmacy:sales.dateFilter.custom')}</option>
+          </select>
+          {period === 'custom' && (
+            <>
+              <input
+                type="date"
+                className="form-control"
+                value={customFrom}
+                onChange={(e) => setCustomFrom(e.target.value)}
+                aria-label={t('pharmacy:sales.dateFilter.from')}
+              />
+              <input
+                type="date"
+                className="form-control"
+                value={customTo}
+                onChange={(e) => setCustomTo(e.target.value)}
+                aria-label={t('pharmacy:sales.dateFilter.to')}
+              />
+            </>
+          )}
         </div>
         <Table columns={columns} rows={items} loading={loading} emptyMessage={t('pharmacy:sales.list.emptyMessage')} />
         <Pagination page={page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={setPage} />
