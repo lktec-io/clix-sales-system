@@ -29,22 +29,20 @@ function RepairList() {
   const fetchRepairs = useCallback((params) => repairService.listRepairs(params), []);
   const { items, meta, loading, page, setPage, search, setSearch, filters, setFilters } = useTable(fetchRepairs);
 
+  // Trimmed to exactly the columns a technician actually scans for at a
+  // glance (repair #/customer/device/status/balance/date) — Technician and
+  // separate Total/Paid columns were dropped from the list view (still
+  // fully visible on Repair Detail) so this stays a fast, technician-
+  // friendly list instead of a wide enterprise data table.
   const columns = [
     { key: 'repair_number', label: t('electronics:repairs.columns.repairNumber') },
     { key: 'customer', label: t('electronics:repairs.columns.customer'), render: (row) => `${row.customer_first_name} ${row.customer_last_name}` },
     { key: 'device', label: t('electronics:repairs.columns.device'), render: (row) => `${row.brand} ${row.model}` },
     {
-      key: 'technician',
-      label: t('electronics:repairs.columns.technician'),
-      render: (row) => (row.technician_first_name ? `${row.technician_first_name} ${row.technician_last_name}` : t('electronics:repairs.unassignedTechnician')),
-    },
-    {
       key: 'status',
       label: t('electronics:repairs.columns.status'),
       render: (row) => <span className={`badge ${STATUS_BADGE[row.status] || 'badge-neutral'}`}>{t(`electronics:repairs.status.${row.status}`)}</span>,
     },
-    { key: 'repair_total', label: t('electronics:repairs.columns.repairTotal'), render: (row) => formatCurrency(row.repair_total) },
-    { key: 'amount_paid', label: t('electronics:repairs.columns.paid'), render: (row) => formatCurrency(row.amount_paid) },
     { key: 'balance', label: t('electronics:repairs.columns.balance'), render: (row) => formatCurrency(row.balance) },
     { key: 'received_at', label: t('electronics:repairs.columns.received'), render: (row) => formatDate(row.received_at) },
     {

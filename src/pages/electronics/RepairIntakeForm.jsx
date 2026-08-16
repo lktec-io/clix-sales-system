@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FiPlus } from 'react-icons/fi';
+import Modal from '../../components/common/Modal';
 import * as repairService from '../../services/repairService';
 import * as customerService from '../../services/customerService';
 import * as branchService from '../../services/branchService';
 import * as userService from '../../services/userService';
 import { useToast } from '../../hooks/useToast';
+import { splitFullName } from '../../utils/splitFullName';
 
 const DEVICE_TYPES = ['smartphone', 'tablet', 'laptop', 'desktop', 'printer', 'other'];
 const ACCESSORY_KEYS = ['charger', 'cable', 'battery', 'sim', 'memoryCard', 'bag', 'other'];
@@ -14,7 +17,11 @@ const ACCESSORY_KEYS = ['charger', 'cable', 'battery', 'sim', 'memoryCard', 'bag
 // Each condition field's own valid options — mirrors the exact checklist
 // requested (Screen/Body/Back Cover/Camera/Charging Port/Buttons/Battery),
 // rendered as compact <select>s rather than literal radio buttons so the
-// whole checklist stays usable on a small screen with one thumb.
+// whole checklist stays usable on a small screen with one thumb. This is
+// more precise than a plain "damaged/not damaged" chip (it records exactly
+// which part and exactly what's wrong with it, straight into the same
+// device_condition JSON the backend already validates field-by-field), so
+// it stays as-is rather than being flattened to a simpler chip set.
 const CONDITION_FIELDS = [
   { key: 'screen', options: ['good', 'scratched', 'cracked', 'broken'] },
   { key: 'body', options: ['good', 'scratched', 'dented', 'broken'] },
@@ -33,6 +40,12 @@ function RepairIntakeForm() {
   const [branches, setBranches] = useState([]);
   const [technicians, setTechnicians] = useState([]);
   const [formError, setFormError] = useState('');
+
+  const [quickCustomerOpen, setQuickCustomerOpen] = useState(false);
+  const [quickCustomerName, setQuickCustomerName] = useState('');
+  const [quickCustomerPhone, setQuickCustomerPhone] = useState('');
+  const [quickCustomerError, setQuickCustomerError] = useState('');
+  const [savingQuickCustomer, setSavingQuickCustomer] = useState(false);
 
   const {
     register,
@@ -63,6 +76,38 @@ function RepairIntakeForm() {
     });
   }, [setValue]);
 
+  const openQuickCustomer = () => {
+    setQuickCustomerName('');
+    setQuickCustomerPhone('');
+    setQuickCustomerError('');
+    setQuickCustomerOpen(true);
+  };
+
+  // Same shape as POS.jsx's Quick Add Customer — the one other place in the
+  // app that already lets an operator create a customer inline without
+  // leaving the screen they're on, reused here so a technician never has to
+  // navigate away from Repair Intake to register a first-time customer.
+  const submitQuickCustomer = async () => {
+    setQuickCustomerError('');
+    if (!quickCustomerName.trim() || !quickCustomerPhone.trim()) {
+      setQuickCustomerError(t('electronics:repairs.form.quickCustomerRequired'));
+      return;
+    }
+    setSavingQuickCustomer(true);
+    try {
+      const { firstName, lastName } = splitFullName(quickCustomerName);
+      const created = await customerService.createCustomer({ firstName, lastName, phone: quickCustomerPhone.trim() });
+      setCustomers((prev) => [...prev, created]);
+      setValue('customerId', String(created.id), { shouldValidate: true });
+      setQuickCustomerOpen(false);
+      toast.success(t('electronics:repairs.form.quickCustomerAdded', { name: quickCustomerName.trim() }));
+    } catch (err) {
+      setQuickCustomerError(err.response?.data?.message || t('electronics:repairs.form.quickCustomerError'));
+    } finally {
+      setSavingQuickCustomer(false);
+    }
+  };
+
   const onSubmit = async (values) => {
     setFormError('');
     const payload = {
@@ -87,7 +132,7 @@ function RepairIntakeForm() {
 
     try {
       const repair = await repairService.createIntake(payload);
-      toast.success(t('electronics:repairs.form.createSuccess'));
+      toast.success(t('electronics:repairs.form.createSuccess', { number: repair.repair_number }));
       navigate(`/repairs/${repair.id}`, { replace: true });
     } catch (err) {
       setFormError(err.response?.data?.message || t('electronics:repairs.form.createError'));
@@ -106,12 +151,18 @@ function RepairIntakeForm() {
       {formError && <div className="alert alert-danger mb-4" role="alert">{formError}</div>}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        {/* SECTION A — Customer */}
         <div className="card mb-5">
           <div className="card-header"><span className="card-title">{t('electronics:repairs.form.customerSection')}</span></div>
           <div className="card-body">
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label form-label-required" htmlFor="customerId">{t('electronics:repairs.form.customerLabel')}</label>
+                <div className="flex items-center justify-between">
+                  <label className="form-label form-label-required" htmlFor="customerId">{t('electronics:repairs.form.customerLabel')}</label>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={openQuickCustomer}>
+                    <FiPlus aria-hidden="true" /> {t('electronics:repairs.form.newCustomer')}
+                  </button>
+                </div>
                 <select id="customerId" className={`form-control ${errors.customerId ? 'form-control-error' : ''}`} {...register('customerId', { required: t('electronics:repairs.form.customerRequired') })}>
                   <option value="">{t('electronics:repairs.form.selectCustomer')}</option>
                   {customers.map((c) => <option key={c.id} value={c.id}>{c.first_name} {c.last_name}</option>)}
@@ -136,7 +187,13 @@ function RepairIntakeForm() {
                 </select>
               </div>
             </div>
+          </div>
+        </div>
 
+        {/* SECTION B — Device */}
+        <div className="card mb-5">
+          <div className="card-header"><span className="card-title">{t('electronics:repairs.form.deviceSection')}</span></div>
+          <div className="card-body">
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label form-label-required" htmlFor="deviceType">{t('electronics:repairs.form.deviceTypeLabel')}</label>
@@ -178,15 +235,54 @@ function RepairIntakeForm() {
                 <input id="expectedCompletionAt" type="date" className="form-control" {...register('expectedCompletionAt')} />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* SECTION C — Device Condition (physical condition + accessories received) */}
+        <div className="card mb-5">
+          <div className="card-header"><span className="card-title">{t('electronics:repairs.form.conditionSection')}</span></div>
+          <div className="card-body">
+            <div className="form-row">
+              {CONDITION_FIELDS.map(({ key, options }) => (
+                <div className="form-group" key={key}>
+                  <label className="form-label" htmlFor={`condition-${key}`}>{t(`electronics:repairs.condition.${key}`)}</label>
+                  <select id={`condition-${key}`} className="form-control" {...register(`condition.${key}`)}>
+                    {options.map((opt) => <option key={opt} value={opt}>{t(`electronics:repairs.condition.options.${opt}`)}</option>)}
+                  </select>
+                </div>
+              ))}
+            </div>
+
+            <label className="form-label mt-2">{t('electronics:repairs.form.accessoriesSection')}</label>
+            <div className="form-row mb-3">
+              {ACCESSORY_KEYS.map((key) => (
+                <label key={key} className="form-checkbox">
+                  <input type="checkbox" {...register(`accessories.${key}`)} />
+                  {t(`electronics:repairs.form.accessories.${key}`)}
+                </label>
+              ))}
+            </div>
 
             <div className="form-group mb-0">
+              <label className="form-label" htmlFor="conditionNotes">{t('electronics:repairs.form.conditionNotesLabel')}</label>
+              <textarea id="conditionNotes" className="form-control" rows={2} {...register('conditionNotes')} />
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION D — Customer's Complaint (kept separate from the technician's own diagnosis, which is recorded later) */}
+        <div className="card mb-5">
+          <div className="card-header"><span className="card-title">{t('electronics:repairs.form.problemSection')}</span></div>
+          <div className="card-body">
+            <div className="form-group mb-0">
               <label className="form-label form-label-required" htmlFor="reportedProblem">{t('electronics:repairs.form.reportedProblemLabel')}</label>
-              <textarea id="reportedProblem" className={`form-control ${errors.reportedProblem ? 'form-control-error' : ''}`} rows={3} {...register('reportedProblem', { required: t('electronics:repairs.form.reportedProblemRequired') })} />
+              <textarea id="reportedProblem" className={`form-control ${errors.reportedProblem ? 'form-control-error' : ''}`} rows={3} placeholder={t('electronics:repairs.form.reportedProblemPlaceholder')} {...register('reportedProblem', { required: t('electronics:repairs.form.reportedProblemRequired') })} />
               {errors.reportedProblem && <span className="form-error">{errors.reportedProblem.message}</span>}
             </div>
           </div>
         </div>
 
+        {/* SECTION E — Estimated cost + deposit */}
         <div className="card mb-5">
           <div className="card-header"><span className="card-title">{t('electronics:repairs.form.estimateSection')}</span></div>
           <div className="card-body">
@@ -216,38 +312,6 @@ function RepairIntakeForm() {
           </div>
         </div>
 
-        <div className="card mb-5">
-          <div className="card-header"><span className="card-title">{t('electronics:repairs.form.accessoriesSection')}</span></div>
-          <div className="card-body form-row">
-            {ACCESSORY_KEYS.map((key) => (
-              <label key={key} className="form-checkbox">
-                <input type="checkbox" {...register(`accessories.${key}`)} />
-                {t(`electronics:repairs.form.accessories.${key}`)}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div className="card mb-5">
-          <div className="card-header"><span className="card-title">{t('electronics:repairs.form.conditionSection')}</span></div>
-          <div className="card-body">
-            <div className="form-row">
-              {CONDITION_FIELDS.map(({ key, options }) => (
-                <div className="form-group" key={key}>
-                  <label className="form-label" htmlFor={`condition-${key}`}>{t(`electronics:repairs.condition.${key}`)}</label>
-                  <select id={`condition-${key}`} className="form-control" {...register(`condition.${key}`)}>
-                    {options.map((opt) => <option key={opt} value={opt}>{t(`electronics:repairs.condition.options.${opt}`)}</option>)}
-                  </select>
-                </div>
-              ))}
-            </div>
-            <div className="form-group mb-0">
-              <label className="form-label" htmlFor="conditionNotes">{t('electronics:repairs.form.conditionNotesLabel')}</label>
-              <textarea id="conditionNotes" className="form-control" rows={2} {...register('conditionNotes')} />
-            </div>
-          </div>
-        </div>
-
         <div className="form-actions">
           <button type="button" className="btn btn-secondary" onClick={() => navigate('/repairs')}>{t('common:actions.cancel')}</button>
           <button type="submit" className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
@@ -255,6 +319,36 @@ function RepairIntakeForm() {
           </button>
         </div>
       </form>
+
+      <Modal
+        open={quickCustomerOpen}
+        onClose={() => setQuickCustomerOpen(false)}
+        title={t('electronics:repairs.form.newCustomer')}
+        size="sm"
+        footer={
+          <>
+            <button type="button" className="btn btn-secondary" onClick={() => setQuickCustomerOpen(false)}>{t('common:actions.cancel')}</button>
+            <button
+              type="button"
+              className={`btn btn-primary ${savingQuickCustomer ? 'btn-loading' : ''}`}
+              disabled={savingQuickCustomer}
+              onClick={submitQuickCustomer}
+            >
+              {t('electronics:repairs.form.quickCustomerAddAndSelect')}
+            </button>
+          </>
+        }
+      >
+        {quickCustomerError && <div className="alert alert-danger mb-4" role="alert">{quickCustomerError}</div>}
+        <div className="form-group">
+          <label className="form-label form-label-required" htmlFor="quick-customer-name">{t('electronics:repairs.form.quickCustomerName')}</label>
+          <input id="quick-customer-name" className="form-control" value={quickCustomerName} onChange={(e) => setQuickCustomerName(e.target.value)} autoFocus />
+        </div>
+        <div className="form-group mb-0">
+          <label className="form-label form-label-required" htmlFor="quick-customer-phone">{t('electronics:repairs.form.quickCustomerPhone')}</label>
+          <input id="quick-customer-phone" className="form-control" value={quickCustomerPhone} onChange={(e) => setQuickCustomerPhone(e.target.value)} />
+        </div>
+      </Modal>
     </div>
   );
 }

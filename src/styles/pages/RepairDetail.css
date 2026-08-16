@@ -2,6 +2,88 @@
    from .repair-timeline below, which is a chronological log of every
    change. flex-wrap (not a fixed-width row) so it degrades to two rows on
    a narrow phone instead of ever scrolling horizontally or clipping. */
+/* The hero: WHO/WHAT/STATUS/MONEY/NEXT answered in one glance at the top
+   of the page, per the "technician shouldn't have to search the page"
+   requirement — everything here is a read-only summary of data already
+   shown in full detail further down (Customer & Device, Financial
+   Summary); nothing here is a second source of truth. */
+.repair-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.repair-hero-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.repair-hero-device {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.repair-hero-number {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.repair-hero-status-badge {
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-4);
+  flex-shrink: 0;
+}
+
+.repair-hero-customer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.repair-hero-customer-name {
+  font-weight: var(--font-weight-semibold);
+}
+
+.repair-hero-customer-phone {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.repair-hero-financials {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-gray-light);
+  border-radius: var(--radius-md);
+}
+
+.repair-hero-financials > div {
+  text-align: center;
+}
+
+.repair-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.repair-hero-actions .btn {
+  flex: 1 1 200px;
+}
+
+.repair-hero-ended {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 .repair-stepper {
   display: flex;
   flex-wrap: wrap;

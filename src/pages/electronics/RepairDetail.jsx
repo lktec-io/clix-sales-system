@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiPrinter, FiPlus, FiCheck, FiX, FiDollarSign, FiSend, FiChevronRight, FiMessageSquare } from 'react-icons/fi';
+import { FiArrowLeft, FiPrinter, FiPlus, FiCheck, FiX, FiDollarSign, FiChevronRight, FiMessageSquare } from 'react-icons/fi';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Modal from '../../components/common/Modal';
 import PageSkeleton from '../../components/common/PageSkeleton';
@@ -23,6 +23,17 @@ const STATUS_BADGE = {
 
 const CONDITION_KEYS = ['screen', 'body', 'backCover', 'camera', 'chargingPort', 'buttons', 'battery'];
 const CONDITION_FIELD_TO_JSON = { backCover: 'backCover', chargingPort: 'chargingPort' };
+
+// Mirrors the exact wording sms.service.js sends automatically on each of
+// these three transitions (repair_received/repair_diagnosis_update/
+// repair_ready_for_collection) — a "quick template" only pre-fills the
+// same message a technician can already send manually via the custom-
+// message endpoint, it never invents new wording or a second send path.
+const SMS_TEMPLATES = {
+  received: (repair) => `Your ${repair.brand} ${repair.model} (Repair #${repair.repair_number}) has been received and is being processed.`,
+  diagnosis: (repair) => `Update on Repair #${repair.repair_number}: diagnosis has been completed. Contact us for details.`,
+  ready: (repair) => `Good news! Repair #${repair.repair_number} is ready for collection.`,
+};
 
 // The device's journey shown as a forward-looking stepper — distinct from
 // the chronological .repair-timeline list below it, which stays a log.
@@ -156,6 +167,16 @@ function RepairDetail() {
     }
   };
 
+  const openSmsTemplate = (templateKey) => {
+    setSmsMessage(SMS_TEMPLATES[templateKey](repair));
+    setSmsModalOpen(true);
+  };
+
+  const openCustomSms = () => {
+    setSmsMessage('');
+    setSmsModalOpen(true);
+  };
+
   const assignTechnician = async (technicianId) => {
     if (!technicianId) return;
     setActionError('');
@@ -184,6 +205,30 @@ function RepairDetail() {
   const canComplete = canManage && repair.status === 'ready_for_collection';
   const canCancel = canManage && !['completed', 'cancelled', 'rejected', 'unrepairable'].includes(repair.status);
 
+  // The single "what should I do next" answer the hero surfaces — reuses
+  // the exact same handlers the page already defines for these transitions,
+  // just promoted to one obvious, prominent spot instead of being buried
+  // among every other action in the page header.
+  let primaryAction = null;
+  let secondaryAction = null;
+  if (canManage) {
+    if (canStartDiagnosis) {
+      primaryAction = { label: t('electronics:repairs.detail.startDiagnosis'), onClick: () => runAction(() => repairService.startDiagnosis(repair.id)) };
+    } else if (canSendForApproval) {
+      primaryAction = { label: t('electronics:repairs.detail.sendForApproval'), onClick: () => runAction(() => repairService.sendForApproval(repair.id)) };
+      if (canMarkUnrepairable) secondaryAction = { label: t('electronics:repairs.detail.markUnrepairable'), onClick: () => setDialog('unrepairable') };
+    } else if (canApproveReject) {
+      primaryAction = { label: t('electronics:repairs.detail.approve'), onClick: () => runAction(() => repairService.approve(repair.id)) };
+      secondaryAction = { label: t('electronics:repairs.detail.reject'), onClick: () => setDialog('reject') };
+    } else if (canStartRepair) {
+      primaryAction = { label: t('electronics:repairs.detail.startRepair'), onClick: () => runAction(() => repairService.startRepair(repair.id)) };
+    } else if (canMarkReady) {
+      primaryAction = { label: t('electronics:repairs.detail.markReady'), onClick: () => runAction(() => repairService.markReady(repair.id)) };
+    } else if (canComplete) {
+      primaryAction = { label: t('electronics:repairs.detail.completeCollection'), onClick: () => runAction(() => repairService.completeCollection(repair.id)) };
+    }
+  }
+
   const isEnded = TERMINAL_STATUSES.includes(repair.status);
   const reachedStageIndex = repair.history.reduce((max, h) => {
     const idx = STATUS_TO_STAGE_INDEX[h.to_status];
@@ -210,54 +255,9 @@ function RepairDetail() {
           <button type="button" className="btn btn-secondary" onClick={() => window.print()}>
             <FiPrinter aria-hidden="true" /> {t('electronics:repairs.detail.print')}
           </button>
-          {canManage && (
-            <button type="button" className="btn btn-secondary" onClick={() => setSmsModalOpen(true)}>
-              <FiMessageSquare aria-hidden="true" /> {t('electronics:repairs.detail.sendSms')}
-            </button>
-          )}
-          {canStartDiagnosis && (
-            <button type="button" className="btn btn-primary" onClick={() => runAction(() => repairService.startDiagnosis(repair.id))}>
-              {t('electronics:repairs.detail.startDiagnosis')}
-            </button>
-          )}
-          {canSendForApproval && (
-            <button type="button" className="btn btn-primary" onClick={() => runAction(() => repairService.sendForApproval(repair.id))}>
-              <FiSend aria-hidden="true" /> {t('electronics:repairs.detail.sendForApproval')}
-            </button>
-          )}
-          {canMarkUnrepairable && (
-            <button type="button" className="btn btn-danger" onClick={() => setDialog('unrepairable')}>
-              {t('electronics:repairs.detail.markUnrepairable')}
-            </button>
-          )}
-          {canApproveReject && (
-            <>
-              <button type="button" className="btn btn-danger" onClick={() => setDialog('reject')}>
-                <FiX aria-hidden="true" /> {t('electronics:repairs.detail.reject')}
-              </button>
-              <button type="button" className="btn btn-primary" onClick={() => runAction(() => repairService.approve(repair.id))}>
-                <FiCheck aria-hidden="true" /> {t('electronics:repairs.detail.approve')}
-              </button>
-            </>
-          )}
-          {canStartRepair && (
-            <button type="button" className="btn btn-primary" onClick={() => runAction(() => repairService.startRepair(repair.id))}>
-              {t('electronics:repairs.detail.startRepair')}
-            </button>
-          )}
-          {canMarkReady && (
-            <button type="button" className="btn btn-primary" onClick={() => runAction(() => repairService.markReady(repair.id))}>
-              {t('electronics:repairs.detail.markReady')}
-            </button>
-          )}
           {canPay && (
-            <button type="button" className="btn btn-primary" onClick={() => setPaymentModalOpen(true)}>
+            <button type="button" className="btn btn-secondary" onClick={() => setPaymentModalOpen(true)}>
               <FiDollarSign aria-hidden="true" /> {t('electronics:repairs.detail.recordPayment')}
-            </button>
-          )}
-          {canComplete && (
-            <button type="button" className="btn btn-primary" onClick={() => runAction(() => repairService.completeCollection(repair.id))}>
-              {t('electronics:repairs.detail.completeCollection')}
             </button>
           )}
           {canCancel && (
@@ -266,6 +266,38 @@ function RepairDetail() {
             </button>
           )}
         </div>
+      </div>
+
+      {/* HERO — WHO/WHAT/PROBLEM/STATUS/MONEY/NEXT answered in one glance,
+          before anything else on the page. */}
+      <div className="card repair-hero mb-5">
+        <div className="repair-hero-top">
+          <div>
+            <h2 className="repair-hero-device">{repair.brand} {repair.model}</h2>
+            <p className="repair-hero-number">{repair.repair_number}</p>
+          </div>
+          <span className={`badge ${STATUS_BADGE[repair.status] || 'badge-neutral'} repair-hero-status-badge`}>{t(`electronics:repairs.status.${repair.status}`)}</span>
+        </div>
+        <div className="repair-hero-customer">
+          <span className="repair-hero-customer-name">{customerName}</span>
+          <span className="repair-hero-customer-phone">{repair.customer_phone || '—'}</span>
+        </div>
+        <div className="repair-hero-financials">
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.repairTotal')}</span><div className="text-sm font-semibold">{formatCurrency(repair.repair_total)}</div></div>
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.amountPaid')}</span><div className="text-sm font-semibold">{formatCurrency(repair.amount_paid)}</div></div>
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.balance')}</span><div className="text-lg font-semibold">{formatCurrency(repair.balance)}</div></div>
+        </div>
+        {!isEnded && (primaryAction || secondaryAction) ? (
+          <div className="repair-hero-actions no-print">
+            {primaryAction && <button type="button" className="btn btn-primary btn-lg" onClick={primaryAction.onClick}>{primaryAction.label}</button>}
+            {secondaryAction && <button type="button" className="btn btn-danger btn-lg" onClick={secondaryAction.onClick}>{secondaryAction.label}</button>}
+          </div>
+        ) : isEnded ? (
+          <div className="repair-hero-ended no-print">
+            <span className={`badge ${STATUS_BADGE[repair.status] || 'badge-neutral'}`}>{t('electronics:repairs.detail.endedLabel')}</span>
+            <span className="text-sm text-secondary">{t(`electronics:repairs.status.${repair.status}`)}</span>
+          </div>
+        ) : null}
       </div>
 
       <div className="repair-stepper no-print" role="list" aria-label={t('electronics:repairs.detail.journeyLabel')}>
@@ -295,54 +327,6 @@ function RepairDetail() {
       </div>
 
       {actionError && <div className="alert alert-danger mb-4 no-print" role="alert">{actionError}</div>}
-
-      <div className="card mb-5">
-        <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.customerDeviceSection')}</span></div>
-        <div className="card-body">
-          <div className="form-row">
-            <div><span className="text-xs text-secondary">{t('electronics:repairs.columns.customer')}</span><div className="text-sm font-semibold">{customerName}</div></div>
-            <div><span className="text-xs text-secondary">{t('electronics:repairs.form.deviceTypeLabel')}</span><div className="text-sm">{t(`electronics:repairs.deviceTypes.${repair.device_type}`)}</div></div>
-            <div><span className="text-xs text-secondary">{t('electronics:repairs.print.device')}</span><div className="text-sm">{repair.brand} {repair.model} {repair.device_color ? `(${repair.device_color})` : ''}</div></div>
-            <div><span className="text-xs text-secondary">{t('electronics:repairs.print.imeiSerial')}</span><div className="text-sm">{repair.imei_1 || repair.serial_number || '—'}</div></div>
-            <div><span className="text-xs text-secondary">{t('electronics:repairs.columns.status')}</span><div><span className={`badge ${STATUS_BADGE[repair.status] || 'badge-neutral'}`}>{t(`electronics:repairs.status.${repair.status}`)}</span></div></div>
-            <div className="no-print">
-              <span className="text-xs text-secondary">{t('electronics:repairs.columns.technician')}</span>
-              {canManage ? (
-                <select className="form-control" value={repair.technician_id || ''} onChange={(e) => assignTechnician(e.target.value)}>
-                  <option value="">{t('electronics:repairs.unassignedTechnician')}</option>
-                  {technicians.map((u) => <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>)}
-                </select>
-              ) : (
-                <div className="text-sm">{technicianName}</div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="card mb-5">
-        <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.conditionSection')}</span></div>
-        <div className="card-body">
-          <div className="repair-condition-grid">
-            {CONDITION_KEYS.map((key) => {
-              const jsonKey = CONDITION_FIELD_TO_JSON[key] || key;
-              const value = condition[jsonKey];
-              return (
-                <div key={key}>
-                  <span className="text-xs text-secondary">{t(`electronics:repairs.condition.${key}`)}</span>
-                  <div className="text-sm">{value ? t(`electronics:repairs.condition.options.${value}`) : '—'}</div>
-                </div>
-              );
-            })}
-          </div>
-          {condition.notes && <p className="text-sm text-secondary mt-3 mb-0">{condition.notes}</p>}
-        </div>
-      </div>
-
-      <div className="card mb-5">
-        <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.problemSection')}</span></div>
-        <div className="card-body"><p className="text-sm mb-0">{repair.reported_problem}</p></div>
-      </div>
 
       <div className="card mb-5">
         <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.diagnosisSection')}</span></div>
@@ -455,6 +439,68 @@ function RepairDetail() {
             ))}
           </ul>
         )}
+      </div>
+
+      {canManage && (
+        <div className="card mb-5 no-print">
+          <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.communicationSection')}</span></div>
+          <div className="card-body">
+            <p className="text-sm text-secondary mb-3">{t('electronics:repairs.detail.smsToLabel')} {repair.customer_phone || '—'}</p>
+            <div className="flex flex-wrap" style={{ gap: 'var(--space-2)' }}>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => openSmsTemplate('received')}>
+                {t('electronics:repairs.detail.smsTemplateReceived')}
+              </button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => openSmsTemplate('diagnosis')}>
+                {t('electronics:repairs.detail.smsTemplateDiagnosis')}
+              </button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => openSmsTemplate('ready')}>
+                {t('electronics:repairs.detail.smsTemplateReady')}
+              </button>
+              <button type="button" className="btn btn-primary btn-sm" onClick={openCustomSms}>
+                <FiMessageSquare aria-hidden="true" /> {t('electronics:repairs.detail.sendSms')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="card mb-5">
+        <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.additionalDetailsSection')}</span></div>
+        <div className="card-body">
+          <div className="form-row mb-4">
+            <div><span className="text-xs text-secondary">{t('electronics:repairs.form.deviceTypeLabel')}</span><div className="text-sm">{t(`electronics:repairs.deviceTypes.${repair.device_type}`)}</div></div>
+            <div><span className="text-xs text-secondary">{t('electronics:repairs.print.imeiSerial')}</span><div className="text-sm">{repair.imei_1 || repair.serial_number || '—'}</div></div>
+            <div className="no-print">
+              <span className="text-xs text-secondary">{t('electronics:repairs.columns.technician')}</span>
+              {canManage ? (
+                <select className="form-control" value={repair.technician_id || ''} onChange={(e) => assignTechnician(e.target.value)}>
+                  <option value="">{t('electronics:repairs.unassignedTechnician')}</option>
+                  {technicians.map((u) => <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>)}
+                </select>
+              ) : (
+                <div className="text-sm">{technicianName}</div>
+              )}
+            </div>
+          </div>
+
+          <span className="text-xs text-secondary">{t('electronics:repairs.detail.problemSection')}</span>
+          <p className="text-sm mt-1 mb-4">{repair.reported_problem}</p>
+
+          <span className="text-xs text-secondary">{t('electronics:repairs.detail.conditionSection')}</span>
+          <div className="repair-condition-grid mt-2">
+            {CONDITION_KEYS.map((key) => {
+              const jsonKey = CONDITION_FIELD_TO_JSON[key] || key;
+              const value = condition[jsonKey];
+              return (
+                <div key={key}>
+                  <span className="text-xs text-secondary">{t(`electronics:repairs.condition.${key}`)}</span>
+                  <div className="text-sm">{value ? t(`electronics:repairs.condition.options.${value}`) : '—'}</div>
+                </div>
+              );
+            })}
+          </div>
+          {condition.notes && <p className="text-sm text-secondary mt-3 mb-0">{condition.notes}</p>}
+        </div>
       </div>
 
       <div className="repair-print-footer">
