@@ -1,19 +1,72 @@
 {
   "nav": {
-    "howItWorks": "How It Works",
-    "features": "Features",
+    "platform": "Platform",
+    "businessTypes": "Business Types",
     "pricing": "Pricing",
-    "faq": "FAQ",
+    "howItWorks": "How It Works",
     "login": "Log In",
     "startTrial": "Start Free Trial"
   },
   "hero": {
+    "eyebrow": "Business Management Platform",
+    "title": "Built to Run Your Business, Not Just Track It",
+    "subtitle": "Clix handles sales, inventory, purchases, customers and daily operations for retail stores, pharmacies, restaurants, microfinance institutions, electronics repair shops and beauty retailers — in one system, in English or Kiswahili.",
     "ctaPrimary": "Start Free Trial",
-    "noCreditCard": "No credit card required · 14-day free trial"
+    "ctaSecondary": "Explore Platform",
+    "noCreditCard": "No credit card required · 7-day free trial",
+    "preview": {
+      "badge": "Live Preview",
+      "statOneLabel": "Sales Today",
+      "statOneValue": "128",
+      "statTwoLabel": "Products",
+      "statTwoValue": "540",
+      "statThreeLabel": "Branches",
+      "statThreeValue": "3",
+      "caption": "Retail Store · Dashboard",
+      "note": "Sample data for illustration only"
+    }
   },
-  "demoSection": {
-    "title": "See it in action",
-    "subtitle": "A short, simulated walkthrough of the actual system — pick a business above to see its own workflow."
+  "businessTypes": {
+    "title": "One Platform. Six Real Business Types.",
+    "subtitle": "Pick the template built for the way your business already runs — see it in action below.",
+    "groupLabel": "Choose a business type to preview",
+    "selectCta": "Preview this",
+    "startCta": "Start free trial",
+    "retail-store": {
+      "name": "Retail Store",
+      "description": "Products, stock, sales and customers for shops, supermarkets and mini markets.",
+      "capabilities": ["Sales & POS", "Inventory", "Purchases", "Customer Records", "Reports"]
+    },
+    "pharmacy": {
+      "name": "Pharmacy",
+      "description": "Medicine inventory with expiry and batch tracking, dispensing and supplier records.",
+      "capabilities": ["Medicine Inventory", "Expiry Tracking", "Dispensing", "Suppliers", "Reports"]
+    },
+    "restaurant": {
+      "name": "Restaurant",
+      "description": "Menu, table orders, kitchen workflow and sales for restaurants, cafés and takeaways.",
+      "capabilities": ["Menu & Orders", "Tables", "Kitchen Workflow", "Sales", "Reports"]
+    },
+    "microfinance": {
+      "name": "Microfinance",
+      "description": "Borrowers, loans, repayments and savings for microfinance and lending institutions.",
+      "capabilities": ["Loans", "Repayments", "Borrowers", "Savings", "Financial Reports"]
+    },
+    "cosmetics-shop": {
+      "name": "Cosmetics & Beauty",
+      "description": "Product catalog, stock and sales for cosmetics, perfume and beauty retailers.",
+      "capabilities": ["Beauty Product Catalog", "Inventory", "Sales", "Customer Favorites", "Reports"]
+    },
+    "electronics-shop": {
+      "name": "Electronics & Repairs",
+      "description": "Device intake, diagnosis, repair tracking and sales for phone and computer repair shops.",
+      "capabilities": ["Repair Tracking", "Device Intake", "Parts & Inventory", "Customer Updates", "Sales"]
+    }
+  },
+  "productPreview": {
+    "title": "See It In Action",
+    "subtitle": "A live simulation of the actual product interface — pick a business type above to see its own workflow.",
+    "ctaPrefix": "Start free trial with"
   },
   "demoPreview": {
     "browserTitle": "Clix Business System",
@@ -74,116 +127,48 @@
       ]
     }
   },
-  "businessSelector": {
-    "platformName": "Clix Business Management Platform",
-    "prompt": "Choose the system built for your business.",
-    "retail-store": "Retail & Sales",
-    "pharmacy": "Pharmacy",
-    "electronics-shop": "Electronics & Repairs",
-    "cosmetics-shop": "Cosmetics & Beauty",
-    "restaurant": "Restaurant",
-    "microfinance": "Microfinance"
-  },
-  "businessHero": {
-    "retail-store": {
-      "eyebrow": "Retail & Sales Management",
-      "title": "Run Your Store With Confidence",
-      "subtitle": "Products, inventory, sales, customers and suppliers — a fast, professional system built for retail stores, supermarkets and mini markets.",
-      "ctaSecondary": "Explore Demo",
-      "statOne": "Real-time stock tracking",
-      "statTwo": "Sales & inventory in sync",
-      "statThree": "Multi-branch ready",
-      "capabilities": ["Sales", "Inventory", "Purchases", "Customers", "Reports"]
-    },
-    "pharmacy": {
-      "eyebrow": "Pharmacy & Medical Store Management",
-      "title": "Manage Your Pharmacy Professionally",
-      "subtitle": "Medicine inventory, dispensing, sales and suppliers, with expiry tracking built in — an accurate, compliant system for pharmacies and drug dispensing centers.",
-      "ctaSecondary": "Explore Demo",
-      "statOne": "Expiry & batch tracking",
-      "statTwo": "Accurate dispensing records",
-      "statThree": "Supplier & stock management",
-      "capabilities": ["Medicines", "Dispensing", "Expiry Tracking", "Suppliers", "Reports"]
-    },
-    "electronics-shop": {
-      "eyebrow": "Repair Shop Software",
-      "title": "Run Your Repair Shop Like a Professional Service Center",
-      "subtitle": "Device intake, diagnosis, parts and repair tracking, customer updates, sales and inventory — everything a phone or computer repair business needs in one system.",
-      "ctaSecondary": "Explore Demo",
-      "statOne": "Intake to collection tracking",
-      "statTwo": "Parts & inventory in sync",
-      "statThree": "Customer SMS updates",
-      "capabilities": ["Repairs", "Devices", "Parts", "Customers", "Sales"]
-    },
-    "cosmetics-shop": {
-      "eyebrow": "Beauty & Cosmetics Retail",
-      "title": "Run Your Beauty Business With Confidence",
-      "subtitle": "Products, perfumes and beauty inventory, sales, customers and reports — a refined system built for cosmetics and beauty retailers.",
-      "ctaSecondary": "Explore Demo",
-      "statOne": "Product & stock management",
-      "statTwo": "Best-seller insights",
-      "statThree": "Customer favorites tracked",
-      "capabilities": ["Beauty Products", "Inventory", "Sales", "Customers", "Reports"]
-    },
-    "restaurant": {
-      "eyebrow": "Restaurant & Café Management",
-      "title": "Run Your Restaurant Without the Chaos",
-      "subtitle": "Menu, orders, tables, sales and inventory — a fast, reliable system built for restaurants, cafés and takeaway businesses.",
-      "ctaSecondary": "Explore Demo",
-      "statOne": "Order to table, tracked live",
-      "statTwo": "Menu performance insights",
-      "statThree": "Multi-branch ready",
-      "capabilities": ["Menu", "Orders", "Tables", "Kitchen Workflow", "Reports"]
-    },
-    "microfinance": {
-      "eyebrow": "Financial Institution Software",
-      "title": "Grow Your Lending Business With Confidence",
-      "subtitle": "Borrowers, loans, repayments, savings and financial reports — a trusted, professional system built for microfinance institutions.",
-      "ctaSecondary": "Explore Demo",
-      "statOne": "Loan & repayment tracking",
-      "statTwo": "Borrower savings management",
-      "statThree": "Financial reporting built in",
-      "capabilities": ["Borrowers", "Loans", "Repayments", "Savings", "Financial Reports"]
-    }
-  },
-  "features": {
-    "title": "Everything your business needs, built in",
-    "subtitle": "No plugins, no add-ons — one system that grows with you.",
-    "pos": { "title": "Point of Sale", "description": "Fast, offline-friendly checkout with receipts, split payments and barcode scanning." },
-    "inventory": { "title": "Inventory Control", "description": "Real-time stock levels across every branch, with low-stock alerts before you run out." },
-    "purchases": { "title": "Purchases & Suppliers", "description": "Track purchase orders, supplier payments and outstanding balances in one place." },
-    "reports": { "title": "Reports & Analytics", "description": "Sales, profit, expense and inventory reports — exportable to PDF, Excel and CSV." },
-    "multiBranch": { "title": "Multi-Branch", "description": "Manage unlimited branches with role-based access for every team member." },
-    "bilingual": { "title": "English & Kiswahili", "description": "The full system, receipts included, in the language your team is comfortable with." }
+  "benefits": {
+    "title": "Why Businesses Choose Clix",
+    "subtitle": "Built specifically for how businesses in Tanzania actually operate.",
+    "item1": { "title": "One System, Every Operation", "description": "Sales, inventory, purchases, customers and reports — no plugins, no separate spreadsheets to reconcile." },
+    "item2": { "title": "Bilingual From the Ground Up", "description": "The full system, receipts and reports included, works in English and Kiswahili — not a translated afterthought." },
+    "item3": { "title": "Multi-Branch From Day One", "description": "Manage unlimited branches with role-based access for every team member, from a single account." },
+    "item4": { "title": "Your Data, Isolated", "description": "Every business's data is fully separated from every other tenant on Clix — nothing is ever shared." }
   },
   "pricing": {
-    "title": "Simple, transparent pricing",
-    "subtitle": "Start with a 14-day free trial on any plan — no card required. Upgrade when you're ready.",
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Every plan includes a 7-day free trial — no credit card required. Upgrade, downgrade or cancel anytime.",
     "loading": "Loading plans…",
     "loadError": "Plans are temporarily unavailable. Please try again shortly.",
     "recommendedBadge": "Most Popular",
     "perMonth": "per month",
     "startTrialCta": "Start Free Trial"
   },
-  "trust": {
-    "title": "Built specifically for your business",
-    "subtitle": "No invented numbers, no fake reviews — just what the product actually does.",
-    "fact1": "Six dedicated business systems — Retail, Pharmacy, Restaurant, Microfinance, Cosmetics & Beauty, and Electronics — not one generic template with a different label.",
-    "fact2": "14-day free trial, no credit card required to start.",
-    "fact3": "Fully bilingual — English and Kiswahili throughout the system, including receipts and reports.",
-    "fact4": "Multi-branch ready from day one, with role-based access per branch.",
-    "fact5": "Every business's data is isolated from every other — nothing is ever shared across tenants."
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "From sign-up to your first sale, in minutes.",
+    "step1": { "title": "Register", "description": "Create your account with your business name and phone number — no payment details needed." },
+    "step2": { "title": "Pick Your Business Type", "description": "Choose the template built for your business — Retail, Pharmacy, Restaurant, Microfinance, Cosmetics or Electronics." },
+    "step3": { "title": "Start Your 7-Day Free Trial", "description": "Full access to every module immediately, no credit card required." },
+    "step4": { "title": "Start Working", "description": "Add your products or services, invite your team and record your first sale the same day." }
+  },
+  "finalCta": {
+    "title": "Ready to Run Your Business on Clix?",
+    "subtitle": "Start your 7-day free trial today — no credit card, no setup fees, no commitment.",
+    "cta": "Start Free Trial",
+    "loginPrompt": "Already have an account?",
+    "loginLink": "Log in"
   },
   "faq": {
     "title": "Frequently asked questions",
-    "q1": { "question": "Do I need a credit card to start?", "answer": "No. Your 14-day free trial starts immediately after registration — no payment details required." },
+    "q1": { "question": "Do I need a credit card to start?", "answer": "No. Your 7-day free trial starts immediately after registration — no payment details required." },
     "q2": { "question": "What happens after my trial ends?", "answer": "You can still log in, view your dashboard, reports, profile and settings. Creating new sales, purchases, inventory changes, expenses and stock transfers is paused until you upgrade." },
     "q3": { "question": "Can I use Clix for more than one branch?", "answer": "Yes — Clix is built for multi-branch businesses from day one, with role-based access per branch." },
     "q4": { "question": "Is my data safe?", "answer": "Your business's data is fully isolated from every other company on Clix, with bank-grade encryption in transit." },
     "q5": { "question": "Is Clix available in Kiswahili?", "answer": "Yes — the entire system, including receipts and reports, works in both English and Kiswahili." }
   },
   "footer": {
-    "tagline": "Sales & inventory management for growing businesses.",
+    "tagline": "Sales, inventory and business management for growing businesses in Tanzania.",
     "product": "Product",
     "company": "Company",
     "rights": "All rights reserved."

@@ -1,106 +1,114 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiShield, FiGlobe, FiGrid } from 'react-icons/fi';
+import { FiArrowRight } from 'react-icons/fi';
 import { ROUTES } from '../../constants/routes';
-import { BUSINESS_EXPERIENCES } from '../../constants/businessExperiences';
 
-// Every active business template has a dedicated hero identity (copy in
-// landing:businessHero.<slug>.*, motif in BUSINESS_EXPERIENCES) — this is
-// the full, final pill order, matching businessThemes.js's own key order.
-// Retail Store is the default selection, mirroring the platform's own
-// "Retail Store is the default template" convention
-// (businessTemplateAssignment.service.js's DEFAULT_TEMPLATE_ID).
-const SELECTOR_SLUGS = ['retail-store', 'pharmacy', 'restaurant', 'microfinance', 'cosmetics-shop', 'electronics-shop'];
+const STAGGER_CONTAINER = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+};
 
-// activeSlug/onSelectSlug are lifted into Landing.jsx (not local state
-// here) so the Demo section below can react to the same selection without
-// prop-drilling through a shared context for what is, on this one public
-// page, a single parent-child relationship.
-function Hero({ activeSlug, onSelectSlug }) {
+const STAGGER_ITEM = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+};
+
+// A single, fixed platform headline — not six business-specific headlines
+// swapped by a selector (that interaction now lives, simplified, in
+// BusinessTypes below: pick a card, see its own workflow in ProductPreview).
+// The hero's job is to say what Clix is in one honest sentence, not to
+// pre-brand itself around whichever business the visitor clicks first.
+function Hero() {
   const { t } = useTranslation('landing');
-  const experience = BUSINESS_EXPERIENCES[activeSlug];
+  const shouldReduceMotion = useReducedMotion();
 
   return (
-    <section className="landing-hero landing-hero-business">
+    <section className="landing-hero">
+      <div className="landing-hero-texture" aria-hidden="true" />
+
       <motion.div
-        key={activeSlug}
-        className={`business-motif ${experience.motifClass}`}
-        aria-hidden="true"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      />
+        className="landing-hero-grid"
+        initial="hidden"
+        animate="show"
+        variants={STAGGER_CONTAINER}
+      >
+        <div className="landing-hero-copy">
+          <motion.span className="landing-hero-eyebrow" variants={STAGGER_ITEM}>
+            {t('hero.eyebrow')}
+          </motion.span>
 
-      <div className="landing-hero-inner">
-        <span className="landing-hero-platform-name">{t('businessSelector.platformName')}</span>
+          <motion.h1 className="landing-hero-title" variants={STAGGER_ITEM}>
+            {t('hero.title')}
+          </motion.h1>
 
-        <div className="landing-hero-selector" role="group" aria-label={t('businessSelector.prompt')}>
-          <span className="landing-hero-selector-label">{t('businessSelector.prompt')}</span>
-          <div className="landing-hero-selector-pills">
-            {SELECTOR_SLUGS.map((slug) => (
-              <button
-                key={slug}
-                type="button"
-                className={`landing-hero-pill ${activeSlug === slug ? 'is-active' : ''}`}
-                onClick={() => onSelectSlug(slug)}
-                aria-pressed={activeSlug === slug}
-              >
-                {t(`businessSelector.${slug}`)}
-              </button>
-            ))}
-          </div>
+          <motion.p className="landing-hero-subtitle" variants={STAGGER_ITEM}>
+            {t('hero.subtitle')}
+          </motion.p>
+
+          <motion.div className="landing-hero-actions" variants={STAGGER_ITEM}>
+            <Link to={ROUTES.REGISTER} className="btn btn-primary btn-lg">
+              {t('hero.ctaPrimary')} <FiArrowRight aria-hidden="true" />
+            </Link>
+            {/* A plain anchor, not react-router's <Link> — this is a same-page
+                scroll to #business-types below, not a route change, and
+                react-router's <Link to="#business-types"> does not reliably
+                trigger the browser's native hash-scroll behavior. Matches
+                LandingNav.jsx's own #pricing/#faq links, which use the same
+                plain-<a> pattern. */}
+            <a href="#business-types" className="btn btn-outline btn-lg">{t('hero.ctaSecondary')}</a>
+          </motion.div>
+
+          <motion.p className="landing-hero-note" variants={STAGGER_ITEM}>
+            {t('hero.noCreditCard')}
+          </motion.p>
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeSlug}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <span className="landing-hero-eyebrow">{t(`businessHero.${activeSlug}.eyebrow`)}</span>
-            <h1 className="landing-hero-title">{t(`businessHero.${activeSlug}.title`)}</h1>
-            <p className="landing-hero-subtitle">{t(`businessHero.${activeSlug}.subtitle`)}</p>
-          </motion.div>
-        </AnimatePresence>
-
         <motion.div
-          className="landing-hero-actions"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="landing-hero-preview"
+          variants={STAGGER_ITEM}
+          animate={shouldReduceMotion ? undefined : { y: [0, -10, 0] }}
+          transition={shouldReduceMotion ? undefined : { duration: 7, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <Link to={`${ROUTES.REGISTER}?template=${activeSlug}`} className="btn btn-primary btn-lg">{t('hero.ctaPrimary')}</Link>
-          {/* A plain anchor, not react-router's <Link> — this is a same-page
-              scroll to #demo below, not a route change, and react-router's
-              <Link to="#demo"> does not reliably trigger the browser's native
-              hash-scroll behavior. Matches LandingNav.jsx's own #features/
-              #pricing/#faq links, which use the same plain-<a> pattern. */}
-          <a href="#demo" className="btn btn-outline btn-lg">{t(`businessHero.${activeSlug}.ctaSecondary`)}</a>
-        </motion.div>
+          <div className="landing-hero-preview-titlebar">
+            <span className="landing-hero-preview-dots" aria-hidden="true"><span /><span /><span /></span>
+            <span className="landing-hero-preview-badge">
+              <span className="landing-hero-preview-badge-dot" aria-hidden="true" />
+              {t('hero.preview.badge')}
+            </span>
+          </div>
 
-        <motion.p
-          className="landing-hero-note"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          {t('hero.noCreditCard')}
-        </motion.p>
+          <div className="landing-hero-preview-body">
+            <div className="landing-hero-preview-stats">
+              <div className="landing-hero-preview-stat">
+                <span className="landing-hero-preview-stat-value">{t('hero.preview.statOneValue')}</span>
+                <span className="landing-hero-preview-stat-label">{t('hero.preview.statOneLabel')}</span>
+              </div>
+              <div className="landing-hero-preview-stat">
+                <span className="landing-hero-preview-stat-value">{t('hero.preview.statTwoValue')}</span>
+                <span className="landing-hero-preview-stat-label">{t('hero.preview.statTwoLabel')}</span>
+              </div>
+              <div className="landing-hero-preview-stat">
+                <span className="landing-hero-preview-stat-value">{t('hero.preview.statThreeValue')}</span>
+                <span className="landing-hero-preview-stat-label">{t('hero.preview.statThreeLabel')}</span>
+              </div>
+            </div>
+            <div className="landing-hero-preview-bars" aria-hidden="true">
+              <span style={{ height: '46%' }} />
+              <span style={{ height: '72%' }} />
+              <span style={{ height: '58%' }} />
+              <span style={{ height: '88%' }} />
+              <span style={{ height: '64%' }} />
+              <span style={{ height: '94%' }} />
+            </div>
+          </div>
 
-        <motion.div
-          className="landing-hero-stats"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <span><FiGrid aria-hidden="true" /> {t(`businessHero.${activeSlug}.statOne`)}</span>
-          <span><FiGlobe aria-hidden="true" /> {t(`businessHero.${activeSlug}.statTwo`)}</span>
-          <span><FiShield aria-hidden="true" /> {t(`businessHero.${activeSlug}.statThree`)}</span>
+          <div className="landing-hero-preview-footer">
+            <span>{t('hero.preview.caption')}</span>
+            <span className="landing-hero-preview-note">{t('hero.preview.note')}</span>
+          </div>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }

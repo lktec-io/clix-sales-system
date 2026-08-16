@@ -77,7 +77,7 @@ export const en = {
     welcomeSubject: 'Welcome to Clix Sales System — your free trial has started',
     welcomeGreeting: 'Hi {{name}},',
     welcomeIntro: 'Your Clix Sales System account for "{{companyName}}" is ready to go.',
-    welcomeTrial: 'You have 14 days of full access on us. No card required.',
+    welcomeTrial: 'You have 7 days of full access on us. No card required.',
   },
   reportTypes: {
     sales: 'Sales', inventory: 'Inventory', purchases: 'Purchases', expenses: 'Expenses', profit: 'Profit',
@@ -192,7 +192,7 @@ export const sw = {
     welcomeSubject: 'Karibu Clix Sales System — muda wako wa majaribio umeanza',
     welcomeGreeting: 'Habari {{name}},',
     welcomeIntro: 'Akaunti yako ya Clix Sales System kwa "{{companyName}}" iko tayari.',
-    welcomeTrial: 'Una siku 14 za matumizi kamili bila malipo. Hakuna kadi inayohitajika.',
+    welcomeTrial: 'Una siku 7 za matumizi kamili bila malipo. Hakuna kadi inayohitajika.',
   },
   reportTypes: {
     sales: 'Mauzo', inventory: 'Hesabu ya Bidhaa', purchases: 'Manunuzi', expenses: 'Matumizi', profit: 'Faida',

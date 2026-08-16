@@ -20,5 +20,6 @@ router.post('/import/commit', authorize('purchases.create'), requireActiveTrial,
 router.get('/:id', purchaseController.getById);
 router.post('/', authorize('purchases.create'), requireActiveTrial, createPurchaseValidator, validateRequest, purchaseController.create);
 router.post('/payments', authorize('purchases.manage'), requireActiveTrial, paymentValidator, validateRequest, purchaseController.addPayment);
+router.delete('/:id', authorize('purchases.delete'), requireActiveTrial, purchaseController.remove);
 
 export default router;

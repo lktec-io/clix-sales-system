@@ -80,7 +80,8 @@
   },
   "confirmDialog": {
     "areYouSure": "Are you sure?",
-    "cannotBeUndone": "This action cannot be undone."
+    "cannotBeUndone": "This action cannot be undone.",
+    "typeToConfirm": "Type {{word}} to continue."
   },
   "state": {
     "loading": "Loading…",

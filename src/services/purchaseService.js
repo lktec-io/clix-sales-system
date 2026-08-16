@@ -20,6 +20,10 @@ export async function addSupplierPayment(payload) {
   await apiClient.post('/purchases/payments', payload);
 }
 
+export async function deletePurchase(id) {
+  await apiClient.delete(`/purchases/${id}`);
+}
+
 export async function downloadImportTemplate() {
   const { data } = await apiClient.get('/purchases/import/template', { responseType: 'blob' });
   downloadBlob('Purchase_Import_Template.xlsx', data);

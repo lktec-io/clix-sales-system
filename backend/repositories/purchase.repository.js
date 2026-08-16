@@ -84,6 +84,32 @@ export async function createItem({ purchaseOrderId, productId, quantity, buyingP
   );
 }
 
+// supplier_payments.purchase_order_id is ON DELETE SET NULL (005_create_
+// purchases_suppliers.sql), so the database itself would happily let a
+// purchase with recorded payments be deleted and just orphan the payment
+// from it — that's the wrong behavior for a hard delete: a payment "for
+// this purchase" silently losing its purchase link is exactly the kind of
+// financial-record corruption this feature must refuse to cause. Checked
+// proactively so the caller can block with a clear message instead of
+// relying on the FK's permissive default.
+export async function hasPayments(id, tenantId) {
+  const [[{ total }]] = await pool.query(
+    `SELECT COUNT(*) AS total FROM supplier_payments sp
+     JOIN purchase_orders po ON po.id = sp.purchase_order_id
+     WHERE sp.purchase_order_id = ? AND po.tenant_id = ?`,
+    [id, tenantId],
+  );
+  return total > 0;
+}
+
+// purchase_items cascades automatically (ON DELETE CASCADE) — this only
+// needs to remove the order header itself. Always called with the caller's
+// own transaction connection so it participates in the same all-or-nothing
+// unit of work as the inventory reversal that must happen alongside it.
+export async function hardDelete(id, tenantId, connection) {
+  await connection.query('DELETE FROM purchase_orders WHERE id = ? AND tenant_id = ?', [id, tenantId]);
+}
+
 export async function addPayment({ supplierId, purchaseOrderId, amount, paymentMethod, paidAt, userId }) {
   const [result] = await pool.query(
     `INSERT INTO supplier_payments (supplier_id, purchase_order_id, amount, payment_method, paid_at, created_by)

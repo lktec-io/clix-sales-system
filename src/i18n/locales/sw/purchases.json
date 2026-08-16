@@ -7,7 +7,13 @@
     "searchPlaceholder": "Tafuta kwa namba ya ununuzi...",
     "emptyMessage": "Hakuna manunuzi yaliyorekodiwa bado",
     "loadError": "Imeshindwa kupakia manunuzi. Tafadhali jaribu tena.",
-    "viewPurchase": "Angalia ununuzi"
+    "viewPurchase": "Angalia ununuzi",
+    "deletePurchase": "Futa ununuzi",
+    "deleteDialogTitle": "Futa ununuzi huu?",
+    "deleteDialogMessage": "Hatua hii itaondoa kabisa ununuzi \"{{number}}\" na rekodi zake zinazohusiana, na kurudisha nyuma hesabu iliyoongezwa. Kitendo hiki hakiwezi kutenduliwa.",
+    "deletePermanently": "Futa Kabisa",
+    "deleteSuccess": "Ununuzi umefutwa kabisa.",
+    "deleteError": "Imeshindwa kufuta ununuzi huu. Tafadhali jaribu tena."
   },
   "columns": {
     "purchaseNumber": "Namba ya Ununuzi",

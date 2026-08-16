@@ -7,7 +7,13 @@
     "searchPlaceholder": "Search by purchase number...",
     "emptyMessage": "No purchases recorded yet",
     "loadError": "We couldn't load purchases. Please try again.",
-    "viewPurchase": "View purchase"
+    "viewPurchase": "View purchase",
+    "deletePurchase": "Delete purchase",
+    "deleteDialogTitle": "Delete this purchase?",
+    "deleteDialogMessage": "This will permanently remove purchase \"{{number}}\" and its related records, and reverse the stock it added. This action cannot be undone.",
+    "deletePermanently": "Delete Permanently",
+    "deleteSuccess": "Purchase permanently deleted.",
+    "deleteError": "Unable to delete this purchase. Please try again."
   },
   "columns": {
     "purchaseNumber": "Purchase #",

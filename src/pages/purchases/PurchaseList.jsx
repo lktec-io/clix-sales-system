@@ -1,13 +1,15 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiPlus, FiEye, FiUpload, FiRefreshCw } from 'react-icons/fi';
+import { FiPlus, FiEye, FiUpload, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
 import SearchInput from '../../components/common/SearchInput';
 import PurchaseImportModal from './PurchaseImportModal';
+import TypedConfirmDialog from '../../components/common/TypedConfirmDialog';
 import { useTable } from '../../hooks/useTable';
 import { usePermission } from '../../hooks/usePermission';
+import { useToast } from '../../hooks/useToast';
 import * as purchaseService from '../../services/purchaseService';
 import { formatCurrency } from '../../utils/formatCurrency';
 
@@ -16,14 +18,30 @@ const STATUS_BADGE = { received: 'badge-success', pending: 'badge-warning', canc
 function PurchaseList() {
   const { t, i18n } = useTranslation(['purchases', 'common']);
   const navigate = useNavigate();
+  const toast = useToast();
   const canCreate = usePermission('purchases.create');
+  const canDelete = usePermission('purchases.delete');
   const [importOpen, setImportOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState('');
 
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const formatDate = (isoString) => new Date(isoString).toLocaleDateString(dateLocale, { dateStyle: 'medium' });
 
   const fetchPurchases = useCallback((params) => purchaseService.listPurchases(params), []);
   const { items, meta, loading, error, page, setPage, search, setSearch, refetch } = useTable(fetchPurchases);
+
+  const handleDelete = async () => {
+    setDeleteError('');
+    try {
+      await purchaseService.deletePurchase(pendingDelete.id);
+      toast.success(t('purchases:list.deleteSuccess'));
+      refetch();
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || t('purchases:list.deleteError'));
+      throw err;
+    }
+  };
 
   const columns = [
     { key: 'purchase_number', label: t('purchases:columns.purchaseNumber') },
@@ -48,6 +66,16 @@ function PurchaseList() {
           <button type="button" className="btn btn-ghost btn-icon" onClick={() => navigate(`/purchases/${row.id}`)} aria-label={t('purchases:list.viewPurchase')}>
             <FiEye />
           </button>
+          {canDelete && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-icon"
+              onClick={() => { setDeleteError(''); setPendingDelete(row); }}
+              aria-label={t('purchases:list.deletePurchase')}
+            >
+              <FiTrash2 />
+            </button>
+          )}
         </div>
       ),
     },
@@ -90,6 +118,16 @@ function PurchaseList() {
       </div>
 
       <PurchaseImportModal open={importOpen} onClose={() => setImportOpen(false)} onImported={refetch} />
+
+      <TypedConfirmDialog
+        open={Boolean(pendingDelete)}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={handleDelete}
+        title={t('purchases:list.deleteDialogTitle')}
+        message={pendingDelete ? t('purchases:list.deleteDialogMessage', { number: pendingDelete.purchase_number }) : ''}
+        confirmLabel={t('purchases:list.deletePermanently')}
+        error={deleteError}
+      />
     </div>
   );
 }

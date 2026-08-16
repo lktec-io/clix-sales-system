@@ -24,6 +24,11 @@ export const addPayment = asyncHandler(async (req, res) => {
   return success(res, { message: 'Payment recorded', status: 201 });
 });
 
+export const remove = asyncHandler(async (req, res) => {
+  await purchaseService.deletePurchase(Number(req.params.id), req.user.id, req.user.tenantId, req.user);
+  return success(res, { message: 'Purchase permanently deleted' });
+});
+
 export const downloadImportTemplate = asyncHandler(async (req, res) => {
   const workbook = await purchaseImportService.buildImportTemplate();
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

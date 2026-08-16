@@ -67,7 +67,7 @@ export const register = asyncHandler(async (req, res) => {
 
   setRefreshCookie(res, result.refreshToken, result.refreshExpiresAt);
   return success(res, {
-    message: 'Welcome to Clix Sales System — your 14-day free trial has started.',
+    message: 'Welcome to Clix Sales System — your 7-day free trial has started.',
     data: { accessToken: result.accessToken, user: result.user },
     status: 201,
   });

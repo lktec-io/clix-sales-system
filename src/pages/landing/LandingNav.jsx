@@ -22,12 +22,24 @@ function LandingNav() {
     };
   }, [open]);
 
+  // Escape closes the open mobile menu, matching the overlay/outside-click
+  // dismissal below — a keyboard user shouldn't need to tab to the close
+  // button just to get back to the page.
+  useEffect(() => {
+    if (!open) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [open]);
+
   const closeMenu = () => setOpen(false);
 
   return (
     <header className="landing-nav">
       <div className="landing-nav-inner">
-        <a href="#top" className="landing-brand" onClick={closeMenu}>Clix Sales System</a>
+        <a href="#top" className="landing-brand" onClick={closeMenu}>Clix</a>
 
         {/* Dims and blocks the page behind the open mobile menu, and gives
             a click-outside-to-close target — a real backdrop, not just a
@@ -37,10 +49,10 @@ function LandingNav() {
         {open && <button type="button" className="landing-nav-overlay" aria-label="Close menu" onClick={closeMenu} />}
 
         <nav className={`landing-nav-links ${open ? 'is-open' : ''}`}>
-          <a href="#demo" onClick={closeMenu}>{t('nav.howItWorks')}</a>
-          <a href="#features" onClick={closeMenu}>{t('nav.features')}</a>
+          <a href="#platform" onClick={closeMenu}>{t('nav.platform')}</a>
+          <a href="#business-types" onClick={closeMenu}>{t('nav.businessTypes')}</a>
           <a href="#pricing" onClick={closeMenu}>{t('nav.pricing')}</a>
-          <a href="#faq" onClick={closeMenu}>{t('nav.faq')}</a>
+          <a href="#how-it-works" onClick={closeMenu}>{t('nav.howItWorks')}</a>
           <Link to={ROUTES.LOGIN} className="landing-nav-login" onClick={closeMenu}>{t('nav.login')}</Link>
           <Link to={ROUTES.REGISTER} className="btn btn-primary" onClick={closeMenu}>{t('nav.startTrial')}</Link>
         </nav>

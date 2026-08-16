@@ -137,6 +137,70 @@ export async function createPurchase(data, actorId, tenantId, user) {
   return purchaseRepository.findById(orderId, tenantId);
 }
 
+// True hard delete: authenticate/authorize/branch-access are all enforced
+// by the caller (route middleware + assertBranchAccess below) before this
+// ever runs; ownership is re-derived from `purchase.branch_id` (the
+// database's own record), never from a client-supplied value.
+//
+// Reverses the purchase's own stock effect by reusing
+// inventoryRepository.recordMovement() — the exact same row-locked
+// function every other stock-changing operation in this codebase already
+// goes through, not a second, competing inventory mechanism. Its existing
+// negative-stock guard is what actually decides whether this delete is
+// safe: if any line item's product has since been partially or fully
+// sold/transferred elsewhere (current stock is now less than what this
+// purchase added), recordMovement() throws before anything commits, the
+// whole transaction rolls back, and the caller sees a clear explanation
+// instead of a corrupted stock count.
+export async function deletePurchase(id, actorId, tenantId, user) {
+  const purchase = await purchaseRepository.findById(id, tenantId);
+  if (!purchase) throw new ApiError(404, 'Purchase not found');
+  await assertBranchAccess(user, purchase.branch_id);
+
+  const hasPayments = await purchaseRepository.hasPayments(id, tenantId);
+  if (hasPayments) {
+    throw new ApiError(409, `Cannot delete purchase "${purchase.purchase_number}" — it has recorded supplier payments. Remove those payments first.`);
+  }
+
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    for (const item of purchase.items) {
+      // A purchase item whose product was itself later hard-deleted keeps
+      // only a name/price snapshot (product_id is NULL by then) — nothing
+      // live left to reverse stock against, so it's skipped, not an error.
+      if (item.product_id) {
+        await inventoryRepository.recordMovement({
+          tenantId, productId: item.product_id, branchId: purchase.branch_id,
+          movementType: 'manual_correction', quantityChange: -item.quantity,
+          referenceType: 'purchase_order_deleted', referenceId: id, userId: actorId,
+        }, connection);
+      }
+    }
+
+    await purchaseRepository.hardDelete(id, tenantId, connection);
+    await connection.commit();
+  } catch (err) {
+    await connection.rollback();
+    if (err instanceof ApiError && err.status === 422) {
+      throw new ApiError(409, `Cannot delete purchase "${purchase.purchase_number}" — some of the stock it added has already been sold, transferred, or otherwise used. Deleting it would make your inventory incorrect.`);
+    }
+    throw err;
+  } finally {
+    connection.release();
+  }
+
+  await activityLogRepository.create({
+    tenantId,
+    userId: actorId,
+    branchId: purchase.branch_id,
+    description: `Purchase "${purchase.purchase_number}" (${formatCurrency(purchase.total_amount)}) permanently deleted — stock additions reversed`,
+    referenceType: 'purchase_order',
+    referenceId: id,
+  });
+}
+
 export async function addPayment(data, actorId, tenantId) {
   const supplier = await supplierRepository.findById(data.supplierId, tenantId);
   if (!supplier) throw new ApiError(404, 'Supplier not found');

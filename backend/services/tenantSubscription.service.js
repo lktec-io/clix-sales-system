@@ -2,7 +2,7 @@ import * as tenantRepository from '../repositories/tenant.repository.js';
 import * as tenantSubscriptionRepository from '../repositories/tenantSubscription.repository.js';
 import * as subscriptionEventRepository from '../repositories/subscriptionEvent.repository.js';
 
-const DEFAULT_PLAN_ID = 1; // Starter — see 024_create_billing_tables.sql's deterministic seed IDs.
+const DEFAULT_PLAN_ID = 1; // Basic — see 024_create_billing_tables.sql's deterministic seed IDs (renamed from "Starter" by 045_update_final_commercial_pricing.sql).
 
 // tenant.repository.js's findById() is called here, never modified — Phase 4
 // never edits that file. Only ever hits the DB for a tenant that somehow

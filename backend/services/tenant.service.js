@@ -14,7 +14,7 @@ import * as permissionRepository from '../repositories/permission.repository.js'
 import * as activityLogRepository from '../repositories/activityLog.repository.js';
 import * as businessTemplateRepository from '../repositories/businessTemplate.repository.js';
 
-const TRIAL_DAYS = 14;
+const TRIAL_DAYS = 7;
 const MAX_COMPANY_CODE_ATTEMPTS = 5;
 
 function addDays(date, days) {

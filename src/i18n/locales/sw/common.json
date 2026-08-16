@@ -80,7 +80,8 @@
   },
   "confirmDialog": {
     "areYouSure": "Una uhakika?",
-    "cannotBeUndone": "Kitendo hiki hakiwezi kutenduliwa."
+    "cannotBeUndone": "Kitendo hiki hakiwezi kutenduliwa.",
+    "typeToConfirm": "Andika {{word}} ili kuendelea."
   },
   "state": {
     "loading": "Inapakia…",

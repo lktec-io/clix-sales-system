@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiRefreshCw } from 'react-icons/fi';
+import { FiArrowLeft, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
 import PageSkeleton from '../../components/common/PageSkeleton';
+import TypedConfirmDialog from '../../components/common/TypedConfirmDialog';
+import { usePermission } from '../../hooks/usePermission';
+import { useToast } from '../../hooks/useToast';
 import * as purchaseService from '../../services/purchaseService';
 import { formatCurrency } from '../../utils/formatCurrency';
 
@@ -10,8 +13,12 @@ function PurchaseDetail() {
   const { t, i18n } = useTranslation(['purchases', 'common']);
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
+  const canDelete = usePermission('purchases.delete');
   const [purchase, setPurchase] = useState(null);
   const [loadError, setLoadError] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const formatDateTime = (isoString) => new Date(isoString).toLocaleString(dateLocale, { dateStyle: 'medium', timeStyle: 'short' });
@@ -49,6 +56,18 @@ function PurchaseDetail() {
     return <PageSkeleton />;
   }
 
+  const handleDelete = async () => {
+    setDeleteError('');
+    try {
+      await purchaseService.deletePurchase(purchase.id);
+      toast.success(t('purchases:list.deleteSuccess'));
+      navigate('/purchases', { replace: true });
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || t('purchases:list.deleteError'));
+      throw err;
+    }
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -61,6 +80,13 @@ function PurchaseDetail() {
             {purchase.supplier_name} · {purchase.branch_name} · {formatDateTime(purchase.created_at)}
           </p>
         </div>
+        {canDelete && (
+          <div className="page-actions">
+            <button type="button" className="btn btn-danger" onClick={() => { setDeleteError(''); setDeleteOpen(true); }}>
+              <FiTrash2 aria-hidden="true" /> {t('purchases:list.deletePurchase')}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="card">
@@ -91,6 +117,16 @@ function PurchaseDetail() {
           <span className="text-lg font-semibold">{t('purchases:detail.totalLabel')}: {formatCurrency(purchase.total_amount)}</span>
         </div>
       </div>
+
+      <TypedConfirmDialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={handleDelete}
+        title={t('purchases:list.deleteDialogTitle')}
+        message={t('purchases:list.deleteDialogMessage', { number: purchase.purchase_number })}
+        confirmLabel={t('purchases:list.deletePermanently')}
+        error={deleteError}
+      />
     </div>
   );
 }

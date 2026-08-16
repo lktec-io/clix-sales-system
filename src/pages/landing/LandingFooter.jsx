@@ -17,10 +17,10 @@ function LandingFooter() {
         <div className="landing-footer-links">
           <div>
             <span className="landing-footer-heading">{t('footer.product')}</span>
-            <a href="#demo">{t('nav.howItWorks')}</a>
-            <a href="#features">{t('nav.features')}</a>
+            <a href="#platform">{t('nav.platform')}</a>
+            <a href="#business-types">{t('nav.businessTypes')}</a>
             <a href="#pricing">{t('nav.pricing')}</a>
-            <a href="#faq">{t('nav.faq')}</a>
+            <a href="#how-it-works">{t('nav.howItWorks')}</a>
           </div>
           <div>
             <span className="landing-footer-heading">{t('footer.company')}</span>

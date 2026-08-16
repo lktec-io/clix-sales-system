@@ -18,31 +18,58 @@
    values. Structural tokens (spacing/font-size/font-weight/radius/
    transition/z-index/line-height) are safe to keep using directly — they
    are NOT redefined per theme anywhere in themes.css, confirmed by
-   grepping it before writing this file. */
+   grepping it before writing this file.
+
+   PALETTE — "Ink & Verdant", with a warm gold used only as a rare accent.
+   Ink (near-black navy) + emerald green are the same two colors
+   colors.css's own --color-primary/--color-accent and --gradient-hero
+   already use for the *authenticated* app's default look, restated here as
+   literal hex so this page stays on-brand without ever reading a
+   theme-reactive token. Gold (#C8A56A) is colors.css's own
+   "--color-gold — retained ONLY for company branding contexts" token,
+   restated the same way — a public marketing page is exactly that kind of
+   branding context, so gold appears here deliberately sparingly: the
+   section eyebrows, the recommended-plan badge, and step numerals. It is
+   never a general UI color (no gold buttons, no gold links). */
 
 .landing-page {
-  --landing-bg: #F8FAFC;
-  --landing-bg-alt: #F1F5F9;
+  --landing-ink: #0B1220;
+  --landing-bg: #F7F9FC;
+  --landing-bg-alt: #EEF2F8;
   --landing-card-bg: #FFFFFF;
-  --landing-navbar-bg: rgba(255, 255, 255, 0.85);
-  --landing-border: #E2E8F0;
-  --landing-text-primary: #0F172A;
-  --landing-text-secondary: #64748B;
+  --landing-navbar-bg: rgba(255, 255, 255, 0.86);
+  --landing-border: #E1E7F0;
+  --landing-text-primary: #0B1220;
+  --landing-text-secondary: #5B6472;
   --landing-text-inverse: #FFFFFF;
-  --landing-primary: #0F172A;
-  --landing-primary-rgb: 15, 23, 42;
+  --landing-primary: #0B1220;
+  --landing-primary-rgb: 11, 18, 32;
+  --landing-emerald: #10B981;
+  --landing-emerald-deep: #059669;
+  --landing-emerald-rgb: 16, 185, 129;
   --landing-success: #10B981;
-  --landing-footer-bg: #111827;
-  --landing-footer-text: #E2E8F0;
+  --landing-gold: #C8A56A;
+  --landing-gold-deep: #A88447;
+  --landing-gold-rgb: 200, 165, 106;
+  --landing-footer-bg: #0A0F1A;
+  --landing-footer-text: #E4E9F1;
   --landing-glass-blur: 20px;
-  --landing-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --landing-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.14);
+  --landing-shadow-sm: 0 1px 2px rgba(11, 18, 32, 0.06);
+  --landing-shadow-lg: 0 16px 40px rgba(11, 18, 32, 0.14);
   --landing-gradient-hero: linear-gradient(115deg, #071A3D 0%, #123A73 45%, #0E7A57 85%, #123A73 100%);
   --landing-gradient-primary: linear-gradient(135deg, #2F6BFF 0%, #10B981 100%);
+  --landing-gradient-gold: linear-gradient(135deg, #D9BC84 0%, #A88447 100%);
 
   background: var(--landing-bg);
   color: var(--landing-text-primary);
-  overflow-x: hidden;
+  /* No blanket overflow-x: hidden on the page root — every actual overflow
+     source below is contained at its own scope instead: .landing-hero has
+     its own overflow:hidden around the decorative texture layer, every
+     CSS Grid's direct item gets min-width:0 (grid items default to
+     min-width:auto, which lets long content push tracks — and the page —
+     wider than the viewport), and no nowrap text sits in a flexible
+     container without either a wrap fallback or its own ellipsis
+     truncation. */
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -64,21 +91,21 @@
    below still wins on the dark hero specifically — same specificity,
    later in the cascade — this just covers every other section.) */
 .landing-page .btn-primary {
-  background-image: linear-gradient(135deg, #0F172A 0%, #1E293B 55%, #16A34A 100%);
+  background-image: linear-gradient(135deg, #0B1220 0%, #182338 55%, #16A34A 100%);
   color: #ffffff;
 }
 
 .landing-page .btn-primary:hover:not(:disabled) {
-  background-image: linear-gradient(135deg, #1E293B 0%, #0F172A 45%, #22C55E 100%);
+  background-image: linear-gradient(135deg, #182338 0%, #0B1220 45%, #22C55E 100%);
 }
 
 .landing-page .btn-outline {
-  border-color: #0F172A;
-  color: #0F172A;
+  border-color: #0B1220;
+  color: #0B1220;
 }
 
 .landing-page .btn-outline:hover:not(:disabled) {
-  background-color: #0F172A;
+  background-color: #0B1220;
   color: #ffffff;
 }
 
@@ -139,92 +166,60 @@
   cursor: pointer;
 }
 
+.landing-hero-pill:focus-visible,
+.landing-nav-toggle:focus-visible,
+.landing-faq-question:focus-visible,
+.landing-business-card:focus-visible,
+.landing-nav-links a:focus-visible {
+  outline: 2px solid var(--landing-emerald);
+  outline-offset: 2px;
+}
+
 /* ---------- Hero ---------- */
+/* Deliberately asymmetric, not the centered hero-stack this page used to
+   have (and not a generic centered SaaS hero either) — copy on the left,
+   a static, glanceable "product glimpse" panel on the right, gently
+   floating. The interactive, scene-cycling demo lives further down in
+   ProductPreview, driven by BusinessTypes — the hero never owns that
+   interaction, keeping the very first thing a visitor sees simple. */
 
 .landing-hero {
   position: relative;
   overflow: hidden;
   background: var(--landing-gradient-hero);
   color: var(--landing-text-inverse);
-  padding: var(--space-10) var(--page-padding-desktop) var(--space-9);
-  text-align: center;
+  padding: var(--space-10) var(--page-padding-desktop);
 }
 
-.landing-hero-inner {
+.landing-hero-texture {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 30% 40%, #000 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 60% at 30% 40%, #000 0%, transparent 75%);
+}
+
+.landing-hero-grid {
   position: relative;
   z-index: 1;
-  max-width: 780px;
+  max-width: 1180px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: var(--space-9);
+}
+
+.landing-hero-copy {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-4);
-}
-
-.landing-hero-platform-name {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* Business selector — swaps the hero's copy + motif below without
-   navigating away. Every one of the six active templates has its own
-   dedicated headline/motif; the selection carries into Start Trial via a
-   ?template= query param. */
-.landing-hero-selector {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-
-.landing-hero-selector-label {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.landing-hero-selector-pills {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-2);
-}
-
-.landing-hero-pill {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: var(--radius-full);
-  padding: var(--space-1) var(--space-4);
-  cursor: pointer;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
-  white-space: nowrap;
-}
-
-.landing-hero-pill:hover {
-  background: rgba(255, 255, 255, 0.14);
-  color: #ffffff;
-}
-
-.landing-hero-pill:focus-visible,
-.landing-nav-toggle:focus-visible,
-.landing-faq-question:focus-visible,
-.landing-nav-links a:focus-visible {
-  outline: 2px solid #ffffff;
-  outline-offset: 2px;
-}
-
-.landing-hero-pill.is-active {
-  background: rgba(255, 255, 255, 0.94);
-  border-color: #ffffff;
-  color: var(--landing-text-primary);
+  text-align: left;
 }
 
 .landing-hero-eyebrow {
@@ -241,9 +236,10 @@
 }
 
 .landing-hero-title {
-  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  font-size: clamp(2.1rem, 3.6vw + 1rem, 3.5rem);
   font-weight: var(--font-weight-bold);
-  line-height: 1.1;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
   color: #ffffff;
   text-wrap: balance;
 }
@@ -251,7 +247,7 @@
 .landing-hero-subtitle {
   font-size: var(--font-size-lg);
   color: rgba(255, 255, 255, 0.82);
-  max-width: 620px;
+  max-width: 560px;
   line-height: var(--line-height-base);
 }
 
@@ -260,7 +256,6 @@
   gap: var(--space-3);
   margin-top: var(--space-2);
   flex-wrap: wrap;
-  justify-content: center;
 }
 
 .landing-hero .btn-outline {
@@ -278,20 +273,140 @@
   color: rgba(255, 255, 255, 0.65);
 }
 
-.landing-hero-stats {
-  display: flex;
-  gap: var(--space-6);
-  margin-top: var(--space-6);
-  flex-wrap: wrap;
-  justify-content: center;
+/* Static "product glimpse" card — same browser-chrome visual language as
+   ProductPreview's DemoPreview below (titlebar dots, live badge) so the two
+   read as one system, but this one never cycles scenes: three fixed stats
+   plus a small decorative bar row. All motion here is a single slow
+   vertical float on the whole card (see Hero.jsx's useReducedMotion-gated
+   animate prop) — never on individual numbers. */
+.landing-hero-preview {
+  min-width: 0;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--landing-card-bg);
+  box-shadow: 0 30px 70px rgba(2, 6, 16, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
-.landing-hero-stats span {
+.landing-hero-preview-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: #101B30;
+}
+
+.landing-hero-preview-dots {
+  display: inline-flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.landing-hero-preview-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.landing-hero-preview-badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  font-size: var(--font-size-sm);
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: rgba(255, 255, 255, 0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.landing-hero-preview-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--landing-emerald);
+  flex-shrink: 0;
+}
+
+.landing-hero-preview-body {
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  background: var(--landing-bg-alt);
+}
+
+.landing-hero-preview-stats {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.landing-hero-preview-stat {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--landing-card-bg);
+  border: 1px solid var(--landing-border);
+}
+
+.landing-hero-preview-stat-value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--landing-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.landing-hero-preview-stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--landing-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.landing-hero-preview-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  height: 64px;
+}
+
+.landing-hero-preview-bars span {
+  flex: 1;
+  min-width: 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: linear-gradient(180deg, var(--landing-emerald) 0%, rgba(16, 185, 129, 0.35) 100%);
+}
+
+.landing-hero-preview-footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--landing-card-bg);
+  border-top: 1px solid var(--landing-border);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--landing-text-primary);
+}
+
+.landing-hero-preview-footer > span {
+  min-width: 0;
+}
+
+.landing-hero-preview-note {
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-regular);
+  color: var(--landing-text-secondary);
+  opacity: 0.8;
 }
 
 /* ---------- Generic section shell ---------- */
@@ -300,9 +415,10 @@
   max-width: 1180px;
   margin: 0 auto;
   padding: var(--space-9) var(--page-padding-desktop);
-  /* Every #features/#pricing/#faq/#demo anchor target is a .landing-section
-     — without this, the sticky .landing-nav (position:sticky, top:0) would
-     cover the section's heading right after an anchor scroll lands. */
+  /* Every #business-types/#product-preview/#platform/#pricing/#how-it-works/
+     #faq anchor target is a .landing-section — without this, the sticky
+     .landing-nav (position:sticky, top:0) would cover the section's
+     heading right after an anchor scroll lands. */
   scroll-margin-top: var(--navbar-height);
 }
 
@@ -321,6 +437,15 @@
   max-width: 760px;
 }
 
+.landing-section-eyebrow {
+  text-align: center;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.3em;
+  color: var(--landing-gold-deep);
+  margin-bottom: var(--space-3);
+}
+
 .landing-section-header {
   text-align: center;
   max-width: 620px;
@@ -329,6 +454,7 @@
 
 .landing-section-header h2 {
   font-size: var(--font-size-2xl);
+  letter-spacing: -0.01em;
   margin-bottom: var(--space-2);
 }
 
@@ -336,13 +462,125 @@
   color: var(--landing-text-secondary);
 }
 
-/* ---------- Demo (Part 6/7/10) ---------- */
+/* ---------- Business types ---------- */
+
+.landing-business-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+.landing-business-card-wrap {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.landing-business-card {
+  min-width: 0;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  background: var(--landing-card-bg);
+  border: 1px solid var(--landing-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--landing-shadow-sm);
+  cursor: pointer;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.landing-business-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--landing-shadow-lg);
+}
+
+.landing-business-card.is-active {
+  border-color: rgba(var(--card-accent-rgb, var(--landing-emerald-rgb)), 0.55);
+  box-shadow: 0 0 0 3px rgba(var(--card-accent-rgb, var(--landing-emerald-rgb)), 0.14), var(--landing-shadow-lg);
+}
+
+.landing-business-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: rgba(var(--card-accent-rgb, var(--landing-primary-rgb)), 0.12);
+  color: var(--card-accent, var(--landing-primary));
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.landing-business-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--landing-text-primary);
+}
+
+.landing-business-description {
+  font-size: var(--font-size-sm);
+  color: var(--landing-text-secondary);
+  line-height: var(--line-height-base);
+}
+
+.landing-business-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+
+.landing-business-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--landing-text-secondary);
+  background: var(--landing-bg-alt);
+  border-radius: var(--radius-full);
+  padding: 3px var(--space-2);
+  white-space: nowrap;
+}
+
+.landing-business-tag svg {
+  color: var(--landing-emerald);
+  flex-shrink: 0;
+}
+
+.landing-business-cta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--landing-text-primary);
+  padding: 0 var(--space-2);
+  transition: color var(--transition-fast), gap var(--transition-fast);
+}
+
+.landing-business-cta:hover {
+  color: var(--landing-emerald-deep);
+  gap: var(--space-3);
+}
+
+/* ---------- Product preview ---------- */
 
 .landing-demo-layout {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-8);
+  gap: var(--space-6);
 }
 
 .landing-capabilities-list {
@@ -374,23 +612,30 @@
   flex-shrink: 0;
 }
 
-/* ---------- Features ---------- */
+/* ---------- Benefits ---------- */
 
-.landing-features-grid {
+.landing-benefits-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-5);
 }
 
-.landing-feature-card {
+.landing-benefit-card {
+  min-width: 0;
   background: var(--landing-card-bg);
   border: 1px solid var(--landing-border);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   box-shadow: var(--landing-shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
-.landing-feature-icon {
+.landing-benefit-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--landing-shadow-lg);
+}
+
+.landing-benefit-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -403,12 +648,12 @@
   margin-bottom: var(--space-4);
 }
 
-.landing-feature-card h3 {
-  font-size: var(--font-size-lg);
+.landing-benefit-card h3 {
+  font-size: var(--font-size-md);
   margin-bottom: var(--space-2);
 }
 
-.landing-feature-card p {
+.landing-benefit-card p {
   color: var(--landing-text-secondary);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-base);
@@ -425,15 +670,16 @@
 .landing-pricing-grid {
   display: grid;
   /* auto-fit rather than a fixed repeat(3,...) — the actual plan count
-     now comes from the live subscription_plans data (Part 4), not a
-     hardcoded 3-card mock, so this needs to look right whether there are
-     2, 3, or more active plans, without an empty trailing column. */
+     comes from the live subscription_plans data, not a hardcoded 3-card
+     mock, so this needs to look right whether there are 2, 3, or more
+     active plans, without an empty trailing column. */
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-5);
 }
 
 .landing-pricing-card {
   position: relative;
+  min-width: 0;
   background: var(--landing-card-bg);
   border: 1px solid var(--landing-border);
   border-radius: var(--radius-lg);
@@ -444,7 +690,7 @@
 }
 
 .landing-pricing-card.is-featured {
-  border-color: var(--landing-primary);
+  border-color: var(--landing-gold);
   box-shadow: var(--landing-shadow-lg);
   transform: translateY(-8px);
 }
@@ -454,8 +700,8 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--landing-gradient-primary);
-  color: #ffffff;
+  background: var(--landing-gradient-gold);
+  color: #2E2107;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   padding: var(--space-1) var(--space-3);
@@ -473,6 +719,7 @@
   align-items: baseline;
   gap: var(--space-2);
   margin-bottom: var(--space-2);
+  flex-wrap: wrap;
 }
 
 .landing-pricing-price {
@@ -514,46 +761,113 @@
   margin-top: 3px;
 }
 
-/* ---------- Trust (honest product facts, never fabricated social proof) ---------- */
+/* ---------- How it works ---------- */
 
-.landing-trust-grid {
+.landing-steps {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-5);
 }
 
-.landing-trust-card {
+.landing-step {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-5);
   background: var(--landing-card-bg);
   border: 1px solid var(--landing-border);
   border-radius: var(--radius-lg);
-  padding: var(--space-6);
   box-shadow: var(--landing-shadow-sm);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
 }
 
-.landing-trust-icon {
+.landing-step-number {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  background: var(--landing-gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.landing-step-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-md);
-  background: rgba(var(--landing-primary-rgb), 0.08);
+  background: var(--landing-bg-alt);
   color: var(--landing-primary);
   font-size: 1.1rem;
-  flex-shrink: 0;
 }
 
-.landing-trust-card p {
-  margin: 0;
+.landing-step h3 {
+  font-size: var(--font-size-md);
+  margin-top: var(--space-1);
+}
+
+.landing-step p {
+  color: var(--landing-text-secondary);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-base);
-  color: var(--landing-text-primary);
+}
+
+/* ---------- Final CTA ---------- */
+
+.landing-final-cta {
+  background: var(--landing-gradient-hero);
+  color: var(--landing-text-inverse);
+  text-align: center;
+  padding: var(--space-10) var(--page-padding-desktop);
+}
+
+.landing-final-cta-inner {
+  max-width: 620px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.landing-final-cta h2 {
+  font-size: var(--font-size-2xl);
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.landing-final-cta p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: var(--font-size-md);
+}
+
+.landing-final-cta-actions {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.landing-final-cta .btn-outline {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+}
+
+.landing-final-cta-login {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.landing-final-cta-login a {
+  color: #ffffff;
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* ---------- FAQ ---------- */
@@ -630,6 +944,7 @@
 .landing-footer-links {
   display: flex;
   gap: var(--space-9);
+  flex-wrap: wrap;
 }
 
 .landing-footer-links > div {
@@ -668,8 +983,33 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 1024px) {
-  .landing-features-grid,
-  .landing-trust-grid {
+  .landing-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-hero-copy {
+    align-items: center;
+    text-align: center;
+  }
+
+  .landing-hero-subtitle {
+    max-width: 560px;
+  }
+
+  .landing-hero-actions {
+    justify-content: center;
+  }
+
+  .landing-hero-preview {
+    max-width: 420px;
+  }
+
+  .landing-business-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .landing-benefits-grid,
+  .landing-steps {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -691,7 +1031,7 @@
     display: block;
     position: fixed;
     inset: var(--navbar-height) 0 0 0;
-    background: rgba(15, 23, 42, 0.35);
+    background: rgba(11, 18, 32, 0.35);
     border: none;
     padding: 0;
     cursor: default;
@@ -708,6 +1048,8 @@
     gap: var(--space-3);
     border-bottom: 1px solid var(--landing-border);
     display: none;
+    max-height: calc(100vh - var(--navbar-height));
+    overflow-y: auto;
   }
 
   .landing-nav-links.is-open {
@@ -718,8 +1060,12 @@
     display: block;
   }
 
-  .landing-features-grid,
-  .landing-trust-grid {
+  .landing-business-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-benefits-grid,
+  .landing-steps {
     grid-template-columns: 1fr;
   }
 
@@ -727,12 +1073,47 @@
     padding: var(--space-8) var(--page-padding-mobile) var(--space-7);
   }
 
+  .landing-hero-title {
+    font-size: clamp(1.75rem, 7vw, 2.25rem);
+  }
+
+  .landing-hero-preview {
+    max-width: 100%;
+  }
+
+  .landing-hero-preview-stats {
+    gap: var(--space-2);
+  }
+
   .landing-section {
     padding: var(--space-7) var(--page-padding-mobile);
   }
 
+  .landing-final-cta {
+    padding: var(--space-8) var(--page-padding-mobile);
+  }
+
   .landing-footer-inner {
     flex-direction: column;
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-hero-preview-stat-value {
+    font-size: var(--font-size-lg);
+  }
+
+  .landing-hero-actions,
+  .landing-nav-links .btn {
+    width: 100%;
+  }
+
+  .landing-hero-actions .btn {
+    flex: 1 1 auto;
+  }
+
+  .landing-footer-links {
     gap: var(--space-6);
   }
 }

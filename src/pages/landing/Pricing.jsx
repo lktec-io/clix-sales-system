@@ -37,6 +37,7 @@ function Pricing() {
 
   return (
     <section id="pricing" className="landing-section landing-section-alt">
+      <div className="landing-section-eyebrow">04</div>
       <div className="landing-section-header">
         <h2>{t('pricing.title')}</h2>
         <p>{t('pricing.subtitle')}</p>

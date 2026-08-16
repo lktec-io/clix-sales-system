@@ -1,19 +1,72 @@
 {
   "nav": {
-    "howItWorks": "Jinsi Inavyofanya Kazi",
-    "features": "Vipengele",
+    "platform": "Jukwaa",
+    "businessTypes": "Aina za Biashara",
     "pricing": "Bei",
-    "faq": "Maswali",
+    "howItWorks": "Jinsi Inavyofanya Kazi",
     "login": "Ingia",
     "startTrial": "Anza Jaribio la Bure"
   },
   "hero": {
+    "eyebrow": "Jukwaa la Usimamizi wa Biashara",
+    "title": "Imeundwa Kuendesha Biashara Yako, Si Kufuatilia Tu",
+    "subtitle": "Clix inasimamia mauzo, hisa, manunuzi, wateja na shughuli za kila siku kwa maduka ya rejareja, maduka ya dawa, migahawa, taasisi za fedha ndogo, maduka ya matengenezo ya elektroniki na wauzaji wa vipodozi — katika mfumo mmoja, kwa Kiingereza au Kiswahili.",
     "ctaPrimary": "Anza Jaribio la Bure",
-    "noCreditCard": "Hakuna kadi inayohitajika · Jaribio la siku 14 bila malipo"
+    "ctaSecondary": "Angalia Jukwaa",
+    "noCreditCard": "Hakuna kadi inayohitajika · Jaribio la siku 7 bila malipo",
+    "preview": {
+      "badge": "Onyesho Hai",
+      "statOneLabel": "Mauzo ya Leo",
+      "statOneValue": "128",
+      "statTwoLabel": "Bidhaa",
+      "statTwoValue": "540",
+      "statThreeLabel": "Matawi",
+      "statThreeValue": "3",
+      "caption": "Duka la Rejareja · Dashibodi",
+      "note": "Data ya mfano kwa maelezo tu"
+    }
   },
-  "demoSection": {
-    "title": "Iangalie ikifanya kazi",
-    "subtitle": "Onyesho fupi la jinsi mfumo halisi unavyofanya kazi — chagua biashara hapo juu kuona mtiririko wake."
+  "businessTypes": {
+    "title": "Jukwaa Moja. Aina Sita Halisi za Biashara.",
+    "subtitle": "Chagua mfumo ulioundwa kwa jinsi biashara yako tayari inavyofanya kazi — iangalie ikifanya kazi hapa chini.",
+    "groupLabel": "Chagua aina ya biashara kuangalia onyesho",
+    "selectCta": "Angalia onyesho",
+    "startCta": "Anza jaribio la bure",
+    "retail-store": {
+      "name": "Duka la Rejareja",
+      "description": "Bidhaa, hisa, mauzo na wateja kwa maduka, supermarket na minimarket.",
+      "capabilities": ["Mauzo na POS", "Hisa", "Manunuzi", "Rekodi za Wateja", "Ripoti"]
+    },
+    "pharmacy": {
+      "name": "Duka la Dawa",
+      "description": "Hisa za dawa zenye ufuatiliaji wa muda wa kuisha na kundi, utoaji wa dawa na rekodi za wasambazaji.",
+      "capabilities": ["Hisa za Dawa", "Ufuatiliaji wa Muda wa Kuisha", "Utoaji wa Dawa", "Wasambazaji", "Ripoti"]
+    },
+    "restaurant": {
+      "name": "Mkahawa",
+      "description": "Menyu, oda za mezani, mtiririko wa jikoni na mauzo kwa migahawa, cafe na biashara za chakula cha kuchukua.",
+      "capabilities": ["Menyu na Oda", "Meza", "Mtiririko wa Jikoni", "Mauzo", "Ripoti"]
+    },
+    "microfinance": {
+      "name": "Fedha Ndogo",
+      "description": "Wakopaji, mikopo, malipo na akiba kwa taasisi za fedha ndogo na ukopeshaji.",
+      "capabilities": ["Mikopo", "Malipo", "Wakopaji", "Akiba", "Ripoti za Kifedha"]
+    },
+    "cosmetics-shop": {
+      "name": "Vipodozi na Urembo",
+      "description": "Orodha ya bidhaa, hisa na mauzo kwa wauzaji wa vipodozi, manukato na urembo.",
+      "capabilities": ["Orodha ya Bidhaa za Urembo", "Hisa", "Mauzo", "Bidhaa Pendwa za Wateja", "Ripoti"]
+    },
+    "electronics-shop": {
+      "name": "Elektroniki na Matengenezo",
+      "description": "Upokeaji wa vifaa, uchunguzi, ufuatiliaji wa matengenezo na mauzo kwa maduka ya kutengeneza simu na kompyuta.",
+      "capabilities": ["Ufuatiliaji wa Matengenezo", "Upokeaji wa Vifaa", "Vipuri na Hisa", "Taarifa kwa Wateja", "Mauzo"]
+    }
+  },
+  "productPreview": {
+    "title": "Iangalie Ikifanya Kazi",
+    "subtitle": "Onyesho hai la mfumo halisi wa bidhaa — chagua aina ya biashara hapo juu kuona mtiririko wake.",
+    "ctaPrefix": "Anza jaribio la bure na"
   },
   "demoPreview": {
     "browserTitle": "Mfumo wa Biashara wa Clix",
@@ -74,116 +127,48 @@
       ]
     }
   },
-  "businessSelector": {
-    "platformName": "Jukwaa la Usimamizi wa Biashara la Clix",
-    "prompt": "Chagua mfumo ulioundwa kwa ajili ya biashara yako.",
-    "retail-store": "Rejareja na Mauzo",
-    "pharmacy": "Duka la Dawa",
-    "electronics-shop": "Elektroniki na Matengenezo",
-    "cosmetics-shop": "Vipodozi na Urembo",
-    "restaurant": "Mkahawa",
-    "microfinance": "Fedha Ndogo"
-  },
-  "businessHero": {
-    "retail-store": {
-      "eyebrow": "Usimamizi wa Rejareja na Mauzo",
-      "title": "Endesha Duka Lako kwa Ujasiri",
-      "subtitle": "Bidhaa, hisa, mauzo, wateja na wasambazaji — mfumo wa haraka na wa kitaalamu uliojengwa kwa ajili ya maduka, supermarket na minimarket.",
-      "ctaSecondary": "Angalia Onyesho",
-      "statOne": "Ufuatiliaji wa hisa muda halisi",
-      "statTwo": "Mauzo na hisa vinaendana",
-      "statThree": "Tayari kwa matawi mengi",
-      "capabilities": ["Mauzo", "Hisa", "Manunuzi", "Wateja", "Ripoti"]
-    },
-    "pharmacy": {
-      "eyebrow": "Usimamizi wa Duka la Dawa",
-      "title": "Simamia Duka Lako la Dawa kwa Kitaalamu",
-      "subtitle": "Hisa za dawa, utoaji wa dawa, mauzo na wasambazaji, ikiwa na ufuatiliaji wa muda wa kuisha — mfumo sahihi na unaozingatia sheria kwa maduka ya dawa.",
-      "ctaSecondary": "Angalia Onyesho",
-      "statOne": "Ufuatiliaji wa muda wa kuisha na kundi",
-      "statTwo": "Rekodi sahihi za utoaji dawa",
-      "statThree": "Usimamizi wa wasambazaji na hisa",
-      "capabilities": ["Dawa", "Utoaji wa Dawa", "Ufuatiliaji wa Muda wa Kuisha", "Wasambazaji", "Ripoti"]
-    },
-    "electronics-shop": {
-      "eyebrow": "Programu ya Duka la Matengenezo",
-      "title": "Endesha Duka Lako la Matengenezo Kama Kituo cha Huduma cha Kitaalamu",
-      "subtitle": "Upokeaji wa vifaa, uchunguzi, ufuatiliaji wa vipuri na matengenezo, taarifa kwa wateja, mauzo na hisa — kila kitu ambacho biashara ya kutengeneza simu au kompyuta inahitaji katika mfumo mmoja.",
-      "ctaSecondary": "Angalia Onyesho",
-      "statOne": "Ufuatiliaji kutoka upokeaji hadi uchukuaji",
-      "statTwo": "Vipuri na hisa vinaendana",
-      "statThree": "Taarifa za SMS kwa wateja",
-      "capabilities": ["Matengenezo", "Vifaa", "Vipuri", "Wateja", "Mauzo"]
-    },
-    "cosmetics-shop": {
-      "eyebrow": "Rejareja ya Vipodozi na Urembo",
-      "title": "Endesha Biashara Yako ya Urembo kwa Ujasiri",
-      "subtitle": "Bidhaa, manukato na hisa za urembo, mauzo, wateja na ripoti — mfumo ulioboreshwa kwa ajili ya wauzaji wa vipodozi na urembo.",
-      "ctaSecondary": "Angalia Onyesho",
-      "statOne": "Usimamizi wa bidhaa na hisa",
-      "statTwo": "Uelewa wa bidhaa zinazouzwa zaidi",
-      "statThree": "Bidhaa pendwa za wateja zinafuatiliwa",
-      "capabilities": ["Bidhaa za Urembo", "Hisa", "Mauzo", "Wateja", "Ripoti"]
-    },
-    "restaurant": {
-      "eyebrow": "Usimamizi wa Mkahawa na Cafe",
-      "title": "Endesha Mkahawa Wako Bila Msongamano",
-      "subtitle": "Menyu, oda, meza, mauzo na hisa — mfumo wa haraka na wa kutegemewa uliojengwa kwa ajili ya migahawa, cafe na biashara za chakula cha kuchukua.",
-      "ctaSecondary": "Angalia Onyesho",
-      "statOne": "Oda hadi mezani, zinafuatiliwa moja kwa moja",
-      "statTwo": "Uelewa wa utendaji wa menyu",
-      "statThree": "Tayari kwa matawi mengi",
-      "capabilities": ["Menyu", "Oda", "Meza", "Mtiririko wa Jikoni", "Ripoti"]
-    },
-    "microfinance": {
-      "eyebrow": "Programu ya Taasisi ya Fedha",
-      "title": "Kuza Biashara Yako ya Mikopo kwa Ujasiri",
-      "subtitle": "Wakopaji, mikopo, malipo, akiba na ripoti za kifedha — mfumo unaotegemewa na wa kitaalamu kwa taasisi za fedha ndogo.",
-      "ctaSecondary": "Angalia Onyesho",
-      "statOne": "Ufuatiliaji wa mikopo na malipo",
-      "statTwo": "Usimamizi wa akiba za wakopaji",
-      "statThree": "Ripoti za kifedha zimejumuishwa",
-      "capabilities": ["Wakopaji", "Mikopo", "Malipo", "Akiba", "Ripoti za Kifedha"]
-    }
-  },
-  "features": {
-    "title": "Kila kitu biashara yako inachohitaji, kimejengwa ndani",
-    "subtitle": "Hakuna programu za ziada — mfumo mmoja unaokua nawe.",
-    "pos": { "title": "Sehemu ya Mauzo (POS)", "description": "Malipo ya haraka na risiti, malipo ya aina mbalimbali na uchanganuzi wa bakodi." },
-    "inventory": { "title": "Udhibiti wa Hisa", "description": "Kiwango cha hisa cha wakati halisi katika kila tawi, na tahadhari kabla ya kuisha." },
-    "purchases": { "title": "Manunuzi na Wasambazaji", "description": "Fuatilia oda za manunuzi, malipo ya wasambazaji na salio linalodaiwa mahali pamoja." },
-    "reports": { "title": "Ripoti na Uchambuzi", "description": "Ripoti za mauzo, faida, matumizi na hisa — zinazoweza kupakuliwa kama PDF, Excel na CSV." },
-    "multiBranch": { "title": "Matawi Mengi", "description": "Simamia matawi bila kikomo na ruhusa kulingana na wajibu wa kila mfanyakazi." },
-    "bilingual": { "title": "Kiingereza na Kiswahili", "description": "Mfumo mzima, ikiwemo risiti, katika lugha timu yako inayoifahamu vizuri." }
+  "benefits": {
+    "title": "Kwa Nini Biashara Zinachagua Clix",
+    "subtitle": "Imeundwa mahususi kwa jinsi biashara nchini Tanzania zinavyofanya kazi kwa uhalisia.",
+    "item1": { "title": "Mfumo Mmoja, Shughuli Zote", "description": "Mauzo, hisa, manunuzi, wateja na ripoti — hakuna programu za ziada, hakuna spreadsheet tofauti za kulinganisha." },
+    "item2": { "title": "Lugha Mbili Tangu Msingi", "description": "Mfumo mzima, ikiwemo risiti na ripoti, unafanya kazi kwa Kiingereza na Kiswahili — si tafsiri ya baadaye." },
+    "item3": { "title": "Matawi Mengi Tangu Siku ya Kwanza", "description": "Simamia matawi bila kikomo na ruhusa kulingana na wajibu wa kila mfanyakazi, kutoka akaunti moja." },
+    "item4": { "title": "Data Yako, Imetengwa", "description": "Data ya kila biashara imetengwa kikamilifu na wateja wengine wote wa Clix — hakuna kinachoshirikishwa." }
   },
   "pricing": {
-    "title": "Bei rahisi na wazi",
-    "subtitle": "Anza na jaribio la bure la siku 14 kwenye mpango wowote — hakuna kadi inayohitajika. Boresha ukiwa tayari.",
+    "title": "Bei Rahisi na Wazi",
+    "subtitle": "Kila mpango unajumuisha jaribio la siku 7 bila malipo — hakuna kadi inayohitajika. Boresha, punguza au ghairi wakati wowote.",
     "loading": "Inapakia mipango…",
     "loadError": "Mipango haipatikani kwa sasa. Tafadhali jaribu tena baadaye.",
     "recommendedBadge": "Maarufu Zaidi",
     "perMonth": "kwa mwezi",
     "startTrialCta": "Anza Jaribio la Bure"
   },
-  "trust": {
-    "title": "Imejengwa mahususi kwa biashara yako",
-    "subtitle": "Hakuna namba za kubuni, hakuna maoni ya uongo — ni kile ambacho mfumo unafanya kweli.",
-    "fact1": "Mifumo sita mahususi ya biashara — Rejareja, Duka la Dawa, Mkahawa, Fedha Ndogo, Vipodozi na Urembo, na Elektroniki — si mfumo mmoja wa jumla wenye lebo tofauti.",
-    "fact2": "Jaribio la siku 14 bila malipo, hakuna kadi ya benki inayohitajika kuanza.",
-    "fact3": "Mfumo mzima kwa Kiingereza na Kiswahili, ikiwemo risiti na ripoti.",
-    "fact4": "Tayari kwa matawi mengi tangu siku ya kwanza, na ufikiaji kwa kila tawi kulingana na wajibu.",
-    "fact5": "Data ya kila biashara imetengwa kabisa na nyingine — hakuna kinachoshirikishwa kati ya wateja."
+  "howItWorks": {
+    "title": "Jinsi Inavyofanya Kazi",
+    "subtitle": "Kutoka usajili hadi mauzo yako ya kwanza, kwa dakika chache.",
+    "step1": { "title": "Jisajili", "description": "Fungua akaunti yako kwa jina la biashara na namba ya simu — hakuna maelezo ya malipo yanayohitajika." },
+    "step2": { "title": "Chagua Aina ya Biashara Yako", "description": "Chagua mfumo ulioundwa kwa biashara yako — Rejareja, Duka la Dawa, Mkahawa, Fedha Ndogo, Vipodozi au Elektroniki." },
+    "step3": { "title": "Anza Jaribio Lako la Siku 7 Bila Malipo", "description": "Ufikiaji kamili wa kila kipengele mara moja, hakuna kadi ya benki inayohitajika." },
+    "step4": { "title": "Anza Kufanya Kazi", "description": "Ongeza bidhaa au huduma zako, alika timu yako na rekodi mauzo yako ya kwanza siku hiyo hiyo." }
+  },
+  "finalCta": {
+    "title": "Uko Tayari Kuendesha Biashara Yako kwa Clix?",
+    "subtitle": "Anza jaribio lako la siku 7 bila malipo leo — hakuna kadi, hakuna gharama za usanidi, hakuna ahadi.",
+    "cta": "Anza Jaribio la Bure",
+    "loginPrompt": "Tayari una akaunti?",
+    "loginLink": "Ingia"
   },
   "faq": {
     "title": "Maswali yanayoulizwa mara kwa mara",
-    "q1": { "question": "Je, ninahitaji kadi ya benki kuanza?", "answer": "Hapana. Jaribio lako la siku 14 bila malipo huanza mara moja baada ya usajili — hakuna maelezo ya malipo yanayohitajika." },
+    "q1": { "question": "Je, ninahitaji kadi ya benki kuanza?", "answer": "Hapana. Jaribio lako la siku 7 bila malipo huanza mara moja baada ya usajili — hakuna maelezo ya malipo yanayohitajika." },
     "q2": { "question": "Nini kinatokea baada ya jaribio langu kuisha?", "answer": "Bado unaweza kuingia, kuona dashibodi yako, ripoti, wasifu na mipangilio. Kuunda mauzo mapya, manunuzi, mabadiliko ya hisa, matumizi na uhamisho wa hisa kunasitishwa hadi uboreshe." },
     "q3": { "question": "Naweza kutumia Clix kwa zaidi ya tawi moja?", "answer": "Ndiyo — Clix imejengwa kwa biashara za matawi mengi tangu siku ya kwanza, na ruhusa kulingana na tawi." },
     "q4": { "question": "Je, taarifa zangu ziko salama?", "answer": "Taarifa za biashara yako zimetengwa kikamilifu na kampuni nyingine yoyote kwenye Clix, zenye usimbaji fiche wa hali ya juu." },
     "q5": { "question": "Je, Clix inapatikana kwa Kiswahili?", "answer": "Ndiyo — mfumo mzima, ikiwemo risiti na ripoti, unafanya kazi kwa Kiingereza na Kiswahili." }
   },
   "footer": {
-    "tagline": "Usimamizi wa mauzo na hisa kwa biashara zinazokua.",
+    "tagline": "Usimamizi wa mauzo, hisa na biashara kwa biashara zinazokua Tanzania.",
     "product": "Bidhaa",
     "company": "Kampuni",
     "rights": "Haki zote zimehifadhiwa."
