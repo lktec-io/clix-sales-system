@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiPrinter, FiPlus, FiCheck, FiX, FiDollarSign, FiChevronRight, FiMessageSquare } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiArrowLeft, FiPrinter, FiPlus, FiCheck, FiX, FiDollarSign, FiChevronRight, FiMessageSquare, FiCheckCircle } from 'react-icons/fi';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Modal from '../../components/common/Modal';
 import PageSkeleton from '../../components/common/PageSkeleton';
@@ -24,15 +25,18 @@ const STATUS_BADGE = {
 const CONDITION_KEYS = ['screen', 'body', 'backCover', 'camera', 'chargingPort', 'buttons', 'battery'];
 const CONDITION_FIELD_TO_JSON = { backCover: 'backCover', chargingPort: 'chargingPort' };
 
-// Mirrors the exact wording sms.service.js sends automatically on each of
-// these three transitions (repair_received/repair_diagnosis_update/
+// Mirrors the exact Swahili wording sms.service.js sends automatically on
+// these transitions (repair_received/repair_diagnosis_update/
 // repair_ready_for_collection) — a "quick template" only pre-fills the
 // same message a technician can already send manually via the custom-
 // message endpoint, it never invents new wording or a second send path.
+// Every customer-facing repair SMS is Swahili regardless of the
+// technician's own dashboard language — the customer receiving it, not the
+// operator, is who this text is for.
 const SMS_TEMPLATES = {
-  received: (repair) => `Your ${repair.brand} ${repair.model} (Repair #${repair.repair_number}) has been received and is being processed.`,
-  diagnosis: (repair) => `Update on Repair #${repair.repair_number}: diagnosis has been completed. Contact us for details.`,
-  ready: (repair) => `Good news! Repair #${repair.repair_number} is ready for collection.`,
+  received: (repair) => `Habari ${repair.customer_first_name}, kifaa chako kimepokelewa kwa ajili ya matengenezo. Namba ya kazi ni ${repair.repair_number}. Tutakujulisha hatua inayofuata. Asante.`,
+  diagnosis: (repair) => `Habari ${repair.customer_first_name}, uchunguzi wa kifaa chako umekamilika. Tafadhali wasiliana nasi kwa taarifa zaidi kuhusu gharama na matengenezo. Kazi Na. ${repair.repair_number}.`,
+  ready: (repair) => `Habari ${repair.customer_first_name}, kifaa chako kimetengenezwa na kiko tayari kuchukuliwa. Kazi Na. ${repair.repair_number}. Asante kwa kutuamini.`,
 };
 
 // The device's journey shown as a forward-looking stepper — distinct from
@@ -61,7 +65,6 @@ function RepairDetail() {
   const [dialog, setDialog] = useState(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [partModalOpen, setPartModalOpen] = useState(false);
-  const [actionError, setActionError] = useState('');
   const [smsModalOpen, setSmsModalOpen] = useState(false);
   const [smsMessage, setSmsMessage] = useState('');
   const [smsSending, setSmsSending] = useState(false);
@@ -93,20 +96,18 @@ function RepairDetail() {
   }
 
   const runAction = async (action) => {
-    setActionError('');
     try {
       await action();
       toast.success(t('electronics:repairs.detail.actionSuccess'));
       loadRepair();
     } catch (err) {
-      setActionError(err.response?.data?.message || t('electronics:repairs.detail.actionError'));
+      toast.error(err.response?.data?.message || t('electronics:repairs.detail.actionError'));
     } finally {
       setDialog(null);
     }
   };
 
   const saveDiagnosis = async (values) => {
-    setActionError('');
     try {
       await repairService.updateDiagnosis(repair.id, {
         diagnosis: values.diagnosis, repairNotes: values.repairNotes,
@@ -115,12 +116,11 @@ function RepairDetail() {
       toast.success(t('electronics:repairs.detail.diagnosisSaveSuccess'));
       loadRepair();
     } catch (err) {
-      setActionError(err.response?.data?.message || t('electronics:repairs.detail.diagnosisSaveError'));
+      toast.error(err.response?.data?.message || t('electronics:repairs.detail.diagnosisSaveError'));
     }
   };
 
   const addPart = async (values) => {
-    setActionError('');
     try {
       await repairService.addPart(repair.id, { productId: Number(values.productId), quantity: Number(values.quantity) });
       toast.success(t('electronics:repairs.detail.partAddSuccess'));
@@ -128,12 +128,11 @@ function RepairDetail() {
       partForm.reset({ productId: '', quantity: 1 });
       loadRepair();
     } catch (err) {
-      setActionError(err.response?.data?.message || t('electronics:repairs.detail.partAddError'));
+      toast.error(err.response?.data?.message || t('electronics:repairs.detail.partAddError'));
     }
   };
 
   const submitPayment = async (values) => {
-    setActionError('');
     try {
       await repairService.recordPayment(repair.id, { amount: Number(values.amount), paymentMethod: values.paymentMethod });
       toast.success(t('electronics:repairs.detail.paymentSuccess'));
@@ -141,7 +140,7 @@ function RepairDetail() {
       paymentForm.reset({ amount: '', paymentMethod: 'cash' });
       loadRepair();
     } catch (err) {
-      setActionError(err.response?.data?.message || t('electronics:repairs.detail.paymentError'));
+      toast.error(err.response?.data?.message || t('electronics:repairs.detail.paymentError'));
     }
   };
 
@@ -157,6 +156,7 @@ function RepairDetail() {
       if (result.status === 'sent') toast.success(t('electronics:repairs.detail.smsSentToast'));
       else if (result.status === 'skipped_not_configured') toast.info(t('electronics:repairs.detail.smsNotConfiguredToast'));
       else if (result.status === 'skipped_rate_limited') toast.warning(t('electronics:repairs.detail.smsRateLimitedToast'));
+      else if (result.status === 'skipped_invalid_phone') toast.error(t('electronics:repairs.detail.smsInvalidPhoneToast'));
       else toast.error(t('electronics:repairs.detail.smsFailedToast'));
       setSmsModalOpen(false);
       setSmsMessage('');
@@ -179,13 +179,12 @@ function RepairDetail() {
 
   const assignTechnician = async (technicianId) => {
     if (!technicianId) return;
-    setActionError('');
     try {
       await repairService.assignTechnician(repair.id, Number(technicianId));
       toast.success(t('electronics:repairs.detail.technicianAssignSuccess'));
       loadRepair();
     } catch (err) {
-      setActionError(err.response?.data?.message || t('electronics:repairs.detail.technicianAssignError'));
+      toast.error(err.response?.data?.message || t('electronics:repairs.detail.technicianAssignError'));
     }
   };
 
@@ -269,36 +268,56 @@ function RepairDetail() {
       </div>
 
       {/* HERO — WHO/WHAT/PROBLEM/STATUS/MONEY/NEXT answered in one glance,
-          before anything else on the page. */}
-      <div className="card repair-hero mb-5">
-        <div className="repair-hero-top">
-          <div>
-            <h2 className="repair-hero-device">{repair.brand} {repair.model}</h2>
-            <p className="repair-hero-number">{repair.repair_number}</p>
+          before anything else on the page. Re-plays its entrance whenever
+          repair.status actually changes (keyed below) — a quiet "you moved
+          to a new stage" cue, not a replay on every incidental data refresh. */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={repair.status}
+          className="card repair-hero mb-5"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="repair-hero-top">
+            <div>
+              <h2 className="repair-hero-device">{repair.brand} {repair.model}</h2>
+              <p className="repair-hero-number">{repair.repair_number}</p>
+            </div>
+            <span className={`badge ${STATUS_BADGE[repair.status] || 'badge-neutral'} repair-hero-status-badge`}>{t(`electronics:repairs.status.${repair.status}`)}</span>
           </div>
-          <span className={`badge ${STATUS_BADGE[repair.status] || 'badge-neutral'} repair-hero-status-badge`}>{t(`electronics:repairs.status.${repair.status}`)}</span>
-        </div>
-        <div className="repair-hero-customer">
-          <span className="repair-hero-customer-name">{customerName}</span>
-          <span className="repair-hero-customer-phone">{repair.customer_phone || '—'}</span>
-        </div>
-        <div className="repair-hero-financials">
-          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.repairTotal')}</span><div className="text-sm font-semibold">{formatCurrency(repair.repair_total)}</div></div>
-          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.amountPaid')}</span><div className="text-sm font-semibold">{formatCurrency(repair.amount_paid)}</div></div>
-          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.balance')}</span><div className="text-lg font-semibold">{formatCurrency(repair.balance)}</div></div>
-        </div>
-        {!isEnded && (primaryAction || secondaryAction) ? (
-          <div className="repair-hero-actions no-print">
-            {primaryAction && <button type="button" className="btn btn-primary btn-lg" onClick={primaryAction.onClick}>{primaryAction.label}</button>}
-            {secondaryAction && <button type="button" className="btn btn-danger btn-lg" onClick={secondaryAction.onClick}>{secondaryAction.label}</button>}
+          <div className="repair-hero-customer">
+            <span className="repair-hero-customer-name">{customerName}</span>
+            <span className="repair-hero-customer-phone">{repair.customer_phone || '—'}</span>
           </div>
-        ) : isEnded ? (
-          <div className="repair-hero-ended no-print">
-            <span className={`badge ${STATUS_BADGE[repair.status] || 'badge-neutral'}`}>{t('electronics:repairs.detail.endedLabel')}</span>
-            <span className="text-sm text-secondary">{t(`electronics:repairs.status.${repair.status}`)}</span>
+          <div className="repair-hero-financials">
+            <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.repairTotal')}</span><div className="text-sm font-semibold">{formatCurrency(repair.repair_total)}</div></div>
+            <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.amountPaid')}</span><div className="text-sm font-semibold">{formatCurrency(repair.amount_paid)}</div></div>
+            <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.balance')}</span><div className="text-lg font-semibold">{formatCurrency(repair.balance)}</div></div>
           </div>
-        ) : null}
-      </div>
+          {!isEnded && (primaryAction || secondaryAction) ? (
+            <div className="repair-hero-actions no-print">
+              {primaryAction && <button type="button" className="btn btn-primary btn-lg" onClick={primaryAction.onClick}>{primaryAction.label}</button>}
+              {secondaryAction && <button type="button" className="btn btn-danger btn-lg" onClick={secondaryAction.onClick}>{secondaryAction.label}</button>}
+            </div>
+          ) : isEnded ? (
+            <div className="repair-hero-ended no-print">
+              {repair.status === 'completed' && (
+                <motion.span
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+                  className="repair-hero-success-icon"
+                >
+                  <FiCheckCircle aria-hidden="true" />
+                </motion.span>
+              )}
+              <span className={`badge ${STATUS_BADGE[repair.status] || 'badge-neutral'}`}>{t('electronics:repairs.detail.endedLabel')}</span>
+              <span className="text-sm text-secondary">{t(`electronics:repairs.status.${repair.status}`)}</span>
+            </div>
+          ) : null}
+        </motion.div>
+      </AnimatePresence>
 
       <div className="repair-stepper no-print" role="list" aria-label={t('electronics:repairs.detail.journeyLabel')}>
         {STAGE_KEYS.map((stageKey, index) => {
@@ -325,8 +344,6 @@ function RepairDetail() {
           </>
         )}
       </div>
-
-      {actionError && <div className="alert alert-danger mb-4 no-print" role="alert">{actionError}</div>}
 
       <div className="card mb-5">
         <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.diagnosisSection')}</span></div>
@@ -487,19 +504,42 @@ function RepairDetail() {
           <p className="text-sm mt-1 mb-4">{repair.reported_problem}</p>
 
           <span className="text-xs text-secondary">{t('electronics:repairs.detail.conditionSection')}</span>
-          <div className="repair-condition-grid mt-2">
-            {CONDITION_KEYS.map((key) => {
-              const jsonKey = CONDITION_FIELD_TO_JSON[key] || key;
-              const value = condition[jsonKey];
-              return (
-                <div key={key}>
-                  <span className="text-xs text-secondary">{t(`electronics:repairs.condition.${key}`)}</span>
-                  <div className="text-sm">{value ? t(`electronics:repairs.condition.options.${value}`) : '—'}</div>
-                </div>
-              );
-            })}
-          </div>
+          {Array.isArray(condition.conditions) ? (
+            <div className="repair-chip-group mt-2">
+              {condition.conditions.length === 0
+                ? <span className="text-sm text-secondary">—</span>
+                : condition.conditions.map((key) => (
+                  <span key={key} className="repair-chip repair-chip-active repair-chip-readonly">{t(`electronics:repairs.condition.options.${key}`)}</span>
+                ))}
+            </div>
+          ) : (
+            // Legacy shape (repairs created before the chip-based intake
+            // redesign) — a per-component object, still fully readable.
+            <div className="repair-condition-grid mt-2">
+              {CONDITION_KEYS.map((key) => {
+                const jsonKey = CONDITION_FIELD_TO_JSON[key] || key;
+                const value = condition[jsonKey];
+                return (
+                  <div key={key}>
+                    <span className="text-xs text-secondary">{t(`electronics:repairs.condition.${key}`)}</span>
+                    <div className="text-sm">{value ? t(`electronics:repairs.condition.options.${value}`) : '—'}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
           {condition.notes && <p className="text-sm text-secondary mt-3 mb-0">{condition.notes}</p>}
+
+          {Array.isArray(repair.accessories_received) && repair.accessories_received.length > 0 && (
+            <>
+              <div className="text-xs text-secondary mt-4">{t('electronics:repairs.form.accessoriesSection')}</div>
+              <div className="repair-chip-group mt-2">
+                {repair.accessories_received.map((key) => (
+                  <span key={key} className="repair-chip repair-chip-active repair-chip-readonly">{t(`electronics:repairs.form.accessories.${key}`)}</span>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -616,7 +656,11 @@ function RepairDetail() {
           </>
         }
       >
-        <p className="text-sm text-secondary mb-3">{t('electronics:repairs.detail.smsToLabel')} {repair.customer_phone || '—'}</p>
+        <div className="form-row mb-3">
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.smsCustomerLabel')}</span><div className="text-sm font-semibold">{customerName}</div></div>
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.smsToLabel')}</span><div className="text-sm font-semibold">{repair.customer_phone || '—'}</div></div>
+        </div>
+        {smsSending && <p className="text-sm text-secondary mb-3">{t('electronics:repairs.detail.smsSendingLabel')}</p>}
         <div className="form-group mb-0">
           <label className="form-label form-label-required" htmlFor="smsMessage">{t('electronics:repairs.detail.smsMessageLabel')}</label>
           <textarea

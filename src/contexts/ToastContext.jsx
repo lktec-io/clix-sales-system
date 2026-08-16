@@ -2,7 +2,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence } from 'framer-motion';
 import { ToastContext } from './toastContextInstance';
-import Toast, { TOAST_DURATION_MS } from '../components/common/Toast';
+import Toast, { TOAST_DURATION_MS, TOAST_ERROR_DURATION_MS } from '../components/common/Toast';
 import '../styles/components/Toast.css';
 
 let nextId = 1;
@@ -23,7 +23,7 @@ function ToastProvider({ children }) {
   const showToast = useCallback((message, variant = 'info') => {
     const id = nextId++;
     setToasts((prev) => [...prev, { id, message, variant }]);
-    const timer = setTimeout(() => dismissToast(id), TOAST_DURATION_MS);
+    const timer = setTimeout(() => dismissToast(id), variant === 'error' ? TOAST_ERROR_DURATION_MS : TOAST_DURATION_MS);
     timers.current.set(id, timer);
     return id;
   }, [dismissToast]);

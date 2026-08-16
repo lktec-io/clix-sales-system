@@ -37,31 +37,22 @@ function isConfigured() {
   return Boolean(env.sms.beem.apiKey && env.sms.beem.secretKey && env.sms.beem.senderId && env.sms.beem.baseUrl);
 }
 
-// Beem's SMS.py example payload uses digits-only, country-code-prefixed
-// numbers (e.g. "255712345678"), never a leading "+". Tenants in this
-// codebase store phone numbers in whatever format was typed at intake
-// (createCustomer/createUser have no format enforcement), so this
-// normalizes the common Tanzanian input shapes (leading '+', leading '0')
-// into that expected shape rather than rejecting anything not already
-// perfectly formatted.
-function normalizeRecipient(phone) {
-  const digits = String(phone).replace(/[^\d]/g, '');
-  if (digits.startsWith('0')) return `255${digits.slice(1)}`;
-  return digits;
-}
-
 export async function send({ to, message }) {
   if (!isConfigured()) {
     return { status: 'skipped_not_configured', providerResponse: 'Beem credentials are incomplete.' };
   }
 
+  // `to` arrives here already validated and normalized to Beem's expected
+  // digits-only, country-code-prefixed shape (e.g. "255712345678") by
+  // sms.service.js#dispatch — the one shared, provider-agnostic place phone
+  // handling lives, so this stays a thin, Beem-contract-only translation.
   const authHeader = `Basic ${Buffer.from(`${env.sms.beem.apiKey}:${env.sms.beem.secretKey}`).toString('base64')}`;
   const body = {
     source_addr: env.sms.beem.senderId,
     schedule_time: '',
     encoding: 0,
     message,
-    recipients: [{ recipient_id: 1, dest_addr: normalizeRecipient(to) }],
+    recipients: [{ recipient_id: 1, dest_addr: to }],
   };
 
   let response;

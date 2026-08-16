@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 import { ROUTES } from '../../constants/routes';
 
 // Maps every backend login failure mode to a professional, translated
@@ -37,8 +38,8 @@ function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
   const [showPassword, setShowPassword] = useState(false);
-  const [formError, setFormError] = useState('');
   const resetSuccess = Boolean(location.state?.resetSuccess);
 
   const {
@@ -48,13 +49,12 @@ function Login() {
   } = useForm({ defaultValues: { identifier: '', password: '', rememberMe: false } });
 
   const onSubmit = async (values) => {
-    setFormError('');
     try {
       await login(values);
       const redirectTo = location.state?.from?.pathname || ROUTES.DASHBOARD;
       navigate(redirectTo, { replace: true });
     } catch (err) {
-      setFormError(mapLoginError(err, t));
+      toast.error(mapLoginError(err, t));
     }
   };
 
@@ -65,15 +65,9 @@ function Login() {
         {t('login.signInSubtitle')}
       </p>
 
-      {resetSuccess && !formError && (
+      {resetSuccess && (
         <div className="alert alert-success mb-4" role="status">
           {t('login.resetSuccess')}
-        </div>
-      )}
-
-      {formError && (
-        <div className="alert alert-danger mb-4" role="alert">
-          {formError}
         </div>
       )}
 

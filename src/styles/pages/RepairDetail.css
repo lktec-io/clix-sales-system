@@ -11,6 +11,21 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  position: relative;
+  overflow: hidden;
+}
+
+/* A single, quiet nod to the Electronics business theme (deep navy + cyan)
+   on the one card that matters most — not a full reskin of shared button/
+   badge colors, matching how Pharmacy's own theme touch was scoped. */
+.repair-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--business-accent, var(--color-primary));
 }
 
 .repair-hero-top {
@@ -84,6 +99,12 @@
   gap: var(--space-3);
 }
 
+.repair-hero-success-icon {
+  display: inline-flex;
+  color: var(--color-success);
+  font-size: 22px;
+}
+
 .repair-stepper {
   display: flex;
   flex-wrap: wrap;
@@ -116,6 +137,22 @@
   color: var(--color-primary);
   background: var(--color-primary-soft, rgba(47, 107, 255, 0.08));
   font-weight: var(--font-weight-semibold);
+  animation: repair-stepper-pulse 2.4s ease-in-out infinite;
+}
+
+/* A quiet "this is where the device is right now" cue — a soft breathing
+   glow, not a flashing/blinking one. Disabled entirely under
+   prefers-reduced-motion, same convention businessExperiences.css already
+   established for every other ambient-motion effect in the app. */
+@keyframes repair-stepper-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--color-primary-rgb, 47, 107, 255), 0.25); }
+  50% { box-shadow: 0 0 0 5px rgba(var(--color-primary-rgb, 47, 107, 255), 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .repair-stepper-step-current {
+    animation: none;
+  }
 }
 
 .repair-stepper-step-icon {
@@ -134,6 +171,44 @@
   border-color: var(--color-danger);
   color: var(--color-danger);
   background: var(--color-danger-bg);
+}
+
+/* Fast, tap-friendly multi-select chips — Device Condition / Accessories
+   Received at intake, and their read-only equivalent on Repair Detail.
+   flex-wrap keeps this from ever forcing horizontal scroll on a phone. */
+.repair-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.repair-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.repair-chip:hover {
+  border-color: var(--color-primary);
+}
+
+.repair-chip-active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-soft, rgba(47, 107, 255, 0.08));
+  font-weight: var(--font-weight-semibold);
+}
+
+.repair-chip-readonly {
+  cursor: default;
 }
 
 .repair-condition-grid {

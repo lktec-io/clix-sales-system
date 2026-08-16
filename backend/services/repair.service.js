@@ -346,7 +346,9 @@ export async function completeCollection(id, actorId, tenantId) {
   } finally {
     connection.release();
   }
-  return getRepair(id, tenantId);
+  const updated = await getRepair(id, tenantId);
+  notifyCustomer(tenantId, updated, 'repair_completed', actorId);
+  return updated;
 }
 
 export async function cancelRepair(id, notes, actorId, tenantId) {

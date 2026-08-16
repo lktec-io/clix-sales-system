@@ -105,7 +105,7 @@ export async function create(data, connection) {
     [
       data.tenantId, data.branchId, data.repairNumber, data.customerId, data.deviceType, data.brand, data.model,
       data.serialNumber || null, data.imei1 || null, data.imei2 || null, data.deviceColor || null,
-      data.reportedProblem, data.estimatedCost ?? null, JSON.stringify(data.deviceCondition || {}), JSON.stringify(data.accessoriesReceived || {}),
+      data.reportedProblem, data.estimatedCost ?? null, JSON.stringify(data.deviceCondition || {}), JSON.stringify(data.accessoriesReceived || []),
       data.expectedCompletionAt || null, data.createdBy,
     ],
   );

@@ -10,27 +10,31 @@ import * as branchService from '../../services/branchService';
 import * as userService from '../../services/userService';
 import { useToast } from '../../hooks/useToast';
 import { splitFullName } from '../../utils/splitFullName';
+import '../../styles/pages/RepairDetail.css';
 
 const DEVICE_TYPES = ['smartphone', 'tablet', 'laptop', 'desktop', 'printer', 'other'];
-const ACCESSORY_KEYS = ['charger', 'cable', 'battery', 'sim', 'memoryCard', 'bag', 'other'];
 
-// Each condition field's own valid options — mirrors the exact checklist
-// requested (Screen/Body/Back Cover/Camera/Charging Port/Buttons/Battery),
-// rendered as compact <select>s rather than literal radio buttons so the
-// whole checklist stays usable on a small screen with one thumb. This is
-// more precise than a plain "damaged/not damaged" chip (it records exactly
-// which part and exactly what's wrong with it, straight into the same
-// device_condition JSON the backend already validates field-by-field), so
-// it stays as-is rather than being flattened to a simpler chip set.
-const CONDITION_FIELDS = [
-  { key: 'screen', options: ['good', 'scratched', 'cracked', 'broken'] },
-  { key: 'body', options: ['good', 'scratched', 'dented', 'broken'] },
-  { key: 'backCover', options: ['good', 'scratched', 'cracked', 'missing'] },
-  { key: 'camera', options: ['working', 'faulty', 'damaged'] },
-  { key: 'chargingPort', options: ['working', 'faulty', 'damaged'] },
-  { key: 'buttons', options: ['working', 'faulty', 'damaged'] },
-  { key: 'battery', options: ['good', 'weak', 'swollen', 'faulty'] },
+// A predefined pick-list covering the brands an Electronics/Phone & Computer
+// Service shop actually sees, with "Other" as an always-available escape
+// hatch — a plain <select> rather than a new searchable-combobox dependency
+// (native <select> already jump-searches by typing, and the list is short
+// enough that this is sufficient without a new library). Model stays a
+// free-text field per its own guidance: brand-specific model lists would
+// need real relational data this app doesn't have, so a searchable/free
+// field is the correct level of structure, not unnecessary complexity.
+const BRAND_OPTIONS = [
+  'Apple', 'Samsung', 'Tecno', 'Infinix', 'Xiaomi', 'Redmi', 'Huawei', 'Nokia',
+  'Oppo', 'Vivo', 'OnePlus', 'Google', 'Itel', 'HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'Microsoft',
 ];
+
+// Flat chip lists — matches device_condition/accessories_received's actual
+// stored shape now ({ conditions: string[], notes }/string[]), validated
+// server-side by the exact same allow-list in repair.validator.js. Faster
+// to record than the previous per-component dropdowns (screen/body/back
+// cover/camera/charging port/buttons/battery, one <select> each): a
+// technician taps every chip that applies instead of setting 7 fields.
+const CONDITION_OPTIONS = ['good', 'scratched', 'cracked_screen', 'broken_body', 'water_damage', 'no_power', 'missing_parts', 'other'];
+const ACCESSORY_OPTIONS = ['charger', 'cable', 'sim_card', 'memory_card', 'case', 'bag', 'none', 'other'];
 
 function RepairIntakeForm() {
   const { t } = useTranslation(['electronics', 'common']);
@@ -39,13 +43,15 @@ function RepairIntakeForm() {
   const [customers, setCustomers] = useState([]);
   const [branches, setBranches] = useState([]);
   const [technicians, setTechnicians] = useState([]);
-  const [formError, setFormError] = useState('');
 
   const [quickCustomerOpen, setQuickCustomerOpen] = useState(false);
   const [quickCustomerName, setQuickCustomerName] = useState('');
   const [quickCustomerPhone, setQuickCustomerPhone] = useState('');
   const [quickCustomerError, setQuickCustomerError] = useState('');
   const [savingQuickCustomer, setSavingQuickCustomer] = useState(false);
+
+  const [selectedConditions, setSelectedConditions] = useState([]);
+  const [selectedAccessories, setSelectedAccessories] = useState([]);
 
   const {
     register,
@@ -56,16 +62,19 @@ function RepairIntakeForm() {
   } = useForm({
     defaultValues: {
       customerId: '', branchId: '', technicianId: '', deviceType: 'smartphone',
-      brand: '', model: '', serialNumber: '', imei1: '', imei2: '', deviceColor: '',
+      brand: '', brandOther: '', model: '', serialNumber: '', imei1: '', imei2: '', deviceColor: '',
       reportedProblem: '', estimatedCost: '', expectedCompletionAt: '',
       depositAmount: '', depositPaymentMethod: 'cash',
-      accessories: { charger: false, cable: false, battery: false, sim: false, memoryCard: false, bag: false, other: false },
-      condition: { screen: 'good', body: 'good', backCover: 'good', camera: 'working', chargingPort: 'working', buttons: 'working', battery: 'good' },
       conditionNotes: '',
     },
   });
 
   const depositAmount = watch('depositAmount');
+  const brand = watch('brand');
+
+  const toggleChip = (setter, key) => {
+    setter((prev) => (prev.includes(key) ? prev.filter((v) => v !== key) : [...prev, key]));
+  };
 
   useEffect(() => {
     customerService.listActiveCustomers().then(setCustomers);
@@ -109,13 +118,13 @@ function RepairIntakeForm() {
   };
 
   const onSubmit = async (values) => {
-    setFormError('');
+    const resolvedBrand = values.brand === 'Other' ? values.brandOther?.trim() : values.brand;
     const payload = {
       customerId: Number(values.customerId),
       branchId: Number(values.branchId),
       technicianId: values.technicianId ? Number(values.technicianId) : undefined,
       deviceType: values.deviceType,
-      brand: values.brand.trim(),
+      brand: resolvedBrand,
       model: values.model.trim(),
       serialNumber: values.serialNumber?.trim() || undefined,
       imei1: values.imei1?.trim() || undefined,
@@ -126,8 +135,8 @@ function RepairIntakeForm() {
       expectedCompletionAt: values.expectedCompletionAt || undefined,
       depositAmount: values.depositAmount === '' ? undefined : Number(values.depositAmount),
       depositPaymentMethod: values.depositAmount === '' ? undefined : values.depositPaymentMethod,
-      accessoriesReceived: values.accessories,
-      deviceCondition: { ...values.condition, notes: values.conditionNotes?.trim() || undefined },
+      accessoriesReceived: selectedAccessories,
+      deviceCondition: { conditions: selectedConditions, notes: values.conditionNotes?.trim() || undefined },
     };
 
     try {
@@ -135,7 +144,7 @@ function RepairIntakeForm() {
       toast.success(t('electronics:repairs.form.createSuccess', { number: repair.repair_number }));
       navigate(`/repairs/${repair.id}`, { replace: true });
     } catch (err) {
-      setFormError(err.response?.data?.message || t('electronics:repairs.form.createError'));
+      toast.error(err.response?.data?.message || t('electronics:repairs.form.createError'));
     }
   };
 
@@ -147,8 +156,6 @@ function RepairIntakeForm() {
           <p className="page-subtitle">{t('electronics:repairs.form.newSubtitle')}</p>
         </div>
       </div>
-
-      {formError && <div className="alert alert-danger mb-4" role="alert">{formError}</div>}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         {/* SECTION A — Customer */}
@@ -203,12 +210,23 @@ function RepairIntakeForm() {
               </div>
               <div className="form-group">
                 <label className="form-label form-label-required" htmlFor="brand">{t('electronics:repairs.form.brandLabel')}</label>
-                <input id="brand" className={`form-control ${errors.brand ? 'form-control-error' : ''}`} {...register('brand', { required: t('electronics:repairs.form.brandRequired') })} />
+                <select id="brand" className={`form-control ${errors.brand ? 'form-control-error' : ''}`} {...register('brand', { required: t('electronics:repairs.form.brandRequired') })}>
+                  <option value="">{t('electronics:repairs.form.selectBrand')}</option>
+                  {BRAND_OPTIONS.map((b) => <option key={b} value={b}>{b}</option>)}
+                  <option value="Other">{t('electronics:repairs.form.otherBrand')}</option>
+                </select>
                 {errors.brand && <span className="form-error">{errors.brand.message}</span>}
               </div>
+              {brand === 'Other' && (
+                <div className="form-group">
+                  <label className="form-label form-label-required" htmlFor="brandOther">{t('electronics:repairs.form.otherBrandLabel')}</label>
+                  <input id="brandOther" className={`form-control ${errors.brandOther ? 'form-control-error' : ''}`} {...register('brandOther', { required: t('electronics:repairs.form.brandRequired') })} />
+                  {errors.brandOther && <span className="form-error">{errors.brandOther.message}</span>}
+                </div>
+              )}
               <div className="form-group">
                 <label className="form-label form-label-required" htmlFor="model">{t('electronics:repairs.form.modelLabel')}</label>
-                <input id="model" className={`form-control ${errors.model ? 'form-control-error' : ''}`} {...register('model', { required: t('electronics:repairs.form.modelRequired') })} />
+                <input id="model" className={`form-control ${errors.model ? 'form-control-error' : ''}`} {...register('model', { required: t('electronics:repairs.form.modelRequired') })} placeholder={t('electronics:repairs.form.modelPlaceholder')} />
                 {errors.model && <span className="form-error">{errors.model.message}</span>}
               </div>
               <div className="form-group">
@@ -242,24 +260,33 @@ function RepairIntakeForm() {
         <div className="card mb-5">
           <div className="card-header"><span className="card-title">{t('electronics:repairs.form.conditionSection')}</span></div>
           <div className="card-body">
-            <div className="form-row">
-              {CONDITION_FIELDS.map(({ key, options }) => (
-                <div className="form-group" key={key}>
-                  <label className="form-label" htmlFor={`condition-${key}`}>{t(`electronics:repairs.condition.${key}`)}</label>
-                  <select id={`condition-${key}`} className="form-control" {...register(`condition.${key}`)}>
-                    {options.map((opt) => <option key={opt} value={opt}>{t(`electronics:repairs.condition.options.${opt}`)}</option>)}
-                  </select>
-                </div>
+            <label className="form-label">{t('electronics:repairs.form.physicalConditionLabel')}</label>
+            <div className="repair-chip-group mb-4">
+              {CONDITION_OPTIONS.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={`repair-chip ${selectedConditions.includes(key) ? 'repair-chip-active' : ''}`}
+                  aria-pressed={selectedConditions.includes(key)}
+                  onClick={() => toggleChip(setSelectedConditions, key)}
+                >
+                  {t(`electronics:repairs.condition.options.${key}`)}
+                </button>
               ))}
             </div>
 
-            <label className="form-label mt-2">{t('electronics:repairs.form.accessoriesSection')}</label>
-            <div className="form-row mb-3">
-              {ACCESSORY_KEYS.map((key) => (
-                <label key={key} className="form-checkbox">
-                  <input type="checkbox" {...register(`accessories.${key}`)} />
+            <label className="form-label">{t('electronics:repairs.form.accessoriesSection')}</label>
+            <div className="repair-chip-group mb-4">
+              {ACCESSORY_OPTIONS.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={`repair-chip ${selectedAccessories.includes(key) ? 'repair-chip-active' : ''}`}
+                  aria-pressed={selectedAccessories.includes(key)}
+                  onClick={() => toggleChip(setSelectedAccessories, key)}
+                >
                   {t(`electronics:repairs.form.accessories.${key}`)}
-                </label>
+                </button>
               ))}
             </div>
 
