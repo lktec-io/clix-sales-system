@@ -76,8 +76,14 @@ export async function update(id, tenantId, { name, code, description, status, us
   return findById(id, tenantId);
 }
 
-export async function softDelete(id, tenantId, userId) {
-  await pool.query('UPDATE categories SET deleted_at = NOW(), updated_by = ? WHERE id = ? AND tenant_id = ?', [userId, id, tenantId]);
+// A true hard delete, not the app's usual soft-delete convention — safe
+// here specifically because the caller (category.service.js#deleteCategory)
+// already refuses to reach this unless countUsage() confirmed zero
+// products/medicines/menu_items reference the category, so there is
+// nothing left in the database that could be orphaned by actually removing
+// the row.
+export async function hardDelete(id, tenantId) {
+  await pool.query('DELETE FROM categories WHERE id = ? AND tenant_id = ?', [id, tenantId]);
 }
 
 // The `categories` table is shared across every business vertical —

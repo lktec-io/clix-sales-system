@@ -119,13 +119,13 @@ export async function deleteExpense(id, actorId, user) {
   if (!existing) throw new ApiError(404, 'Expense not found');
   await assertBranchAccess(user, existing.branch_id);
 
-  await expenseRepository.softDelete(id, user.tenantId, actorId);
+  await expenseRepository.hardDelete(id, user.tenantId);
 
   await activityLogRepository.create({
     tenantId: user.tenantId,
     userId: actorId,
     branchId: existing.branch_id,
-    description: `Expense of ${existing.category_name} (${existing.amount}) deleted`,
+    description: `Expense of ${existing.category_name} (${existing.amount}) permanently deleted`,
     referenceType: 'expense',
     referenceId: id,
   });

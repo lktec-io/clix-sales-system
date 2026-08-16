@@ -68,12 +68,12 @@ export async function deleteCategory(id, actorId, tenantId) {
     throw new ApiError(409, `Category cannot be deleted because it is currently being used by ${usageCount} item(s).`);
   }
 
-  await categoryRepository.softDelete(id, tenantId, actorId);
+  await categoryRepository.hardDelete(id, tenantId);
   await activityLogRepository.create({
     tenantId,
     userId: actorId,
     branchId: null,
-    description: `Category "${existing.name}" deleted`,
+    description: `Category "${existing.name}" permanently deleted`,
     referenceType: 'category',
     referenceId: id,
   });

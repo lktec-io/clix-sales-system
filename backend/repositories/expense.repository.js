@@ -76,6 +76,10 @@ export async function update(id, tenantId, { expenseCategoryId, branchId, amount
   return findById(id, tenantId);
 }
 
-export async function softDelete(id, tenantId, userId) {
-  await pool.query('UPDATE expenses SET deleted_at = NOW(), updated_by = ? WHERE id = ? AND tenant_id = ?', [userId, id, tenantId]);
+// True hard delete. Safe unconditionally — no table in this schema holds a
+// foreign key to `expenses` (confirmed via `grep "REFERENCES expenses"`
+// across every migration: zero matches), so an expense is always a leaf
+// record with nothing that could be left orphaned by actually removing it.
+export async function hardDelete(id, tenantId) {
+  await pool.query('DELETE FROM expenses WHERE id = ? AND tenant_id = ?', [id, tenantId]);
 }
