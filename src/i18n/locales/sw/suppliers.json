@@ -61,7 +61,8 @@
     "mustBePositive": "Lazima kiwe chanya",
     "paymentMethodLabel": "Njia ya Malipo",
     "paymentSuccess": "Malipo yamerekodiwa.",
-    "paymentError": "Imeshindwa kurekodi malipo."
+    "paymentError": "Imeshindwa kurekodi malipo.",
+    "loadError": "Imeshindwa kupakia msambazaji huyu. Tafadhali jaribu tena."
   },
   "detailColumns": {
     "purchaseNumber": "Namba ya Manunuzi",

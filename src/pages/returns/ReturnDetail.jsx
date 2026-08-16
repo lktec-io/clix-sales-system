@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiCheck, FiX } from 'react-icons/fi';
+import { FiArrowLeft, FiCheck, FiX, FiRefreshCw } from 'react-icons/fi';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import PageSkeleton from '../../components/common/PageSkeleton';
 import { usePermission } from '../../hooks/usePermission';
@@ -22,6 +22,7 @@ function ReturnDetail() {
   const canApprove = usePermission('returns.approve');
   const toast = useToast();
   const [returnRecord, setReturnRecord] = useState(null);
+  const [loadError, setLoadError] = useState(false);
   const [dialog, setDialog] = useState(null);
   const [actionError, setActionError] = useState('');
 
@@ -55,12 +56,27 @@ function ReturnDetail() {
   };
 
   const loadReturn = useCallback(() => {
-    returnService.getReturn(id).then(setReturnRecord);
+    setLoadError(false);
+    returnService.getReturn(id)
+      .then(setReturnRecord)
+      .catch(() => setLoadError(true));
   }, [id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching this return on mount/id-change is standard data-fetching, not derived state
     loadReturn();
   }, [loadReturn]);
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: '50vh', gap: 'var(--space-4)' }}>
+        <p className="text-secondary">{t('returns:detail.loadError')}</p>
+        <button type="button" className="btn btn-secondary" onClick={loadReturn}>
+          <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+        </button>
+      </div>
+    );
+  }
 
   if (!returnRecord) {
     return <PageSkeleton />;

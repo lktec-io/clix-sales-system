@@ -73,7 +73,8 @@
       "approveFailed": "Failed to approve return.",
       "rejected": "Return rejected.",
       "rejectFailed": "Failed to reject return."
-    }
+    },
+    "loadError": "We couldn't load this return. Please try again."
   },
   "columns": {
     "returnNumber": "Return #",

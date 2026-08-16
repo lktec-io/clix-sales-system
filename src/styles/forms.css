@@ -186,6 +186,7 @@ textarea.form-control {
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: var(--space-3);
   margin-top: var(--space-6);
   padding-top: var(--space-5);

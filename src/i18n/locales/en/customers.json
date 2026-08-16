@@ -7,6 +7,7 @@
     "newCustomer": "New Customer",
     "searchPlaceholder": "Search by name, phone, code...",
     "emptyMessage": "No customers found",
+    "loadError": "We couldn't load customers. Please try again.",
     "viewCustomerAria": "View customer",
     "editCustomerAria": "Edit customer",
     "activateCustomerAria": "Activate customer",
@@ -38,7 +39,8 @@
     "purchaseHistory": "Purchase History",
     "returnHistory": "Return History",
     "noPurchases": "No purchases recorded yet",
-    "noReturns": "No returns recorded yet"
+    "noReturns": "No returns recorded yet",
+    "loadError": "We couldn't load this customer. Please try again."
   },
   "columns": {
     "code": "Code",

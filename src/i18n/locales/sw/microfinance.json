@@ -175,7 +175,8 @@
       "recordError": "Imeshindwa kurekodi malipo",
       "outstandingBalance": "Salio Linalodaiwa",
       "noSchedule": "Hakuna ratiba ya malipo bado — toa mkopo ili kutengeneza moja.",
-      "noRepayments": "Hakuna malipo yaliyorekodiwa bado."
+      "noRepayments": "Hakuna malipo yaliyorekodiwa bado.",
+      "loadError": "Imeshindwa kupakia mkopo huu. Tafadhali jaribu tena."
     },
     "scheduleStatus": {
       "pending": "Inasubiri",
@@ -234,7 +235,8 @@
       "transactionError": "Imeshindwa kurekodi muamala",
       "noTransactions": "Hakuna miamala bado.",
       "typeDeposit": "Uwekaji",
-      "typeWithdrawal": "Utoaji"
+      "typeWithdrawal": "Utoaji",
+      "loadError": "Imeshindwa kupakia akaunti hii ya akiba. Tafadhali jaribu tena."
     }
   },
   "groups": {

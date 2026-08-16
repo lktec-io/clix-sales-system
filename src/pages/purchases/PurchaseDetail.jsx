@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiRefreshCw } from 'react-icons/fi';
 import PageSkeleton from '../../components/common/PageSkeleton';
 import * as purchaseService from '../../services/purchaseService';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -11,13 +11,39 @@ function PurchaseDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [purchase, setPurchase] = useState(null);
+  const [loadError, setLoadError] = useState(false);
 
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const formatDateTime = (isoString) => new Date(isoString).toLocaleString(dateLocale, { dateStyle: 'medium', timeStyle: 'short' });
 
-  useEffect(() => {
-    purchaseService.getPurchase(id).then(setPurchase);
+  // A previous version left this fetch's rejection completely unhandled —
+  // any failure (404 for a stale/bad id, a permission error, a network
+  // hiccup) meant `purchase` stayed null forever and the page sat on
+  // <PageSkeleton/> indefinitely with no way out. Every branch below now
+  // terminates the loading state one way or another.
+  const load = useCallback(() => {
+    setLoadError(false);
+    setPurchase(null);
+    purchaseService.getPurchase(id)
+      .then(setPurchase)
+      .catch(() => setLoadError(true));
   }, [id]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching this purchase on mount/id-change is standard data-fetching, not derived state
+    load();
+  }, [load]);
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: '50vh', gap: 'var(--space-4)' }}>
+        <p className="text-secondary">{t('purchases:detail.loadError')}</p>
+        <button type="button" className="btn btn-secondary" onClick={load}>
+          <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+        </button>
+      </div>
+    );
+  }
 
   if (!purchase) {
     return <PageSkeleton />;

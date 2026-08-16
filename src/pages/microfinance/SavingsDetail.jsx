@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiArrowDownCircle, FiArrowUpCircle } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowDownCircle, FiArrowUpCircle, FiRefreshCw } from 'react-icons/fi';
 import Modal from '../../components/common/Modal';
 import PageSkeleton from '../../components/common/PageSkeleton';
 import EmptyState from '../../components/common/EmptyState';
@@ -20,6 +20,7 @@ function SavingsDetail() {
   const canManage = usePermission('savings.manage');
 
   const [account, setAccount] = useState(null);
+  const [loadError, setLoadError] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [branches, setBranches] = useState([]);
   const [transactionType, setTransactionType] = useState(null);
@@ -31,14 +32,29 @@ function SavingsDetail() {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({ defaultValues: { branchId: '', amount: '', reference: '' } });
 
   const load = useCallback(() => {
-    savingsService.getAccount(id).then(setAccount);
+    setLoadError(false);
+    savingsService.getAccount(id)
+      .then(setAccount)
+      .catch(() => setLoadError(true));
     savingsService.getAccountTransactions(id).then((result) => setTransactions(result.items));
   }, [id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching this account on mount/id-change is standard data-fetching, not derived state
     load();
     branchService.listActiveBranches().then(setBranches);
   }, [load]);
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: '50vh', gap: 'var(--space-4)' }}>
+        <p className="text-secondary">{t('microfinance:savings.detail.loadError')}</p>
+        <button type="button" className="btn btn-secondary" onClick={load}>
+          <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+        </button>
+      </div>
+    );
+  }
 
   if (!account) {
     return <PageSkeleton />;

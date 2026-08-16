@@ -92,7 +92,8 @@
         "purchase": "Purchase",
         "sale": "Sale",
         "adjustment": "Adjustment"
-      }
+      },
+      "loadError": "We couldn't load this medicine. Please try again."
     },
     "deleteBlocked": "Cannot delete a medicine that still has stock."
   },
@@ -236,7 +237,8 @@
     "detail": {
       "backToSales": "Back to Sales",
       "itemsTitle": "Items Dispensed",
-      "totalLabel": "Total"
+      "totalLabel": "Total",
+      "loadError": "We couldn't load this sale. Please try again."
     }
   },
   "purchases": {
@@ -292,7 +294,8 @@
     "detail": {
       "backToPurchases": "Back to Purchases",
       "itemsTitle": "Items Received",
-      "totalLabel": "Total"
+      "totalLabel": "Total",
+      "loadError": "We couldn't load this purchase. Please try again."
     }
   },
   "import": {

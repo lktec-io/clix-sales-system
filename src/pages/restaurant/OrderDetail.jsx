@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiSend, FiCheck, FiDollarSign, FiX } from 'react-icons/fi';
+import { FiArrowLeft, FiSend, FiCheck, FiDollarSign, FiX, FiRefreshCw } from 'react-icons/fi';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Modal from '../../components/common/Modal';
 import PageSkeleton from '../../components/common/PageSkeleton';
@@ -27,6 +27,7 @@ function OrderDetail() {
   const canManage = usePermission('restaurant_orders.manage');
 
   const [order, setOrder] = useState(null);
+  const [loadError, setLoadError] = useState(false);
   const [dialog, setDialog] = useState(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [actionError, setActionError] = useState('');
@@ -38,12 +39,27 @@ function OrderDetail() {
   const paymentForm = useForm({ defaultValues: { paymentMethod: 'cash' } });
 
   const loadOrder = useCallback(() => {
-    restaurantOrderService.getOrder(id).then(setOrder);
+    setLoadError(false);
+    restaurantOrderService.getOrder(id)
+      .then(setOrder)
+      .catch(() => setLoadError(true));
   }, [id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching this order on mount/id-change is standard data-fetching, not derived state
     loadOrder();
   }, [loadOrder]);
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: '50vh', gap: 'var(--space-4)' }}>
+        <p className="text-secondary">{t('restaurant:orders.detail.loadError')}</p>
+        <button type="button" className="btn btn-secondary" onClick={loadOrder}>
+          <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+        </button>
+      </div>
+    );
+  }
 
   if (!order) {
     return <PageSkeleton />;

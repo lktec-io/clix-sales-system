@@ -73,7 +73,8 @@
       "approveFailed": "Imeshindikana kuidhinisha marejesho.",
       "rejected": "Marejesho yamekataliwa.",
       "rejectFailed": "Imeshindikana kukataa marejesho."
-    }
+    },
+    "loadError": "Imeshindwa kupakia marejesho haya. Tafadhali jaribu tena."
   },
   "columns": {
     "returnNumber": "Namba ya Marejesho",

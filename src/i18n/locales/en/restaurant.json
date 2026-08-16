@@ -164,7 +164,8 @@
       "cancelConfirmMessage": "Cancel this order? This cannot be undone.",
       "cancelConfirmButton": "Cancel Order",
       "actionSuccess": "Order updated",
-      "actionError": "Failed to update order"
+      "actionError": "Failed to update order",
+      "loadError": "We couldn't load this order. Please try again."
     }
   },
   "kitchen": {

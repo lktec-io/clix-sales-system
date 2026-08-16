@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiEdit2 } from 'react-icons/fi';
+import { FiArrowLeft, FiEdit2, FiRefreshCw } from 'react-icons/fi';
 import PageSkeleton from '../../components/common/PageSkeleton';
 import EmptyState from '../../components/common/EmptyState';
 import { usePermission } from '../../hooks/usePermission';
@@ -23,14 +23,35 @@ function MedicineDetail() {
   const navigate = useNavigate();
   const canManage = usePermission('medicines.manage');
   const [medicine, setMedicine] = useState(null);
+  const [loadError, setLoadError] = useState(false);
 
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const formatDate = (isoString) => new Date(isoString).toLocaleDateString(dateLocale, { dateStyle: 'medium' });
   const formatDateTime = (isoString) => new Date(isoString).toLocaleString(dateLocale, { dateStyle: 'medium', timeStyle: 'short' });
 
-  useEffect(() => {
-    medicineService.getMedicine(id).then(setMedicine);
+  const load = useCallback(() => {
+    setLoadError(false);
+    setMedicine(null);
+    medicineService.getMedicine(id)
+      .then(setMedicine)
+      .catch(() => setLoadError(true));
   }, [id]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching this medicine on mount/id-change is standard data-fetching, not derived state
+    load();
+  }, [load]);
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: '50vh', gap: 'var(--space-4)' }}>
+        <p className="text-secondary">{t('pharmacy:medicines.detail.loadError')}</p>
+        <button type="button" className="btn btn-secondary" onClick={load}>
+          <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+        </button>
+      </div>
+    );
+  }
 
   if (!medicine) {
     return <PageSkeleton />;

@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiPlus, FiEye, FiUpload } from 'react-icons/fi';
+import { FiPlus, FiEye, FiUpload, FiRefreshCw } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
 import SearchInput from '../../components/common/SearchInput';
@@ -23,7 +23,7 @@ function PurchaseList() {
   const formatDate = (isoString) => new Date(isoString).toLocaleDateString(dateLocale, { dateStyle: 'medium' });
 
   const fetchPurchases = useCallback((params) => purchaseService.listPurchases(params), []);
-  const { items, meta, loading, page, setPage, search, setSearch, refetch } = useTable(fetchPurchases);
+  const { items, meta, loading, error, page, setPage, search, setSearch, refetch } = useTable(fetchPurchases);
 
   const columns = [
     { key: 'purchase_number', label: t('purchases:columns.purchaseNumber') },
@@ -71,6 +71,15 @@ function PurchaseList() {
           </div>
         )}
       </div>
+
+      {error && (
+        <div className="alert alert-danger mb-4 flex items-center justify-between" role="alert">
+          <span>{t('purchases:list.loadError')}</span>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={refetch}>
+            <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+          </button>
+        </div>
+      )}
 
       <div className="card">
         <div className="table-toolbar">

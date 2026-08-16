@@ -164,7 +164,8 @@
       "cancelConfirmMessage": "Ghairi oda hii? Hatua hii haiwezi kutenduliwa.",
       "cancelConfirmButton": "Ghairi Oda",
       "actionSuccess": "Oda imesasishwa",
-      "actionError": "Imeshindwa kusasisha oda"
+      "actionError": "Imeshindwa kusasisha oda",
+      "loadError": "Imeshindwa kupakia oda hii. Tafadhali jaribu tena."
     }
   },
   "kitchen": {

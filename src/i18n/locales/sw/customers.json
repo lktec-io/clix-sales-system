@@ -7,6 +7,7 @@
     "newCustomer": "Mteja Mpya",
     "searchPlaceholder": "Tafuta kwa jina, namba ya simu, msimbo...",
     "emptyMessage": "Hakuna wateja waliopatikana",
+    "loadError": "Imeshindwa kupakia wateja. Tafadhali jaribu tena.",
     "viewCustomerAria": "Angalia mteja",
     "editCustomerAria": "Hariri mteja",
     "activateCustomerAria": "Wezesha mteja",
@@ -38,7 +39,8 @@
     "purchaseHistory": "Historia ya Manunuzi",
     "returnHistory": "Historia ya Marejesho",
     "noPurchases": "Hakuna manunuzi yaliyorekodiwa bado",
-    "noReturns": "Hakuna marejesho yaliyorekodiwa bado"
+    "noReturns": "Hakuna marejesho yaliyorekodiwa bado",
+    "loadError": "Imeshindwa kupakia mteja huyu. Tafadhali jaribu tena."
   },
   "columns": {
     "code": "Msimbo",

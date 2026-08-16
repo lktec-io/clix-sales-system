@@ -6,6 +6,7 @@
     "newPurchase": "New Purchase",
     "searchPlaceholder": "Search by purchase number...",
     "emptyMessage": "No purchases recorded yet",
+    "loadError": "We couldn't load purchases. Please try again.",
     "viewPurchase": "View purchase"
   },
   "columns": {
@@ -49,7 +50,8 @@
   "detail": {
     "backToPurchases": "Back to Purchases",
     "itemsTitle": "Items",
-    "totalLabel": "Total"
+    "totalLabel": "Total",
+    "loadError": "We couldn't load this purchase. Please try again."
   },
   "import": {
     "title": "Import Purchases from Excel",

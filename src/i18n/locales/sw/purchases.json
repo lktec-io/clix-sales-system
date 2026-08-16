@@ -6,6 +6,7 @@
     "newPurchase": "Ununuzi Mpya",
     "searchPlaceholder": "Tafuta kwa namba ya ununuzi...",
     "emptyMessage": "Hakuna manunuzi yaliyorekodiwa bado",
+    "loadError": "Imeshindwa kupakia manunuzi. Tafadhali jaribu tena.",
     "viewPurchase": "Angalia ununuzi"
   },
   "columns": {
@@ -49,7 +50,8 @@
   "detail": {
     "backToPurchases": "Rudi kwenye Manunuzi",
     "itemsTitle": "Bidhaa",
-    "totalLabel": "Jumla"
+    "totalLabel": "Jumla",
+    "loadError": "Imeshindwa kupakia manunuzi haya. Tafadhali jaribu tena."
   },
   "import": {
     "title": "Leta Manunuzi kutoka Excel",

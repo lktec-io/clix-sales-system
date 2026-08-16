@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiPlus, FiEdit2, FiTrash2, FiPackage, FiPrinter, FiArchive } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiPackage, FiPrinter, FiArchive, FiRefreshCw } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
 import SearchInput from '../../components/common/SearchInput';
@@ -43,7 +43,7 @@ function ProductList() {
   const [view, setView] = useState('list');
 
   const fetchProducts = useCallback((params) => productService.listProducts(params), []);
-  const { items, meta, loading, page, setPage, search, setSearch, filters, setFilters, refetch } = useTable(fetchProducts);
+  const { items, meta, loading, error: loadError, page, setPage, search, setSearch, filters, setFilters, refetch } = useTable(fetchProducts);
 
   useEffect(() => {
     categoryService.listActiveCategories().then(setCategories);
@@ -169,6 +169,15 @@ function ProductList() {
       </div>
 
       {actionError && <div className="alert alert-danger mb-4" role="alert">{actionError}</div>}
+
+      {loadError && (
+        <div className="alert alert-danger mb-4 flex items-center justify-between" role="alert">
+          <span>{t('products:list.loadError')}</span>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={refetch}>
+            <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+          </button>
+        </div>
+      )}
 
       <div className="card">
         <div className="table-toolbar">

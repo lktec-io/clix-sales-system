@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiRefreshCw } from 'react-icons/fi';
 import PageSkeleton from '../../components/common/PageSkeleton';
 import * as pharmacyPurchaseService from '../../services/pharmacyPurchaseService';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -11,14 +11,35 @@ function PharmacyPurchaseDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [purchase, setPurchase] = useState(null);
+  const [loadError, setLoadError] = useState(false);
 
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const formatDate = (isoString) => new Date(isoString).toLocaleDateString(dateLocale, { dateStyle: 'medium' });
   const formatDateTime = (isoString) => new Date(isoString).toLocaleString(dateLocale, { dateStyle: 'medium', timeStyle: 'short' });
 
-  useEffect(() => {
-    pharmacyPurchaseService.getPurchase(id).then(setPurchase);
+  const load = useCallback(() => {
+    setLoadError(false);
+    setPurchase(null);
+    pharmacyPurchaseService.getPurchase(id)
+      .then(setPurchase)
+      .catch(() => setLoadError(true));
   }, [id]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching this purchase on mount/id-change is standard data-fetching, not derived state
+    load();
+  }, [load]);
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: '50vh', gap: 'var(--space-4)' }}>
+        <p className="text-secondary">{t('pharmacy:purchases.detail.loadError')}</p>
+        <button type="button" className="btn btn-secondary" onClick={load}>
+          <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+        </button>
+      </div>
+    );
+  }
 
   if (!purchase) {
     return <PageSkeleton />;

@@ -175,7 +175,8 @@
       "recordError": "Failed to record repayment",
       "outstandingBalance": "Outstanding Balance",
       "noSchedule": "No repayment schedule yet — disburse the loan to generate one.",
-      "noRepayments": "No repayments recorded yet."
+      "noRepayments": "No repayments recorded yet.",
+      "loadError": "We couldn't load this loan. Please try again."
     },
     "scheduleStatus": {
       "pending": "Pending",
@@ -234,7 +235,8 @@
       "transactionError": "Failed to record transaction",
       "noTransactions": "No transactions yet.",
       "typeDeposit": "Deposit",
-      "typeWithdrawal": "Withdrawal"
+      "typeWithdrawal": "Withdrawal",
+      "loadError": "We couldn't load this savings account. Please try again."
     }
   },
   "groups": {

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiShoppingCart, FiCheckCircle, FiAlertCircle, FiPlus } from 'react-icons/fi';
+import { FiArrowLeft, FiShoppingCart, FiCheckCircle, FiAlertCircle, FiPlus, FiRefreshCw } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
 import PageSkeleton from '../../components/common/PageSkeleton';
@@ -25,6 +25,7 @@ function SupplierDetail() {
   const toast = useToast();
   const [supplier, setSupplier] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentError, setPaymentError] = useState('');
 
@@ -42,13 +43,20 @@ function SupplierDetail() {
   const formatDate = (isoString) => new Date(isoString).toLocaleDateString(dateLocale, { dateStyle: 'medium' });
 
   const loadSupplier = useCallback(() => {
-    supplierService.getSupplier(id).then((data) => {
-      setSupplier(data);
-      setLoading(false);
-    });
+    setLoadError(false);
+    supplierService.getSupplier(id)
+      .then((data) => {
+        setSupplier(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoadError(true);
+        setLoading(false);
+      });
   }, [id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching this supplier on mount/id-change is standard data-fetching, not derived state
     loadSupplier();
   }, [loadSupplier]);
 
@@ -84,6 +92,17 @@ function SupplierDetail() {
       render: (row) => <span className="badge badge-neutral">{row.status}</span>,
     },
   ];
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: '50vh', gap: 'var(--space-4)' }}>
+        <p className="text-secondary">{t('suppliers:detail.loadError')}</p>
+        <button type="button" className="btn btn-secondary" onClick={loadSupplier}>
+          <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+        </button>
+      </div>
+    );
+  }
 
   if (loading || !supplier) {
     return <PageSkeleton />;

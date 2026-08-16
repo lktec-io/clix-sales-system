@@ -61,7 +61,8 @@
     "mustBePositive": "Must be positive",
     "paymentMethodLabel": "Payment Method",
     "paymentSuccess": "Payment recorded.",
-    "paymentError": "Failed to record payment."
+    "paymentError": "Failed to record payment.",
+    "loadError": "We couldn't load this supplier. Please try again."
   },
   "detailColumns": {
     "purchaseNumber": "Purchase #",

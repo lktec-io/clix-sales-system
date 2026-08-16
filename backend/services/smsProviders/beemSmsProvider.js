@@ -33,12 +33,24 @@ import { logger } from '../../config/logger.js';
 
 export const PROVIDER_NAME = 'beem';
 
-function isConfigured() {
-  return Boolean(env.sms.beem.apiKey && env.sms.beem.secretKey && env.sms.beem.senderId && env.sms.beem.baseUrl);
+// Named per-variable, not a single boolean, so a missing/incomplete
+// credential is identifiable in server logs by exact env var name — never
+// exposed to the frontend (the caller only ever sees the generic
+// 'skipped_not_configured' status), but an operator reading logs/VPS
+// output should never have to guess which of the 4 values is missing.
+function missingBeemVars() {
+  const missing = [];
+  if (!env.sms.beem.apiKey) missing.push('BEEM_API_KEY');
+  if (!env.sms.beem.secretKey) missing.push('BEEM_SECRET_KEY');
+  if (!env.sms.beem.senderId) missing.push('BEEM_SENDER_ID');
+  if (!env.sms.beem.baseUrl) missing.push('BEEM_BASE_URL');
+  return missing;
 }
 
 export async function send({ to, message }) {
-  if (!isConfigured()) {
+  const missing = missingBeemVars();
+  if (missing.length > 0) {
+    logger.error(`Beem SMS not sent — missing required configuration: ${missing.join(', ')}. Set these on the VPS and set SMS_PROVIDER=beem.`);
     return { status: 'skipped_not_configured', providerResponse: 'Beem credentials are incomplete.' };
   }
 

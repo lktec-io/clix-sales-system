@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiPrinter, FiDownload, FiPlusCircle } from 'react-icons/fi';
+import { FiArrowLeft, FiPrinter, FiDownload, FiPlusCircle, FiRefreshCw } from 'react-icons/fi';
 import PageSkeleton from '../../components/common/PageSkeleton';
 import * as saleService from '../../services/saleService';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -18,6 +18,7 @@ function SaleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [sale, setSale] = useState(null);
+  const [loadError, setLoadError] = useState(false);
   const [receiptSize, setReceiptSize] = useState('80');
 
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
@@ -31,9 +32,29 @@ function SaleDetail() {
     card: t('sales:payment.card'),
   };
 
-  useEffect(() => {
-    saleService.getSale(id).then(setSale);
+  const load = useCallback(() => {
+    setLoadError(false);
+    setSale(null);
+    saleService.getSale(id)
+      .then(setSale)
+      .catch(() => setLoadError(true));
   }, [id]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching this sale on mount/id-change is standard data-fetching, not derived state
+    load();
+  }, [load]);
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: '50vh', gap: 'var(--space-4)' }}>
+        <p className="text-secondary">{t('sales:detail.loadError')}</p>
+        <button type="button" className="btn btn-secondary" onClick={load}>
+          <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+        </button>
+      </div>
+    );
+  }
 
   if (!sale) {
     return <PageSkeleton />;

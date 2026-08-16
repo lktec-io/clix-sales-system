@@ -92,7 +92,8 @@
         "purchase": "Manunuzi",
         "sale": "Mauzo",
         "adjustment": "Marekebisho"
-      }
+      },
+      "loadError": "Imeshindwa kupakia dawa hii. Tafadhali jaribu tena."
     },
     "deleteBlocked": "Haiwezekani kufuta dawa ambayo bado ina hesabu."
   },
@@ -236,7 +237,8 @@
     "detail": {
       "backToSales": "Rudi kwa Mauzo",
       "itemsTitle": "Vitu Vilivyotolewa",
-      "totalLabel": "Jumla"
+      "totalLabel": "Jumla",
+      "loadError": "Imeshindwa kupakia mauzo haya. Tafadhali jaribu tena."
     }
   },
   "purchases": {
@@ -292,7 +294,8 @@
     "detail": {
       "backToPurchases": "Rudi kwa Manunuzi",
       "itemsTitle": "Vitu Vilivyopokelewa",
-      "totalLabel": "Jumla"
+      "totalLabel": "Jumla",
+      "loadError": "Imeshindwa kupakia manunuzi haya. Tafadhali jaribu tena."
     }
   },
   "import": {

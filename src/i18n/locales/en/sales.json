@@ -90,7 +90,8 @@
     "margin": "Margin",
     "payments": "Payments",
     "change": "Change",
-    "balanceDue": "Balance Due"
+    "balanceDue": "Balance Due",
+    "loadError": "We couldn't load this sale. Please try again."
   },
   "columns": {
     "saleNumber": "Sale #",

@@ -13,6 +13,7 @@
     "deactivate": "Deactivate ({{count}})",
     "printLabels": "Print Labels ({{count}})",
     "emptyMessage": "No products found",
+    "loadError": "We couldn't load products. Please try again.",
     "selectProduct": "Select {{name}}",
     "editProduct": "Edit product",
     "deleteProduct": "Delete product",

@@ -13,6 +13,7 @@
     "deactivate": "Zima ({{count}})",
     "printLabels": "Chapisha Lebo ({{count}})",
     "emptyMessage": "Hakuna bidhaa zilizopatikana",
+    "loadError": "Imeshindwa kupakia bidhaa. Tafadhali jaribu tena.",
     "selectProduct": "Chagua {{name}}",
     "editProduct": "Hariri bidhaa",
     "deleteProduct": "Futa bidhaa",

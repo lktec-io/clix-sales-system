@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiShoppingBag, FiDollarSign, FiRotateCcw } from 'react-icons/fi';
+import { FiArrowLeft, FiShoppingBag, FiDollarSign, FiRotateCcw, FiRefreshCw } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
 import PageSkeleton from '../../components/common/PageSkeleton';
@@ -35,6 +35,7 @@ function CustomerDetail() {
   const showRepairs = isModuleEnabled('repairs');
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [loans, setLoans] = useState([]);
   const [loansLoading, setLoansLoading] = useState(showLoans);
   const [repairs, setRepairs] = useState([]);
@@ -76,12 +77,23 @@ function CustomerDetail() {
   const fetchReturns = useCallback((params) => customerService.getCustomerReturnHistory(id, params), [id]);
   const returns = useTable(fetchReturns);
 
-  useEffect(() => {
-    customerService.getCustomer(id).then((data) => {
-      setCustomer(data);
-      setLoading(false);
-    });
+  const loadCustomer = useCallback(() => {
+    setLoadError(false);
+    customerService.getCustomer(id)
+      .then((data) => {
+        setCustomer(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoadError(true);
+        setLoading(false);
+      });
   }, [id]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching this customer on mount/id-change is standard data-fetching, not derived state
+    loadCustomer();
+  }, [loadCustomer]);
 
   // Borrower's loan history — only fetched for a tenant whose template
   // actually includes Loans (Microfinance), same "skip the call entirely
@@ -167,6 +179,17 @@ function CustomerDetail() {
       ),
     },
   ];
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: '50vh', gap: 'var(--space-4)' }}>
+        <p className="text-secondary">{t('customers:detail.loadError')}</p>
+        <button type="button" className="btn btn-secondary" onClick={loadCustomer}>
+          <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+        </button>
+      </div>
+    );
+  }
 
   if (loading || !customer) {
     return <PageSkeleton />;

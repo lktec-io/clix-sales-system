@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowLeft, FiCheck, FiX, FiDollarSign, FiSlash, FiPlus } from 'react-icons/fi';
+import { FiArrowLeft, FiCheck, FiX, FiDollarSign, FiSlash, FiPlus, FiRefreshCw } from 'react-icons/fi';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Modal from '../../components/common/Modal';
 import PageSkeleton from '../../components/common/PageSkeleton';
@@ -32,6 +32,7 @@ function LoanDetail() {
   const canRepay = usePermission('loan_repayments.create');
 
   const [loan, setLoan] = useState(null);
+  const [loadError, setLoadError] = useState(false);
   const [dialog, setDialog] = useState(null);
   const [repaymentModalOpen, setRepaymentModalOpen] = useState(false);
   const [actionError, setActionError] = useState('');
@@ -42,10 +43,14 @@ function LoanDetail() {
   const repaymentForm = useForm({ defaultValues: { amount: '', paymentMethod: 'cash', paymentDate: new Date().toISOString().slice(0, 10), reference: '' } });
 
   const loadLoan = useCallback(() => {
-    loanService.getLoan(id).then(setLoan);
+    setLoadError(false);
+    loanService.getLoan(id)
+      .then(setLoan)
+      .catch(() => setLoadError(true));
   }, [id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching this loan on mount/id-change is standard data-fetching, not derived state
     loadLoan();
   }, [loadLoan]);
 
@@ -57,6 +62,17 @@ function LoanDetail() {
     const totalPaid = loan.schedule.reduce((sum, row) => sum + Number(row.amount_paid), 0);
     return { totalPayable, totalPaid, outstanding: Number(loan.principal_outstanding) + Number(loan.interest_outstanding) };
   }, [loan]);
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: '50vh', gap: 'var(--space-4)' }}>
+        <p className="text-secondary">{t('microfinance:loans.detail.loadError')}</p>
+        <button type="button" className="btn btn-secondary" onClick={loadLoan}>
+          <FiRefreshCw aria-hidden="true" /> {t('common:actions.retry')}
+        </button>
+      </div>
+    );
+  }
 
   if (!loan) {
     return <PageSkeleton />;

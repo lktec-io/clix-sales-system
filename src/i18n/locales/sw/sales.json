@@ -90,7 +90,8 @@
     "margin": "Kiwango cha Faida",
     "payments": "Malipo",
     "change": "Chenji",
-    "balanceDue": "Salio Linalodaiwa"
+    "balanceDue": "Salio Linalodaiwa",
+    "loadError": "Imeshindwa kupakia mauzo haya. Tafadhali jaribu tena."
   },
   "columns": {
     "saleNumber": "Namba ya Uzo",

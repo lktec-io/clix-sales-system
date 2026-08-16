@@ -184,6 +184,25 @@
   z-index: var(--z-dropdown);
 }
 
+/* Same off-screen-anchor bug already fixed for the tenant app's own
+   notification panel (Navbar.css) and theme picker (ThemePicker.css):
+   `right: 0` anchors to .platform-navbar-bell-wrap, not the viewport, and
+   that wrapper sits well left of the screen's right edge once the admin
+   name label next to it eats into the available width — on a narrow
+   viewport this pushes a 340px (or even 90vw-capped) panel's left edge
+   off-screen. position: fixed with explicit viewport margins pins it to
+   the screen's own edges instead. */
+@media (max-width: 768px) {
+  .platform-navbar-dropdown {
+    position: fixed;
+    top: calc(var(--navbar-height) + var(--space-2));
+    left: var(--space-4);
+    right: var(--space-4);
+    width: auto;
+    max-width: none;
+  }
+}
+
 .platform-navbar-dropdown-header {
   display: flex;
   align-items: center;
