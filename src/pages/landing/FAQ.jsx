@@ -10,7 +10,7 @@ function FAQ() {
 
   return (
     <section id="faq" className="landing-section landing-section-narrow">
-      <div className="landing-section-eyebrow">06</div>
+      <div className="landing-section-eyebrow">04</div>
       <div className="landing-section-header">
         <h2>{t('faq.title')}</h2>
       </div>

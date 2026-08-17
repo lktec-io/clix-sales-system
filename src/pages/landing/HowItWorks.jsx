@@ -24,7 +24,7 @@ function HowItWorks() {
 
   return (
     <section id="how-it-works" className="landing-section">
-      <div className="landing-section-eyebrow">05</div>
+      <div className="landing-section-eyebrow">03</div>
       <div className="landing-section-header">
         <h2>{t('howItWorks.title')}</h2>
         <p>{t('howItWorks.subtitle')}</p>

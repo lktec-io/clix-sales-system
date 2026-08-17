@@ -1,6 +1,7 @@
 {
   "card": {
     "title": "{{plan}} Plan",
+    "trialTitle": "Free Trial — {{plan}} Plan",
     "daysRemaining_one": "{{count}} day left",
     "daysRemaining_other": "{{count}} days left",
     "status": "Status: {{status}}",

@@ -19,13 +19,14 @@ const ITEM = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
 };
 
-// Deliberately simpler than the old Hero/Demo pairing this replaces: picking
-// a card here only swaps the content of ProductPreview below (activeSlug is
-// lifted in Landing.jsx) — it never rewrites the hero's headline. Each card
-// is a real, working choice with two distinct, honest actions: select it to
-// preview its workflow below, or start a trial pre-scoped to it via the
-// same real ?template= query param Register.jsx already reads.
-function BusinessTypes({ activeSlug, onSelectSlug }) {
+// Each card is a self-contained, non-interactive summary (icon/name/
+// description/capability tags) with one real, working action: its own
+// "Start free trial" link, pre-scoped to that business via the same
+// ?template= query param Register.jsx already reads. There is no
+// click-to-select/preview interaction anymore — that used to drive a
+// ProductPreview section below (removed), so cards no longer need any
+// click handling of their own.
+function BusinessTypes() {
   const { t } = useTranslation('landing');
 
   return (
@@ -38,7 +39,7 @@ function BusinessTypes({ activeSlug, onSelectSlug }) {
 
       <motion.ul
         className="landing-business-grid"
-        role="group"
+        role="list"
         aria-label={t('businessTypes.groupLabel')}
         initial="hidden"
         whileInView="show"
@@ -48,17 +49,13 @@ function BusinessTypes({ activeSlug, onSelectSlug }) {
         {SLUGS.map((slug) => {
           const theme = BUSINESS_THEMES[slug];
           const Icon = theme.icon;
-          const isActive = activeSlug === slug;
           const capabilities = t(`businessTypes.${slug}.capabilities`, { returnObjects: true });
 
           return (
             <motion.li key={slug} className="landing-business-card-wrap" variants={ITEM}>
-              <button
-                type="button"
-                className={`landing-business-card ${isActive ? 'is-active' : ''}`}
+              <div
+                className="landing-business-card"
                 style={{ '--card-accent': theme.accent, '--card-accent-rgb': theme.accentRgb }}
-                onClick={() => onSelectSlug(slug)}
-                aria-pressed={isActive}
               >
                 <span className="landing-business-icon"><Icon aria-hidden="true" /></span>
                 <span className="landing-business-name">{t(`businessTypes.${slug}.name`)}</span>
@@ -68,7 +65,7 @@ function BusinessTypes({ activeSlug, onSelectSlug }) {
                     <span key={capability} className="landing-business-tag"><FiCheck aria-hidden="true" />{capability}</span>
                   ))}
                 </span>
-              </button>
+              </div>
 
               <Link to={`${ROUTES.REGISTER}?template=${slug}`} className="landing-business-cta">
                 {t('businessTypes.startCta')} <FiArrowRight aria-hidden="true" />

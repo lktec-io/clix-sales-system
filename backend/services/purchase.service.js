@@ -1,5 +1,6 @@
 import { pool } from '../config/db.js';
 import { ApiError } from '../utils/apiError.js';
+import { logger } from '../config/logger.js';
 import { getAccessibleBranchIds } from '../utils/branchScope.js';
 import { generateCode } from '../repositories/sequence.repository.js';
 import * as purchaseRepository from '../repositories/purchase.repository.js';
@@ -186,7 +187,25 @@ export async function deletePurchase(id, actorId, tenantId, user) {
     if (err instanceof ApiError && err.status === 422) {
       throw new ApiError(409, `Cannot delete purchase "${purchase.purchase_number}" — some of the stock it added has already been sold, transferred, or otherwise used. Deleting it would make your inventory incorrect.`);
     }
-    throw err;
+    // Any other failure here is unexpected (a DB-level constraint, a
+    // connection drop mid-transaction, etc.) — the rollback above already
+    // guarantees nothing partial was committed. Rather than let a raw
+    // driver error reach errorHandler.js as a bare 500 with no purchase
+    // context, log the full diagnostic detail (SQL error code included)
+    // here where we still know exactly which purchase/tenant/step failed,
+    // then hand the client a clear, safe explanation instead of a stack
+    // trace.
+    logger.error('Purchase hard delete failed unexpectedly', {
+      purchaseId: id,
+      tenantId,
+      actorId,
+      errMessage: err.message,
+      errCode: err.code,
+      errErrno: err.errno,
+      sqlMessage: err.sqlMessage,
+    });
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(409, `Cannot delete purchase "${purchase.purchase_number}" right now — an unexpected error occurred. No changes were made. Please try again or contact support if this continues.`);
   } finally {
     connection.release();
   }

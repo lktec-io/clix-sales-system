@@ -28,9 +28,8 @@
   },
   "businessTypes": {
     "title": "Jukwaa Moja. Aina Sita Halisi za Biashara.",
-    "subtitle": "Chagua mfumo ulioundwa kwa jinsi biashara yako tayari inavyofanya kazi — iangalie ikifanya kazi hapa chini.",
-    "groupLabel": "Chagua aina ya biashara kuangalia onyesho",
-    "selectCta": "Angalia onyesho",
+    "subtitle": "Chagua mfumo ulioundwa kwa jinsi biashara yako tayari inavyofanya kazi — kisha anza jaribio lako la bure kwa sekunde chache.",
+    "groupLabel": "Aina za biashara",
     "startCta": "Anza jaribio la bure",
     "retail-store": {
       "name": "Duka la Rejareja",
@@ -62,78 +61,6 @@
       "description": "Upokeaji wa vifaa, uchunguzi, ufuatiliaji wa matengenezo na mauzo kwa maduka ya kutengeneza simu na kompyuta.",
       "capabilities": ["Ufuatiliaji wa Matengenezo", "Upokeaji wa Vifaa", "Vipuri na Hisa", "Taarifa kwa Wateja", "Mauzo"]
     }
-  },
-  "productPreview": {
-    "title": "Iangalie Ikifanya Kazi",
-    "subtitle": "Onyesho hai la mfumo halisi wa bidhaa — chagua aina ya biashara hapo juu kuona mtiririko wake.",
-    "ctaPrefix": "Anza jaribio la bure na"
-  },
-  "demoPreview": {
-    "browserTitle": "Mfumo wa Biashara wa Clix",
-    "liveLabel": "Onyesho Hai la Bidhaa",
-    "sampleDataNote": "Data ya mfano kwa maelezo tu",
-    "retail-store": {
-      "scenes": [
-        { "caption": "Muhtasari wa dashibodi" },
-        { "caption": "Bidhaa imeongezwa kwenye orodha" },
-        { "caption": "Hisa imesasishwa" },
-        { "caption": "Mauzo yanaendelea" },
-        { "caption": "Mauzo yamekamilika" }
-      ]
-    },
-    "pharmacy": {
-      "scenes": [
-        { "caption": "Hisa za dawa" },
-        { "caption": "Kuangalia muda wa kuisha na hisa" },
-        { "caption": "Dashibodi ya ufuatiliaji wa muda wa kuisha" },
-        { "caption": "Kutoa dawa" },
-        { "caption": "Muamala umekamilika" }
-      ]
-    },
-    "restaurant": {
-      "scenes": [
-        { "caption": "Dashibodi ya mkahawa" },
-        { "caption": "Kipengee cha menyu kimechaguliwa" },
-        { "caption": "Oda imetumwa mezani" },
-        { "caption": "Oda inaandaliwa" },
-        { "caption": "Oda imekamilika" }
-      ]
-    },
-    "microfinance": {
-      "scenes": [
-        { "caption": "Dashibodi ya mikopo" },
-        { "caption": "Wasifu wa mkopaji" },
-        { "caption": "Mkopo umetolewa" },
-        { "caption": "Malipo yamerekodiwa" },
-        { "caption": "Maendeleo ya mkopo yamesasishwa" }
-      ]
-    },
-    "cosmetics-shop": {
-      "scenes": [
-        { "caption": "Orodha ya bidhaa za urembo" },
-        { "caption": "Kundi na maelezo ya hisa" },
-        { "caption": "Muhtasari wa hisa" },
-        { "caption": "Mauzo yanaendelea" },
-        { "caption": "Oda imekamilika" }
-      ]
-    },
-    "electronics-shop": {
-      "scenes": [
-        { "caption": "Upokeaji wa kifaa" },
-        { "caption": "Hali na uchunguzi" },
-        { "caption": "Dashibodi ya matengenezo" },
-        { "caption": "Matengenezo yanaendelea" },
-        { "caption": "Tayari kuchukuliwa" }
-      ]
-    }
-  },
-  "benefits": {
-    "title": "Kwa Nini Biashara Zinachagua Clix",
-    "subtitle": "Imeundwa mahususi kwa jinsi biashara nchini Tanzania zinavyofanya kazi kwa uhalisia.",
-    "item1": { "title": "Mfumo Mmoja, Shughuli Zote", "description": "Mauzo, hisa, manunuzi, wateja na ripoti — hakuna programu za ziada, hakuna spreadsheet tofauti za kulinganisha." },
-    "item2": { "title": "Lugha Mbili Tangu Msingi", "description": "Mfumo mzima, ikiwemo risiti na ripoti, unafanya kazi kwa Kiingereza na Kiswahili — si tafsiri ya baadaye." },
-    "item3": { "title": "Matawi Mengi Tangu Siku ya Kwanza", "description": "Simamia matawi bila kikomo na ruhusa kulingana na wajibu wa kila mfanyakazi, kutoka akaunti moja." },
-    "item4": { "title": "Data Yako, Imetengwa", "description": "Data ya kila biashara imetengwa kikamilifu na wateja wengine wote wa Clix — hakuna kinachoshirikishwa." }
   },
   "pricing": {
     "title": "Bei Rahisi na Wazi",

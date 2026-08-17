@@ -57,7 +57,6 @@
   --landing-shadow-sm: 0 1px 2px rgba(11, 18, 32, 0.06);
   --landing-shadow-lg: 0 16px 40px rgba(11, 18, 32, 0.14);
   --landing-gradient-hero: linear-gradient(115deg, #071A3D 0%, #123A73 45%, #0E7A57 85%, #123A73 100%);
-  --landing-gradient-primary: linear-gradient(135deg, #2F6BFF 0%, #10B981 100%);
   --landing-gradient-gold: linear-gradient(135deg, #D9BC84 0%, #A88447 100%);
 
   background: var(--landing-bg);
@@ -89,14 +88,29 @@
    buttons to the same fixed palette as everything else on this page,
    regardless of the visitor's stored theme. (.landing-hero .btn-outline
    below still wins on the dark hero specifically — same specificity,
-   later in the cascade — this just covers every other section.) */
+   later in the cascade — this just covers every other section.)
+
+   Primary CTA — a clear, confident green (not the app's own navy-led
+   gradient), built from the two --landing-emerald tokens above. Every
+   "Start Free Trial" button on this page (Hero, nav, final CTA, the
+   featured pricing card) shares this class, so the fix here is site-wide.
+   The lighter --landing-emerald stop is kept to a small leading sliver
+   (0%-70% ramps into solid --landing-emerald-deep, which then holds solid
+   to 100%) rather than a 50/50 split — white label text sits mostly over
+   the deep-emerald body, which alone measures ~3.8:1 contrast against
+   white (the lighter tone alone is only ~2.5:1); a straight 50/50 gradient
+   would drag the average toward the lighter, lower-contrast end the same
+   way this app's own .btn-primary comment (buttons.css) warns against for
+   its navy/green mix. */
 .landing-page .btn-primary {
-  background-image: linear-gradient(135deg, #0B1220 0%, #182338 55%, #16A34A 100%);
+  background-image: linear-gradient(135deg, var(--landing-emerald) 0%, var(--landing-emerald-deep) 70%, var(--landing-emerald-deep) 100%);
   color: #ffffff;
 }
 
 .landing-page .btn-primary:hover:not(:disabled) {
-  background-image: linear-gradient(135deg, #182338 0%, #0B1220 45%, #22C55E 100%);
+  background-image: linear-gradient(135deg, var(--landing-emerald-deep) 0%, var(--landing-emerald-deep) 30%, var(--landing-emerald) 100%);
+  box-shadow: 0 10px 24px rgba(var(--landing-emerald-rgb), 0.35);
+  transform: translateY(-2px);
 }
 
 .landing-page .btn-outline {
@@ -169,7 +183,6 @@
 .landing-hero-pill:focus-visible,
 .landing-nav-toggle:focus-visible,
 .landing-faq-question:focus-visible,
-.landing-business-card:focus-visible,
 .landing-nav-links a:focus-visible {
   outline: 2px solid var(--landing-emerald);
   outline-offset: 2px;
@@ -177,11 +190,10 @@
 
 /* ---------- Hero ---------- */
 /* Deliberately asymmetric, not the centered hero-stack this page used to
-   have (and not a generic centered SaaS hero either) — copy on the left,
-   a static, glanceable "product glimpse" panel on the right, gently
-   floating. The interactive, scene-cycling demo lives further down in
-   ProductPreview, driven by BusinessTypes — the hero never owns that
-   interaction, keeping the very first thing a visitor sees simple. */
+   have (and not a generic centered SaaS hero either) — copy on the left, a
+   floating "product glimpse" panel on the right, plus an optional full-bleed
+   background video behind both (see .landing-hero-video-wrap below and
+   Hero.jsx). */
 
 .landing-hero {
   position: relative;
@@ -200,6 +212,38 @@
   background-size: 28px 28px;
   -webkit-mask-image: radial-gradient(ellipse 70% 60% at 30% 40%, #000 0%, transparent 75%);
   mask-image: radial-gradient(ellipse 70% 60% at 30% 40%, #000 0%, transparent 75%);
+}
+
+/* Background video layer (see Hero.jsx for the videoFailed fallback logic
+   and the required public/media/hero-product-demo.mp4 asset spec). Purely
+   decorative (aria-hidden, muted, no controls) and absolutely positioned
+   against .landing-hero, which already has overflow:hidden and a size
+   driven entirely by its text/grid content — so this never causes layout
+   shift or horizontal overflow, loaded or not. Sits at z-index 0, the same
+   layer as .landing-hero-texture and below .landing-hero-grid (z-index 1). */
+.landing-hero-video-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.landing-hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Same gradient as .landing-hero's own solid (no-video) background, layered
+   over the video at reduced opacity — keeps hero text contrast essentially
+   identical whether the video is playing or the fallback panel is showing. */
+.landing-hero-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--landing-gradient-hero);
+  opacity: 0.82;
 }
 
 .landing-hero-grid {
@@ -273,10 +317,11 @@
   color: rgba(255, 255, 255, 0.65);
 }
 
-/* Static "product glimpse" card — same browser-chrome visual language as
-   ProductPreview's DemoPreview below (titlebar dots, live badge) so the two
-   read as one system, but this one never cycles scenes: three fixed stats
-   plus a small decorative bar row. All motion here is a single slow
+/* Static "product glimpse" card — a small browser-chrome frame (titlebar
+   dots, live badge) with three fixed stats plus a small decorative bar row.
+   Always rendered; it's both a permanent complement to the background video
+   above and, on its own, the graceful fallback when that video can't load
+   (see Hero.jsx's videoFailed state). All motion here is a single slow
    vertical float on the whole card (see Hero.jsx's useReducedMotion-gated
    animate prop) — never on individual numbers. */
 .landing-hero-preview {
@@ -415,10 +460,10 @@
   max-width: 1180px;
   margin: 0 auto;
   padding: var(--space-9) var(--page-padding-desktop);
-  /* Every #business-types/#product-preview/#platform/#pricing/#how-it-works/
-     #faq anchor target is a .landing-section — without this, the sticky
-     .landing-nav (position:sticky, top:0) would cover the section's
-     heading right after an anchor scroll lands. */
+  /* Every #business-types/#pricing/#how-it-works/#faq anchor target is a
+     .landing-section — without this, the sticky .landing-nav
+     (position:sticky, top:0) would cover the section's heading right after
+     an anchor scroll lands. */
   scroll-margin-top: var(--navbar-height);
 }
 
@@ -480,6 +525,11 @@
   gap: var(--space-2);
 }
 
+/* A non-interactive summary card (no onClick, no button semantics) — only
+   the .landing-business-cta link below it, per card, actually does
+   anything. The hover lift is kept purely as visual polish consistent with
+   every other card on the page (pricing/benefits/steps), not as a
+   click-affordance, so no cursor:pointer here. */
 .landing-business-card {
   min-width: 0;
   width: 100%;
@@ -493,18 +543,12 @@
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   box-shadow: var(--landing-shadow-sm);
-  cursor: pointer;
   transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
 }
 
 .landing-business-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--landing-shadow-lg);
-}
-
-.landing-business-card.is-active {
-  border-color: rgba(var(--card-accent-rgb, var(--landing-emerald-rgb)), 0.55);
-  box-shadow: 0 0 0 3px rgba(var(--card-accent-rgb, var(--landing-emerald-rgb)), 0.14), var(--landing-shadow-lg);
 }
 
 .landing-business-icon {
@@ -572,91 +616,6 @@
 .landing-business-cta:hover {
   color: var(--landing-emerald-deep);
   gap: var(--space-3);
-}
-
-/* ---------- Product preview ---------- */
-
-.landing-demo-layout {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-6);
-}
-
-.landing-capabilities-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-3);
-  max-width: 640px;
-}
-
-.landing-capability-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--landing-text-primary);
-  background: var(--landing-card-bg);
-  border: 1px solid var(--landing-border);
-  border-radius: var(--radius-full);
-  padding: var(--space-2) var(--space-4);
-}
-
-.landing-capability-chip svg {
-  color: var(--landing-success);
-  flex-shrink: 0;
-}
-
-/* ---------- Benefits ---------- */
-
-.landing-benefits-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-5);
-}
-
-.landing-benefit-card {
-  min-width: 0;
-  background: var(--landing-card-bg);
-  border: 1px solid var(--landing-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  box-shadow: var(--landing-shadow-sm);
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
-}
-
-.landing-benefit-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--landing-shadow-lg);
-}
-
-.landing-benefit-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: var(--landing-gradient-primary);
-  color: #ffffff;
-  font-size: 1.25rem;
-  margin-bottom: var(--space-4);
-}
-
-.landing-benefit-card h3 {
-  font-size: var(--font-size-md);
-  margin-bottom: var(--space-2);
-}
-
-.landing-benefit-card p {
-  color: var(--landing-text-secondary);
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-base);
 }
 
 /* ---------- Pricing ---------- */
@@ -1008,7 +967,6 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .landing-benefits-grid,
   .landing-steps {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1037,6 +995,18 @@
     cursor: default;
   }
 
+  /* Fade + slide, not the old bare display:none -> .is-open{display:flex}
+     snap (zero-transition, instant pop). .landing-nav-links is
+     position:fixed, so it never occupies layout space either way — closed
+     state uses opacity/transform/visibility instead of display, which is
+     what makes it animatable at all (display can't be transitioned).
+     visibility is what actually removes it from layout/hit-testing/tab
+     order when closed (equivalent to the old display:none for a11y and
+     click-through purposes); pointer-events:none is belt-and-suspenders
+     for the same "closed = inert" guarantee during the fade-out itself.
+     The transition-delay on visibility (see the reduced-motion-guarded
+     block below) is what lets it fade out smoothly before disappearing,
+     instead of vanishing mid-fade. */
   .landing-nav-links {
     position: fixed;
     inset: var(--navbar-height) 0 auto 0;
@@ -1047,13 +1017,41 @@
     padding: var(--space-4);
     gap: var(--space-3);
     border-bottom: 1px solid var(--landing-border);
-    display: none;
     max-height: calc(100vh - var(--navbar-height));
     overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-10px);
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .landing-nav-links.is-open {
-    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Motion only when the visitor hasn't asked to reduce it — without this
+     block the panel still opens/closes correctly (the opacity/visibility
+     values above already do that instantly), it just has no animation. */
+  @media (prefers-reduced-motion: no-preference) {
+    .landing-nav-links {
+      transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.22s;
+    }
+
+    .landing-nav-links.is-open {
+      transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0s;
+    }
+  }
+
+  /* The Start Free Trial CTA is a flex item of .landing-nav-links, whose
+     align-items:stretch (needed so the plain text links above it fill the
+     panel's tap width) would otherwise stretch the button edge-to-edge too
+     — a "giant" full-width CTA rather than a normal, proportionally-sized
+     button sitting in the stacked menu. */
+  .landing-nav-links .btn {
+    align-self: flex-start;
   }
 
   .landing-nav-toggle {
@@ -1064,7 +1062,6 @@
     grid-template-columns: 1fr;
   }
 
-  .landing-benefits-grid,
   .landing-steps {
     grid-template-columns: 1fr;
   }
@@ -1104,8 +1101,10 @@
     font-size: var(--font-size-lg);
   }
 
-  .landing-hero-actions,
-  .landing-nav-links .btn {
+  /* Hero actions only — the mobile nav's own CTA deliberately stays sized
+     to its content (align-self: flex-start, set above) rather than
+     stretching full-width even at this smallest breakpoint. */
+  .landing-hero-actions {
     width: 100%;
   }
 

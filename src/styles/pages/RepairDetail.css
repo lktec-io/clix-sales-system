@@ -1,3 +1,18 @@
+/* Every top-level section on this page (hero, device details, stepper,
+   financial, parts, notes, communication, timeline, collection info) is a
+   direct child here — a single `gap` gives consistent, responsive spacing
+   between all of them without relying on per-card margin utility classes
+   (some sections carry an inert "mb-5" className left over from before this
+   rewrite; the modifier itself was never defined anywhere in the app, so it
+   never actually produced spacing — this `gap` is what makes the vertical
+   rhythm real). Hidden (`display:none`) print-only children don't consume
+   gap space, so this is safe to combine with the print stylesheet below. */
+.repair-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
 /* The forward-looking "where is this device right now" stepper — distinct
    from .repair-timeline below, which is a chronological log of every
    change. flex-wrap (not a fixed-width row) so it degrades to two rows on
@@ -13,6 +28,7 @@
   gap: var(--space-4);
   position: relative;
   overflow: hidden;
+  padding: var(--space-6);
 }
 
 /* A single, quiet nod to the Electronics business theme (deep navy + cyan)
@@ -40,6 +56,7 @@
   margin: 0;
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
+  overflow-wrap: anywhere;
 }
 
 .repair-hero-number {
@@ -63,6 +80,7 @@
 
 .repair-hero-customer-name {
   font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
 }
 
 .repair-hero-customer-phone {
@@ -81,6 +99,11 @@
 
 .repair-hero-financials > div {
   text-align: center;
+  min-width: 0;
+}
+
+.repair-hero-financials > div > div {
+  overflow-wrap: anywhere;
 }
 
 .repair-hero-actions {
@@ -95,6 +118,7 @@
 
 .repair-hero-ended {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
 }
@@ -103,6 +127,15 @@
   display: inline-flex;
   color: var(--color-success);
   font-size: 22px;
+}
+
+/* Contains the stepper's own horizontal scroll (if it ever needs it,
+   e.g. an unusually long translated stage label on a very narrow phone)
+   so scrolling stays local to the stepper and never widens the page body,
+   matching the same rule tables.css already applies to .table-wrapper. */
+.repair-stepper-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .repair-stepper {
@@ -223,6 +256,25 @@
   gap: var(--space-4);
 }
 
+.repair-financial-grid > div {
+  min-width: 0;
+}
+
+.repair-financial-grid > div > div {
+  overflow-wrap: anywhere;
+}
+
+/* A 3-up variant of the shared .form-row grid, used only where this page
+   has exactly three label/value pairs to show (device type/IMEI/technician,
+   and the read-only diagnosis/notes/labor row) so they sit evenly instead
+   of leaving an awkward half-empty second row in the default 2-column
+   .form-row. Doubled-up selector so it reliably wins over the plain
+   .form-row rule regardless of stylesheet load order. Every other .form-row
+   on this page (and every other page) is untouched. */
+.form-row.repair-form-row-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .repair-timeline {
   list-style: none;
   margin: 0;
@@ -246,12 +298,111 @@
   padding-bottom: 0;
 }
 
+/* Quiet, untitled strip — an on-screen echo of the printed job card's
+   received/expected dates. Deliberately lighter-weight than the other
+   cards (smaller padding, no card-header) since it's a convenience,
+   not a primary section. */
+.repair-collection-card .card-body.form-row {
+  padding: var(--space-4) var(--space-6);
+}
+
 /* Hidden on screen — the printable job card's own identity block, only
    shown once the sidebar/navbar/action buttons are hidden for print (same
    "print-only header" pattern Reports.css already established). */
 .repair-print-header,
 .repair-print-footer {
   display: none;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1024px) {
+  .repair-hero {
+    padding: var(--space-5);
+  }
+
+  .repair-financial-grid,
+  .repair-condition-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .form-row.repair-form-row-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .repair-hero-financials {
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .repair-hero-status-badge {
+    font-size: var(--font-size-xs);
+    padding: var(--space-1) var(--space-3);
+  }
+
+  .repair-collection-card .card-body.form-row {
+    padding: var(--space-4);
+  }
+}
+
+@media (max-width: 640px) {
+  .form-row.repair-form-row-3 {
+    grid-template-columns: 1fr;
+  }
+
+  /* At this width a button's label can no longer share a row with
+     another action without risking overflow (buttons never wrap their
+     own text — see .btn's white-space: nowrap in buttons.css), so each
+     hero action takes the full row instead of a 200px flex-basis. */
+  .repair-hero-actions .btn {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .repair-hero {
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .repair-hero-device {
+    font-size: var(--font-size-lg);
+  }
+
+  /* Three equal columns get too tight for currency values once the
+     viewport (minus card padding) drops much below ~340px — stack them
+     as full-width label/value rows instead of risking a wrapped or
+     clipped amount. */
+  .repair-hero-financials {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .repair-hero-financials > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    text-align: left;
+    gap: var(--space-2);
+  }
+
+  .repair-financial-grid,
+  .repair-condition-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .repair-stepper-step {
+    padding: var(--space-1) var(--space-2);
+    font-size: 11px;
+  }
+
+  .repair-chip {
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
 }
 
 @media print {

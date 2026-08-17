@@ -223,72 +223,11 @@
 .low-stock-alert-critical .low-stock-alert-icon { background-color: rgba(239, 68, 68, 0.15); color: var(--color-danger); }
 .low-stock-alert-critical .low-stock-alert-tag { background-color: rgba(239, 68, 68, 0.15); color: var(--color-danger); }
 
-.trial-card {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  background: var(--gradient-primary);
-  color: #ffffff;
-  border-radius: var(--radius-lg);
-  padding: var(--space-4) var(--space-5);
-  margin-bottom: var(--space-5);
-  box-shadow: var(--shadow-md);
-}
-
-.trial-card-expired {
-  background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%);
-}
-
-.trial-card-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.18);
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-
-.trial-card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-width: 0;
-}
-
-.trial-card-title {
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
-}
-
-.trial-card-message {
-  font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.trial-card .trial-card-cta.btn-primary {
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.35);
-  color: #ffffff;
-}
-
-@media (max-width: 640px) {
-  .trial-card {
-    flex-wrap: wrap;
-  }
-
-  .trial-card-cta {
-    width: 100%;
-  }
-}
-
-/* Quieter than .trial-card — this renders on every dashboard regardless of
-   status, so it uses the app's plain card surface rather than the trial
-   banner's attention-grabbing gradient. */
+/* The single dashboard subscription banner — plain card surface by
+   default. .subscription-card-attention (trial/grace_period/
+   pending_payment) switches to the primary gradient banner treatment;
+   .subscription-card-critical (expired/suspended/trial with 0 days left)
+   switches to the red gradient. Only one of the two ever applies. */
 .subscription-card {
   display: flex;
   align-items: center;
@@ -298,6 +237,20 @@
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);
   margin-bottom: var(--space-5);
+}
+
+.subscription-card-attention {
+  background: var(--gradient-primary);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: var(--shadow-md);
+}
+
+.subscription-card-critical {
+  background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: var(--shadow-md);
 }
 
 .subscription-card-icon {
@@ -311,6 +264,12 @@
   color: var(--color-primary);
   font-size: 1.1rem;
   flex-shrink: 0;
+}
+
+.subscription-card-attention .subscription-card-icon,
+.subscription-card-critical .subscription-card-icon {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
 }
 
 .subscription-card-body {
@@ -331,9 +290,20 @@
   color: var(--color-text-secondary);
 }
 
-.subscription-card-link,
+.subscription-card-attention .subscription-card-message,
+.subscription-card-critical .subscription-card-message {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 .subscription-card-cta {
   flex-shrink: 0;
+}
+
+.subscription-card-attention .subscription-card-cta.btn-primary,
+.subscription-card-critical .subscription-card-cta.btn-primary {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
 }
 
 @media (max-width: 640px) {
@@ -341,7 +311,6 @@
     flex-wrap: wrap;
   }
 
-  .subscription-card-link,
   .subscription-card-cta {
     width: 100%;
   }

@@ -319,172 +319,14 @@ function RepairDetail() {
         </motion.div>
       </AnimatePresence>
 
-      <div className="repair-stepper no-print" role="list" aria-label={t('electronics:repairs.detail.journeyLabel')}>
-        {STAGE_KEYS.map((stageKey, index) => {
-          const state = index < currentStageIndex || (index === currentStageIndex && isEnded)
-            ? 'done'
-            : index === currentStageIndex ? 'current' : 'upcoming';
-          return (
-            <span key={stageKey} className="flex items-center" style={{ gap: 'var(--space-1)' }}>
-              <span role="listitem" className={`repair-stepper-step ${state === 'done' ? 'repair-stepper-step-done' : state === 'current' ? 'repair-stepper-step-current' : ''}`}>
-                {state === 'done' && <FiCheck className="repair-stepper-step-icon" aria-hidden="true" />}
-                {t(`electronics:repairs.stepper.${stageKey}`)}
-              </span>
-              {index < STAGE_KEYS.length - 1 && <FiChevronRight className="repair-stepper-connector" aria-hidden="true" />}
-            </span>
-          );
-        })}
-        {isEnded && (
-          <>
-            <FiChevronRight className="repair-stepper-connector" aria-hidden="true" />
-            <span role="listitem" className="repair-stepper-step repair-stepper-step-ended">
-              <FiX className="repair-stepper-step-icon" aria-hidden="true" />
-              {t(`electronics:repairs.status.${repair.status}`)}
-            </span>
-          </>
-        )}
-      </div>
-
-      <div className="card mb-5">
-        <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.diagnosisSection')}</span></div>
-        <div className="card-body">
-          {canEditDiagnosis ? (
-            <form onSubmit={diagnosisForm.handleSubmit(saveDiagnosis)} noValidate>
-              <div className="form-group">
-                <label className="form-label" htmlFor="diagnosis">{t('electronics:repairs.detail.diagnosisLabel')}</label>
-                <textarea id="diagnosis" className="form-control" rows={3} {...diagnosisForm.register('diagnosis')} />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="repairNotes">{t('electronics:repairs.detail.repairNotesLabel')}</label>
-                <textarea id="repairNotes" className="form-control" rows={2} {...diagnosisForm.register('repairNotes')} />
-              </div>
-              <div className="form-group mb-0">
-                <label className="form-label" htmlFor="laborCharge">{t('electronics:repairs.detail.laborChargeLabel')}</label>
-                <input id="laborCharge" type="number" min="0" step="0.01" className="form-control" {...diagnosisForm.register('laborCharge')} />
-              </div>
-              <div className="form-actions no-print">
-                <button type="submit" className="btn btn-primary">{t('electronics:repairs.detail.saveDiagnosis')}</button>
-              </div>
-            </form>
-          ) : (
-            <div className="form-row">
-              <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.diagnosisLabel')}</span><div className="text-sm">{repair.diagnosis || '—'}</div></div>
-              <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.repairNotesLabel')}</span><div className="text-sm">{repair.repair_notes || '—'}</div></div>
-              <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.laborChargeLabel')}</span><div className="text-sm">{formatCurrency(repair.labor_charge)}</div></div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="card mb-5">
-        <div className="card-header">
-          <span className="card-title">{t('electronics:repairs.detail.partsSection')}</span>
-          {canAddPart && (
-            <button type="button" className="btn btn-secondary btn-sm no-print" onClick={() => setPartModalOpen(true)}>
-              <FiPlus aria-hidden="true" /> {t('electronics:repairs.detail.addPart')}
-            </button>
-          )}
-        </div>
-        {repair.parts.length === 0 ? (
-          <div className="card-body"><EmptyState title={t('electronics:repairs.list.emptyMessage')} /></div>
-        ) : (
-          <div className="table-wrapper">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>{t('electronics:repairs.partColumns.product')}</th>
-                  <th>{t('electronics:repairs.partColumns.quantity')}</th>
-                  <th>{t('electronics:repairs.partColumns.unitPrice')}</th>
-                  <th>{t('electronics:repairs.partColumns.lineTotal')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {repair.parts.map((part) => (
-                  <tr key={part.id}>
-                    <td>{part.product_name}</td>
-                    <td>{part.quantity}</td>
-                    <td>{formatCurrency(part.unit_price)}</td>
-                    <td>{formatCurrency(part.line_total)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      <div className="card mb-5">
-        <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.financialSection')}</span></div>
-        <div className="card-body repair-financial-grid">
-          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.partsTotal')}</span><div className="text-sm font-semibold">{formatCurrency(repair.parts_total)}</div></div>
-          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.laborCharge')}</span><div className="text-sm font-semibold">{formatCurrency(repair.labor_charge)}</div></div>
-          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.repairTotal')}</span><div className="text-sm font-semibold">{formatCurrency(repair.repair_total)}</div></div>
-          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.amountPaid')}</span><div className="text-sm font-semibold">{formatCurrency(repair.amount_paid)}</div></div>
-          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.balance')}</span><div className="text-lg font-semibold">{formatCurrency(repair.balance)}</div></div>
-        </div>
-        {repair.payments.length > 0 && (
-          <div className="table-wrapper">
-            <table className="table">
-              <thead><tr><th>{t('common:labels.date')}</th><th>{t('electronics:repairs.detail.paymentAmountLabel')}</th><th>{t('electronics:repairs.detail.paymentMethodLabel')}</th></tr></thead>
-              <tbody>
-                {repair.payments.map((p) => (
-                  <tr key={p.id}>
-                    <td>{formatDateTime(p.created_at)}</td>
-                    <td>{formatCurrency(p.amount)}</td>
-                    <td>{t(`electronics:repairs.paymentMethods.${p.payment_method}`)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      <div className="card no-print">
-        <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.timelineSection')}</span></div>
-        {repair.history.length === 0 ? (
-          <div className="card-body text-sm text-secondary">{t('electronics:repairs.detail.noTimeline')}</div>
-        ) : (
-          <ul className="repair-timeline">
-            {repair.history.map((h) => (
-              <li key={h.id}>
-                <span className={`badge ${STATUS_BADGE[h.to_status] || 'badge-neutral'}`}>{t(`electronics:repairs.status.${h.to_status}`)}</span>
-                <span className="text-sm">{formatDateTime(h.created_at)}</span>
-                <span className="text-xs text-secondary">{h.changed_by_first_name} {h.changed_by_last_name}</span>
-                {h.notes && <span className="text-xs text-secondary">— {h.notes}</span>}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {canManage && (
-        <div className="card mb-5 no-print">
-          <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.communicationSection')}</span></div>
-          <div className="card-body">
-            <p className="text-sm text-secondary mb-3">{t('electronics:repairs.detail.smsToLabel')} {repair.customer_phone || '—'}</p>
-            <div className="flex flex-wrap" style={{ gap: 'var(--space-2)' }}>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={() => openSmsTemplate('received')}>
-                {t('electronics:repairs.detail.smsTemplateReceived')}
-              </button>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={() => openSmsTemplate('diagnosis')}>
-                {t('electronics:repairs.detail.smsTemplateDiagnosis')}
-              </button>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={() => openSmsTemplate('ready')}>
-                {t('electronics:repairs.detail.smsTemplateReady')}
-              </button>
-              <button type="button" className="btn btn-primary btn-sm" onClick={openCustomSms}>
-                <FiMessageSquare aria-hidden="true" /> {t('electronics:repairs.detail.sendSms')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
+      {/* Device & technician details — surfaced right after the hero,
+          ahead of the progress stepper, so a technician sees exactly what
+          they're working on (and who it's assigned to) before anything
+          else. Same card/content as before, just relocated. */}
       <div className="card mb-5">
         <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.additionalDetailsSection')}</span></div>
         <div className="card-body">
-          <div className="form-row mb-4">
+          <div className="form-row repair-form-row-3 mb-4">
             <div><span className="text-xs text-secondary">{t('electronics:repairs.form.deviceTypeLabel')}</span><div className="text-sm">{t(`electronics:repairs.deviceTypes.${repair.device_type}`)}</div></div>
             <div><span className="text-xs text-secondary">{t('electronics:repairs.print.imeiSerial')}</span><div className="text-sm">{repair.imei_1 || repair.serial_number || '—'}</div></div>
             <div className="no-print">
@@ -540,6 +382,183 @@ function RepairDetail() {
               </div>
             </>
           )}
+        </div>
+      </div>
+
+      <div className="repair-stepper-wrapper no-print">
+        <div className="repair-stepper" role="list" aria-label={t('electronics:repairs.detail.journeyLabel')}>
+          {STAGE_KEYS.map((stageKey, index) => {
+            const state = index < currentStageIndex || (index === currentStageIndex && isEnded)
+              ? 'done'
+              : index === currentStageIndex ? 'current' : 'upcoming';
+            return (
+              <span key={stageKey} className="flex items-center" style={{ gap: 'var(--space-1)' }}>
+                <span role="listitem" className={`repair-stepper-step ${state === 'done' ? 'repair-stepper-step-done' : state === 'current' ? 'repair-stepper-step-current' : ''}`}>
+                  {state === 'done' && <FiCheck className="repair-stepper-step-icon" aria-hidden="true" />}
+                  {t(`electronics:repairs.stepper.${stageKey}`)}
+                </span>
+                {index < STAGE_KEYS.length - 1 && <FiChevronRight className="repair-stepper-connector" aria-hidden="true" />}
+              </span>
+            );
+          })}
+          {isEnded && (
+            <>
+              <FiChevronRight className="repair-stepper-connector" aria-hidden="true" />
+              <span role="listitem" className="repair-stepper-step repair-stepper-step-ended">
+                <FiX className="repair-stepper-step-icon" aria-hidden="true" />
+                {t(`electronics:repairs.status.${repair.status}`)}
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="card mb-5">
+        <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.financialSection')}</span></div>
+        <div className="card-body repair-financial-grid">
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.partsTotal')}</span><div className="text-sm font-semibold">{formatCurrency(repair.parts_total)}</div></div>
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.laborCharge')}</span><div className="text-sm font-semibold">{formatCurrency(repair.labor_charge)}</div></div>
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.repairTotal')}</span><div className="text-sm font-semibold">{formatCurrency(repair.repair_total)}</div></div>
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.amountPaid')}</span><div className="text-sm font-semibold">{formatCurrency(repair.amount_paid)}</div></div>
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.balance')}</span><div className="text-lg font-semibold">{formatCurrency(repair.balance)}</div></div>
+        </div>
+        {repair.payments.length > 0 && (
+          <div className="table-wrapper">
+            <table className="table">
+              <thead><tr><th>{t('common:labels.date')}</th><th>{t('electronics:repairs.detail.paymentAmountLabel')}</th><th>{t('electronics:repairs.detail.paymentMethodLabel')}</th></tr></thead>
+              <tbody>
+                {repair.payments.map((p) => (
+                  <tr key={p.id}>
+                    <td>{formatDateTime(p.created_at)}</td>
+                    <td>{formatCurrency(p.amount)}</td>
+                    <td>{t(`electronics:repairs.paymentMethods.${p.payment_method}`)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className="card mb-5">
+        <div className="card-header">
+          <span className="card-title">{t('electronics:repairs.detail.partsSection')}</span>
+          {canAddPart && (
+            <button type="button" className="btn btn-secondary btn-sm no-print" onClick={() => setPartModalOpen(true)}>
+              <FiPlus aria-hidden="true" /> {t('electronics:repairs.detail.addPart')}
+            </button>
+          )}
+        </div>
+        {repair.parts.length === 0 ? (
+          <div className="card-body"><EmptyState title={t('electronics:repairs.list.emptyMessage')} /></div>
+        ) : (
+          <div className="table-wrapper">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>{t('electronics:repairs.partColumns.product')}</th>
+                  <th>{t('electronics:repairs.partColumns.quantity')}</th>
+                  <th>{t('electronics:repairs.partColumns.unitPrice')}</th>
+                  <th>{t('electronics:repairs.partColumns.lineTotal')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {repair.parts.map((part) => (
+                  <tr key={part.id}>
+                    <td>{part.product_name}</td>
+                    <td>{part.quantity}</td>
+                    <td>{formatCurrency(part.unit_price)}</td>
+                    <td>{formatCurrency(part.line_total)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className="card mb-5">
+        <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.diagnosisSection')}</span></div>
+        <div className="card-body">
+          {canEditDiagnosis ? (
+            <form onSubmit={diagnosisForm.handleSubmit(saveDiagnosis)} noValidate>
+              <div className="form-group">
+                <label className="form-label" htmlFor="diagnosis">{t('electronics:repairs.detail.diagnosisLabel')}</label>
+                <textarea id="diagnosis" className="form-control" rows={3} {...diagnosisForm.register('diagnosis')} />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="repairNotes">{t('electronics:repairs.detail.repairNotesLabel')}</label>
+                <textarea id="repairNotes" className="form-control" rows={2} {...diagnosisForm.register('repairNotes')} />
+              </div>
+              <div className="form-group mb-0">
+                <label className="form-label" htmlFor="laborCharge">{t('electronics:repairs.detail.laborChargeLabel')}</label>
+                <input id="laborCharge" type="number" min="0" step="0.01" className="form-control" {...diagnosisForm.register('laborCharge')} />
+              </div>
+              <div className="form-actions no-print">
+                <button type="submit" className="btn btn-primary">{t('electronics:repairs.detail.saveDiagnosis')}</button>
+              </div>
+            </form>
+          ) : (
+            <div className="form-row repair-form-row-3">
+              <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.diagnosisLabel')}</span><div className="text-sm">{repair.diagnosis || '—'}</div></div>
+              <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.repairNotesLabel')}</span><div className="text-sm">{repair.repair_notes || '—'}</div></div>
+              <div><span className="text-xs text-secondary">{t('electronics:repairs.detail.laborChargeLabel')}</span><div className="text-sm">{formatCurrency(repair.labor_charge)}</div></div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {canManage && (
+        <div className="card mb-5 no-print">
+          <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.communicationSection')}</span></div>
+          <div className="card-body">
+            <p className="text-sm text-secondary mb-3">{t('electronics:repairs.detail.smsToLabel')} {repair.customer_phone || '—'}</p>
+            <div className="flex flex-wrap" style={{ gap: 'var(--space-2)' }}>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => openSmsTemplate('received')}>
+                {t('electronics:repairs.detail.smsTemplateReceived')}
+              </button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => openSmsTemplate('diagnosis')}>
+                {t('electronics:repairs.detail.smsTemplateDiagnosis')}
+              </button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => openSmsTemplate('ready')}>
+                {t('electronics:repairs.detail.smsTemplateReady')}
+              </button>
+              <button type="button" className="btn btn-primary btn-sm" onClick={openCustomSms}>
+                <FiMessageSquare aria-hidden="true" /> {t('electronics:repairs.detail.sendSms')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="card mb-5 no-print">
+        <div className="card-header"><span className="card-title">{t('electronics:repairs.detail.timelineSection')}</span></div>
+        {repair.history.length === 0 ? (
+          <div className="card-body text-sm text-secondary">{t('electronics:repairs.detail.noTimeline')}</div>
+        ) : (
+          <ul className="repair-timeline">
+            {repair.history.map((h) => (
+              <li key={h.id}>
+                <span className={`badge ${STATUS_BADGE[h.to_status] || 'badge-neutral'}`}>{t(`electronics:repairs.status.${h.to_status}`)}</span>
+                <span className="text-sm">{formatDateTime(h.created_at)}</span>
+                <span className="text-xs text-secondary">{h.changed_by_first_name} {h.changed_by_last_name}</span>
+                {h.notes && <span className="text-xs text-secondary">— {h.notes}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Collection info — an on-screen mirror of the printed job card's
+          footer (same received/expected fields and i18n labels used
+          below), so a technician doesn't have to print the ticket just to
+          see the expected completion date. The print-only footer further
+          down is untouched and still renders the full set for the
+          physical receipt. */}
+      <div className="card repair-collection-card no-print">
+        <div className="card-body form-row">
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.print.receivedDate')}</span><div className="text-sm">{formatDate(repair.received_at)}</div></div>
+          <div><span className="text-xs text-secondary">{t('electronics:repairs.print.expectedDate')}</span><div className="text-sm">{formatDate(repair.expected_completion_at)}</div></div>
         </div>
       </div>
 

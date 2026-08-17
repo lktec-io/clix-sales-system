@@ -1,6 +1,7 @@
 {
   "card": {
     "title": "Mpango wa {{plan}}",
+    "trialTitle": "Jaribio la Bure — Mpango wa {{plan}}",
     "daysRemaining_one": "Siku {{count}} iliyobaki",
     "daysRemaining_other": "Siku {{count}} zilizobaki",
     "status": "Hali: {{status}}",

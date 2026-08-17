@@ -169,7 +169,14 @@ export async function getSalesSummary(tenantId, branchIds) {
   const [[row]] = await pool.query(
     `SELECT
        COUNT(*) AS todayOrders,
-       COALESCE(SUM(total_amount), 0) AS todaySales,
+       -- Only orders that have actually been paid for count as "sales" —
+       -- an order still open/in the kitchen has no confirmed revenue yet,
+       -- and a cancelled one never will. Matches the generic retail
+       -- todaySales KPI's own status='completed' filter (dashboard.
+       -- repository.js#getKpis): both are "money actually received today",
+       -- not "orders touched today" (that's todayOrders, deliberately
+       -- unfiltered — a real operational count of kitchen/table activity).
+       COALESCE(SUM(CASE WHEN status IN ('paid', 'completed') THEN total_amount ELSE 0 END), 0) AS todaySales,
        COUNT(CASE WHEN status = 'completed' THEN 1 END) AS completedOrdersToday
      FROM restaurant_orders
      WHERE DATE(created_at) = CURDATE() ${scope.clause}`,

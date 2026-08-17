@@ -17,7 +17,12 @@ function LandingFooter() {
         <div className="landing-footer-links">
           <div>
             <span className="landing-footer-heading">{t('footer.product')}</span>
-            <a href="#platform">{t('nav.platform')}</a>
+            {/* No "Platform" link here — its target (id="platform",
+                Benefits.jsx) was removed, and repointing it to
+                #business-types would just duplicate the link right below.
+                nav.platform's i18n key is intentionally left in place
+                (unused) rather than deleted, per this pass's "don't remove
+                other translation keys" scope. */}
             <a href="#business-types">{t('nav.businessTypes')}</a>
             <a href="#pricing">{t('nav.pricing')}</a>
             <a href="#how-it-works">{t('nav.howItWorks')}</a>

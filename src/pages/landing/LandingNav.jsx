@@ -49,7 +49,11 @@ function LandingNav() {
         {open && <button type="button" className="landing-nav-overlay" aria-label="Close menu" onClick={closeMenu} />}
 
         <nav className={`landing-nav-links ${open ? 'is-open' : ''}`}>
-          <a href="#platform" onClick={closeMenu}>{t('nav.platform')}</a>
+          {/* No standalone "Platform" nav item — its target (id="platform",
+              Benefits.jsx) was removed, and repointing it to
+              #business-types would just duplicate the link right below.
+              Business Types is the first real section now, so it starts
+              the list. */}
           <a href="#business-types" onClick={closeMenu}>{t('nav.businessTypes')}</a>
           <a href="#pricing" onClick={closeMenu}>{t('nav.pricing')}</a>
           <a href="#how-it-works" onClick={closeMenu}>{t('nav.howItWorks')}</a>

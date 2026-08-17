@@ -28,9 +28,8 @@
   },
   "businessTypes": {
     "title": "One Platform. Six Real Business Types.",
-    "subtitle": "Pick the template built for the way your business already runs — see it in action below.",
-    "groupLabel": "Choose a business type to preview",
-    "selectCta": "Preview this",
+    "subtitle": "Pick the template built for the way your business already runs — then start your free trial in seconds.",
+    "groupLabel": "Business types",
     "startCta": "Start free trial",
     "retail-store": {
       "name": "Retail Store",
@@ -62,78 +61,6 @@
       "description": "Device intake, diagnosis, repair tracking and sales for phone and computer repair shops.",
       "capabilities": ["Repair Tracking", "Device Intake", "Parts & Inventory", "Customer Updates", "Sales"]
     }
-  },
-  "productPreview": {
-    "title": "See It In Action",
-    "subtitle": "A live simulation of the actual product interface — pick a business type above to see its own workflow.",
-    "ctaPrefix": "Start free trial with"
-  },
-  "demoPreview": {
-    "browserTitle": "Clix Business System",
-    "liveLabel": "Live Product Preview",
-    "sampleDataNote": "Sample data for illustration only",
-    "retail-store": {
-      "scenes": [
-        { "caption": "Dashboard overview" },
-        { "caption": "Product added to catalog" },
-        { "caption": "Stock updated" },
-        { "caption": "Sale in progress" },
-        { "caption": "Sale completed" }
-      ]
-    },
-    "pharmacy": {
-      "scenes": [
-        { "caption": "Medicine inventory" },
-        { "caption": "Checking expiry & stock" },
-        { "caption": "Expiry tracking dashboard" },
-        { "caption": "Dispensing medicine" },
-        { "caption": "Transaction completed" }
-      ]
-    },
-    "restaurant": {
-      "scenes": [
-        { "caption": "Restaurant dashboard" },
-        { "caption": "Menu item selected" },
-        { "caption": "Order sent to table" },
-        { "caption": "Order being prepared" },
-        { "caption": "Order completed" }
-      ]
-    },
-    "microfinance": {
-      "scenes": [
-        { "caption": "Lending dashboard" },
-        { "caption": "Borrower profile" },
-        { "caption": "Loan issued" },
-        { "caption": "Repayment recorded" },
-        { "caption": "Loan progress updated" }
-      ]
-    },
-    "cosmetics-shop": {
-      "scenes": [
-        { "caption": "Beauty product catalog" },
-        { "caption": "Category & stock details" },
-        { "caption": "Inventory overview" },
-        { "caption": "Sale in progress" },
-        { "caption": "Order completed" }
-      ]
-    },
-    "electronics-shop": {
-      "scenes": [
-        { "caption": "Device intake" },
-        { "caption": "Condition & diagnosis" },
-        { "caption": "Repairs dashboard" },
-        { "caption": "Repair in progress" },
-        { "caption": "Ready for collection" }
-      ]
-    }
-  },
-  "benefits": {
-    "title": "Why Businesses Choose Clix",
-    "subtitle": "Built specifically for how businesses in Tanzania actually operate.",
-    "item1": { "title": "One System, Every Operation", "description": "Sales, inventory, purchases, customers and reports — no plugins, no separate spreadsheets to reconcile." },
-    "item2": { "title": "Bilingual From the Ground Up", "description": "The full system, receipts and reports included, works in English and Kiswahili — not a translated afterthought." },
-    "item3": { "title": "Multi-Branch From Day One", "description": "Manage unlimited branches with role-based access for every team member, from a single account." },
-    "item4": { "title": "Your Data, Isolated", "description": "Every business's data is fully separated from every other tenant on Clix — nothing is ever shared." }
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",
