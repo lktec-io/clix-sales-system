@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AuthLayout from '../layouts/AuthLayout';
-import MainLayout from '../layouts/MainLayout';
+import MainLayout from '../components/layout/MainLayout';
 import ErrorLayout from '../layouts/ErrorLayout';
 import PlatformAuthLayout from '../layouts/PlatformAuthLayout';
 import PlatformLayout from '../layouts/PlatformLayout';

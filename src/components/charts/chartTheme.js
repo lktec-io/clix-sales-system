@@ -1,11 +1,10 @@
 import { useTheme } from '../../hooks/useTheme';
 
-// Mirrors src/styles/themes.css — Chart.js bakes colors into the chart at
-// construction time and can't read CSS custom properties directly (and the
-// hand-rolled DoughnutChart SVG reads slice colors as plain JS values, not
-// CSS), so each theme's palette is duplicated here as plain hex. Consumers
-// call useChartTheme() (below) instead of importing a static palette, so a
-// theme switch re-renders every chart with the new colors automatically.
+// Legacy JS palette mirroring src/styles/themes.css — still read by the
+// hand-rolled DoughnutChart SVG and by pages that pass explicit series
+// colours. The Recharts components (LineChart, BarChart,
+// CustomerTrafficChart) default to the --chart-N CSS tokens instead and
+// need nothing from here.
 const THEME_CHART_PALETTES = {
   aurora: {
     primary: '#0B1F4D',
@@ -58,11 +57,6 @@ const THEME_CHART_PALETTES = {
     doughnutOther: '#6B7280',
     tooltipBg: 'rgba(30, 36, 48, 0.92)',
   },
-};
-
-export const BASE_FONT = {
-  family: 'Poppins, sans-serif',
-  size: 12,
 };
 
 // The single hook every chart component (BarChart/LineChart/DoughnutChart)

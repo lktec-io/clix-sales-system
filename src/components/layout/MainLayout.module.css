@@ -1,0 +1,655 @@
+/* Application shell — grid frame, sidebar, top bar, stats summary bar.
+   Breakpoints (kept in sync with VIEWPORT_QUERIES in MainLayout.jsx):
+     desktop ≥1280px  sidebar expanded, user-collapsible to a rail
+     tablet  769–1279 rail by default, expands as an overlay (no reflow)
+     mobile  ≤768px   off-canvas drawer, single-column grid */
+
+/* ===================== Shell grid ===================== */
+
+.shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas:
+    'sidebar topbar'
+    'sidebar stats'
+    'sidebar main';
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-ui);
+  transition: grid-template-columns var(--dur-base) var(--ease-out);
+}
+
+@media (min-width: 1280px) {
+  .shell[data-collapsed='true'] {
+    grid-template-columns: var(--sidebar-w-rail) minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1279.98px) {
+  .shell {
+    grid-template-columns: var(--sidebar-w-rail) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'topbar'
+      'stats'
+      'main';
+  }
+}
+
+.skipLink {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: var(--z-toast);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--primary-green-strong);
+  color: var(--on-primary);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.skipLink:focus-visible {
+  transform: translateY(0);
+}
+
+/* ===================== Overlay (mobile drawer / tablet rail) ===================== */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-drawer) - 1);
+  background-color: var(--overlay);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--dur-sheet) var(--ease-out),
+    visibility 0s linear var(--dur-sheet);
+}
+
+.overlay[data-visible='true'] {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--dur-sheet) var(--ease-out),
+    visibility 0s;
+}
+
+@media (min-width: 769px) and (max-width: 1279.98px) {
+  .overlay {
+    background-color: rgb(15 23 42 / 0.25);
+  }
+}
+
+/* ===================== Sidebar ===================== */
+
+.sidebar {
+  /* Sidebar is always dark — skeletons inside it need dark-on-dark values
+     regardless of the active page theme. */
+  --skeleton-base: #1e293b;
+  --skeleton-highlight: #2b3a52;
+
+  grid-area: sidebar;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sidebar);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  border-right: 1px solid var(--sidebar-border);
+  transition:
+    width var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+@media (min-width: 769px) and (max-width: 1279.98px) {
+  .sidebar {
+    width: var(--sidebar-w-rail);
+  }
+
+  .sidebar[data-overlay='true'] {
+    width: var(--sidebar-w);
+    z-index: var(--z-drawer);
+    box-shadow: var(--shadow-sidebar);
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    inset-block: 0;
+    left: 0;
+    z-index: var(--z-drawer);
+    width: min(86vw, 300px);
+    border-right: 0;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition:
+      transform var(--dur-sheet) var(--ease-out),
+      box-shadow var(--dur-sheet) var(--ease-out),
+      visibility 0s linear var(--dur-sheet);
+  }
+
+  .sidebar[data-open='true'] {
+    transform: translateX(0);
+    visibility: visible;
+    box-shadow: var(--shadow-sidebar);
+    transition:
+      transform var(--dur-sheet) var(--ease-out),
+      box-shadow var(--dur-sheet) var(--ease-out),
+      visibility 0s;
+  }
+}
+
+/* Labels stay in the accessibility tree when collapsed (opacity, not
+   display/visibility), so the rail is still fully screen-reader labelled. */
+.fadeLabel {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.sidebar[data-collapsed='true'] .fadeLabel {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- Brand ---------- */
+
+.brand {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--topbar-h);
+  padding-inline: var(--space-4);
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.brandMark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background-color: var(--primary-green-strong);
+  color: var(--on-primary);
+  font-size: 1.2rem;
+  font-weight: var(--fw-bold);
+  line-height: 1;
+}
+
+.brandLogo {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background-color: #ffffff;
+  object-fit: contain;
+}
+
+.brandName {
+  flex: 1;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--sidebar-text);
+}
+
+.closeBtn {
+  display: none;
+  flex: none;
+  place-items: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  margin-right: calc(var(--space-2) * -1);
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text-muted);
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.closeBtn:hover {
+  background-color: var(--sidebar-surface-hover);
+  color: var(--sidebar-text);
+}
+
+.closeBtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 768px) {
+  .closeBtn {
+    display: grid;
+  }
+}
+
+/* ---------- Navigation ---------- */
+
+.sectionLabel {
+  display: block;
+  flex-shrink: 0;
+  padding: var(--space-4) var(--space-5) var(--space-2);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--sidebar-text-muted);
+}
+
+.nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  padding-bottom: var(--space-3);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+
+.navBottom {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--sidebar-border);
+}
+
+.navLink {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 40px;
+  margin-inline: var(--space-3);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text-muted);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.navLink:hover {
+  background-color: var(--sidebar-surface-hover);
+  color: var(--sidebar-text);
+}
+
+.navLink:focus-visible {
+  outline: 2px solid var(--sidebar-active-text);
+  outline-offset: -2px;
+}
+
+.navLinkActive,
+.navLinkActive:hover {
+  background-color: rgb(16 185 129 / 0.14);
+  color: var(--sidebar-active-text);
+}
+
+.navLinkActive::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: calc(var(--space-3) * -1);
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background-color: var(--primary-green);
+}
+
+.navIcon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+.navLinkDanger:hover {
+  background-color: rgb(239 68 68 / 0.12);
+  color: #fca5a5;
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--sidebar-border);
+}
+
+.toggleIcon {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.sidebar[data-collapsed='true'] .toggleIcon {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 768px) {
+  .collapseToggle {
+    display: none;
+  }
+}
+
+/* ---------- Nav skeleton (modules still resolving) ---------- */
+
+.navSkeleton {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 40px;
+  margin-inline: var(--space-3);
+  padding-inline: var(--space-3);
+}
+
+.navSkeletonIcon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+}
+
+.navSkeletonLabel {
+  flex: 1;
+  height: 10px;
+  border-radius: var(--radius-full);
+}
+
+.navSkeleton:nth-child(3n + 2) .navSkeletonLabel {
+  flex: 0 0 55%;
+}
+
+.navSkeleton:nth-child(3n) .navSkeletonLabel {
+  flex: 0 0 70%;
+}
+
+/* ===================== Top bar ===================== */
+
+.topbar {
+  grid-area: topbar;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-topbar);
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: var(--topbar-h);
+  background-color: var(--bg-main);
+  border-bottom: 1px solid var(--border-color);
+  transition: box-shadow var(--dur-base) var(--ease-out);
+}
+
+.topbar > * {
+  flex: 1;
+  min-width: 0;
+}
+
+:global(html.is-scrolled) .topbar {
+  box-shadow: var(--shadow-raised);
+}
+
+/* ===================== Stats summary bar ===================== */
+
+.statsBar {
+  grid-area: stats;
+  min-width: 0;
+  padding: var(--space-4) var(--gutter) 0;
+}
+
+.statsTrack {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: var(--space-3);
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+@media (max-width: 768px) {
+  .statsTrack {
+    display: flex;
+    gap: var(--space-3);
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    padding-bottom: var(--space-1);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+
+  .statsTrack::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.statCard {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--card-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+}
+
+.statCard:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-raised);
+}
+
+@media (max-width: 768px) {
+  .statCard {
+    flex: 0 0 min(72vw, 220px);
+    scroll-snap-align: start;
+  }
+}
+
+.statLabel {
+  overflow: hidden;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-caps);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.statValue {
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--fs-kpi);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums slashed-zero;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-main);
+}
+
+@container (max-width: 180px) {
+  .statValue {
+    font-size: var(--fs-lg);
+  }
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--space-1);
+  max-width: 100%;
+  min-height: 22px;
+  padding-inline: var(--space-2);
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trendIcon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.trendPositive {
+  background-color: var(--positive-bg);
+  color: var(--positive);
+}
+
+.trendNegative {
+  background-color: var(--negative-bg);
+  color: var(--negative);
+}
+
+.trendNeutral {
+  background-color: var(--neutral-bg);
+  color: var(--neutral);
+}
+
+/* Reserves the chip row when a KPI has no honest day-over-day comparison,
+   so every card in the bar keeps the same height. */
+.trendSpacer {
+  display: block;
+  min-height: 22px;
+}
+
+/* ---------- Stat card skeleton ---------- */
+
+.skeletonLabel {
+  width: 45%;
+  height: 10px;
+  margin-block: 3px;
+  border-radius: var(--radius-full);
+}
+
+.skeletonValue {
+  width: 72%;
+  height: calc(var(--fs-kpi) * 1.2);
+  border-radius: var(--radius-sm);
+}
+
+.skeletonTrend {
+  width: 112px;
+  max-width: 100%;
+  height: 22px;
+  border-radius: var(--radius-full);
+}
+
+/* ===================== Main content ===================== */
+
+.main {
+  grid-area: main;
+  min-width: 0;
+  padding: var(--space-5) var(--gutter) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  overflow-x: clip;
+}
+
+.main:focus {
+  outline: none;
+}
+
+.content {
+  min-width: 0;
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+/* ===================== Print ===================== */
+
+@media print {
+  .shell {
+    display: block;
+    min-height: 0;
+    background: none;
+  }
+
+  .sidebar,
+  .topbar,
+  .statsBar,
+  .overlay,
+  .skipLink {
+    display: none !important;
+  }
+
+  .main {
+    padding: 0;
+    overflow: visible;
+  }
+
+  .content {
+    max-width: none;
+  }
+}
+
+/* ===================== Shared shimmer ===================== */
+
+.shimmer {
+  display: block;
+  background-color: var(--skeleton-base);
+  background-image: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer var(--dur-shimmer) ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
+  }
+}

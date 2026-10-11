@@ -30,5 +30,8 @@
   "sectionMain": "Main",
   "logout": "Logout",
   "expandSidebar": "Expand sidebar",
-  "collapseSidebar": "Collapse sidebar"
+  "collapseSidebar": "Collapse sidebar",
+  "closeSidebar": "Close menu",
+  "primaryNavigation": "Primary navigation",
+  "skipToContent": "Skip to main content"
 }

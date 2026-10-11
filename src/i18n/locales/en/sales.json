@@ -9,6 +9,14 @@
     "inCart": "{{count}} in cart",
     "noProductsFound": "No sellable products found.",
     "cart": "Cart ({{count}})",
+    "sheet": {
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} items",
+      "show": "Show cart",
+      "hide": "Hide cart",
+      "region": "Active transaction"
+    },
+    "productGrid": "Products",
     "clearCart": "Clear Cart",
     "cartEmptyTitle": "Cart is empty",
     "cartEmptyDescription": "Scan or search for a product to begin.",

@@ -6,10 +6,12 @@ import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import SearchInput from '../../components/common/SearchInput';
 import EmptyState from '../../components/common/EmptyState';
+import POSGrid, { POSProductGrid, POSProductTile } from '../../components/pos/POSGrid';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermission } from '../../hooks/usePermission';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useToast } from '../../hooks/useToast';
+import { usePOSHotkeys } from '../../hooks/usePOSHotkeys';
 import * as productService from '../../services/productService';
 import * as branchService from '../../services/branchService';
 import * as customerService from '../../services/customerService';
@@ -63,6 +65,8 @@ function POS() {
   const [selectedLineId, setSelectedLineId] = useState(null);
   const [flashLineId, setFlashLineId] = useState(null);
   const flashTimerRef = useRef(null);
+  const [pulseKey, setPulseKey] = useState(0);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [expandedDiscountLines, setExpandedDiscountLines] = useState(() => new Set());
   const [customers, setCustomers] = useState([]);
   const [customerId, setCustomerId] = useState('');
@@ -120,6 +124,7 @@ function POS() {
   const triggerFlash = useCallback((productId) => {
     clearTimeout(flashTimerRef.current);
     setFlashLineId(productId);
+    setPulseKey((key) => key + 1);
     flashTimerRef.current = setTimeout(() => setFlashLineId(null), 450);
   }, []);
 
@@ -223,6 +228,7 @@ function POS() {
     idempotencyKeyRef.current = crypto.randomUUID();
   };
 
+  const itemCount = useMemo(() => cart.reduce((sum, line) => sum + line.quantity, 0), [cart]);
   const subtotal = useMemo(() => cart.reduce((sum, line) => sum + line.quantity * line.unitPrice, 0), [cart]);
   const discountTotal = useMemo(() => cart.reduce((sum, line) => sum + (Number(line.discountAmount) || 0), 0), [cart]);
   const total = Math.max(0, subtotal - discountTotal);
@@ -395,6 +401,7 @@ function POS() {
 
       const sale = await saleService.checkout(payload);
       clearCart();
+      setSheetOpen(false);
       // Deliberately NOT navigating away to the Sale Detail page — the
       // cashier never leaves POS. The Sale Completed modal uses the exact
       // same glass modal system as every other modal in the app (Add
@@ -450,120 +457,107 @@ function POS() {
     }
   };
 
-  // Production keyboard workflow: F2 refocuses search, F4 opens the
-  // scanner, ESC clears the search box, Delete removes the selected cart
-  // line, and Enter completes the sale — but only when focus isn't inside
-  // a text field (the search box handles its own Enter in
-  // handleSearchKeyDown, and a plain Enter while typing anywhere else,
-  // e.g. the Quick Customer modal, must never accidentally fire checkout).
-  // Suppressed entirely while any modal is open so ESC/Enter there do what
-  // that modal expects, not this page's shortcuts underneath it.
-  useEffect(() => {
-    const handleGlobalKeyDown = (event) => {
-      if (anyModalOpen) return;
+  // Production keyboard workflow: F2 or "/" focuses search, F4 opens the
+  // scanner, F8 toggles the cart sheet on tablet/mobile, ESC clears the
+  // search box, Delete removes the selected cart line, and Enter completes
+  // the sale. Delete/Enter/"/" are ignored while a text field has focus (the
+  // search box handles its own Enter in handleSearchKeyDown, and Enter while
+  // typing elsewhere must never fire checkout). Disabled entirely while any
+  // modal is open so ESC/Enter there do what that modal expects.
+  usePOSHotkeys(
+    {
+      F2: () => searchInputRef.current?.focus(),
+      '/': () => searchInputRef.current?.focus(),
+      F4: () => setScannerOpen(true),
+      F8: () => setSheetOpen((prev) => !prev),
+      Escape: {
+        preventDefault: false,
+        handler: () => {
+          setSearch('');
+          setHighlightedIndex(-1);
+          searchInputRef.current?.focus();
+        },
+      },
+      Delete: () => {
+        if (selectedLineId) removeLine(selectedLineId);
+      },
+      Enter: () => handleCheckout(),
+    },
+    { enabled: !anyModalOpen },
+  );
 
-      const tag = document.activeElement?.tagName;
-      const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
-
-      if (event.key === 'F2') {
-        event.preventDefault();
-        searchInputRef.current?.focus();
-        return;
-      }
-      if (event.key === 'F4') {
-        event.preventDefault();
-        setScannerOpen(true);
-        return;
-      }
-      if (event.key === 'Escape') {
-        setSearch('');
-        setHighlightedIndex(-1);
-        searchInputRef.current?.focus();
-        return;
-      }
-      if (event.key === 'Delete' && !isTyping && selectedLineId) {
-        removeLine(selectedLineId);
-        return;
-      }
-      if (event.key === 'Enter' && !isTyping) {
-        event.preventDefault();
-        handleCheckout();
-      }
-    };
-
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [anyModalOpen, selectedLineId, handleCheckout]);
-
-  return (
-    <div className="pos-page">
-      <div className="pos-catalog">
-        <div className="pos-catalog-toolbar">
-          <div className="pos-catalog-toolbar-row">
-            {!user?.branch_id ? (
-              <select className="form-control pos-branch-select" value={branchId} onChange={(e) => setBranchId(e.target.value)}>
-                <option value="">{t('sales:pos.selectBranchPlaceholder')}</option>
-                {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
-            ) : (
-              <span className="badge badge-neutral">{user.branch_name}</span>
-            )}
-            <SearchInput
-              ref={searchInputRef}
-              value={search}
-              onChange={setSearch}
-              onKeyDown={handleSearchKeyDown}
-              placeholder={t('sales:pos.searchPlaceholder')}
-            />
-            <button type="button" className="btn btn-secondary" onClick={() => setScannerOpen(true)}>
-              <FiCamera aria-hidden="true" /> {t('sales:pos.scanBarcode')}
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={() => navigate('/pos/sales')}>
-              <FiClock aria-hidden="true" /> {t('sales:pos.saleHistory')}
-            </button>
-          </div>
-        </div>
-
-        {!branchId ? (
-          <div className="pos-scan-empty">{t('sales:pos.selectBranchToView')}</div>
-        ) : productsLoading ? (
-          <div className="flex items-center justify-center p-6"><span className="spinner" aria-label={t('common:state.loading')} /></div>
-        ) : (
-          <div className="pos-product-grid">
-            {products.map((product, index) => {
-              const inCartQty = cartLine(product.id)?.quantity || 0;
-              const disabled = inCartQty >= product.available_quantity;
-              return (
-                <button
-                  key={product.id}
-                  type="button"
-                  className={`pos-product-card ${index === highlightedIndex ? 'pos-product-card-highlighted' : ''}`}
-                  onClick={() => addToCart(product)}
-                  disabled={disabled}
-                >
-                  <span className="pos-product-name">{product.name}</span>
-                  <span className="pos-product-code">{product.code}</span>
-                  <span className="pos-product-price">{formatCurrency(product.selling_price)}</span>
-                  <span className="pos-product-stock">
-                    {t('sales:pos.inStock', { count: product.available_quantity })}
-                    {inCartQty ? ` · ${t('sales:pos.inCart', { count: inCartQty })}` : ''}
-                  </span>
-                </button>
-              );
-            })}
-            {products.length === 0 && <div className="pos-scan-empty">{t('sales:pos.noProductsFound')}</div>}
-          </div>
-        )}
+  const toolbar = (
+    <>
+      {!user?.branch_id ? (
+        <select className="form-control pos-branch-select" value={branchId} onChange={(e) => setBranchId(e.target.value)}>
+          <option value="">{t('sales:pos.selectBranchPlaceholder')}</option>
+          {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+        </select>
+      ) : (
+        <span className="badge badge-neutral">{user.branch_name}</span>
+      )}
+      <div className="pos-search">
+        <SearchInput
+          ref={searchInputRef}
+          value={search}
+          onChange={setSearch}
+          onKeyDown={handleSearchKeyDown}
+          placeholder={t('sales:pos.searchPlaceholder')}
+        />
       </div>
+      <button type="button" className="btn btn-secondary" onClick={() => setScannerOpen(true)}>
+        <FiCamera aria-hidden="true" /> {t('sales:pos.scanBarcode')}
+      </button>
+      <button type="button" className="btn btn-ghost" onClick={() => navigate('/pos/sales')}>
+        <FiClock aria-hidden="true" /> {t('sales:pos.saleHistory')}
+      </button>
+    </>
+  );
 
-      <div className="pos-cart">
-        <div className="pos-cart-header">
-          <span className="card-title">{t('sales:pos.cart', { count: cart.length })}</span>
-          {cart.length > 0 && (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setClearCartConfirmOpen(true)}>{t('sales:pos.clearCart')}</button>
-          )}
-        </div>
+  // Skeleton only on a cold grid — a scanner typing into the search box
+  // keeps the previous results on screen instead of flashing placeholders.
+  const catalog = !branchId ? (
+    <POSProductGrid empty emptyMessage={t('sales:pos.selectBranchToView')} />
+  ) : (
+    <POSProductGrid
+      loading={productsLoading && products.length === 0}
+      empty={!productsLoading && products.length === 0}
+      emptyMessage={t('sales:pos.noProductsFound')}
+      label={t('sales:pos.productGrid')}
+    >
+      {products.map((product, index) => {
+        const inCartQty = cartLine(product.id)?.quantity || 0;
+        const stockLabel = inCartQty
+          ? `${t('sales:pos.inStock', { count: product.available_quantity })} · ${t('sales:pos.inCart', { count: inCartQty })}`
+          : t('sales:pos.inStock', { count: product.available_quantity });
+        return (
+          <POSProductTile
+            key={product.id}
+            name={product.name}
+            code={product.code}
+            priceLabel={formatCurrency(product.selling_price)}
+            stockLabel={stockLabel}
+            inCartQty={inCartQty}
+            highlighted={index === highlightedIndex}
+            disabled={inCartQty >= product.available_quantity}
+            onSelect={() => addToCart(product)}
+          />
+        );
+      })}
+    </POSProductGrid>
+  );
 
+  const cartHeader = (
+    <>
+      <span>{t('sales:pos.cart', { count: cart.length })}</span>
+      {cart.length > 0 && (
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setClearCartConfirmOpen(true)}>{t('sales:pos.clearCart')}</button>
+      )}
+    </>
+  );
+
+  const cartBody = (
+    <>
         <div className="pos-cart-items">
           {cart.length === 0 ? (
             <EmptyState icon={FiShoppingCart} title={t('sales:pos.cartEmptyTitle')} description={t('sales:pos.cartEmptyDescription')} />
@@ -747,7 +741,22 @@ function POS() {
             {t('sales:pos.completeSale')}
           </button>
         </div>
-      </div>
+    </>
+  );
+
+  return (
+    <>
+      <POSGrid
+        toolbar={toolbar}
+        catalog={catalog}
+        cartHeader={cartHeader}
+        cart={cartBody}
+        itemCount={itemCount}
+        totalLabel={formatCurrency(total)}
+        pulseKey={pulseKey}
+        sheetOpen={sheetOpen}
+        onSheetOpenChange={setSheetOpen}
+      />
 
       <Modal open={scannerOpen} onClose={() => setScannerOpen(false)} title={t('sales:pos.scanBarcodeModalTitle')} size="sm">
         <Suspense fallback={null}>
@@ -825,7 +834,7 @@ function POS() {
           </div>
         )}
       </Modal>
-    </div>
+    </>
   );
 }
 

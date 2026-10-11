@@ -1,0 +1,151 @@
+/* Shared styling for the generic Recharts wrappers (LineChart, BarChart)
+   and their tooltip. Series colour defaults to a token and can be
+   overridden per chart through the --series custom property. */
+
+.frame {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  color: var(--series, var(--chart-1));
+}
+
+.frame :global(.recharts-surface) {
+  overflow: visible;
+}
+
+.frame :global(.recharts-cartesian-grid line) {
+  stroke: var(--chart-grid);
+  stroke-dasharray: 3 4;
+}
+
+.frame :global(.recharts-tooltip-cursor) {
+  stroke: var(--border-strong);
+  stroke-dasharray: 4 4;
+}
+
+.frame :global(.recharts-rectangle.recharts-tooltip-cursor) {
+  fill: var(--surface-hover);
+  stroke: none;
+}
+
+.tick {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.categoryTick {
+  fill: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 12px;
+}
+
+.gradientStopTop {
+  stop-color: currentColor;
+  stop-opacity: 0.2;
+}
+
+.gradientStopBottom {
+  stop-color: currentColor;
+  stop-opacity: 0;
+}
+
+.activeDot {
+  fill: currentColor;
+  stroke: var(--card-surface);
+  stroke-width: 2.5;
+}
+
+/* Default categorical fills — used only when a caller passes no colour. */
+.fill0 :global(.recharts-rectangle) { fill: var(--chart-1); }
+.fill1 :global(.recharts-rectangle) { fill: var(--chart-2); }
+.fill2 :global(.recharts-rectangle) { fill: var(--chart-3); }
+.fill3 :global(.recharts-rectangle) { fill: var(--chart-4); }
+.fill4 :global(.recharts-rectangle) { fill: var(--chart-5); }
+
+/* ---------- Legend ---------- */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.legendSwatch {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--swatch, var(--chart-1));
+}
+
+/* ---------- Tooltip ---------- */
+
+.tooltip {
+  min-width: 160px;
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background-color: var(--card-surface);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.06),
+    0 12px 32px -6px rgb(15 23 42 / 0.22);
+  color: var(--text-main);
+  font-family: var(--font-ui);
+  pointer-events: none;
+}
+
+:global(:root[data-theme='dark']) .tooltip,
+:global(:root[data-theme='midnight']) .tooltip {
+  box-shadow: var(--shadow-pop);
+}
+
+.tooltipLabel {
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+}
+
+.tooltipRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 22px;
+  font-size: var(--fs-sm);
+}
+
+.tooltipSwatch {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--swatch, var(--chart-1));
+}
+
+.tooltipName {
+  overflow: hidden;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tooltipValue {
+  font-family: var(--font-mono);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums slashed-zero;
+  white-space: nowrap;
+}

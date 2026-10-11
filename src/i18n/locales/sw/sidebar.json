@@ -30,5 +30,8 @@
   "sectionMain": "Kuu",
   "logout": "Ondoka",
   "expandSidebar": "Panua Menyu",
-  "collapseSidebar": "Kunja Menyu"
+  "collapseSidebar": "Kunja Menyu",
+  "closeSidebar": "Funga Menyu",
+  "primaryNavigation": "Urambazaji Mkuu",
+  "skipToContent": "Ruka hadi Maudhui Makuu"
 }

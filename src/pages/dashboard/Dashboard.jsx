@@ -11,6 +11,7 @@ import DashboardHero from '../../components/dashboard/DashboardHero';
 import SubscriptionCard from '../../components/dashboard/SubscriptionCard';
 import QuickActions from '../../components/dashboard/QuickActions';
 import SalesTrendCard from '../../components/dashboard/SalesTrendCard';
+import CustomerTrafficChart from '../../components/dashboard/CustomerTrafficChart';
 import TopProductsCard from '../../components/dashboard/TopProductsCard';
 import LowStockAlertCard from '../../components/dashboard/LowStockAlertCard';
 import DoughnutChart from '../../components/charts/DoughnutChart';
@@ -247,6 +248,12 @@ function Dashboard() {
             </motion.div>
           ))}
         </motion.div>
+
+        {showSalesTrend && (
+          <motion.div variants={STAGGER_ITEM}>
+            <CustomerTrafficChart />
+          </motion.div>
+        )}
 
         {showSalesTrend && (
           <motion.div variants={STAGGER_ITEM}>

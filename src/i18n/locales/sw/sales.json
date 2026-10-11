@@ -9,6 +9,14 @@
     "inCart": "{{count}} kikapuni",
     "noProductsFound": "Hakuna bidhaa zinazouzwa zilizopatikana.",
     "cart": "Kikapu ({{count}})",
+    "sheet": {
+      "items_one": "Bidhaa {{count}}",
+      "items_other": "Bidhaa {{count}}",
+      "show": "Onyesha kikapu",
+      "hide": "Ficha kikapu",
+      "region": "Muamala unaoendelea"
+    },
+    "productGrid": "Bidhaa",
     "clearCart": "Safisha Kikapu",
     "cartEmptyTitle": "Kikapu ki tupu",
     "cartEmptyDescription": "Skani au tafuta bidhaa ili kuanza.",

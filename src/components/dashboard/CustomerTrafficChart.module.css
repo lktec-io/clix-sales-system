@@ -1,0 +1,603 @@
+/* Live Traffic — hourly dot graph (today vs yesterday) plus a same-time
+   comparison matrix. Every series colour, gridline and tick is driven by
+   design tokens here (Recharts' presentation attributes are overridden by
+   these rules), so a theme switch needs no JS palette. */
+
+.card {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-bottom: var(--space-5);
+  background-color: var(--card-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  color: var(--text-main);
+  font-family: var(--font-ui);
+}
+
+/* ===================== Header ===================== */
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0);
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.title {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+}
+
+.liveDot {
+  position: relative;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--primary-green);
+}
+
+.liveDot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--primary-green);
+  animation: livePulse 2s var(--ease-out) infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+.subtitle {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.swatchToday,
+.swatchYesterday {
+  display: inline-block;
+  width: 18px;
+  height: 0;
+  border-top-width: 2px;
+  border-top-style: solid;
+}
+
+.swatchToday {
+  border-top-color: var(--chart-1);
+}
+
+.swatchYesterday {
+  border-top-color: var(--chart-2);
+  border-top-style: dashed;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-sunken);
+}
+
+.segment {
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.segment:hover {
+  color: var(--text-main);
+}
+
+.segment[aria-pressed='true'] {
+  background-color: var(--card-surface);
+  color: var(--text-main);
+  box-shadow: var(--shadow-card);
+}
+
+/* ===================== Body ===================== */
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+@container (min-width: 880px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 34%);
+    align-items: start;
+  }
+}
+
+@container (max-width: 480px) {
+  .header,
+  .body {
+    padding-inline: var(--space-4);
+  }
+}
+
+.chartArea {
+  position: relative;
+  min-width: 0;
+  height: clamp(240px, 32vw, 320px);
+}
+
+/* ---------- Recharts overrides (token-driven) ---------- */
+
+.chartArea :global(.recharts-surface) {
+  overflow: visible;
+}
+
+.chartArea :global(.recharts-cartesian-grid line) {
+  stroke: var(--chart-grid);
+  stroke-dasharray: 3 4;
+}
+
+.chartArea :global(.recharts-tooltip-cursor) {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+.todaySeries :global(.recharts-line-curve) {
+  stroke: var(--chart-1);
+  stroke-width: 2.5;
+}
+
+.yesterdaySeries :global(.recharts-line-curve) {
+  stroke: var(--chart-2);
+  stroke-width: 1.75;
+  stroke-dasharray: 5 5;
+}
+
+.todayArea :global(.recharts-area-area) {
+  stroke: none;
+}
+
+.gradientStopTop {
+  stop-color: var(--chart-1);
+  stop-opacity: 0.22;
+}
+
+.gradientStopBottom {
+  stop-color: var(--chart-1);
+  stop-opacity: 0;
+}
+
+.tick {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+/* ---------- Dots ---------- */
+
+.dotToday {
+  fill: var(--card-surface);
+  stroke: var(--chart-1);
+  stroke-width: 2;
+}
+
+.dotYesterday {
+  fill: var(--chart-2);
+  stroke: var(--card-surface);
+  stroke-width: 1;
+}
+
+.activeHalo {
+  fill: var(--chart-1);
+  opacity: 0.18;
+}
+
+.activeDotToday {
+  fill: var(--chart-1);
+  stroke: var(--card-surface);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 2px 4px rgb(5 150 105 / 0.45));
+}
+
+.activeDotYesterday {
+  fill: var(--chart-2);
+  stroke: var(--card-surface);
+  stroke-width: 2;
+}
+
+/* ===================== Tooltip ===================== */
+
+.tooltip {
+  min-width: 200px;
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background-color: var(--card-surface);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.06),
+    0 12px 32px -6px rgb(15 23 42 / 0.22),
+    0 0 0 1px rgb(15 23 42 / 0.02);
+  color: var(--text-main);
+  font-family: var(--font-ui);
+  pointer-events: none;
+  animation: tooltipIn var(--dur-fast) var(--ease-out);
+}
+
+:global(:root[data-theme='dark']) .tooltip,
+:global(:root[data-theme='midnight']) .tooltip {
+  box-shadow: var(--shadow-pop);
+}
+
+@keyframes tooltipIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tooltipHeader {
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-color);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.tooltipRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 24px;
+  font-size: var(--fs-sm);
+}
+
+.tooltipSwatch {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+}
+
+.tooltipSwatchToday {
+  background-color: var(--chart-1);
+}
+
+.tooltipSwatchYesterday {
+  background-color: var(--chart-2);
+}
+
+.tooltipLabel {
+  color: var(--text-muted);
+}
+
+.tooltipValue {
+  font-family: var(--font-mono);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums slashed-zero;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tooltipFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--border-color);
+}
+
+/* ===================== Matrix ===================== */
+
+.matrixWrap {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.matrixCaption {
+  margin-bottom: var(--space-2);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-align: left;
+  caption-side: top;
+}
+
+.matrix th,
+.matrix td {
+  padding: var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.matrix thead th {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.matrix th:first-child,
+.matrix td:first-child {
+  padding-left: 0;
+}
+
+.matrix th:last-child,
+.matrix td:last-child {
+  padding-right: 0;
+}
+
+.matrix tbody tr:last-child th,
+.matrix tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.matrix tbody th {
+  font-weight: var(--fw-medium);
+  text-align: left;
+  color: var(--text-main);
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums slashed-zero;
+  text-align: right;
+}
+
+.matrix thead .num {
+  font-family: var(--font-ui);
+}
+
+.numStrong {
+  font-weight: var(--fw-semibold);
+}
+
+.delta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  min-height: 22px;
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.delta svg {
+  width: 12px;
+  height: 12px;
+}
+
+.deltaPositive {
+  background-color: var(--positive-bg);
+  color: var(--positive);
+}
+
+.deltaNegative {
+  background-color: var(--negative-bg);
+  color: var(--negative);
+}
+
+.deltaNeutral {
+  background-color: var(--neutral-bg);
+  color: var(--neutral);
+}
+
+.deltaNone {
+  color: var(--text-muted);
+}
+
+/* ===================== Footer / notices ===================== */
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-color);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.updated {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.notice {
+  min-width: 0;
+}
+
+.empty,
+.error {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: var(--space-5);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.error {
+  border-color: var(--negative);
+  color: var(--negative);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===================== Skeleton ===================== */
+
+.skeletonChart {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+.skeletonGrid {
+  position: absolute;
+  inset: 0 0 24px 48px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--chart-grid) 0 1px,
+    transparent 1px 25%
+  );
+  opacity: 0.8;
+}
+
+.skeletonCurve {
+  position: absolute;
+  inset: 20% 0 24px 48px;
+  border-radius: var(--radius-md);
+  opacity: 0.6;
+}
+
+.skeletonAxis {
+  position: absolute;
+  top: 0;
+  bottom: 24px;
+  left: 0;
+  width: 36px;
+  border-radius: var(--radius-sm);
+}
+
+.skeletonRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 64px;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.skeletonRow:last-child {
+  border-bottom: 0;
+}
+
+.skeletonCell {
+  height: 12px;
+  border-radius: var(--radius-full);
+}
+
+.shimmer {
+  display: block;
+  background-color: var(--skeleton-base);
+  background-image: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer var(--dur-shimmer) ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer,
+  .liveDot::after,
+  .tooltip {
+    animation: none;
+  }
+}

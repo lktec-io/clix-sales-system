@@ -1,0 +1,582 @@
+/* POS split-screen framework.
+   ≥1024px  catalog | cart side by side, each pane scrolling on its own.
+   <1024px  catalog takes the page; the cart becomes a bottom sheet whose
+            sticky summary bar (items · total) toggles it with one tap.
+            No full-screen scrim — the catalog above the sheet stays live. */
+
+/* ===================== Frame ===================== */
+
+.pos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(320px, 30vw, 400px);
+  gap: var(--space-4);
+  height: calc(100dvh - var(--topbar-h) - var(--space-5) - var(--space-6));
+  min-height: 520px;
+}
+
+.catalog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+}
+
+.toolbar {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.toolbar > * {
+  min-width: 0;
+}
+
+.catalogBody {
+  flex: 1;
+  min-height: 0;
+  margin-inline: calc(var(--space-1) * -1);
+  padding: var(--space-1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+/* ===================== Cart pane / sheet ===================== */
+
+.cartPane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background-color: var(--card-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.sheetBar {
+  display: none;
+}
+
+.sheetBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sheetClip {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sheetInner {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.cartHeader {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: var(--fw-semibold);
+}
+
+.cartContent {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ===================== Compact (<1024px): bottom sheet ===================== */
+
+@media (max-width: 1023.98px) {
+  .pos {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    height: auto;
+    min-height: 0;
+  }
+
+  .catalog {
+    min-height: auto;
+  }
+
+  .toolbar {
+    position: sticky;
+    top: var(--topbar-h);
+    z-index: var(--z-sticky);
+    margin-inline: calc(var(--gutter) * -1);
+    margin-top: calc(var(--space-5) * -1);
+    padding: var(--space-3) var(--gutter);
+    background-color: var(--bg-main);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .catalogBody {
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+
+  .cartPane {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--z-sheet);
+    margin-inline: calc(var(--gutter) * -1);
+    margin-bottom: calc((var(--space-6) + env(safe-area-inset-bottom, 0px)) * -1);
+    overflow: visible;
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    box-shadow: 0 -12px 32px -12px rgb(15 23 42 / 0.28);
+  }
+
+  .sheetBar {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    min-height: var(--bottombar-h);
+    padding: var(--space-3) var(--gutter);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    color: var(--text-main);
+    text-align: left;
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+
+  .sheetBar:hover {
+    background-color: var(--surface-hover);
+  }
+
+  .sheetBar:focus-visible {
+    outline: 2px solid var(--primary-green);
+    outline-offset: -2px;
+  }
+
+  .sheetHandle {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background-color: var(--border-strong);
+    transform: translateX(-50%);
+  }
+
+  .sheetBody {
+    display: grid;
+    flex: none;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--dur-sheet) var(--ease-out);
+  }
+
+  .pos[data-sheet-open='true'] .sheetBody {
+    grid-template-rows: 1fr;
+  }
+
+  .sheetClip {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .sheetInner {
+    max-height: min(72dvh, 640px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .cartHeader {
+    padding-inline: var(--gutter);
+  }
+}
+
+/* ---------- Summary bar content ---------- */
+
+.barIcon {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background-color: var(--primary-green-soft);
+  color: var(--primary-green-text);
+}
+
+.barIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.barBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding-inline: 5px;
+  border: 2px solid var(--card-surface);
+  border-radius: var(--radius-full);
+  background-color: var(--primary-green-strong);
+  color: var(--on-primary);
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.barBadge[data-pulse='true'] {
+  animation: badgePop 450ms var(--ease-out);
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(1);
+  }
+
+  35% {
+    transform: scale(1.35);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.barMeta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.barCount {
+  overflow: hidden;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barHint {
+  overflow: hidden;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barTotal {
+  font-family: var(--font-mono);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums slashed-zero;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.barChevron {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  transition: transform var(--dur-sheet) var(--ease-out);
+}
+
+.pos[data-sheet-open='true'] .barChevron {
+  transform: rotate(180deg);
+}
+
+/* ===================== Product grid ===================== */
+
+.gridWrap {
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 168px), 1fr));
+  gap: var(--space-3);
+  align-content: start;
+}
+
+@container (min-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(184px, 1fr));
+  }
+}
+
+.empty {
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+  padding: var(--space-6) var(--space-4);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+  font-size: var(--fs-base);
+  text-align: center;
+}
+
+/* ---------- Tile ---------- */
+
+.tile {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'name badge'
+    'code code'
+    'price price'
+    'stock stock';
+  align-content: start;
+  gap: var(--space-0) var(--space-2);
+  min-width: 0;
+  min-height: 116px;
+  padding: var(--space-3);
+  background-color: var(--card-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  color: var(--text-main);
+  text-align: left;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.tile:hover:not(:disabled) {
+  border-color: var(--primary-green);
+  box-shadow: var(--shadow-raised);
+}
+
+.tile:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--primary-green);
+  outline-offset: 2px;
+}
+
+.tile[data-in-cart='true'] {
+  border-color: var(--primary-green);
+}
+
+/* Arrow-key result in the search box — same affordance as hover so a
+   keyboard cashier sees exactly what Enter will add. */
+.tile[data-highlighted='true'] {
+  background-color: var(--primary-green-soft);
+  border-color: var(--primary-green);
+  box-shadow: var(--focus-ring);
+}
+
+.tile:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none;
+}
+
+.tileName {
+  display: -webkit-box;
+  grid-area: name;
+  overflow: hidden;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.tileBadge {
+  display: grid;
+  grid-area: badge;
+  align-self: start;
+  place-items: center;
+  min-width: 24px;
+  height: 22px;
+  padding-inline: var(--space-1);
+  border-radius: var(--radius-full);
+  background-color: var(--primary-green-soft);
+  color: var(--primary-green-text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.tileCode {
+  grid-area: code;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tilePrice {
+  grid-area: price;
+  align-self: end;
+  margin-top: var(--space-2);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums slashed-zero;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tileStock {
+  grid-area: stock;
+  overflow: hidden;
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Narrow container (phones): one column of dense rows — name and price on
+   one line, code and stock beneath — so more products fit per screen. */
+@container (max-width: 479px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .tile {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      'name badge price'
+      'code code stock';
+    align-items: center;
+    min-height: 64px;
+    padding: var(--space-3);
+  }
+
+  .tileName {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  .tilePrice {
+    align-self: center;
+    margin-top: 0;
+    text-align: right;
+  }
+
+  .tileStock {
+    text-align: right;
+  }
+}
+
+/* ---------- Tile skeleton ---------- */
+
+.tileSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 116px;
+  padding: var(--space-3);
+  background-color: var(--card-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.skName {
+  width: 80%;
+  height: 12px;
+  border-radius: var(--radius-full);
+}
+
+.skCode {
+  width: 45%;
+  height: 10px;
+  border-radius: var(--radius-full);
+}
+
+.skPrice {
+  width: 55%;
+  height: 16px;
+  margin-top: auto;
+  border-radius: var(--radius-sm);
+}
+
+@container (max-width: 479px) {
+  .tileSkeleton {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 30%;
+    align-items: center;
+    min-height: 64px;
+  }
+
+  .skPrice {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .skCode {
+    grid-column: 1;
+  }
+}
+
+.shimmer {
+  display: block;
+  background-color: var(--skeleton-base);
+  background-image: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer var(--dur-shimmer) ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer,
+  .barBadge[data-pulse='true'] {
+    animation: none;
+  }
+}

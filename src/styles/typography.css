@@ -1,7 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
 :root {
-  --font-family-base: 'Poppins', sans-serif;
+  --font-family-base: var(--font-ui);
 
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;

@@ -1,4 +1,5 @@
 {
+  "statsBar": "Vipimo Muhimu vya Leo",
   "hero": {
     "goodMorning": "Habari za Asubuhi",
     "goodAfternoon": "Habari za Mchana",
@@ -90,6 +91,29 @@
     "month": "Mwezi",
     "year": "Mwaka",
     "noSalesForPeriod": "Hakuna mauzo yaliyorekodiwa kwa kipindi hiki"
+  },
+  "traffic": {
+    "title": "Mwenendo wa Moja kwa Moja",
+    "subtitle": "Mauzo yaliyokamilika kwa saa — leo dhidi ya jana",
+    "metricToggle": "Kipimo cha chati",
+    "metricRevenue": "Mapato",
+    "metricTransactions": "Miamala",
+    "today": "Leo",
+    "yesterday": "Jana",
+    "sameTimeYesterday": "Jana (muda ule ule)",
+    "change": "Mabadiliko",
+    "matrixCaption": "Leo hadi sasa ikilinganishwa na jana hadi saa ile ile",
+    "rowRevenue": "Mapato",
+    "rowTransactions": "Miamala",
+    "rowAverageTicket": "Wastani wa muamala",
+    "rowPeakHour": "Saa ya kilele",
+    "hourRange": "{{from}}–{{to}}",
+    "noComparison": "Hakuna data ya jana",
+    "partialYesterday": "Jana inaonyesha mauzo {{count}} ya karibuni pekee.",
+    "todayOnly": "Ulinganisho wa jana unahitaji ruhusa ya kuona Mauzo.",
+    "empty": "Hakuna mauzo yaliyorekodiwa leo wala jana",
+    "updated": "Imesasishwa {{time}}",
+    "loadError": "Mwenendo wa moja kwa moja haukuweza kupakiwa."
   },
   "topProducts": {
     "title": "Bidhaa Zinazouzwa Zaidi",

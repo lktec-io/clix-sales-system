@@ -1,4 +1,5 @@
 {
+  "statsBar": "Today's key metrics",
   "hero": {
     "goodMorning": "Good Morning",
     "goodAfternoon": "Good Afternoon",
@@ -90,6 +91,29 @@
     "month": "Month",
     "year": "Year",
     "noSalesForPeriod": "No sales recorded for this period"
+  },
+  "traffic": {
+    "title": "Live Traffic",
+    "subtitle": "Completed sales per hour — today vs yesterday",
+    "metricToggle": "Chart metric",
+    "metricRevenue": "Revenue",
+    "metricTransactions": "Transactions",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "sameTimeYesterday": "Yesterday (same time)",
+    "change": "Change",
+    "matrixCaption": "Today so far compared with yesterday up to the same hour",
+    "rowRevenue": "Revenue",
+    "rowTransactions": "Transactions",
+    "rowAverageTicket": "Average ticket",
+    "rowPeakHour": "Peak hour",
+    "hourRange": "{{from}}–{{to}}",
+    "noComparison": "No yesterday data",
+    "partialYesterday": "Yesterday shows the most recent {{count}} sales only.",
+    "todayOnly": "Yesterday comparison needs the Sales view permission.",
+    "empty": "No sales recorded today or yesterday",
+    "updated": "Updated {{time}}",
+    "loadError": "Live traffic could not be loaded."
   },
   "topProducts": {
     "title": "Top Selling Products",

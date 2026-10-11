@@ -1,1 +1,7 @@
+/* Order: fonts → reset (element-only rules) → legacy global layer
+   (pages not yet migrated to CSS Modules) → tokens last, so the new
+   design tokens win wherever a legacy file declares the same name. */
+@import './styles/fonts.css';
+@import './styles/reset.css';
 @import './styles/theme.css';
+@import './styles/tokens.css';
