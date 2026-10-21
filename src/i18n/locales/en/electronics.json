@@ -36,11 +36,11 @@
     },
     "stepper": {
       "received": "Received",
-      "diagnosis": "Diagnosis",
+      "diagnosis": "Diagnosing",
       "approval": "Approval",
-      "repair": "Repair",
-      "ready": "Ready",
-      "collected": "Collected"
+      "repair": "In Repair",
+      "ready": "Ready for Pickup",
+      "collected": "Delivered"
     },
     "deviceTypes": {
       "smartphone": "Smartphone",

@@ -73,7 +73,8 @@
     "completedRepairsTodaySubtitle": "Collected today",
     "outstandingRepairPayments": "Outstanding Repair Payments",
     "outstandingRepairPaymentsSubtitle": "Balance still owed across active jobs",
-    "trendVsYesterday": "{{percent}}% vs yesterday"
+    "trendVsYesterday": "{{percent}}% vs yesterday",
+    "vsYesterdayShort": "vs yesterday"
   },
   "charts": {
     "revenueVsExpenses": "Revenue vs Expenses",

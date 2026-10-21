@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowLeft, FiPrinter, FiPlus, FiCheck, FiX, FiDollarSign, FiChevronRight, FiMessageSquare, FiCheckCircle } from 'react-icons/fi';
+import { FiArrowLeft, FiPrinter, FiPlus, FiDollarSign, FiMessageSquare, FiCheckCircle } from 'react-icons/fi';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Modal from '../../components/common/Modal';
 import PageSkeleton from '../../components/common/PageSkeleton';
@@ -14,6 +14,7 @@ import * as repairService from '../../services/repairService';
 import * as productService from '../../services/productService';
 import * as userService from '../../services/userService';
 import { formatCurrency } from '../../utils/formatCurrency';
+import StatusStepper from '../../components/common/StatusStepper';
 import '../../styles/pages/RepairDetail.css';
 
 const STATUS_BADGE = {
@@ -39,17 +40,18 @@ const SMS_TEMPLATES = {
   ready: (repair) => `Habari ${repair.customer_first_name}, kifaa chako kimetengenezwa na kiko tayari kuchukuliwa. Kazi Na. ${repair.repair_number}. Asante kwa kutuamini.`,
 };
 
-// The device's journey shown as a forward-looking stepper — distinct from
-// the chronological .repair-timeline list below it, which stays a log.
-// 'approved' and 'waiting_approval' share the Approval stage (both are
-// "in approval"); 'diagnosis' status just skips ahead of the Diagnosis
-// stage. Terminal statuses (cancelled/rejected/unrepairable) are
-// deliberately NOT mapped here — they get their own "-ended" treatment
-// rather than being forced onto the happy-path sequence.
-const STAGE_KEYS = ['received', 'diagnosis', 'approval', 'repair', 'ready', 'collected'];
+// The device's journey as a forward-looking stepper — distinct from the
+// chronological .repair-timeline list below it, which stays a log.
+// Received → Diagnosing → In Repair → Ready for Pickup → Delivered. The
+// quote/approval statuses (waiting_approval, approved) belong to the
+// Diagnosing stage; the exact status is shown as a hint under it.
+// Terminal statuses (cancelled/rejected/unrepairable) are NOT mapped — they
+// end the flow with their own red node instead of a happy-path stage.
+const STAGE_KEYS = ['received', 'diagnosis', 'repair', 'ready', 'collected'];
 const STATUS_TO_STAGE_INDEX = {
-  received: 0, diagnosis: 1, waiting_approval: 2, approved: 2, in_repair: 3, ready_for_collection: 4, completed: 5,
+  received: 0, diagnosis: 1, waiting_approval: 1, approved: 1, in_repair: 2, ready_for_collection: 3, completed: 4,
 };
+const STAGE_STATUS = ['received', 'diagnosis', 'in_repair', 'ready_for_collection', 'completed'];
 const TERMINAL_STATUSES = ['cancelled', 'rejected', 'unrepairable'];
 
 function RepairDetail() {
@@ -386,31 +388,14 @@ function RepairDetail() {
       </div>
 
       <div className="repair-stepper-wrapper no-print">
-        <div className="repair-stepper" role="list" aria-label={t('electronics:repairs.detail.journeyLabel')}>
-          {STAGE_KEYS.map((stageKey, index) => {
-            const state = index < currentStageIndex || (index === currentStageIndex && isEnded)
-              ? 'done'
-              : index === currentStageIndex ? 'current' : 'upcoming';
-            return (
-              <span key={stageKey} className="flex items-center" style={{ gap: 'var(--space-1)' }}>
-                <span role="listitem" className={`repair-stepper-step ${state === 'done' ? 'repair-stepper-step-done' : state === 'current' ? 'repair-stepper-step-current' : ''}`}>
-                  {state === 'done' && <FiCheck className="repair-stepper-step-icon" aria-hidden="true" />}
-                  {t(`electronics:repairs.stepper.${stageKey}`)}
-                </span>
-                {index < STAGE_KEYS.length - 1 && <FiChevronRight className="repair-stepper-connector" aria-hidden="true" />}
-              </span>
-            );
-          })}
-          {isEnded && (
-            <>
-              <FiChevronRight className="repair-stepper-connector" aria-hidden="true" />
-              <span role="listitem" className="repair-stepper-step repair-stepper-step-ended">
-                <FiX className="repair-stepper-step-icon" aria-hidden="true" />
-                {t(`electronics:repairs.status.${repair.status}`)}
-              </span>
-            </>
-          )}
-        </div>
+        <StatusStepper
+          label={t('electronics:repairs.detail.journeyLabel')}
+          steps={STAGE_KEYS.map((stageKey) => ({ key: stageKey, label: t(`electronics:repairs.stepper.${stageKey}`) }))}
+          currentIndex={currentStageIndex}
+          complete={repair.status === 'completed'}
+          hint={!isEnded && STAGE_STATUS[currentStageIndex] !== repair.status ? t(`electronics:repairs.status.${repair.status}`) : undefined}
+          ended={isEnded ? { label: t(`electronics:repairs.status.${repair.status}`) } : undefined}
+        />
       </div>
 
       <div className="card mb-5">

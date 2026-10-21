@@ -1,64 +1,92 @@
-import { motion } from 'framer-motion';
-import { FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import { FiArrowDownRight, FiArrowUpRight, FiMinus } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import AnimatedCounter from './AnimatedCounter';
+import styles from './KPICard.module.css';
 
-// Turns a "#RRGGBB" accent into an "r, g, b" triple so CSS can build
-// low-opacity washes/glows from it via rgba(var(--kpi-accent-rgb), a) —
-// every accent in Dashboard.jsx's KPI_DEFS is a plain hex literal, so this
-// never needs to handle named colors or shorthand hex.
-function hexToRgbTriple(hex) {
-  const value = hex.replace('#', '');
-  const r = parseInt(value.substring(0, 2), 16);
-  const g = parseInt(value.substring(2, 4), 16);
-  const b = parseInt(value.substring(4, 6), 16);
-  return `${r}, ${g}, ${b}`;
-}
+const cx = (...classNames) => classNames.filter(Boolean).join(' ');
 
-// `trend` is optional and deliberately not defaulted to 0 — a KPI with no
-// real day-over-day (or period-over-period) comparison available should
-// show no trend at all rather than a fabricated "0%" or invented direction.
-function KPICard({ icon: Icon, label, value, formatter, subtitle, accent, trend }) {
-  const { t } = useTranslation('dashboard');
-  const gradientStyle = accent ? { backgroundImage: `linear-gradient(135deg, var(--color-primary), ${accent})` } : undefined;
-  // Each card gets its own identity via one CSS custom property — the
-  // background wash, hover glow, and accent bar in cards.css all derive
-  // from this single source instead of three separate inline styles.
-  const cardStyle = accent ? { '--kpi-accent-rgb': hexToRgbTriple(accent), '--kpi-accent': accent } : undefined;
-  const TrendIcon = trend?.direction === 'down' ? FiArrowDown : FiArrowUp;
+const SPARK_WIDTH = 96;
+const SPARK_HEIGHT = 36;
+const SPARK_PAD = 3;
+
+// Tiny trend line for the card's corner. Only drawn from a real series the
+// caller passes — never a decorative fake.
+function Sparkline({ values }) {
+  const points = values.map((v) => Number(v) || 0);
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const range = max - min || 1;
+  const stepX = (SPARK_WIDTH - SPARK_PAD * 2) / (points.length - 1);
+
+  const coords = points.map((v, index) => [
+    SPARK_PAD + index * stepX,
+    SPARK_PAD + (SPARK_HEIGHT - SPARK_PAD * 2) * (1 - (v - min) / range),
+  ]);
+  const line = coords.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const [lastX, lastY] = coords[coords.length - 1];
+  const area = `${SPARK_PAD},${SPARK_HEIGHT} ${line} ${lastX.toFixed(1)},${SPARK_HEIGHT}`;
 
   return (
-    <div className="card card-hover kpi-card kpi-card-glow" style={cardStyle}>
-      <span className="kpi-card-shimmer" aria-hidden="true" />
-      <div className="kpi-card-main">
-        <div className="kpi-card-label">{label}</div>
-        <div className="kpi-card-value">
-          <AnimatedCounter value={value} formatter={formatter || ((v) => v)} />
-        </div>
-        {subtitle && <div className="kpi-card-subtitle">{subtitle}</div>}
-        {trend && (
-          <div className={`kpi-card-trend ${trend.direction === 'down' ? 'kpi-card-trend-down' : 'kpi-card-trend-up'}`}>
-            <TrendIcon aria-hidden="true" /> {t('kpi.trendVsYesterday', { percent: Math.abs(trend.percent).toFixed(1) })}
-          </div>
+    <svg className={styles.spark} viewBox={`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`} aria-hidden="true" focusable="false">
+      <polygon className={styles.sparkArea} points={area} />
+      <polyline className={styles.sparkLine} points={line} />
+      <circle className={styles.sparkDot} cx={lastX} cy={lastY} r={3} />
+    </svg>
+  );
+}
+
+// Same props as before plus an optional `sparkline` (array of numbers).
+// `trend` is deliberately not defaulted — a KPI without an honest
+// comparison shows no growth chip rather than a fabricated "0%". `accent`
+// is accepted for compatibility; the unified brand no longer tints cards.
+function KPICard({ icon: Icon, label, value, formatter, subtitle, trend, sparkline }) {
+  const { t } = useTranslation('dashboard');
+
+  let trendClass = styles.trendFlat;
+  let TrendIcon = FiMinus;
+  let sign = '';
+  if (trend?.direction === 'up' && trend.percent !== 0) {
+    trendClass = styles.trendUp;
+    TrendIcon = FiArrowUpRight;
+    sign = '+';
+  } else if (trend?.direction === 'down') {
+    trendClass = styles.trendDown;
+    TrendIcon = FiArrowDownRight;
+    sign = '−';
+  }
+
+  const showSpark = Array.isArray(sparkline) && sparkline.length >= 2;
+
+  return (
+    <div className={styles.card}>
+      <div className={styles.top}>
+        <span className={styles.label}>{label}</span>
+        {Icon && (
+          <span className={styles.icon} aria-hidden="true">
+            <Icon />
+          </span>
         )}
       </div>
-      {Icon && (
-        <motion.div
-          className="kpi-card-icon"
-          style={gradientStyle}
-          animate={{ y: [0, -3, 0] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <Icon aria-hidden="true" />
-        </motion.div>
+
+      <div className={styles.value}>
+        <AnimatedCounter value={value} formatter={formatter || ((v) => v)} />
+      </div>
+
+      {(subtitle || trend || showSpark) && (
+        <div className={styles.bottom}>
+          <div className={styles.meta}>
+            {trend && (
+              <span className={cx(styles.trend, trendClass)}>
+                <TrendIcon aria-hidden="true" />
+                <span className={styles.trendPercent}>{`${sign}${Math.abs(trend.percent).toFixed(1)}%`}</span>
+                <span className={styles.trendCaption}>{t('kpi.vsYesterdayShort')}</span>
+              </span>
+            )}
+            {subtitle && <span className={styles.subtitle}>{subtitle}</span>}
+          </div>
+          {showSpark && <Sparkline values={sparkline} />}
+        </div>
       )}
-      <motion.span
-        className="kpi-card-accent-bar"
-        style={accent ? { backgroundColor: accent } : undefined}
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      />
     </div>
   );
 }

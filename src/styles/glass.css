@@ -1,77 +1,16 @@
-/* Shared glassmorphism system — every floating/elevated surface (modals,
-   dropdowns, the theme popup, the navbar) draws from these four classes
-   instead of hand-rolling its own blur/background/border/shadow stack, so
-   they read as one consistent design language and a future floating panel
-   only needs to add one class. All values are theme tokens — nothing here
-   is a fixed color, so each class re-themes automatically with the rest of
-   the app. */
+/* Floating surfaces (dropdowns, popovers, modals). The redesign drops
+   glassmorphism for solid, crisp panels; the class names stay so existing
+   markup keeps working. */
 
-/* The flagship "Appearance popup" surface — deliberately the strongest
-   glass treatment in the app (blur floor of 24px, uncapped at +8px over
-   each theme's base --glass-blur so every theme lands in the 24-32px
-   range the design calls for). --glass-panel-bg is a dedicated,
-   higher-opacity token (not --color-card-bg, which stays more translucent
-   for ordinary cards) specifically so background content reads as heavily
-   softened rather than clearly visible through it — a native macOS/iOS
-   settings panel, not a tinted window. */
-.glass-panel {
-  background-color: var(--glass-panel-bg, var(--color-card-bg));
-  background-image: linear-gradient(160deg, var(--glass-sheen, rgba(255, 255, 255, 0.08)), transparent 65%);
-  backdrop-filter: blur(max(24px, calc(var(--glass-blur) + 8px))) saturate(1.8);
-  -webkit-backdrop-filter: blur(max(24px, calc(var(--glass-blur) + 8px))) saturate(1.8);
-  border: 1px solid rgba(var(--color-primary-rgb), 0.16);
-  box-shadow:
-    0 32px 72px -16px rgba(3, 8, 20, 0.4),
-    var(--shadow-lg),
-    inset 0 1px 0 var(--glass-inner-glow, rgba(255, 255, 255, 0.1));
-}
-
-/* Dropdown-style floating panels (search results, notification list, user
-   menu, theme picker, context menus) — same strong recipe as .glass-modal
-   below (30-36px depending on theme, same higher-opacity background
-   token), just without the decorative sheen gradient .glass-panel adds —
-   a dropdown reads as a single flat surface, not a "hero" card, but it
-   shares the same blur strength so nothing in the floating-UI layer reads
-   as weaker than another. */
-.glass-dropdown {
-  background-color: var(--glass-panel-bg, var(--color-card-bg));
-  backdrop-filter: blur(max(30px, calc(var(--glass-blur) + 12px))) saturate(1.6);
-  -webkit-backdrop-filter: blur(max(30px, calc(var(--glass-blur) + 12px))) saturate(1.6);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-lg);
-}
-
-/* Modals sit above a dedicated, theme-tinted .modal-backdrop (already at
-   60-70% opacity with its own blur — see Modal.css) — the panel itself
-   still carries a heavy blur + the higher-opacity --glass-panel-bg so nothing
-   behind it (backdrop tint or page) reads as clearly visible. 30-36px
-   depending on theme (Aurora 32 / Midnight 36 / Frost 30). */
+.glass-panel,
+.glass-dropdown,
 .glass-modal {
-  background-color: var(--glass-panel-bg, var(--color-card-bg));
-  backdrop-filter: blur(max(30px, calc(var(--glass-blur) + 12px))) saturate(1.6);
-  -webkit-backdrop-filter: blur(max(30px, calc(var(--glass-blur) + 12px))) saturate(1.6);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-lg);
+  background-color: var(--card-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-pop);
 }
 
-/* The navbar's own scroll-gated glass treatment lives directly in
-   layout.css (html.is-scrolled .app-navbar) rather than as a class here —
-   it has to stay off until is-scrolled is toggled, which can't be
-   expressed as "just add a class" without either duplicating the whole
-   rule under a compound selector (the same thing, just relocated) or
-   reintroducing a re-render on every scroll tick (deliberately avoided —
-   see that file's comment). Kept in one place so there's exactly one
-   definition of "what the navbar's glass looks like", not two. */
-
-@media (max-width: 480px) {
-  /* Heavy blur + saturate is the most expensive combination on low-power
-     mobile GPUs — .glass-panel/.glass-modal/.glass-dropdown keep a strong
-     24px floor rather than being halved, since "background must not read
-     as clearly visible" is a correctness requirement for these (modals,
-     dropdowns, the Appearance popup), not just a nice-to-have, and has to
-     hold on a phone too. */
-  .glass-panel, .glass-modal, .glass-dropdown {
-    backdrop-filter: blur(24px) saturate(1.4);
-    -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  }
+.glass-panel,
+.glass-dropdown {
+  border-radius: var(--radius-xl);
 }

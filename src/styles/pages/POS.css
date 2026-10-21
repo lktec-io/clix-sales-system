@@ -206,9 +206,10 @@
 }
 
 .pos-payment-group-btn-active {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-white);
+  background-color: var(--brand-navy);
+  border-color: var(--brand-navy);
+  color: #ffffff;
+  box-shadow: inset 0 -3px 0 var(--accent);
 }
 
 /* Mobile Money isn't one backend value — tapping it opens exactly these
@@ -288,4 +289,93 @@
 
 .pos-receipt-modal-actions .btn {
   flex: 1 1 auto;
+}
+
+/* Cart-level discount row (inline label + compact numeric field). */
+.pos-totals-row-input {
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pos-totals-row-input label {
+  color: var(--text-muted);
+}
+
+.pos-cart-discount-field {
+  width: 140px;
+  min-height: 40px;
+  text-align: right;
+}
+
+@media (pointer: coarse) {
+  .pos-cart-discount-field {
+    min-height: var(--tap-min);
+  }
+}
+
+/* Cart content on the new tokens. */
+.pos-cart-items {
+  padding: 0 var(--space-4);
+}
+
+.pos-cart-line {
+  border-bottom-color: var(--border-color);
+}
+
+.pos-cart-line-name {
+  color: var(--text-main);
+}
+
+.pos-cart-line-field label,
+.pos-cart-line-price {
+  color: var(--text-muted);
+}
+
+.pos-cart-footer {
+  gap: var(--space-3);
+  border-top-color: var(--border-color);
+  background-color: var(--surface-sunken);
+}
+
+.pos-totals-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-base);
+}
+
+.pos-totals-row-total {
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--border-strong);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+}
+
+.pos-payment-group-btn {
+  min-height: 44px;
+  border-color: var(--border-strong);
+  border-radius: var(--radius-lg);
+  background-color: var(--card-surface);
+  color: var(--text-main);
+  font-weight: var(--fw-semibold);
+}
+
+.pos-payment-group-btn:hover {
+  border-color: var(--text-muted);
+}
+
+.pos-cart-footer > .btn-primary {
+  min-height: 52px;
+  font-size: var(--fs-md);
+}
+
+.pos-qty-stepper-btn {
+  min-width: 36px;
+  min-height: 36px;
+}
+
+@media (pointer: coarse) {
+  .pos-qty-stepper-btn {
+    min-width: var(--tap-min);
+    min-height: var(--tap-min);
+  }
 }

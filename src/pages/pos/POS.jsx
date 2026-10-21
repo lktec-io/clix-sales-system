@@ -6,7 +6,7 @@ import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import SearchInput from '../../components/common/SearchInput';
 import EmptyState from '../../components/common/EmptyState';
-import POSGrid, { POSProductGrid, POSProductTile } from '../../components/pos/POSGrid';
+import POSGrid, { POSCategoryPills, POSProductGrid, POSProductTile } from '../../components/pos/POSGrid';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermission } from '../../hooks/usePermission';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -15,6 +15,7 @@ import { usePOSHotkeys } from '../../hooks/usePOSHotkeys';
 import * as productService from '../../services/productService';
 import * as branchService from '../../services/branchService';
 import * as customerService from '../../services/customerService';
+import * as categoryService from '../../services/categoryService';
 import * as saleService from '../../services/saleService';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { splitFullName } from '../../utils/splitFullName';
@@ -57,6 +58,8 @@ function POS() {
   const [branches, setBranches] = useState([]);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
+  const [categories, setCategories] = useState([]);
+  const [categoryId, setCategoryId] = useState('');
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -70,6 +73,7 @@ function POS() {
   const [expandedDiscountLines, setExpandedDiscountLines] = useState(() => new Set());
   const [customers, setCustomers] = useState([]);
   const [customerId, setCustomerId] = useState('');
+  const [cartDiscount, setCartDiscount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [mobileMoneyOpen, setMobileMoneyOpen] = useState(false);
 
@@ -94,16 +98,19 @@ function POS() {
       branchService.listActiveBranches().then(setBranches);
     }
     customerService.listActiveCustomers().then(setCustomers);
+    // Category pills are a convenience filter — if the list can't load the
+    // grid simply shows every product, exactly as before.
+    categoryService.listActiveCategories().then(setCategories).catch(() => setCategories([]));
   }, [user]);
 
   const loadProducts = useCallback(() => {
     if (!branchId) return;
     setProductsLoading(true);
     productService
-      .listSellableProducts({ branchId, search: debouncedSearch || undefined })
+      .listSellableProducts({ branchId, search: debouncedSearch || undefined, categoryId: categoryId || undefined })
       .then(setProducts)
       .finally(() => setProductsLoading(false));
-  }, [branchId, debouncedSearch]);
+  }, [branchId, debouncedSearch, categoryId]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching the product grid on branch/search change is standard data-fetching, not derived state
@@ -223,6 +230,7 @@ function POS() {
     setSelectedLineId(null);
     setExpandedDiscountLines(new Set());
     setCustomerId('');
+    setCartDiscount('');
     setPaymentMethod('cash');
     setMobileMoneyOpen(false);
     idempotencyKeyRef.current = crypto.randomUUID();
@@ -231,7 +239,10 @@ function POS() {
   const itemCount = useMemo(() => cart.reduce((sum, line) => sum + line.quantity, 0), [cart]);
   const subtotal = useMemo(() => cart.reduce((sum, line) => sum + line.quantity * line.unitPrice, 0), [cart]);
   const discountTotal = useMemo(() => cart.reduce((sum, line) => sum + (Number(line.discountAmount) || 0), 0), [cart]);
-  const total = Math.max(0, subtotal - discountTotal);
+  // Cart-level discount (backend: cartDiscountAmount) — clamped to what's
+  // left after line discounts; the server enforces the cashier's limit.
+  const cartDiscountAmount = Math.min(Math.max(0, Number(cartDiscount) || 0), Math.max(0, subtotal - discountTotal));
+  const total = Math.max(0, subtotal - discountTotal - cartDiscountAmount);
 
   const selectPaymentGroup = (group) => {
     if (group.subOptions) {
@@ -396,6 +407,7 @@ function POS() {
           unitPrice: line.unitPrice,
           discountAmount: Number(line.discountAmount) || 0,
         })),
+        cartDiscountAmount: cartDiscountAmount || undefined,
         payments: [{ method: paymentMethod, amount: total }],
       };
 
@@ -414,7 +426,7 @@ function POS() {
       setIsCheckingOut(false);
       isCheckingOutRef.current = false;
     }
-  }, [cart, branchId, customerId, paymentMethod, total, t]);
+  }, [cart, branchId, customerId, cartDiscountAmount, paymentMethod, total, t]);
 
   // A real modal blocks the page underneath it, so — unlike the previous
   // non-modal tray — it can't just dismiss itself the moment the cashier
@@ -537,6 +549,7 @@ function POS() {
             code={product.code}
             priceLabel={formatCurrency(product.selling_price)}
             stockLabel={stockLabel}
+            stockTone={product.available_quantity < 1 ? 'out' : 'ok'}
             inCartQty={inCartQty}
             highlighted={index === highlightedIndex}
             disabled={inCartQty >= product.available_quantity}
@@ -687,8 +700,23 @@ function POS() {
           <div>
             <div className="pos-totals-row"><span>{t('sales:pos.subtotal')}</span><span>{formatCurrency(subtotal)}</span></div>
             {discountTotal > 0 && (
-              <div className="pos-totals-row"><span>{t('sales:pos.discount')}</span><span>-{formatCurrency(discountTotal)}</span></div>
+              <div className="pos-totals-row"><span>{t('sales:pos.lineDiscounts')}</span><span>-{formatCurrency(discountTotal)}</span></div>
             )}
+            <div className="pos-totals-row pos-totals-row-input">
+              <label htmlFor="pos-cart-discount">{t('sales:pos.cartDiscount')}</label>
+              <input
+                id="pos-cart-discount"
+                type="number"
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                className="form-control pos-cart-discount-field"
+                value={cartDiscount}
+                placeholder="0"
+                onChange={(e) => setCartDiscount(e.target.value)}
+                disabled={cart.length === 0}
+              />
+            </div>
             <div className="pos-totals-row pos-totals-row-total"><span>{t('sales:pos.total')}</span><span>{formatCurrency(total)}</span></div>
           </div>
 
@@ -756,6 +784,15 @@ function POS() {
         pulseKey={pulseKey}
         sheetOpen={sheetOpen}
         onSheetOpenChange={setSheetOpen}
+        filters={branchId ? (
+          <POSCategoryPills
+            categories={categories}
+            value={categoryId}
+            onChange={setCategoryId}
+            allLabel={t('sales:pos.allCategories')}
+            label={t('sales:pos.categoryFilter')}
+          />
+        ) : null}
       />
 
       <Modal open={scannerOpen} onClose={() => setScannerOpen(false)} title={t('sales:pos.scanBarcodeModalTitle')} size="sm">

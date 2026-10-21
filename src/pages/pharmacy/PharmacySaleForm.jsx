@@ -5,12 +5,15 @@ import { FiTrash2, FiPlus, FiMinus, FiShoppingCart, FiUserPlus, FiPrinter, FiDow
 import Modal from '../../components/common/Modal';
 import SearchInput from '../../components/common/SearchInput';
 import EmptyState from '../../components/common/EmptyState';
+import POSGrid, { POSCategoryPills, POSProductGrid, POSProductTile } from '../../components/pos/POSGrid';
 import { useAuth } from '../../hooks/useAuth';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useToast } from '../../hooks/useToast';
+import { usePOSHotkeys } from '../../hooks/usePOSHotkeys';
 import * as medicineService from '../../services/medicineService';
 import * as customerService from '../../services/customerService';
 import * as branchService from '../../services/branchService';
+import * as categoryService from '../../services/categoryService';
 import * as pharmacySaleService from '../../services/pharmacySaleService';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { splitFullName } from '../../utils/splitFullName';
@@ -29,6 +32,16 @@ import '../../styles/pages/POS.css';
 // {branchId, customerId, paymentMethod, items:[{medicineId, quantity}]} to
 // the existing sellMedicines() endpoint, which does all batch/FEFO/expiry
 // handling server-side — the cashier never sees or picks a batch.
+// Days from today until a batch expires (0 = expires today). Computed when
+// the expiring list arrives, not during render.
+function daysUntil(isoDate, today) {
+  const expiry = new Date(isoDate);
+  expiry.setHours(0, 0, 0, 0);
+  return Math.round((expiry - today) / 86400000);
+}
+
+const EXPIRY_DANGER_DAYS = 7;
+
 const PAYMENT_METHODS = [
   { method: 'cash', labelKey: 'pos.payment.cash' },
   { method: 'mobile_money', labelKey: 'pos.payment.mobileMoney' },
@@ -48,12 +61,17 @@ function PharmacySaleForm() {
   const [branches, setBranches] = useState([]);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
+  const [categories, setCategories] = useState([]);
+  const [categoryId, setCategoryId] = useState('');
+  const [expiringDays, setExpiringDays] = useState({});
   const [medicines, setMedicines] = useState([]);
   const [medicinesLoading, setMedicinesLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   const [cart, setCart] = useState([]);
   const [flashLineId, setFlashLineId] = useState(null);
+  const [pulseKey, setPulseKey] = useState(0);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const flashTimerRef = useRef(null);
   const [customers, setCustomers] = useState([]);
   const [customerId, setCustomerId] = useState('');
@@ -76,16 +94,45 @@ function PharmacySaleForm() {
   useEffect(() => {
     if (!user?.branch_id) branchService.listActiveBranches().then(setBranches);
     customerService.listActiveCustomers().then(setCustomers);
+    categoryService.listActiveCategories().then(setCategories).catch(() => setCategories([]));
   }, [user]);
+
+  // Expiry flags for the medicine cards: the soonest in-stock batch (within
+  // 30 days) per medicine at this branch, from the same /medicines/expiring
+  // list the Expiry Tracking page uses. A failed load just shows no flags.
+  useEffect(() => {
+    if (!branchId) return undefined;
+    let cancelled = false;
+    medicineService
+      .listExpiring({ status: 'expiring_soon', limit: 100 })
+      .then((result) => {
+        if (cancelled) return;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const map = {};
+        (result.items || []).forEach((batch) => {
+          if (String(batch.branch_id) !== String(branchId) || Number(batch.quantity) <= 0) return;
+          const days = daysUntil(batch.expiry_date, today);
+          if (map[batch.medicine_id] === undefined || days < map[batch.medicine_id]) map[batch.medicine_id] = days;
+        });
+        setExpiringDays(map);
+      })
+      .catch(() => {
+        if (!cancelled) setExpiringDays({});
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [branchId]);
 
   const loadMedicines = useCallback(() => {
     if (!branchId) return;
     setMedicinesLoading(true);
     medicineService
-      .listSellableMedicines({ branchId, search: debouncedSearch || undefined })
+      .listSellableMedicines({ branchId, search: debouncedSearch || undefined, categoryId: categoryId || undefined })
       .then(setMedicines)
       .finally(() => setMedicinesLoading(false));
-  }, [branchId, debouncedSearch]);
+  }, [branchId, debouncedSearch, categoryId]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching the medicine grid on branch/search change is standard data-fetching, not derived state
@@ -102,6 +149,7 @@ function PharmacySaleForm() {
   const triggerFlash = useCallback((medicineId) => {
     clearTimeout(flashTimerRef.current);
     setFlashLineId(medicineId);
+    setPulseKey((key) => key + 1);
     flashTimerRef.current = setTimeout(() => setFlashLineId(null), 450);
   }, []);
 
@@ -163,6 +211,7 @@ function PharmacySaleForm() {
   };
 
   const total = useMemo(() => cart.reduce((sum, line) => sum + line.quantity * line.unitPrice, 0), [cart]);
+  const itemCount = useMemo(() => cart.reduce((sum, line) => sum + line.quantity, 0), [cart]);
   const canCheckout = cart.length > 0 && branchId && total > 0 && !isCheckingOut;
 
   const handleSearchEnter = async () => {
@@ -242,6 +291,7 @@ function PharmacySaleForm() {
       };
       const sale = await pharmacySaleService.createSale(payload);
       clearCart();
+      setSheetOpen(false);
       setLastSale(sale);
     } catch (err) {
       setCheckoutError(err.response?.data?.message || t('pharmacy:pos.toast.checkoutFailed'));
@@ -289,96 +339,101 @@ function PharmacySaleForm() {
     }
   };
 
-  // A lean production shortcut set (no F2/F4 scanner shortcuts — there's no
-  // camera scanner here): Escape clears search, Enter completes the sale
-  // when focus isn't inside a text field.
-  useEffect(() => {
-    const handleGlobalKeyDown = (event) => {
-      if (anyModalOpen) return;
-      const tag = document.activeElement?.tagName;
-      const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+  // Shortcuts: F2 or "/" focuses search, F8 toggles the cart sheet on
+  // tablet/mobile, Escape clears search, Enter completes the sale when focus
+  // is not in a text field. Disabled while a modal is open.
+  usePOSHotkeys(
+    {
+      F2: () => searchInputRef.current?.focus(),
+      '/': () => searchInputRef.current?.focus(),
+      F8: () => setSheetOpen((prev) => !prev),
+      Escape: {
+        preventDefault: false,
+        handler: () => {
+          setSearch('');
+          setHighlightedIndex(-1);
+          searchInputRef.current?.focus();
+        },
+      },
+      Enter: () => handleCheckout(),
+    },
+    { enabled: !anyModalOpen },
+  );
 
-      if (event.key === 'Escape') {
-        setSearch('');
-        setHighlightedIndex(-1);
-        searchInputRef.current?.focus();
-        return;
-      }
-      if (event.key === 'Enter' && !isTyping) {
-        event.preventDefault();
-        handleCheckout();
-      }
-    };
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [anyModalOpen, handleCheckout]);
-
-  return (
-    <div className="pos-page">
-      <div className="pos-catalog">
-        <div className="pos-catalog-toolbar">
-          <div className="pos-catalog-toolbar-row">
-            {!user?.branch_id ? (
-              <select className="form-control pos-branch-select" value={branchId} onChange={(e) => setBranchId(e.target.value)}>
-                <option value="">{t('pharmacy:pos.selectBranchPlaceholder')}</option>
-                {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
-            ) : (
-              <span className="badge badge-neutral">{user.branch_name}</span>
-            )}
-            <SearchInput
-              ref={searchInputRef}
-              value={search}
-              onChange={setSearch}
-              onKeyDown={handleSearchKeyDown}
-              placeholder={t('pharmacy:pos.searchPlaceholder')}
-            />
-            <button type="button" className="btn btn-ghost" onClick={() => navigate('/pharmacy/sales')}>
-              {t('pharmacy:pos.saleHistory')}
-            </button>
-          </div>
-        </div>
-
-        {!branchId ? (
-          <div className="pos-scan-empty">{t('pharmacy:pos.selectBranchToView')}</div>
-        ) : medicinesLoading ? (
-          <div className="flex items-center justify-center p-6"><span className="spinner" aria-label={t('common:state.loading')} /></div>
-        ) : (
-          <div className="pos-product-grid">
-            {medicines.map((medicine, index) => {
-              const inCartQty = cartLine(medicine.id)?.quantity || 0;
-              const disabled = inCartQty >= medicine.available_quantity;
-              return (
-                <button
-                  key={medicine.id}
-                  type="button"
-                  className={`pos-product-card ${index === highlightedIndex ? 'pos-product-card-highlighted' : ''}`}
-                  onClick={() => addToCart(medicine)}
-                  disabled={disabled}
-                >
-                  <span className="pos-product-name">{medicine.name}</span>
-                  <span className="pos-product-code">{medicine.category_name || medicine.unit}</span>
-                  <span className="pos-product-price">{formatCurrency(medicine.selling_price)}</span>
-                  <span className="pos-product-stock">
-                    {t('pharmacy:pos.inStock', { count: medicine.available_quantity, unit: medicine.unit })}
-                    {inCartQty ? ` · ${t('pharmacy:pos.inCart', { count: inCartQty })}` : ''}
-                  </span>
-                </button>
-              );
-            })}
-            {medicines.length === 0 && <div className="pos-scan-empty">{t('pharmacy:pos.noMedicinesFound')}</div>}
-          </div>
-        )}
+  const toolbar = (
+    <>
+      {!user?.branch_id ? (
+        <select className="form-control pos-branch-select" value={branchId} onChange={(e) => setBranchId(e.target.value)}>
+          <option value="">{t('pharmacy:pos.selectBranchPlaceholder')}</option>
+          {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+        </select>
+      ) : (
+        <span className="badge badge-neutral">{user.branch_name}</span>
+      )}
+      <div className="pos-search">
+        <SearchInput
+          ref={searchInputRef}
+          value={search}
+          onChange={setSearch}
+          onKeyDown={handleSearchKeyDown}
+          placeholder={t('pharmacy:pos.searchPlaceholder')}
+        />
       </div>
+      <button type="button" className="btn btn-ghost" onClick={() => navigate('/pharmacy/sales')}>
+        {t('pharmacy:pos.saleHistory')}
+      </button>
+    </>
+  );
 
-      <div className="pos-cart">
-        <div className="pos-cart-header">
-          <span className="card-title">{t('pharmacy:pos.cart', { count: cart.length })}</span>
-          {cart.length > 0 && (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={clearCart}>{t('pharmacy:pos.clearCart')}</button>
-          )}
-        </div>
+  const expiryBadges = (medicineId) => {
+    const days = expiringDays[medicineId];
+    if (days === undefined) return [];
+    const label = days <= 0 ? t('pharmacy:pos.expiringToday') : t('pharmacy:pos.expiringSoon', { count: days });
+    return [{ label, tone: days <= EXPIRY_DANGER_DAYS ? 'danger' : 'warning' }];
+  };
 
+  const catalog = !branchId ? (
+    <POSProductGrid empty emptyMessage={t('pharmacy:pos.selectBranchToView')} />
+  ) : (
+    <POSProductGrid
+      loading={medicinesLoading && medicines.length === 0}
+      empty={!medicinesLoading && medicines.length === 0}
+      emptyMessage={t('pharmacy:pos.noMedicinesFound')}
+      label={t('sales:pos.productGrid')}
+    >
+      {medicines.map((medicine, index) => {
+        const inCartQty = cartLine(medicine.id)?.quantity || 0;
+        const stockText = t('pharmacy:pos.inStock', { count: medicine.available_quantity, unit: medicine.unit });
+        return (
+          <POSProductTile
+            key={medicine.id}
+            name={medicine.name}
+            code={medicine.category_name || medicine.unit}
+            priceLabel={formatCurrency(medicine.selling_price)}
+            stockLabel={inCartQty ? `${stockText} · ${t('pharmacy:pos.inCart', { count: inCartQty })}` : stockText}
+            stockTone={medicine.available_quantity < 1 ? 'out' : 'ok'}
+            badges={expiryBadges(medicine.id)}
+            inCartQty={inCartQty}
+            highlighted={index === highlightedIndex}
+            disabled={inCartQty >= medicine.available_quantity}
+            onSelect={() => addToCart(medicine)}
+          />
+        );
+      })}
+    </POSProductGrid>
+  );
+
+  const cartHeader = (
+    <>
+      <span>{t('pharmacy:pos.cart', { count: cart.length })}</span>
+      {cart.length > 0 && (
+        <button type="button" className="btn btn-ghost btn-sm" onClick={clearCart}>{t('pharmacy:pos.clearCart')}</button>
+      )}
+    </>
+  );
+
+  const cartBody = (
+    <>
         <div className="pos-cart-items">
           {cart.length === 0 ? (
             <EmptyState icon={FiShoppingCart} title={t('pharmacy:pos.cartEmptyTitle')} description={t('pharmacy:pos.cartEmptyDescription')} />
@@ -479,7 +534,31 @@ function PharmacySaleForm() {
             {t('pharmacy:pos.completeSale')}
           </button>
         </div>
-      </div>
+    </>
+  );
+
+  return (
+    <>
+      <POSGrid
+        toolbar={toolbar}
+        filters={branchId ? (
+          <POSCategoryPills
+            categories={categories}
+            value={categoryId}
+            onChange={setCategoryId}
+            allLabel={t('sales:pos.allCategories')}
+            label={t('sales:pos.categoryFilter')}
+          />
+        ) : null}
+        catalog={catalog}
+        cartHeader={cartHeader}
+        cart={cartBody}
+        itemCount={itemCount}
+        totalLabel={formatCurrency(total)}
+        pulseKey={pulseKey}
+        sheetOpen={sheetOpen}
+        onSheetOpenChange={setSheetOpen}
+      />
 
       <Modal
         open={quickCustomerOpen}
@@ -531,7 +610,7 @@ function PharmacySaleForm() {
           </div>
         )}
       </Modal>
-    </div>
+    </>
   );
 }
 

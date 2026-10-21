@@ -20,16 +20,16 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes skeletonPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+@keyframes skeletonShimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
 }
 
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid var(--color-border);
-  border-top-color: var(--color-primary);
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent);
   border-radius: var(--radius-full);
   animation: spin 0.6s linear infinite;
 }
@@ -39,7 +39,15 @@
 .scale-in { animation: scaleIn var(--transition-fast) ease; }
 
 .skeleton {
-  background-color: var(--color-gray-light);
   border-radius: var(--radius-sm);
-  animation: skeletonPulse 1.4s ease-in-out infinite;
+  background-color: var(--skeleton-base);
+  background-image: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-highlight) 50%, var(--skeleton-base) 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer var(--dur-shimmer) ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
 }

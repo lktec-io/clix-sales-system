@@ -6,7 +6,8 @@ import EmptyState from './EmptyState';
 const SKELETON_ROWS = 5;
 
 // Styled by the core design system's styles/tables.css (imported globally via theme.css).
-// columns: [{ key, label, render?(row), sortable? }]
+// columns: [{ key, label, render?(row), sortable?, numeric? }]
+// `numeric` right-aligns the column in tabular monospace figures.
 function Table({ columns, rows, loading, emptyMessage, sort, onSortChange, rowKey = 'id' }) {
   const { t } = useTranslation('common');
   const resolvedEmptyMessage = emptyMessage ?? t('table.noRecordsFound');
@@ -23,7 +24,7 @@ function Table({ columns, rows, loading, emptyMessage, sort, onSortChange, rowKe
         <thead>
           <tr>
             {columns.map((column) => (
-              <th key={column.key} onClick={() => handleSort(column)}>
+              <th key={column.key} className={column.numeric ? 'cell-num' : undefined} onClick={() => handleSort(column)}>
                 {column.label}
                 {sort?.key === column.key && (sort.direction === 'asc' ? ' ↑' : ' ↓')}
               </th>
@@ -51,7 +52,7 @@ function Table({ columns, rows, loading, emptyMessage, sort, onSortChange, rowKe
             rows.map((row) => (
               <tr key={row[rowKey]}>
                 {columns.map((column) => (
-                  <td key={column.key}>{column.render ? column.render(row) : row[column.key]}</td>
+                  <td key={column.key} className={column.numeric ? 'cell-num' : undefined}>{column.render ? column.render(row) : row[column.key]}</td>
                 ))}
               </tr>
             ))

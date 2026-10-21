@@ -33,9 +33,9 @@
 }
 
 .notifications-tab-active {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-white);
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
 }
 
 .notifications-empty {

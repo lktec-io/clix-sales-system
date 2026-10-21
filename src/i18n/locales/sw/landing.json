@@ -34,32 +34,68 @@
     "retail-store": {
       "name": "Duka la Rejareja",
       "description": "Bidhaa, hisa, mauzo na wateja kwa maduka, supermarket na minimarket.",
-      "capabilities": ["Mauzo na POS", "Hisa", "Manunuzi", "Rekodi za Wateja", "Ripoti"]
+      "capabilities": [
+        "Mauzo na POS",
+        "Hisa",
+        "Manunuzi",
+        "Rekodi za Wateja",
+        "Ripoti"
+      ]
     },
     "pharmacy": {
       "name": "Duka la Dawa",
       "description": "Hisa za dawa zenye ufuatiliaji wa muda wa kuisha na kundi, utoaji wa dawa na rekodi za wasambazaji.",
-      "capabilities": ["Hisa za Dawa", "Ufuatiliaji wa Muda wa Kuisha", "Utoaji wa Dawa", "Wasambazaji", "Ripoti"]
+      "capabilities": [
+        "Hisa za Dawa",
+        "Ufuatiliaji wa Muda wa Kuisha",
+        "Utoaji wa Dawa",
+        "Wasambazaji",
+        "Ripoti"
+      ]
     },
     "restaurant": {
       "name": "Mkahawa",
       "description": "Menyu, oda za mezani, mtiririko wa jikoni na mauzo kwa migahawa, cafe na biashara za chakula cha kuchukua.",
-      "capabilities": ["Menyu na Oda", "Meza", "Mtiririko wa Jikoni", "Mauzo", "Ripoti"]
+      "capabilities": [
+        "Menyu na Oda",
+        "Meza",
+        "Mtiririko wa Jikoni",
+        "Mauzo",
+        "Ripoti"
+      ]
     },
     "microfinance": {
       "name": "Fedha Ndogo",
       "description": "Wakopaji, mikopo, malipo na akiba kwa taasisi za fedha ndogo na ukopeshaji.",
-      "capabilities": ["Mikopo", "Malipo", "Wakopaji", "Akiba", "Ripoti za Kifedha"]
+      "capabilities": [
+        "Mikopo",
+        "Malipo",
+        "Wakopaji",
+        "Akiba",
+        "Ripoti za Kifedha"
+      ]
     },
     "cosmetics-shop": {
       "name": "Vipodozi na Urembo",
       "description": "Orodha ya bidhaa, hisa na mauzo kwa wauzaji wa vipodozi, manukato na urembo.",
-      "capabilities": ["Orodha ya Bidhaa za Urembo", "Hisa", "Mauzo", "Bidhaa Pendwa za Wateja", "Ripoti"]
+      "capabilities": [
+        "Orodha ya Bidhaa za Urembo",
+        "Hisa",
+        "Mauzo",
+        "Bidhaa Pendwa za Wateja",
+        "Ripoti"
+      ]
     },
     "electronics-shop": {
       "name": "Elektroniki na Matengenezo",
       "description": "Upokeaji wa vifaa, uchunguzi, ufuatiliaji wa matengenezo na mauzo kwa maduka ya kutengeneza simu na kompyuta.",
-      "capabilities": ["Ufuatiliaji wa Matengenezo", "Upokeaji wa Vifaa", "Vipuri na Hisa", "Taarifa kwa Wateja", "Mauzo"]
+      "capabilities": [
+        "Ufuatiliaji wa Matengenezo",
+        "Upokeaji wa Vifaa",
+        "Vipuri na Hisa",
+        "Taarifa kwa Wateja",
+        "Mauzo"
+      ]
     }
   },
   "pricing": {
@@ -69,15 +105,34 @@
     "loadError": "Mipango haipatikani kwa sasa. Tafadhali jaribu tena baadaye.",
     "recommendedBadge": "Maarufu Zaidi",
     "perMonth": "kwa mwezi",
-    "startTrialCta": "Anza Jaribio la Bure"
+    "startTrialCta": "Anza Jaribio la Bure",
+    "billingToggle": "Kipindi cha malipo",
+    "monthly": "Kila mwezi",
+    "yearly": "Kila mwaka",
+    "perYear": "kwa mwaka",
+    "monthlyEquivalent": "≈ {{amount}} / mwezi, hulipwa kwa mwaka",
+    "save": "Okoa {{percent}}%",
+    "saveUpTo": "Okoa hadi {{percent}}%"
   },
   "howItWorks": {
     "title": "Jinsi Inavyofanya Kazi",
     "subtitle": "Kutoka usajili hadi mauzo yako ya kwanza, kwa dakika chache.",
-    "step1": { "title": "Jisajili", "description": "Fungua akaunti yako kwa jina la biashara na namba ya simu — hakuna maelezo ya malipo yanayohitajika." },
-    "step2": { "title": "Chagua Aina ya Biashara Yako", "description": "Chagua mfumo ulioundwa kwa biashara yako — Rejareja, Duka la Dawa, Mkahawa, Fedha Ndogo, Vipodozi au Elektroniki." },
-    "step3": { "title": "Anza Jaribio Lako la Siku 7 Bila Malipo", "description": "Ufikiaji kamili wa kila kipengele mara moja, hakuna kadi ya benki inayohitajika." },
-    "step4": { "title": "Anza Kufanya Kazi", "description": "Ongeza bidhaa au huduma zako, alika timu yako na rekodi mauzo yako ya kwanza siku hiyo hiyo." }
+    "step1": {
+      "title": "Jisajili",
+      "description": "Fungua akaunti yako kwa jina la biashara na namba ya simu — hakuna maelezo ya malipo yanayohitajika."
+    },
+    "step2": {
+      "title": "Chagua Aina ya Biashara Yako",
+      "description": "Chagua mfumo ulioundwa kwa biashara yako — Rejareja, Duka la Dawa, Mkahawa, Fedha Ndogo, Vipodozi au Elektroniki."
+    },
+    "step3": {
+      "title": "Anza Jaribio Lako la Siku 7 Bila Malipo",
+      "description": "Ufikiaji kamili wa kila kipengele mara moja, hakuna kadi ya benki inayohitajika."
+    },
+    "step4": {
+      "title": "Anza Kufanya Kazi",
+      "description": "Ongeza bidhaa au huduma zako, alika timu yako na rekodi mauzo yako ya kwanza siku hiyo hiyo."
+    }
   },
   "finalCta": {
     "title": "Uko Tayari Kuendesha Biashara Yako kwa Clix?",
@@ -88,11 +143,26 @@
   },
   "faq": {
     "title": "Maswali yanayoulizwa mara kwa mara",
-    "q1": { "question": "Je, ninahitaji kadi ya benki kuanza?", "answer": "Hapana. Jaribio lako la siku 7 bila malipo huanza mara moja baada ya usajili — hakuna maelezo ya malipo yanayohitajika." },
-    "q2": { "question": "Nini kinatokea baada ya jaribio langu kuisha?", "answer": "Bado unaweza kuingia, kuona dashibodi yako, ripoti, wasifu na mipangilio. Kuunda mauzo mapya, manunuzi, mabadiliko ya hisa, matumizi na uhamisho wa hisa kunasitishwa hadi uboreshe." },
-    "q3": { "question": "Naweza kutumia Clix kwa zaidi ya tawi moja?", "answer": "Ndiyo — Clix imejengwa kwa biashara za matawi mengi tangu siku ya kwanza, na ruhusa kulingana na tawi." },
-    "q4": { "question": "Je, taarifa zangu ziko salama?", "answer": "Taarifa za biashara yako zimetengwa kikamilifu na kampuni nyingine yoyote kwenye Clix, zenye usimbaji fiche wa hali ya juu." },
-    "q5": { "question": "Je, Clix inapatikana kwa Kiswahili?", "answer": "Ndiyo — mfumo mzima, ikiwemo risiti na ripoti, unafanya kazi kwa Kiingereza na Kiswahili." }
+    "q1": {
+      "question": "Je, ninahitaji kadi ya benki kuanza?",
+      "answer": "Hapana. Jaribio lako la siku 7 bila malipo huanza mara moja baada ya usajili — hakuna maelezo ya malipo yanayohitajika."
+    },
+    "q2": {
+      "question": "Nini kinatokea baada ya jaribio langu kuisha?",
+      "answer": "Bado unaweza kuingia, kuona dashibodi yako, ripoti, wasifu na mipangilio. Kuunda mauzo mapya, manunuzi, mabadiliko ya hisa, matumizi na uhamisho wa hisa kunasitishwa hadi uboreshe."
+    },
+    "q3": {
+      "question": "Naweza kutumia Clix kwa zaidi ya tawi moja?",
+      "answer": "Ndiyo — Clix imejengwa kwa biashara za matawi mengi tangu siku ya kwanza, na ruhusa kulingana na tawi."
+    },
+    "q4": {
+      "question": "Je, taarifa zangu ziko salama?",
+      "answer": "Taarifa za biashara yako zimetengwa kikamilifu na kampuni nyingine yoyote kwenye Clix, zenye usimbaji fiche wa hali ya juu."
+    },
+    "q5": {
+      "question": "Je, Clix inapatikana kwa Kiswahili?",
+      "answer": "Ndiyo — mfumo mzima, ikiwemo risiti na ripoti, unafanya kazi kwa Kiingereza na Kiswahili."
+    }
   },
   "footer": {
     "tagline": "Usimamizi wa mauzo, hisa na biashara kwa biashara zinazokua Tanzania.",

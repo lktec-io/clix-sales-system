@@ -55,8 +55,8 @@
 }
 
 .reports-type-card-active .reports-type-card-icon {
-  background-color: var(--color-primary);
-  color: var(--color-white);
+  background-color: var(--accent);
+  color: var(--on-accent);
 }
 
 .reports-type-card-title {

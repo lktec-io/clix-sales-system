@@ -61,8 +61,15 @@
       "expiryDateLabel": "Tarehe ya Mwisho"
     },
     "units": {
-      "unit": "Kipande", "tablet": "Kidonge", "capsule": "Kapsuli", "bottle": "Chupa",
-      "box": "Kasha", "vial": "Chupa Ndogo", "tube": "Mrija", "sachet": "Kifurushi", "pack": "Pakiti"
+      "unit": "Kipande",
+      "tablet": "Kidonge",
+      "capsule": "Kapsuli",
+      "bottle": "Chupa",
+      "box": "Kasha",
+      "vial": "Chupa Ndogo",
+      "tube": "Mrija",
+      "sachet": "Kifurushi",
+      "pack": "Pakiti"
     },
     "detail": {
       "backToMedicines": "Rudi kwa Dawa",
@@ -146,7 +153,7 @@
     "walkInCustomer": "Mteja wa kawaida",
     "total": "Jumla",
     "paymentMethod": "Njia ya Malipo",
-    "completeSale": "Kamilisha Mauzo",
+    "completeSale": "Kamilisha Malipo",
     "quickAddCustomerTitle": "Ongeza Mteja Haraka",
     "addAndSelect": "Ongeza na Chagua",
     "fullName": "Jina Kamili",
@@ -169,7 +176,9 @@
       "checkoutFailed": "Imeshindwa kukamilisha mauzo. Tafadhali angalia hesabu ya dawa na ujaribu tena.",
       "failedToOpenReceipt": "Imeshindwa kufungua risiti.",
       "failedToDownloadReceipt": "Imeshindwa kupakua risiti."
-    }
+    },
+    "expiringSoon": "Inaisha siku {{count}}",
+    "expiringToday": "Inaisha leo"
   },
   "sales": {
     "list": {

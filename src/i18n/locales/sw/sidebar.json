@@ -33,5 +33,16 @@
   "collapseSidebar": "Kunja Menyu",
   "closeSidebar": "Funga Menyu",
   "primaryNavigation": "Urambazaji Mkuu",
-  "skipToContent": "Ruka hadi Maudhui Makuu"
+  "skipToContent": "Ruka hadi Maudhui Makuu",
+  "quickNavigation": "Urambazaji wa haraka",
+  "more": "Zaidi",
+  "workspace": {
+    "label": "Eneo la kazi: {{name}}",
+    "companySettings": "Mipangilio ya kampuni",
+    "branches": "Matawi",
+    "billing": "Mpango na malipo"
+  },
+  "moduleSwitcher": {
+    "label": "Moduli"
+  }
 }

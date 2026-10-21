@@ -36,7 +36,7 @@
     "total": "Jumla",
     "paymentMethod": "Njia ya Malipo",
     "selected": "imechaguliwa",
-    "completeSale": "Kamilisha Mauzo",
+    "completeSale": "Kamilisha Malipo",
     "scanBarcodeModalTitle": "Skani Barcode",
     "clearCartTitle": "Safisha kikapu",
     "clearCartMessage_one": "Ondoa bidhaa {{count}} zote kwenye kikapu? Hatua hii haiwezi kutenduliwa.",
@@ -67,7 +67,11 @@
       "checkoutFailed": "Malipo yameshindikana. Tafadhali jaribu tena.",
       "failedToOpenReceipt": "Imeshindikana kufungua risiti.",
       "failedToDownloadReceipt": "Imeshindikana kupakua risiti."
-    }
+    },
+    "lineDiscounts": "Punguzo la bidhaa",
+    "cartDiscount": "Punguzo la kikapu",
+    "allCategories": "Zote",
+    "categoryFilter": "Chuja kwa kundi"
   },
   "list": {
     "title": "Historia ya Mauzo",

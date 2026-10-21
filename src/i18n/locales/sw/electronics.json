@@ -38,9 +38,9 @@
       "received": "Kimepokewa",
       "diagnosis": "Uchunguzi",
       "approval": "Idhini",
-      "repair": "Matengenezo",
-      "ready": "Tayari",
-      "collected": "Kimechukuliwa"
+      "repair": "Kinatengenezwa",
+      "ready": "Tayari Kuchukuliwa",
+      "collected": "Kimekabidhiwa"
     },
     "deviceTypes": {
       "smartphone": "Simu Janja",

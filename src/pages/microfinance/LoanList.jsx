@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FiPlus, FiEye } from 'react-icons/fi';
 import Table from '../../components/common/Table';
+import ProgressBar from '../../components/common/ProgressBar';
 import Pagination from '../../components/common/Pagination';
 import SearchInput from '../../components/common/SearchInput';
 import { useTable } from '../../hooks/useTable';
@@ -15,6 +16,17 @@ const STATUS_BADGE = {
   rejected: 'badge-danger', disbursed: 'badge-success', active: 'badge-success',
   completed: 'badge-success', defaulted: 'badge-danger', written_off: 'badge-danger',
 };
+
+// Statuses where money has actually gone out, so "principal repaid" means
+// something: 1 − principal_outstanding / approved_amount.
+const REPAYING_STATUSES = new Set(['disbursed', 'active', 'completed', 'defaulted', 'written_off']);
+
+function principalRepaid(row) {
+  const approved = Number(row.approved_amount);
+  if (!REPAYING_STATUSES.has(row.status) || !approved) return null;
+  if (row.status === 'completed') return 1;
+  return 1 - Number(row.principal_outstanding) / approved;
+}
 
 function LoanList() {
   const { t, i18n } = useTranslation(['microfinance', 'common']);
@@ -30,8 +42,24 @@ function LoanList() {
   const columns = [
     { key: 'loan_number', label: t('microfinance:loans.columns.loanNumber') },
     { key: 'borrower', label: t('microfinance:loans.columns.borrower'), render: (row) => `${row.borrower_first_name} ${row.borrower_last_name}` },
-    { key: 'amount', label: t('microfinance:loans.columns.amount'), render: (row) => formatCurrency(row.approved_amount || row.requested_amount) },
-    { key: 'interest_rate', label: t('microfinance:loans.detail.interestRate'), render: (row) => `${row.interest_rate}%` },
+    { key: 'amount', label: t('microfinance:loans.columns.amount'), numeric: true, render: (row) => formatCurrency(row.approved_amount || row.requested_amount) },
+    { key: 'interest_rate', label: t('microfinance:loans.detail.interestRate'), numeric: true, render: (row) => `${row.interest_rate}%` },
+    {
+      key: 'repaid',
+      label: t('microfinance:loans.columns.repaid'),
+      render: (row) => {
+        const fraction = principalRepaid(row);
+        if (fraction === null) return <span className="text-secondary">—</span>;
+        return (
+          <ProgressBar
+            size="sm"
+            value={fraction}
+            label={t('microfinance:loans.columns.repaid')}
+            tone={row.status === 'defaulted' || row.status === 'written_off' ? 'danger' : 'success'}
+          />
+        );
+      },
+    },
     {
       key: 'status',
       label: t('microfinance:loans.columns.status'),

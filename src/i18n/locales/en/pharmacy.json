@@ -61,8 +61,15 @@
       "expiryDateLabel": "Expiry Date"
     },
     "units": {
-      "unit": "Unit", "tablet": "Tablet", "capsule": "Capsule", "bottle": "Bottle",
-      "box": "Box", "vial": "Vial", "tube": "Tube", "sachet": "Sachet", "pack": "Pack"
+      "unit": "Unit",
+      "tablet": "Tablet",
+      "capsule": "Capsule",
+      "bottle": "Bottle",
+      "box": "Box",
+      "vial": "Vial",
+      "tube": "Tube",
+      "sachet": "Sachet",
+      "pack": "Pack"
     },
     "detail": {
       "backToMedicines": "Back to Medicines",
@@ -146,7 +153,7 @@
     "walkInCustomer": "Walk-in customer",
     "total": "Total",
     "paymentMethod": "Payment Method",
-    "completeSale": "Complete Sale",
+    "completeSale": "Process Payment",
     "quickAddCustomerTitle": "Quick Add Customer",
     "addAndSelect": "Add & Select",
     "fullName": "Full Name",
@@ -169,7 +176,9 @@
       "checkoutFailed": "Unable to complete sale. Please check the medicine stock and try again.",
       "failedToOpenReceipt": "Failed to open the receipt.",
       "failedToDownloadReceipt": "Failed to download the receipt."
-    }
+    },
+    "expiringSoon": "Expires in {{count}}d",
+    "expiringToday": "Expires today"
   },
   "sales": {
     "list": {

@@ -1,0 +1,179 @@
+/* Horizontal stepper with a filled progress track; switches to a vertical
+   list in narrow containers so labels never squeeze or overlap. */
+
+.wrap {
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.stepper {
+  --node: 36px;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--steps), minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Track (grey) and progress (emerald) run between the first and last node centres. */
+.stepper::before,
+.stepper::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--node) / 2 - 2px);
+  left: calc(100% / var(--steps) / 2);
+  height: 4px;
+  border-radius: var(--radius-full);
+}
+
+.stepper::before {
+  right: calc(100% / var(--steps) / 2);
+  background-color: var(--border-color);
+}
+
+.stepper::after {
+  width: calc((100% - 100% / var(--steps)) * var(--progress));
+  background-color: var(--primary-green);
+  transition: width var(--dur-sheet) var(--ease-out);
+}
+
+.stepperEnded::after {
+  background-color: var(--border-strong);
+}
+
+.step {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  text-align: center;
+}
+
+.node {
+  display: grid;
+  place-items: center;
+  width: var(--node);
+  height: var(--node);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  background-color: var(--card-surface);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+
+.node svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 3;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-inline: var(--space-1);
+}
+
+.label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--accent-text);
+}
+
+.step[data-state='done'] .node {
+  background-color: var(--primary-green);
+  border-color: var(--primary-green);
+  color: #ffffff;
+}
+
+.step[data-state='done'] .label {
+  color: var(--text-main);
+}
+
+.step[data-state='current'] .node {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 0 0 5px rgb(249 115 22 / 0.2);
+  animation: currentPulse 2.4s var(--ease-in-out) infinite;
+}
+
+.step[data-state='current'] .label {
+  color: var(--text-main);
+}
+
+.step[data-state='ended'] .node {
+  background-color: var(--negative-bg);
+  border-color: var(--negative);
+  color: var(--negative);
+}
+
+.step[data-state='ended'] .label {
+  color: var(--negative);
+}
+
+@keyframes currentPulse {
+  0%, 100% { box-shadow: 0 0 0 5px rgb(249 115 22 / 0.2); }
+  50% { box-shadow: 0 0 0 9px rgb(249 115 22 / 0.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step[data-state='current'] .node {
+    animation: none;
+  }
+}
+
+/* Narrow container: vertical list with the track down the left edge. */
+@container (max-width: 520px) {
+  .stepper {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  .stepper::before,
+  .stepper::after {
+    top: calc(var(--node) / 2);
+    left: calc(var(--node) / 2 - 2px);
+    width: 4px;
+  }
+
+  .stepper::before {
+    right: auto;
+    bottom: calc(var(--node) / 2);
+    height: auto;
+  }
+
+  .stepper::after {
+    height: calc((100% - var(--node)) * var(--progress));
+  }
+
+  .step {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+    text-align: left;
+  }
+
+  .node {
+    flex: none;
+  }
+}

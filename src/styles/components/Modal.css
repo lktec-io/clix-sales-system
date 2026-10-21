@@ -1,56 +1,91 @@
-/* --modal-backdrop-bg is theme-tinted (navy/near-black/slate depending on
-   theme) at 60-70% opacity, not a fixed rgba(0,0,0,X) — combined with a
-   heavy blur, the page behind a modal reads as fully obscured rather than
-   just dimmed, on every theme. */
+/* Modal chrome. Desktop: centred dialog. Phones: bottom sheet that rises
+   from the bottom edge, with the primary actions in thumb reach. */
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: var(--modal-backdrop-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  z-index: var(--z-modal);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-5);
-  z-index: var(--z-modal-backdrop);
+  background-color: var(--modal-backdrop-bg);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .modal-panel {
-  border-radius: var(--radius-lg);
-  width: 100%;
-  max-height: 90vh;
   display: flex;
   flex-direction: column;
-  z-index: var(--z-modal);
+  width: 100%;
+  max-height: min(90dvh, 880px);
+  overflow: hidden;
+  background-color: var(--card-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-pop);
+  color: var(--text-main);
 }
 
-.modal-sm { max-width: 400px; }
-.modal-md { max-width: 560px; }
-.modal-lg { max-width: 800px; }
+.modal-sm { max-width: 420px; }
+.modal-md { max-width: 580px; }
+.modal-lg { max-width: 840px; }
 
 .modal-header {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-5) var(--space-6);
-  border-bottom: 1px solid var(--color-border);
+  gap: var(--space-3);
+  min-height: 60px;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
 }
 
 .modal-body {
-  padding: var(--space-6);
+  padding: var(--space-5);
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .modal-footer {
   display: flex;
-  justify-content: flex-end;
+  flex-shrink: 0;
   flex-wrap: wrap;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-6);
-  border-top: 1px solid var(--color-border);
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-color);
+  background-color: var(--surface-sunken);
+}
+
+@media (max-width: 640px) {
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-panel,
+  .modal-sm,
+  .modal-md,
+  .modal-lg {
+    max-width: none;
+    max-height: 92dvh;
+    border-bottom: 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .modal-footer {
+    padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .modal-footer .btn {
+    flex: 1 1 0;
+  }
 }

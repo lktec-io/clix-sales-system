@@ -31,10 +31,10 @@
   color: var(--color-white);
 }
 
-.toast-success { background-image: linear-gradient(135deg, var(--color-primary), var(--color-blue)); }
-.toast-warning { background-image: linear-gradient(135deg, #F59E0B, #F97316); }
-.toast-error { background-image: linear-gradient(135deg, #EF4444, #F97316); }
-.toast-info { background-image: linear-gradient(135deg, var(--color-primary), var(--color-gray-dark)); }
+.toast-success { background-color: #15803d; background-image: none; }
+.toast-warning { background-color: #c2410c; background-image: none; }
+.toast-error { background-color: #b91c1c; background-image: none; }
+.toast-info { background-color: #1e293b; background-image: none; }
 
 .toast-icon-badge {
   flex-shrink: 0;

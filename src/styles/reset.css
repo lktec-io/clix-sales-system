@@ -137,12 +137,12 @@ pre {
 }
 
 :focus-visible {
-  outline: 2px solid var(--primary-green);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 ::selection {
-  background-color: var(--primary-green-soft);
+  background-color: var(--accent-soft);
   color: var(--text-main);
 }
 

@@ -25,14 +25,88 @@
 .toolbar {
   display: flex;
   flex-shrink: 0;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.toolbarRow {
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
   min-width: 0;
 }
 
-.toolbar > * {
+.toolbarRow > * {
   min-width: 0;
+}
+
+.filtersRow {
+  min-width: 0;
+}
+
+/* ---------- Category pills ---------- */
+
+.pills {
+  display: flex;
+  gap: var(--space-2);
+  margin-inline: calc(var(--space-1) * -1);
+  padding: 2px var(--space-1);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.pills::-webkit-scrollbar {
+  display: none;
+}
+
+.pill {
+  flex: none;
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  background-color: var(--card-surface);
+  color: var(--text-main);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  scroll-snap-align: start;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.pill:hover {
+  border-color: var(--border-strong);
+}
+
+.pill:focus-visible {
+  outline: none;
+  box-shadow: var(--accent-ring);
+}
+
+.pill[aria-pressed='true'] {
+  background-color: var(--brand-navy);
+  border-color: var(--brand-navy);
+  color: #ffffff;
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+
+:global(:root[data-theme='dark']) .pill[aria-pressed='true'] {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  box-shadow: none;
+}
+
+@media (pointer: coarse) {
+  .pill {
+    min-height: var(--tap-min);
+  }
 }
 
 .catalogBody {
@@ -169,7 +243,7 @@
   }
 
   .sheetBar:focus-visible {
-    outline: 2px solid var(--primary-green);
+    outline: 2px solid var(--accent);
     outline-offset: -2px;
   }
 
@@ -221,8 +295,8 @@
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
-  background-color: var(--primary-green-soft);
-  color: var(--primary-green-text);
+  background-color: var(--accent-soft);
+  color: var(--accent-text);
 }
 
 .barIcon svg {
@@ -241,8 +315,8 @@
   padding-inline: 5px;
   border: 2px solid var(--card-surface);
   border-radius: var(--radius-full);
-  background-color: var(--primary-green-strong);
-  color: var(--on-primary);
+  background-color: var(--accent);
+  color: var(--on-accent);
   font-family: var(--font-mono);
   font-size: var(--fs-2xs);
   font-weight: var(--fw-bold);
@@ -349,14 +423,16 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
-    'name badge'
+    'thumb badge'
+    'name name'
     'code code'
+    'flags flags'
     'price price'
     'stock stock';
   align-content: start;
   gap: var(--space-0) var(--space-2);
   min-width: 0;
-  min-height: 116px;
+  min-height: 168px;
   padding: var(--space-3);
   background-color: var(--card-surface);
   border: 1px solid var(--border-color);
@@ -372,7 +448,8 @@
 }
 
 .tile:hover:not(:disabled) {
-  border-color: var(--primary-green);
+  border-color: var(--accent);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-raised);
 }
 
@@ -381,19 +458,19 @@
 }
 
 .tile:focus-visible {
-  outline: 2px solid var(--primary-green);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 .tile[data-in-cart='true'] {
-  border-color: var(--primary-green);
+  border-color: var(--accent);
 }
 
 /* Arrow-key result in the search box — same affordance as hover so a
    keyboard cashier sees exactly what Enter will add. */
 .tile[data-highlighted='true'] {
-  background-color: var(--primary-green-soft);
-  border-color: var(--primary-green);
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
   box-shadow: var(--focus-ring);
 }
 
@@ -401,6 +478,60 @@
   cursor: not-allowed;
   opacity: 0.55;
   box-shadow: none;
+}
+
+.tileThumb {
+  display: grid;
+  grid-area: thumb;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-lg);
+  background-color: var(--brand-navy);
+  color: #ffffff;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.02em;
+}
+
+:global(:root[data-theme='dark']) .tileThumb {
+  background-color: var(--surface-hover);
+  color: var(--accent-text);
+}
+
+.tile[data-in-cart='true'] .tileThumb {
+  background-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.tileFlags {
+  display: flex;
+  flex-wrap: wrap;
+  grid-area: flags;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.tileFlag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+.tileBadgeWarning {
+  background-color: var(--warning-bg);
+  color: var(--warning);
+}
+
+.tileBadgeDanger {
+  background-color: var(--negative-bg);
+  color: var(--negative);
 }
 
 .tileName {
@@ -425,8 +556,8 @@
   height: 22px;
   padding-inline: var(--space-1);
   border-radius: var(--radius-full);
-  background-color: var(--primary-green-soft);
-  color: var(--primary-green-text);
+  background-color: var(--accent-soft);
+  color: var(--accent-text);
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   font-weight: var(--fw-bold);
@@ -457,6 +588,16 @@
   white-space: nowrap;
 }
 
+.tileStock[data-tone='low'] {
+  color: var(--warning);
+  font-weight: var(--fw-semibold);
+}
+
+.tileStock[data-tone='out'] {
+  color: var(--negative);
+  font-weight: var(--fw-semibold);
+}
+
 .tileStock {
   grid-area: stock;
   overflow: hidden;
@@ -476,13 +617,26 @@
   }
 
   .tile {
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
     grid-template-areas:
-      'name badge price'
-      'code code stock';
+      'thumb name badge price'
+      'thumb code code stock'
+      'thumb flags flags flags';
     align-items: center;
-    min-height: 64px;
+    column-gap: var(--space-3);
+    min-height: 72px;
     padding: var(--space-3);
+  }
+
+  .tileThumb {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0;
+    font-size: var(--fs-xs);
+  }
+
+  .tileFlags:empty {
+    display: none;
   }
 
   .tileName {
@@ -507,7 +661,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  min-height: 116px;
+  min-height: 168px;
   padding: var(--space-3);
   background-color: var(--card-surface);
   border: 1px solid var(--border-color);

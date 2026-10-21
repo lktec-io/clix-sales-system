@@ -33,5 +33,16 @@
   "collapseSidebar": "Collapse sidebar",
   "closeSidebar": "Close menu",
   "primaryNavigation": "Primary navigation",
-  "skipToContent": "Skip to main content"
+  "skipToContent": "Skip to main content",
+  "quickNavigation": "Quick navigation",
+  "more": "More",
+  "workspace": {
+    "label": "Workspace: {{name}}",
+    "companySettings": "Company settings",
+    "branches": "Branches",
+    "billing": "Plan & billing"
+  },
+  "moduleSwitcher": {
+    "label": "Modules"
+  }
 }

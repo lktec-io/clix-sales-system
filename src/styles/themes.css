@@ -1,218 +1,108 @@
-/* Theme Engine — three exclusive premium themes, selected via a
-   data-theme attribute on <html> (set by src/contexts/ThemeContext.jsx).
-   Every rule below only OVERRIDES tokens already declared in colors.css's
-   :root — nothing here is a new selector for app markup, so any component
-   already consuming var(--color-*) (the design system's dominant pattern)
-   re-themes automatically with zero per-component changes. Semantic
-   aliases (--color-page-bg, --color-icon, --color-text-primary, etc.) are
-   NOT repeated here — they're defined once in colors.css as var()
-   references to the tokens this file overrides, and CSS custom properties
-   resolve at used-value time against the element's full cascade, so they
-   pick up each theme's values automatically. */
+/* Legacy bridge — maps every --color-* / --gradient-* / --glass-* variable
+   the pre-redesign global stylesheets consume onto the design tokens in
+   tokens.css. Pages that still use the global classes (.btn, .card, .table,
+   .badge, .form-control, …) therefore pick up the Navy + Orange system and
+   switch with light/dark automatically, with no per-page changes.
 
-/* ============================= AURORA GLASS =============================
-   Luxury/fintech mood — deep navy, electric blue, emerald accent, glass
-   cards. Values here match colors.css's :root fallback (Aurora is the
-   default theme), repeated explicitly so the theme is self-contained and
-   selectable even if the fallback block above it ever changes. */
-[data-theme='aurora'] {
-  --color-primary: #0B1F4D;
-  --color-primary-hover: #123262;
-  --color-primary-rgb: 11, 31, 77;
-  --color-accent: #10B981;
-  --color-accent-hover: #059669;
-  --color-accent-rgb: 16, 185, 129;
-  --color-danger-rgb: 239, 68, 68;
-  --color-blue: #2F6BFF;
+   Every value is a var() reference, resolved on <html> where tokens.css
+   defines the light and dark sets — so this one block serves both themes. */
 
-  --color-background: #EEF3FB;
-  --color-border: rgba(15, 23, 42, 0.1);
-  --color-gray-light: #EEF1F6;
-  --color-gray-dark: #334155;
+:root {
+  /* Brand */
+  --color-primary: var(--brand-navy);
+  --color-primary-hover: var(--brand-navy-2);
+  --color-primary-rgb: 15, 23, 42;
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-rgb: 249, 115, 22;
+  --color-blue: var(--info);
+  --color-gold: var(--accent);
 
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
-  --color-info: #2F6BFF;
-  --color-success-bg: #D1FAE5;
-  --color-warning-bg: #FEF3C7;
-  --color-danger-bg: #FEE2E2;
-  --color-info-bg: #DBEAFE;
+  /* Neutrals */
+  --color-black: var(--text-main);
+  --color-white: #ffffff;
+  --color-gray-dark: var(--text-main);
+  --color-gray-light: var(--surface-sunken);
+  --color-background: var(--bg-main);
+  --color-border: var(--border-color);
 
-  --color-card-bg: rgba(255, 255, 255, 0.7);
-  --color-card-glass-bg: rgba(255, 255, 255, 0.55);
-  --color-navbar-bg: rgba(255, 255, 255, 0.62);
-  --glass-panel-bg: rgba(255, 255, 255, 0.94);
-  --modal-backdrop-bg: rgba(11, 31, 77, 0.65);
-  --color-sidebar-bg: #0B1F4D;
+  /* Status */
+  --color-success: var(--positive);
+  --color-warning: var(--warning);
+  --color-danger: var(--negative);
+  --color-danger-rgb: 185, 28, 28;
+  --color-info: var(--info);
+  --color-success-bg: var(--positive-bg);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger-bg: var(--negative-bg);
+  --color-info-bg: var(--info-bg);
 
-  --color-text-primary: #0B1F4D;
-  --color-text-secondary: #5B6B8C;
-  --color-text-on-sidebar: #C7D2E8;
+  /* Surfaces — solid, no glass */
+  --color-page-bg: var(--bg-main);
+  --color-card-bg: var(--card-surface);
+  --color-card-glass-bg: var(--card-surface);
+  --color-navbar-bg: var(--bg-main);
+  --glass-panel-bg: var(--card-surface);
+  --glass-blur: 0px;
+  --modal-backdrop-bg: rgb(15 23 42 / 0.55);
+  --color-sidebar-bg: var(--sidebar-bg);
 
-  --sidebar-hover-bg: rgba(255, 255, 255, 0.08);
-  --sidebar-hover-text: #FFFFFF;
-  --sidebar-active-text: #FFFFFF;
-  --sidebar-text-strong: #FFFFFF;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
+  /* Text */
+  --color-text-primary: var(--text-main);
+  --color-text-secondary: var(--text-muted);
+  --color-text-inverse: #ffffff;
+  --color-text-on-sidebar: var(--sidebar-text-muted);
+  --color-icon: var(--text-main);
+  --color-link: var(--accent-text);
 
-  --glass-blur: 20px;
-  --gradient-sidebar: linear-gradient(180deg, #0B1F4D 0%, #123262 100%);
-  --gradient-primary: linear-gradient(135deg, #2F6BFF 0%, #10B981 100%);
-  --gradient-hero: linear-gradient(115deg, #071A3D 0%, #123A73 45%, #0E7A57 85%, #123A73 100%);
+  /* Sidebar (PlatformLayout still uses these) */
+  --sidebar-hover-bg: var(--sidebar-surface-hover);
+  --sidebar-hover-text: #ffffff;
+  --sidebar-text-strong: #ffffff;
 
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 2px 8px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.12);
-  --shadow-glow: 0 0 20px rgba(47, 107, 255, 0.25);
+  /* Gradients collapse to flat brand surfaces */
+  --gradient-sidebar: none;
+  --gradient-primary: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+  --gradient-hero: linear-gradient(120deg, #0f172a 0%, #1e293b 70%, #3b2416 100%);
 
-  --chart-1: #2F6BFF;
-  --chart-2: #10B981;
-  --chart-3: #22D3EE;
-  --chart-4: #8B5CF6;
+  /* Elevation */
+  --shadow-sm: var(--shadow-card);
+  --shadow-md: var(--shadow-raised);
+  --shadow-lg: var(--shadow-pop);
+  --shadow-glow: var(--accent-ring);
+
+  /* Typography: legacy names → token values */
+  --font-family-base: var(--font-ui);
 }
 
-/* ============================= MIDNIGHT NEON =============================
-   Premium Navy Midnight — deep navy / graphite navy surfaces (never pure
-   black), neon blue + cyan + emerald accents. "GitHub Dark / Linear /
-   Raycast / Vercel" mood. Base scale, darkest to lightest: #08121F (sidebar)
-   -> #0B1628 (page) -> #101D33 (navbar/gradient stop) -> #13233D (card tint)
-   — cards are built from the lightest step so they visibly lift off the
-   page instead of blending into flat black. */
-[data-theme='midnight'] {
-  --color-primary: #3B9EFF;
-  --color-primary-hover: #2B84E0;
-  --color-primary-rgb: 59, 158, 255;
-  --color-accent: #22D3EE;
-  --color-accent-hover: #0FB8D4;
-  --color-accent-rgb: 34, 211, 238;
-  --color-danger-rgb: 255, 77, 109;
-  --color-blue: #10B981;
-
-  --color-background: #0B1628;
-  --color-border: rgba(148, 178, 220, 0.12);
-  --color-gray-light: rgba(148, 178, 220, 0.08);
-  --color-gray-dark: #C7CCD6;
-
-  --color-success: #10B981;
-  --color-warning: #FFD166;
-  --color-danger: #FF4D6D;
-  --color-info: #22D3EE;
-  --color-success-bg: rgba(16, 185, 129, 0.16);
-  --color-warning-bg: rgba(255, 209, 102, 0.14);
-  --color-danger-bg: rgba(255, 77, 109, 0.14);
-  --color-info-bg: rgba(34, 211, 238, 0.14);
-
-  --color-card-bg: rgba(19, 35, 61, 0.68);
-  --color-card-glass-bg: rgba(19, 35, 61, 0.55);
-  --color-navbar-bg: rgba(16, 29, 51, 0.72);
-  --glass-panel-bg: rgba(11, 20, 37, 0.97);
-  --modal-backdrop-bg: rgba(3, 8, 20, 0.7);
-  --color-sidebar-bg: #08121F;
-
-  --color-text-primary: #F1F5F9;
-  --color-text-secondary: #8B93A7;
-  --color-text-on-sidebar: #9AA5B8;
-
-  --sidebar-hover-bg: rgba(59, 158, 255, 0.1);
-  --sidebar-hover-text: #FFFFFF;
-  --sidebar-active-text: #071426;
-  --sidebar-text-strong: #FFFFFF;
-  --sidebar-border: rgba(148, 178, 220, 0.1);
-
-  --glass-blur: 24px;
-  --gradient-sidebar: linear-gradient(180deg, #08121F 0%, #101D33 100%);
-  --gradient-primary: linear-gradient(135deg, #3B9EFF 0%, #22D3EE 100%);
-  --gradient-hero: linear-gradient(115deg, #08121F 0%, #101D33 45%, #13233D 85%, #08121F 100%);
-
-  --shadow-sm: 0 1px 2px rgba(3, 8, 20, 0.4);
-  --shadow-md: 0 4px 16px rgba(3, 8, 20, 0.5);
-  --shadow-lg: 0 12px 32px rgba(3, 8, 20, 0.6);
-  --shadow-glow: 0 0 20px rgba(59, 158, 255, 0.35);
-
-  --chart-1: #3B9EFF;
-  --chart-2: #22D3EE;
-  --chart-3: #10B981;
-  --chart-4: #818CF8;
+/* Legacy styles use --color-primary mostly as an "ink" (text, icons,
+   borders), so in dark mode it flips to the light ink. Its few fill uses
+   were moved to the accent pair, so nothing paints white-on-white. */
+:root[data-theme='dark'],
+:root[data-theme='midnight'] {
+  --color-primary: var(--text-main);
+  --color-primary-hover: #e2e8f0;
+  --color-primary-rgb: 248, 250, 252;
+  --modal-backdrop-bg: rgb(2 6 23 / 0.72);
+  --gradient-hero: linear-gradient(120deg, #020617 0%, #0f172a 70%, #2a1a10 100%);
 }
 
-/* ============================= PEARL FROST =============================
-   Ultra-clean "Apple + Notion" mood — warm frost, not plain white. Royal
-   blue, turquoise, silver accents, light frost sidebar. */
-[data-theme='frost'] {
-  --color-primary: #2952CC;
-  --color-primary-hover: #1F3FA0;
-  --color-primary-rgb: 41, 82, 204;
-  --color-accent: #0E9488;
-  --color-accent-hover: #0B786E;
-  --color-accent-rgb: 14, 148, 136;
-  --color-danger-rgb: 220, 38, 38;
-  --color-blue: #2952CC;
-
-  --color-background: #F6F5F2;
-  --color-border: rgba(15, 23, 42, 0.08);
-  --color-gray-light: #EEEDE8;
-  --color-gray-dark: #3F4756;
-
-  --color-success: #16A34A;
-  --color-warning: #D97706;
-  --color-danger: #DC2626;
-  --color-info: #2952CC;
-  --color-success-bg: #DCFCE7;
-  --color-warning-bg: #FEF3C7;
-  --color-danger-bg: #FEE2E2;
-  --color-info-bg: #DBEAFE;
-
-  --color-card-bg: rgba(255, 255, 255, 0.85);
-  --color-card-glass-bg: rgba(255, 255, 255, 0.75);
-  --color-navbar-bg: rgba(255, 255, 255, 0.75);
-  --glass-panel-bg: rgba(251, 250, 247, 0.96);
-  --modal-backdrop-bg: rgba(30, 36, 48, 0.6);
-  --color-sidebar-bg: #FBFAF7;
-
-  --color-text-primary: #1E2430;
-  --color-text-secondary: #6B7280;
-  --color-text-on-sidebar: #3B4258;
-
-  --sidebar-hover-bg: rgba(15, 23, 42, 0.05);
-  --sidebar-hover-text: #12151C;
-  --sidebar-active-text: #FFFFFF;
-  --sidebar-text-strong: #12151C;
-  --sidebar-border: rgba(15, 23, 42, 0.06);
-
-  --glass-blur: 18px;
-  --gradient-sidebar: linear-gradient(180deg, #FBFAF7 0%, #F0EEE9 100%);
-  --gradient-primary: linear-gradient(135deg, #2952CC 0%, #0E9488 100%);
-  --gradient-hero: linear-gradient(115deg, #1E2E5E 0%, #2952CC 45%, #0E9488 85%, #1E2E5E 100%);
-
-  --shadow-sm: 0 1px 2px rgba(30, 36, 48, 0.05);
-  --shadow-md: 0 2px 10px rgba(30, 36, 48, 0.07);
-  --shadow-lg: 0 10px 28px rgba(30, 36, 48, 0.1);
-  --shadow-glow: 0 0 20px rgba(41, 82, 204, 0.18);
-
-  --chart-1: #2952CC;
-  --chart-2: #0E9488;
-  --chart-3: #94A3B8;
-  --chart-4: #C9A15A;
-}
-
-/* Every theme switch animates via these transitions on the elements whose
-   background/text/border actually change — kept narrow (not a blanket
-   `* { transition: all }`, which would also animate layout properties like
-   width/height on every render and cause jank) so the 300ms swap is smooth
-   with zero layout thrash. */
+/* Narrow, colour-only transitions so a theme switch animates without
+   animating layout properties. */
 body,
-.card, .kpi-card, .modal-panel, .app-navbar, .app-sidebar, .sidebar-link,
-.btn, .badge, .alert, .table, input, select, textarea,
-.form-input, .form-select, .form-textarea {
-  transition: background-color 300ms ease, border-color 300ms ease, color 300ms ease, box-shadow 300ms ease;
+.card, .modal-panel, .btn, .badge, .alert, .table,
+input, select, textarea, .form-control {
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {
   body,
-  .card, .kpi-card, .modal-panel, .app-navbar, .app-sidebar, .sidebar-link,
-  .btn, .badge, .alert, .table, input, select, textarea,
-  .form-input, .form-select, .form-textarea {
+  .card, .modal-panel, .btn, .badge, .alert, .table,
+  input, select, textarea, .form-control {
     transition: none;
   }
 }

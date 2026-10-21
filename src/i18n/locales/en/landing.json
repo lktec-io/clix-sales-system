@@ -34,32 +34,68 @@
     "retail-store": {
       "name": "Retail Store",
       "description": "Products, stock, sales and customers for shops, supermarkets and mini markets.",
-      "capabilities": ["Sales & POS", "Inventory", "Purchases", "Customer Records", "Reports"]
+      "capabilities": [
+        "Sales & POS",
+        "Inventory",
+        "Purchases",
+        "Customer Records",
+        "Reports"
+      ]
     },
     "pharmacy": {
       "name": "Pharmacy",
       "description": "Medicine inventory with expiry and batch tracking, dispensing and supplier records.",
-      "capabilities": ["Medicine Inventory", "Expiry Tracking", "Dispensing", "Suppliers", "Reports"]
+      "capabilities": [
+        "Medicine Inventory",
+        "Expiry Tracking",
+        "Dispensing",
+        "Suppliers",
+        "Reports"
+      ]
     },
     "restaurant": {
       "name": "Restaurant",
       "description": "Menu, table orders, kitchen workflow and sales for restaurants, cafés and takeaways.",
-      "capabilities": ["Menu & Orders", "Tables", "Kitchen Workflow", "Sales", "Reports"]
+      "capabilities": [
+        "Menu & Orders",
+        "Tables",
+        "Kitchen Workflow",
+        "Sales",
+        "Reports"
+      ]
     },
     "microfinance": {
       "name": "Microfinance",
       "description": "Borrowers, loans, repayments and savings for microfinance and lending institutions.",
-      "capabilities": ["Loans", "Repayments", "Borrowers", "Savings", "Financial Reports"]
+      "capabilities": [
+        "Loans",
+        "Repayments",
+        "Borrowers",
+        "Savings",
+        "Financial Reports"
+      ]
     },
     "cosmetics-shop": {
       "name": "Cosmetics & Beauty",
       "description": "Product catalog, stock and sales for cosmetics, perfume and beauty retailers.",
-      "capabilities": ["Beauty Product Catalog", "Inventory", "Sales", "Customer Favorites", "Reports"]
+      "capabilities": [
+        "Beauty Product Catalog",
+        "Inventory",
+        "Sales",
+        "Customer Favorites",
+        "Reports"
+      ]
     },
     "electronics-shop": {
       "name": "Electronics & Repairs",
       "description": "Device intake, diagnosis, repair tracking and sales for phone and computer repair shops.",
-      "capabilities": ["Repair Tracking", "Device Intake", "Parts & Inventory", "Customer Updates", "Sales"]
+      "capabilities": [
+        "Repair Tracking",
+        "Device Intake",
+        "Parts & Inventory",
+        "Customer Updates",
+        "Sales"
+      ]
     }
   },
   "pricing": {
@@ -69,15 +105,34 @@
     "loadError": "Plans are temporarily unavailable. Please try again shortly.",
     "recommendedBadge": "Most Popular",
     "perMonth": "per month",
-    "startTrialCta": "Start Free Trial"
+    "startTrialCta": "Start Free Trial",
+    "billingToggle": "Billing period",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "perYear": "per year",
+    "monthlyEquivalent": "≈ {{amount}} / month, billed yearly",
+    "save": "Save {{percent}}%",
+    "saveUpTo": "Save up to {{percent}}%"
   },
   "howItWorks": {
     "title": "How It Works",
     "subtitle": "From sign-up to your first sale, in minutes.",
-    "step1": { "title": "Register", "description": "Create your account with your business name and phone number — no payment details needed." },
-    "step2": { "title": "Pick Your Business Type", "description": "Choose the template built for your business — Retail, Pharmacy, Restaurant, Microfinance, Cosmetics or Electronics." },
-    "step3": { "title": "Start Your 7-Day Free Trial", "description": "Full access to every module immediately, no credit card required." },
-    "step4": { "title": "Start Working", "description": "Add your products or services, invite your team and record your first sale the same day." }
+    "step1": {
+      "title": "Register",
+      "description": "Create your account with your business name and phone number — no payment details needed."
+    },
+    "step2": {
+      "title": "Pick Your Business Type",
+      "description": "Choose the template built for your business — Retail, Pharmacy, Restaurant, Microfinance, Cosmetics or Electronics."
+    },
+    "step3": {
+      "title": "Start Your 7-Day Free Trial",
+      "description": "Full access to every module immediately, no credit card required."
+    },
+    "step4": {
+      "title": "Start Working",
+      "description": "Add your products or services, invite your team and record your first sale the same day."
+    }
   },
   "finalCta": {
     "title": "Ready to Run Your Business on Clix?",
@@ -88,11 +143,26 @@
   },
   "faq": {
     "title": "Frequently asked questions",
-    "q1": { "question": "Do I need a credit card to start?", "answer": "No. Your 7-day free trial starts immediately after registration — no payment details required." },
-    "q2": { "question": "What happens after my trial ends?", "answer": "You can still log in, view your dashboard, reports, profile and settings. Creating new sales, purchases, inventory changes, expenses and stock transfers is paused until you upgrade." },
-    "q3": { "question": "Can I use Clix for more than one branch?", "answer": "Yes — Clix is built for multi-branch businesses from day one, with role-based access per branch." },
-    "q4": { "question": "Is my data safe?", "answer": "Your business's data is fully isolated from every other company on Clix, with bank-grade encryption in transit." },
-    "q5": { "question": "Is Clix available in Kiswahili?", "answer": "Yes — the entire system, including receipts and reports, works in both English and Kiswahili." }
+    "q1": {
+      "question": "Do I need a credit card to start?",
+      "answer": "No. Your 7-day free trial starts immediately after registration — no payment details required."
+    },
+    "q2": {
+      "question": "What happens after my trial ends?",
+      "answer": "You can still log in, view your dashboard, reports, profile and settings. Creating new sales, purchases, inventory changes, expenses and stock transfers is paused until you upgrade."
+    },
+    "q3": {
+      "question": "Can I use Clix for more than one branch?",
+      "answer": "Yes — Clix is built for multi-branch businesses from day one, with role-based access per branch."
+    },
+    "q4": {
+      "question": "Is my data safe?",
+      "answer": "Your business's data is fully isolated from every other company on Clix, with bank-grade encryption in transit."
+    },
+    "q5": {
+      "question": "Is Clix available in Kiswahili?",
+      "answer": "Yes — the entire system, including receipts and reports, works in both English and Kiswahili."
+    }
   },
   "footer": {
     "tagline": "Sales, inventory and business management for growing businesses in Tanzania.",

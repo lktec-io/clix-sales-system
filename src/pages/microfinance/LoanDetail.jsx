@@ -8,6 +8,7 @@ import Modal from '../../components/common/Modal';
 import PageSkeleton from '../../components/common/PageSkeleton';
 import EmptyState from '../../components/common/EmptyState';
 import KPICard from '../../components/dashboard/KPICard';
+import ProgressBar from '../../components/common/ProgressBar';
 import { usePermission } from '../../hooks/usePermission';
 import { useToast } from '../../hooks/useToast';
 import * as loanService from '../../services/loanService';
@@ -60,7 +61,16 @@ function LoanDetail() {
     if (!loan || loan.schedule.length === 0) return null;
     const totalPayable = loan.schedule.reduce((sum, row) => sum + Number(row.total_due), 0);
     const totalPaid = loan.schedule.reduce((sum, row) => sum + Number(row.amount_paid), 0);
-    return { totalPayable, totalPaid, outstanding: Number(loan.principal_outstanding) + Number(loan.interest_outstanding) };
+    const paidInstallments = loan.schedule.filter((row) => row.status === 'paid').length;
+    const overdueInstallments = loan.schedule.filter((row) => row.status === 'overdue').length;
+    return {
+      totalPayable,
+      totalPaid,
+      outstanding: Number(loan.principal_outstanding) + Number(loan.interest_outstanding),
+      paidInstallments,
+      overdueInstallments,
+      installmentCount: loan.schedule.length,
+    };
   }, [loan]);
 
   if (loadError) {
@@ -207,6 +217,28 @@ function LoanDetail() {
         <div className="alert alert-info mb-5">{t('microfinance:loans.detail.noSchedule')}</div>
       )}
 
+      {totals && (
+        <div className="card mb-5">
+          <div className="card-body">
+            <ProgressBar
+              showLabel
+              label={t('microfinance:loans.detail.repaymentProgress')}
+              value={totals.totalPayable ? totals.totalPaid / totals.totalPayable : 0}
+              tone={loan.status === 'defaulted' || loan.status === 'written_off' ? 'danger' : 'success'}
+              caption={t('microfinance:loans.detail.repaymentProgressCaption', {
+                paid: formatCurrency(totals.totalPaid),
+                total: formatCurrency(totals.totalPayable),
+                installmentsPaid: totals.paidInstallments,
+                installments: totals.installmentCount,
+              })}
+            />
+            {totals.overdueInstallments > 0 && (
+              <p className="mt-2"><span className="badge badge-danger">{t('microfinance:loans.detail.overdueInstallments', { count: totals.overdueInstallments })}</span></p>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="card mb-5">
         <div className="card-header"><span className="card-title">{t('microfinance:loans.detail.scheduleTitle')}</span></div>
         {loan.schedule.length === 0 ? (
@@ -218,24 +250,33 @@ function LoanDetail() {
                 <tr>
                   <th>{t('microfinance:loans.detail.scheduleColumns.installment')}</th>
                   <th>{t('microfinance:loans.detail.scheduleColumns.dueDate')}</th>
-                  <th>{t('microfinance:loans.detail.scheduleColumns.principal')}</th>
-                  <th>{t('microfinance:loans.detail.scheduleColumns.interest')}</th>
-                  <th>{t('microfinance:loans.detail.scheduleColumns.total')}</th>
-                  <th>{t('microfinance:loans.detail.scheduleColumns.paid')}</th>
-                  <th>{t('microfinance:loans.detail.scheduleColumns.balance')}</th>
+                  <th className="cell-num">{t('microfinance:loans.detail.scheduleColumns.principal')}</th>
+                  <th className="cell-num">{t('microfinance:loans.detail.scheduleColumns.interest')}</th>
+                  <th className="cell-num">{t('microfinance:loans.detail.scheduleColumns.total')}</th>
+                  <th className="cell-num">{t('microfinance:loans.detail.scheduleColumns.paid')}</th>
+                  <th className="cell-num">{t('microfinance:loans.detail.scheduleColumns.balance')}</th>
+                  <th>{t('microfinance:loans.detail.scheduleColumns.progress')}</th>
                   <th>{t('microfinance:loans.detail.scheduleColumns.status')}</th>
                 </tr>
               </thead>
               <tbody>
                 {loan.schedule.map((row) => (
-                  <tr key={row.id}>
-                    <td>{row.installment_number}</td>
+                  <tr key={row.id} className={row.status === 'overdue' ? 'row-danger' : undefined}>
+                    <td className="cell-num">{row.installment_number}</td>
                     <td>{formatDate(row.due_date)}</td>
-                    <td>{formatCurrency(row.principal_due)}</td>
-                    <td>{formatCurrency(row.interest_due)}</td>
-                    <td>{formatCurrency(row.total_due)}</td>
-                    <td>{formatCurrency(row.amount_paid)}</td>
-                    <td>{formatCurrency(Number(row.total_due) - Number(row.amount_paid))}</td>
+                    <td className="cell-num">{formatCurrency(row.principal_due)}</td>
+                    <td className="cell-num">{formatCurrency(row.interest_due)}</td>
+                    <td className="cell-num">{formatCurrency(row.total_due)}</td>
+                    <td className="cell-num">{formatCurrency(row.amount_paid)}</td>
+                    <td className="cell-num">{formatCurrency(Number(row.total_due) - Number(row.amount_paid))}</td>
+                    <td>
+                      <ProgressBar
+                        size="sm"
+                        value={Number(row.total_due) ? Number(row.amount_paid) / Number(row.total_due) : 0}
+                        label={t('microfinance:loans.detail.scheduleColumns.progress')}
+                        tone={row.status === 'overdue' ? 'danger' : row.status === 'paid' ? 'success' : 'accent'}
+                      />
+                    </td>
                     <td><span className={`badge ${SCHEDULE_STATUS_BADGE[row.status] || 'badge-neutral'}`}>{t(`microfinance:loans.scheduleStatus.${row.status}`)}</span></td>
                   </tr>
                 ))}
@@ -274,12 +315,12 @@ function LoanDetail() {
         ) : (
           <div className="table-wrapper">
             <table className="table">
-              <thead><tr><th>{t('common:labels.date')}</th><th>{t('microfinance:loans.detail.repaymentAmountLabel')}</th><th>{t('microfinance:loans.detail.paymentMethodLabel')}</th><th>{t('microfinance:loans.detail.referenceLabel')}</th></tr></thead>
+              <thead><tr><th>{t('common:labels.date')}</th><th className="cell-num">{t('microfinance:loans.detail.repaymentAmountLabel')}</th><th>{t('microfinance:loans.detail.paymentMethodLabel')}</th><th>{t('microfinance:loans.detail.referenceLabel')}</th></tr></thead>
               <tbody>
                 {loan.repayments.map((r) => (
                   <tr key={r.id}>
                     <td>{formatDate(r.payment_date)}</td>
-                    <td>{formatCurrency(r.amount)}</td>
+                    <td className="cell-num">{formatCurrency(r.amount)}</td>
                     <td>{t(`microfinance:loans.paymentMethods.${r.payment_method}`)}</td>
                     <td>{r.reference || '—'}</td>
                   </tr>

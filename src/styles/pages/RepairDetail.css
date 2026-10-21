@@ -134,8 +134,12 @@
    so scrolling stays local to the stepper and never widens the page body,
    matching the same rule tables.css already applies to .table-wrapper. */
 .repair-stepper-wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  margin-bottom: var(--space-5);
+  padding: var(--space-5) var(--space-4);
+  background-color: var(--card-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
 }
 
 .repair-stepper {

@@ -72,7 +72,8 @@
       "product": "Product",
       "amount": "Amount",
       "status": "Status",
-      "date": "Applied"
+      "date": "Applied",
+      "repaid": "Principal repaid"
     },
     "status": {
       "submitted": "Submitted",
@@ -156,7 +157,8 @@
         "total": "Total Due",
         "paid": "Paid",
         "balance": "Balance",
-        "status": "Status"
+        "status": "Status",
+        "progress": "Progress"
       },
       "loanInformation": "Loan Information",
       "disbursementDate": "Disbursement Date",
@@ -176,7 +178,11 @@
       "outstandingBalance": "Outstanding Balance",
       "noSchedule": "No repayment schedule yet — disburse the loan to generate one.",
       "noRepayments": "No repayments recorded yet.",
-      "loadError": "We couldn't load this loan. Please try again."
+      "loadError": "We couldn't load this loan. Please try again.",
+      "repaymentProgress": "Repayment progress",
+      "repaymentProgressCaption": "{{paid}} of {{total}} paid · {{installmentsPaid}} of {{installments}} installments settled",
+      "overdueInstallments_one": "{{count}} installment overdue",
+      "overdueInstallments_other": "{{count}} installments overdue"
     },
     "scheduleStatus": {
       "pending": "Pending",
@@ -223,7 +229,13 @@
       "deposit": "Deposit",
       "withdraw": "Withdraw",
       "transactionsTitle": "Transactions",
-      "transactionColumns": { "date": "Date", "type": "Type", "amount": "Amount", "balanceAfter": "Balance After", "reference": "Reference" },
+      "transactionColumns": {
+        "date": "Date",
+        "type": "Type",
+        "amount": "Amount",
+        "balanceAfter": "Balance After",
+        "reference": "Reference"
+      },
       "depositModalTitle": "Record Deposit",
       "withdrawModalTitle": "Record Withdrawal",
       "amountLabel": "Amount",

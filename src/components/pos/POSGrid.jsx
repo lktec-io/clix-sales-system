@@ -26,6 +26,7 @@ function useIsCompact() {
 // POSGrid — the split-screen frame every transaction screen shares.
 //
 //   toolbar      search / scan / branch controls above the catalog
+//   filters      optional row under the toolbar, e.g. <POSCategoryPills>
 //   catalog      usually a <POSProductGrid>
 //   cartHeader   title row of the cart pane (count + clear action)
 //   cart         cart lines and checkout footer
@@ -37,6 +38,7 @@ function useIsCompact() {
 
 function POSGrid({
   toolbar,
+  filters,
   catalog,
   cartHeader,
   cart,
@@ -90,7 +92,12 @@ function POSGrid({
   return (
     <div className={styles.pos} data-sheet-open={effectiveOpen}>
       <section className={styles.catalog} aria-label={text.products}>
-        {toolbar && <div className={styles.toolbar}>{toolbar}</div>}
+        {(toolbar || filters) && (
+          <div className={styles.toolbar}>
+            {toolbar && <div className={styles.toolbarRow}>{toolbar}</div>}
+            {filters && <div className={styles.filtersRow}>{filters}</div>}
+          </div>
+        )}
         <div className={styles.catalogBody}>{catalog}</div>
       </section>
 
@@ -169,11 +176,53 @@ export function POSProductGrid({ loading = false, empty = false, emptyMessage, l
   );
 }
 
+function initialsOf(name) {
+  const words = String(name || '').trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return '?';
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+const BADGE_TONE_CLASS = {
+  warning: styles.tileBadgeWarning,
+  danger: styles.tileBadgeDanger,
+};
+
+// Horizontal, scrollable category filter. `categories` is [{ id, name }];
+// `value` is the selected id or '' for "All".
+export function POSCategoryPills({ categories, value, onChange, allLabel, label }) {
+  if (!categories?.length) return null;
+  const options = [{ id: '', name: allLabel }, ...categories];
+
+  return (
+    <div className={styles.pills} role="group" aria-label={label}>
+      {options.map((category) => {
+        const active = String(value) === String(category.id);
+        return (
+          <button
+            key={category.id || 'all'}
+            type="button"
+            className={styles.pill}
+            aria-pressed={active}
+            onClick={() => onChange(category.id)}
+          >
+            {category.name}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// `stockTone` ('ok' | 'low' | 'out') colours the stock line; `badges` is an
+// optional list of { label, tone: 'warning' | 'danger' } chips (e.g. expiry).
 export function POSProductTile({
   name,
   code,
   priceLabel,
   stockLabel,
+  stockTone = 'ok',
+  badges = [],
   inCartQty = 0,
   highlighted = false,
   disabled = false,
@@ -197,11 +246,21 @@ export function POSProductTile({
       disabled={disabled}
       onClick={onSelect}
     >
-      <span className={styles.tileName}>{name}</span>
+      <span className={styles.tileThumb} aria-hidden="true">{initialsOf(name)}</span>
       {inCartQty > 0 && <span className={styles.tileBadge} aria-hidden="true">{inCartQty}</span>}
+      <span className={styles.tileName}>{name}</span>
       {code && <span className={styles.tileCode}>{code}</span>}
+      {badges.length > 0 && (
+        <span className={styles.tileFlags}>
+          {badges.map((badge) => (
+            <span key={badge.label} className={cx(styles.tileFlag, BADGE_TONE_CLASS[badge.tone] || styles.tileBadgeWarning)}>
+              {badge.label}
+            </span>
+          ))}
+        </span>
+      )}
       <span className={styles.tilePrice}>{priceLabel}</span>
-      {stockLabel && <span className={styles.tileStock}>{stockLabel}</span>}
+      {stockLabel && <span className={styles.tileStock} data-tone={stockTone}>{stockLabel}</span>}
     </button>
   );
 }

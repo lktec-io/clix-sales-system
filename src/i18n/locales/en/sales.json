@@ -36,7 +36,7 @@
     "total": "Total",
     "paymentMethod": "Payment Method",
     "selected": "selected",
-    "completeSale": "Complete Sale",
+    "completeSale": "Process Payment",
     "scanBarcodeModalTitle": "Scan Barcode",
     "clearCartTitle": "Clear cart",
     "clearCartMessage_one": "Remove all {{count}} item from the cart? This cannot be undone.",
@@ -67,7 +67,11 @@
       "checkoutFailed": "Checkout failed. Please try again.",
       "failedToOpenReceipt": "Failed to open the receipt.",
       "failedToDownloadReceipt": "Failed to download the receipt."
-    }
+    },
+    "lineDiscounts": "Line discounts",
+    "cartDiscount": "Cart discount",
+    "allCategories": "All",
+    "categoryFilter": "Filter by category"
   },
   "list": {
     "title": "Sale History",

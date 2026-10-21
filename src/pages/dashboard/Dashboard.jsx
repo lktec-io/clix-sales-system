@@ -8,6 +8,7 @@ import {
 import KPICard from '../../components/dashboard/KPICard';
 import ChartCard from '../../components/dashboard/ChartCard';
 import DashboardHero from '../../components/dashboard/DashboardHero';
+import ModuleSwitcher from '../../components/dashboard/ModuleSwitcher';
 import SubscriptionCard from '../../components/dashboard/SubscriptionCard';
 import QuickActions from '../../components/dashboard/QuickActions';
 import SalesTrendCard from '../../components/dashboard/SalesTrendCard';
@@ -108,6 +109,10 @@ const CHART_TYPE_TO_WIDGET = {
   'revenue-vs-expenses': 'revenueVsExpenses',
 };
 
+// KPIs with an honest day-over-day series (the retail sales-trend week),
+// keyed to the series field that backs their trend chip and micro-chart.
+const KPI_TRENDS = { todaySales: 'value', todayOrders: 'count' };
+
 const STAGGER_CONTAINER = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08 } },
@@ -131,10 +136,10 @@ const KPI_CARD_ITEM = {
 // Today's Sales is the one KPI with a real, honest day-over-day comparison
 // readily available (the sales-trend series already includes yesterday) —
 // every other card is left without a trend badge rather than fabricate one.
-function computeTodayTrend(salesTrend) {
+function computeTodayTrend(salesTrend, field = 'value') {
   if (!salesTrend || salesTrend.length < 2) return null;
-  const today = Number(salesTrend[salesTrend.length - 1]?.value) || 0;
-  const yesterday = Number(salesTrend[salesTrend.length - 2]?.value) || 0;
+  const today = Number(salesTrend[salesTrend.length - 1]?.[field]) || 0;
+  const yesterday = Number(salesTrend[salesTrend.length - 2]?.[field]) || 0;
   if (yesterday === 0) return null;
   const percent = ((today - yesterday) / yesterday) * 100;
   return { percent, direction: percent >= 0 ? 'up' : 'down' };
@@ -162,6 +167,8 @@ function Dashboard() {
   const [recentOrders, setRecentOrders] = useState([]);
   const [recentRepairs, setRecentRepairs] = useState([]);
   const [todayTrend, setTodayTrend] = useState(null);
+  const [ordersTrend, setOrdersTrend] = useState(null);
+  const [salesWeek, setSalesWeek] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -197,7 +204,10 @@ function Dashboard() {
           chartMap[type] = chartResults[index];
         });
         setCharts(chartMap);
-        setTodayTrend(showSalesTrend ? computeTodayTrend(chartResults[enabledChartTypes.length]) : null);
+        const weekSeries = showSalesTrend ? chartResults[enabledChartTypes.length] || [] : [];
+        setTodayTrend(showSalesTrend ? computeTodayTrend(weekSeries, 'value') : null);
+        setOrdersTrend(showSalesTrend ? computeTodayTrend(weekSeries, 'count') : null);
+        setSalesWeek(weekSeries);
         setLowStockProducts(lowStockResult.status === 'fulfilled' ? lowStockResult.value.items : []);
         setRecentLoans(recentLoansResult.status === 'fulfilled' ? recentLoansResult.value : []);
         setExpiringBatches(expiringResult.status === 'fulfilled' ? expiringResult.value.items : []);
@@ -225,6 +235,7 @@ function Dashboard() {
   return (
     <div>
       <DashboardHero />
+      <ModuleSwitcher />
 
       {error && <div className="alert alert-danger mb-4" role="alert">{error}</div>}
 
@@ -243,7 +254,8 @@ function Dashboard() {
                 formatter={formatter}
                 subtitle={subtitle}
                 accent={accent}
-                trend={key === 'todaySales' ? todayTrend : null}
+                trend={KPI_TRENDS[key] ? { todaySales: todayTrend, todayOrders: ordersTrend }[key] : null}
+                sparkline={KPI_TRENDS[key] && salesWeek.length >= 2 ? salesWeek.map((point) => Number(point[KPI_TRENDS[key]]) || 0) : undefined}
               />
             </motion.div>
           ))}

@@ -72,7 +72,8 @@
       "product": "Aina",
       "amount": "Kiasi",
       "status": "Hali",
-      "date": "Tarehe ya Ombi"
+      "date": "Tarehe ya Ombi",
+      "repaid": "Mtaji uliorejeshwa"
     },
     "status": {
       "submitted": "Imewasilishwa",
@@ -156,7 +157,8 @@
         "total": "Jumla Inayodaiwa",
         "paid": "Kilicholipwa",
         "balance": "Salio",
-        "status": "Hali"
+        "status": "Hali",
+        "progress": "Maendeleo"
       },
       "loanInformation": "Taarifa za Mkopo",
       "disbursementDate": "Tarehe ya Kutolewa",
@@ -176,7 +178,11 @@
       "outstandingBalance": "Salio Linalodaiwa",
       "noSchedule": "Hakuna ratiba ya malipo bado — toa mkopo ili kutengeneza moja.",
       "noRepayments": "Hakuna malipo yaliyorekodiwa bado.",
-      "loadError": "Imeshindwa kupakia mkopo huu. Tafadhali jaribu tena."
+      "loadError": "Imeshindwa kupakia mkopo huu. Tafadhali jaribu tena.",
+      "repaymentProgress": "Maendeleo ya marejesho",
+      "repaymentProgressCaption": "{{paid}} kati ya {{total}} imelipwa · awamu {{installmentsPaid}} kati ya {{installments}} zimekamilika",
+      "overdueInstallments_one": "Awamu {{count}} imechelewa",
+      "overdueInstallments_other": "Awamu {{count}} zimechelewa"
     },
     "scheduleStatus": {
       "pending": "Inasubiri",
@@ -223,7 +229,13 @@
       "deposit": "Weka Akiba",
       "withdraw": "Toa Akiba",
       "transactionsTitle": "Miamala",
-      "transactionColumns": { "date": "Tarehe", "type": "Aina", "amount": "Kiasi", "balanceAfter": "Salio Baada", "reference": "Kumbukumbu" },
+      "transactionColumns": {
+        "date": "Tarehe",
+        "type": "Aina",
+        "amount": "Kiasi",
+        "balanceAfter": "Salio Baada",
+        "reference": "Kumbukumbu"
+      },
       "depositModalTitle": "Rekodi Uwekaji",
       "withdrawModalTitle": "Rekodi Utoaji",
       "amountLabel": "Kiasi",

@@ -1,159 +1,202 @@
+/* Global button primitives (legacy class API, new design).
+   Orange = primary action, Navy = outline/secondary emphasis.
+   Every size reaches a 44px hit area on touch devices (pointer: coarse). */
+
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  font-family: var(--font-family-base);
-  font-weight: var(--font-weight-medium);
-  font-size: var(--font-size-sm);
-  border-radius: var(--radius-md);
+  min-height: 40px;
+  padding: 0 var(--space-4);
   border: 1px solid transparent;
-  padding: var(--space-3) var(--space-5);
-  cursor: pointer;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-ui);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  line-height: 1.2;
+  letter-spacing: var(--tracking-tight);
+  text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.btn svg {
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
 }
 
 .btn:disabled,
 .btn[aria-disabled='true'] {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--accent-ring);
 }
 
 .btn:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: translateY(1px);
 }
 
-/* Primary — navy-to-green gradient, the brand's signature button treatment.
-   Stops are biased toward navy (green only appears near the far corner) so
-   white label text stays legible — a straight 50/50 navy/accent-green
-   gradient drops white-text contrast to ~2.3:1, well under WCAG. */
+/* Primary — orange fill, navy label (6.4:1). */
 .btn-primary {
-  background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 55%, var(--color-accent-hover) 100%);
-  color: var(--color-white);
-  box-shadow: var(--shadow-sm);
-}
-.btn-primary:hover:not(:disabled) {
-  background-image: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary) 45%, var(--color-accent) 100%);
-  box-shadow: var(--shadow-md);
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 1px 2px rgb(194 65 12 / 0.25), inset 0 1px 0 rgb(255 255 255 / 0.18);
 }
 
-/* Secondary — dark gray outline */
-.btn-secondary {
-  background-color: var(--color-card-bg);
-  border-color: var(--color-border);
-  color: var(--color-gray-dark);
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+  box-shadow: 0 6px 16px -6px rgb(249 115 22 / 0.55);
 }
+
+/* Secondary — quiet surface with a crisp border. */
+.btn-secondary {
+  background-color: var(--card-surface);
+  border-color: var(--border-strong);
+  color: var(--text-main);
+  box-shadow: var(--shadow-card);
+}
+
 .btn-secondary:hover:not(:disabled) {
-  background-color: var(--color-gray-light);
-  border-color: rgba(var(--color-primary-rgb), 0.3);
+  background-color: var(--surface-hover);
+  border-color: var(--text-muted);
 }
 
 .btn-danger {
-  background-color: var(--color-danger);
-  color: var(--color-white);
-  box-shadow: var(--shadow-sm);
+  background-color: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgb(185 28 28 / 0.25);
 }
+
 .btn-danger:hover:not(:disabled) {
-  filter: brightness(0.94);
-  box-shadow: var(--shadow-md);
+  background-color: #b91c1c;
+  border-color: #b91c1c;
 }
 
 .btn-ghost {
   background-color: transparent;
-  color: var(--color-gray-dark);
-}
-.btn-ghost:hover:not(:disabled) {
-  background-color: var(--color-gray-light);
+  color: var(--text-main);
 }
 
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--surface-hover);
+}
+
+/* Outline — navy (light) / off-white (dark) border. */
 .btn-outline {
   background-color: transparent;
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: var(--text-main);
+  color: var(--text-main);
 }
+
 .btn-outline:hover:not(:disabled) {
-  background-color: var(--color-primary);
-  color: var(--color-white);
+  background-color: var(--text-main);
+  color: var(--bg-main);
 }
 
 .btn-sm {
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--font-size-xs);
+  min-height: 34px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
 }
 
 .btn-lg {
-  padding: var(--space-4) var(--space-6);
-  font-size: var(--font-size-md);
+  min-height: 48px;
+  padding: 0 var(--space-5);
+  font-size: var(--fs-md);
 }
 
 .btn-icon {
-  padding: var(--space-2);
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
   border-radius: var(--radius-md);
-  font-size: var(--font-size-lg);
+  font-size: 1.125rem;
   line-height: 0;
 }
 
-/* Pagination's prev/next arrows combine .btn-sm with .btn-icon — keep those
-   a size down from the standalone icon-button default above so they stay
-   proportional to the small button's tighter padding. */
 .btn-sm.btn-icon {
-  font-size: var(--font-size-md);
-}
-
-/* Semantic icon coloring, matched by the same aria-label wording already
-   used consistently for these actions app-wide (e.g. "Delete customer",
-   "Edit branch") — one rule set colors every occurrence instead of
-   touching every list page's action-icon markup individually. */
-.btn-ghost.btn-icon[aria-label^="Delete" i],
-.btn-ghost.btn-icon[aria-label^="Remove" i],
-.btn-ghost.btn-icon[aria-label^="Reject" i] {
-  color: var(--color-danger);
-}
-.btn-ghost.btn-icon[aria-label^="Delete" i]:hover:not(:disabled),
-.btn-ghost.btn-icon[aria-label^="Remove" i]:hover:not(:disabled),
-.btn-ghost.btn-icon[aria-label^="Reject" i]:hover:not(:disabled) {
-  background-color: var(--color-danger-bg);
-}
-
-.btn-ghost.btn-icon[aria-label^="Edit" i] {
-  color: var(--color-blue);
-}
-.btn-ghost.btn-icon[aria-label^="Edit" i]:hover:not(:disabled) {
-  background-color: var(--color-info-bg);
-}
-
-/* ^= (starts-with), not *= (contains) — "Deactivate customer" contains
-   "Activate" as a substring, so a *= match would wrongly color it green
-   too. Every real label here always starts with the verb ("Activate
-   customer", "Mark as read", "Approve return"). */
-.btn-ghost.btn-icon[aria-label^="Activate" i],
-.btn-ghost.btn-icon[aria-label^="Mark as read" i],
-.btn-ghost.btn-icon[aria-label^="Approve" i] {
-  color: var(--color-success);
-}
-.btn-ghost.btn-icon[aria-label^="Activate" i]:hover:not(:disabled),
-.btn-ghost.btn-icon[aria-label^="Mark as read" i]:hover:not(:disabled),
-.btn-ghost.btn-icon[aria-label^="Approve" i]:hover:not(:disabled) {
-  background-color: var(--color-success-bg);
-}
-
-.btn-ghost.btn-icon[aria-label^="Deactivate" i],
-.btn-ghost.btn-icon[aria-label^="Suspend" i] {
-  color: var(--color-warning);
-}
-.btn-ghost.btn-icon[aria-label^="Deactivate" i]:hover:not(:disabled),
-.btn-ghost.btn-icon[aria-label^="Suspend" i]:hover:not(:disabled) {
-  background-color: var(--color-warning-bg);
+  min-width: 34px;
+  min-height: 34px;
+  font-size: 1rem;
 }
 
 .btn-block {
   width: 100%;
+}
+
+/* Touch devices: every button is at least 44×44. */
+@media (pointer: coarse) {
+  .btn,
+  .btn-sm,
+  .btn-icon,
+  .btn-sm.btn-icon {
+    min-height: var(--tap-min);
+  }
+
+  .btn-icon,
+  .btn-sm.btn-icon {
+    min-width: var(--tap-min);
+  }
+}
+
+/* Semantic icon colouring keyed off the aria-label verbs used app-wide. */
+.btn-ghost.btn-icon[aria-label^="Delete" i],
+.btn-ghost.btn-icon[aria-label^="Remove" i],
+.btn-ghost.btn-icon[aria-label^="Reject" i] {
+  color: var(--negative);
+}
+
+.btn-ghost.btn-icon[aria-label^="Delete" i]:hover:not(:disabled),
+.btn-ghost.btn-icon[aria-label^="Remove" i]:hover:not(:disabled),
+.btn-ghost.btn-icon[aria-label^="Reject" i]:hover:not(:disabled) {
+  background-color: var(--negative-bg);
+}
+
+.btn-ghost.btn-icon[aria-label^="Edit" i] {
+  color: var(--info);
+}
+
+.btn-ghost.btn-icon[aria-label^="Edit" i]:hover:not(:disabled) {
+  background-color: var(--info-bg);
+}
+
+.btn-ghost.btn-icon[aria-label^="Activate" i],
+.btn-ghost.btn-icon[aria-label^="Mark as read" i],
+.btn-ghost.btn-icon[aria-label^="Approve" i] {
+  color: var(--positive);
+}
+
+.btn-ghost.btn-icon[aria-label^="Activate" i]:hover:not(:disabled),
+.btn-ghost.btn-icon[aria-label^="Mark as read" i]:hover:not(:disabled),
+.btn-ghost.btn-icon[aria-label^="Approve" i]:hover:not(:disabled) {
+  background-color: var(--positive-bg);
+}
+
+.btn-ghost.btn-icon[aria-label^="Deactivate" i],
+.btn-ghost.btn-icon[aria-label^="Suspend" i] {
+  color: var(--warning);
+}
+
+.btn-ghost.btn-icon[aria-label^="Deactivate" i]:hover:not(:disabled),
+.btn-ghost.btn-icon[aria-label^="Suspend" i]:hover:not(:disabled) {
+  background-color: var(--warning-bg);
 }
 
 .btn-loading {
@@ -161,14 +204,24 @@
   color: transparent !important;
   pointer-events: none;
 }
+
 .btn-loading::after {
   content: '';
   position: absolute;
   width: 16px;
   height: 16px;
-  border: 2px solid currentColor;
+  border: 2px solid var(--text-main);
   border-top-color: transparent;
   border-radius: var(--radius-full);
   animation: spin 0.6s linear infinite;
-  color: inherit;
+}
+
+.btn-primary.btn-loading::after {
+  border-color: var(--on-accent);
+  border-top-color: transparent;
+}
+
+.btn-danger.btn-loading::after {
+  border-color: #ffffff;
+  border-top-color: transparent;
 }

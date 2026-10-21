@@ -1,13 +1,19 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { ThemeContext, THEMES, THEME_IDS } from './themeContextInstance';
+import { ThemeContext, THEMES, THEME_IDS, LEGACY_THEME_MAP } from './themeContextInstance';
 
 const STORAGE_KEY = 'clix-theme';
-const DEFAULT_THEME = 'aurora';
+const DEFAULT_THEME = 'light';
 
 function readInitialTheme() {
   if (typeof window === 'undefined') return DEFAULT_THEME;
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  return THEME_IDS.includes(stored) ? stored : DEFAULT_THEME;
+  let stored;
+  try {
+    stored = window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return DEFAULT_THEME;
+  }
+  if (THEME_IDS.includes(stored)) return stored;
+  return LEGACY_THEME_MAP[stored] || DEFAULT_THEME;
 }
 
 function ThemeProvider({ children }) {
@@ -21,7 +27,11 @@ function ThemeProvider({ children }) {
   }, [theme]);
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, theme);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, theme);
+    } catch {
+      // Storage unavailable (private mode / blocked) — theme just won't persist.
+    }
   }, [theme]);
 
   const setTheme = useCallback((next) => {

@@ -42,8 +42,8 @@
   width: 20px;
   height: 20px;
   border-radius: var(--radius-full);
-  background: var(--color-primary);
-  color: #fff;
+  background: var(--accent);
+  color: var(--on-accent);
   font-size: 0.7rem;
 }
 

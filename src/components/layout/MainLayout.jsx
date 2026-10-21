@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  FiGrid, FiUserCheck, FiTruck, FiBox, FiArchive, FiShoppingCart, FiDollarSign, FiRotateCcw,
-  FiBarChart2, FiCreditCard, FiSettings, FiMapPin, FiUsers, FiShield, FiBell, FiRepeat, FiClock,
-  FiCheckCircle, FiLayers, FiCoffee, FiTool, FiLogOut, FiChevronsLeft, FiX,
+  FiLogOut, FiChevronsLeft, FiChevronDown, FiX, FiMenu, FiSettings, FiMapPin, FiCreditCard,
   FiArrowUpRight, FiArrowDownRight, FiMinus,
 } from 'react-icons/fi';
 import Navbar from './Navbar';
@@ -12,6 +10,7 @@ import PageTransition from '../common/PageTransition';
 import { useAuth } from '../../hooks/useAuth';
 import { useCompany } from '../../hooks/useCompany';
 import { useModules } from '../../hooks/useModules';
+import { useNavigationItems } from '../../hooks/useNavigationItems';
 import * as dashboardService from '../../services/dashboardService';
 import { formatCurrency, formatNumber } from '../../utils/formatCurrency';
 import { ROUTES } from '../../constants/routes';
@@ -64,69 +63,117 @@ function writeStoredCollapsed(collapsed) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Navigation — data-driven from GET /modules/me, then narrowed by the
-// user's own permissions. Same contract as before the redesign: a module
-// only becomes a link when it has a `route`; Billing is a fixed,
-// permission-gated item anchored with Settings at the bottom.
-// ---------------------------------------------------------------------------
-
 const SIDEBAR_ID = 'app-sidebar';
-
-const ICON_MAP = {
-  FiGrid, FiUserCheck, FiTruck, FiBox, FiArchive, FiShoppingCart, FiDollarSign, FiRotateCcw,
-  FiBarChart2, FiCreditCard, FiSettings, FiMapPin, FiUsers, FiShield, FiBell, FiRepeat, FiClock,
-  FiCheckCircle, FiLayers, FiCoffee, FiTool,
-};
-
-function resolveIcon(iconKey) {
-  return ICON_MAP[iconKey] || FiGrid;
-}
-
-function useNavItems(modules) {
-  const { t } = useTranslation('sidebar');
-
-  const moduleItems = modules
-    .filter((module) => module.route)
-    .slice()
-    .sort((a, b) => a.navigationOrder - b.navigationOrder)
-    .map((module) => ({
-      to: module.route,
-      label: t(`nav.${module.key}`, { defaultValue: module.name }),
-      icon: resolveIcon(module.icon),
-      end: module.key === 'dashboard',
-      requiredPermission: module.requiredPermission ? module.requiredPermission.split(',') : undefined,
-    }));
-
-  const billingItem = { to: ROUTES.BILLING, label: t('nav.billing'), icon: FiCreditCard, requiredPermission: ['company.manage'] };
-  const settingsIndex = moduleItems.findIndex((item) => item.to === '/settings/company');
-
-  if (settingsIndex === -1) return { mainItems: moduleItems, bottomItems: [billingItem] };
-  return {
-    mainItems: moduleItems.slice(0, settingsIndex),
-    bottomItems: [billingItem, ...moduleItems.slice(settingsIndex)],
-  };
-}
-
 const NAV_SKELETON_ROWS = 7;
 
-function Sidebar({ viewport, collapsed, open, overlay, onNavigate, onToggle, onClose }) {
-  const { t } = useTranslation('sidebar');
-  const { logout, hasPermission } = useAuth();
-  const { company } = useCompany();
-  const { modules, loading: modulesLoading } = useModules();
-  const navigate = useNavigate();
-  const { mainItems, bottomItems } = useNavItems(modules);
-  const companyName = company?.company_name || 'Clix';
-  const isMobile = viewport === 'mobile';
+// Routes where every pixel belongs to the transaction workflow — no stats
+// bar, no mobile tab bar (the POS cart sheet owns the bottom edge there).
+const FOCUS_ROUTES = new Set(['/pos', '/pharmacy/sales/new', '/restaurant/orders/new', '/kitchen']);
 
-  const isNavItemVisible = (item) => {
-    if (!item.requiredPermission) return true;
-    if (Array.isArray(item.requiredPermission)) return item.requiredPermission.some(hasPermission);
-    return hasPermission(item.requiredPermission);
-  };
-  const visibleMainItems = mainItems.filter(isNavItemVisible);
-  const visibleBottomItems = bottomItems.filter(isNavItemVisible);
+// ---------------------------------------------------------------------------
+// Workspace menu — the tenant this account belongs to (logo, name, business
+// template) with its workspace-level shortcuts. Each Clix account belongs to
+// exactly one tenant, so this is the workspace switchboard, not a switch to
+// another tenant.
+// ---------------------------------------------------------------------------
+
+function WorkspaceMenu({ collapsed, onNavigate }) {
+  const { t } = useTranslation(['sidebar', 'landing']);
+  const { company } = useCompany();
+  const { businessTemplateSlug } = useModules();
+  const { hasPermission } = useAuth();
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
+  const menuId = useId();
+
+  const companyName = company?.company_name || 'Clix';
+  const templateLabel = businessTemplateSlug
+    ? t(`landing:businessTypes.${businessTemplateSlug}.name`, { defaultValue: '' })
+    : '';
+
+  const items = [
+    { to: '/settings/company', label: t('sidebar:workspace.companySettings'), icon: FiSettings, permission: 'company.manage' },
+    { to: '/settings/branches', label: t('sidebar:workspace.branches'), icon: FiMapPin, permission: 'branches.view' },
+    { to: ROUTES.BILLING, label: t('sidebar:workspace.billing'), icon: FiCreditCard, permission: 'company.manage' },
+  ].filter((item) => hasPermission(item.permission));
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const handlePointerDown = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) setOpen(false);
+    };
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open]);
+
+  const hasMenu = items.length > 0;
+
+  return (
+    <div ref={containerRef} className={styles.workspace} data-open={open}>
+      <button
+        type="button"
+        className={styles.workspaceButton}
+        onClick={() => hasMenu && setOpen((prev) => !prev)}
+        aria-expanded={hasMenu ? open : undefined}
+        aria-controls={hasMenu ? menuId : undefined}
+        aria-label={t('sidebar:workspace.label', { name: companyName })}
+        title={collapsed ? companyName : undefined}
+        disabled={!hasMenu}
+      >
+        {company?.logo_path ? (
+          <img src={company.logo_path} alt="" className={styles.brandLogo} />
+        ) : (
+          <span className={styles.brandMark} aria-hidden="true">{companyName.charAt(0).toUpperCase()}</span>
+        )}
+        <span className={cx(styles.workspaceText, styles.fadeLabel)}>
+          <span className={styles.workspaceName}>{companyName}</span>
+          {templateLabel && <span className={styles.workspaceMeta}>{templateLabel}</span>}
+        </span>
+        {hasMenu && <FiChevronDown className={cx(styles.workspaceCaret, styles.fadeLabel)} aria-hidden="true" />}
+      </button>
+
+      {hasMenu && (
+        <div id={menuId} className={styles.workspaceMenu} inert={!open}>
+          <div className={styles.workspaceMenuInner}>
+            {items.map(({ to, label, icon: Icon }) => (
+              <NavLink
+                key={to}
+                to={to}
+                title={collapsed ? label : undefined}
+                className={({ isActive }) => cx(styles.navLink, styles.workspaceItem, isActive && styles.navLinkActive)}
+                onClick={() => {
+                  setOpen(false);
+                  onNavigate();
+                }}
+              >
+                <Icon className={styles.navIcon} aria-hidden="true" />
+                <span className={styles.fadeLabel}>{label}</span>
+              </NavLink>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Sidebar
+// ---------------------------------------------------------------------------
+
+function Sidebar({ viewport, collapsed, open, overlay, navigation, onNavigate, onToggle, onClose }) {
+  const { t } = useTranslation('sidebar');
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const { loading, mainItems, bottomItems } = navigation;
+  const isMobile = viewport === 'mobile';
 
   const handleLogout = async () => {
     onNavigate();
@@ -161,12 +208,7 @@ function Sidebar({ viewport, collapsed, open, overlay, onNavigate, onToggle, onC
       aria-label={t('primaryNavigation')}
     >
       <div className={styles.brand}>
-        {company?.logo_path ? (
-          <img src={company.logo_path} alt="" className={styles.brandLogo} />
-        ) : (
-          <span className={styles.brandMark} aria-hidden="true">{companyName.charAt(0).toUpperCase()}</span>
-        )}
-        <span className={cx(styles.brandName, styles.fadeLabel)}>{companyName}</span>
+        <WorkspaceMenu collapsed={collapsed} onNavigate={onNavigate} />
         <button type="button" className={styles.closeBtn} onClick={onClose} aria-label={t('closeSidebar')}>
           <FiX aria-hidden="true" />
         </button>
@@ -174,20 +216,20 @@ function Sidebar({ viewport, collapsed, open, overlay, onNavigate, onToggle, onC
 
       <span className={cx(styles.sectionLabel, styles.fadeLabel)}>{t('sectionMain')}</span>
 
-      <nav className={styles.nav} aria-busy={modulesLoading}>
-        {modulesLoading
+      <nav className={styles.nav} aria-busy={loading}>
+        {loading
           ? Array.from({ length: NAV_SKELETON_ROWS }, (_, index) => (
             <div key={index} className={styles.navSkeleton} aria-hidden="true">
               <span className={cx(styles.shimmer, styles.navSkeletonIcon)} />
               <span className={cx(styles.shimmer, styles.navSkeletonLabel, styles.fadeLabel)} />
             </div>
           ))
-          : visibleMainItems.map(renderNavLink)}
+          : mainItems.map(renderNavLink)}
       </nav>
 
-      {!modulesLoading && visibleBottomItems.length > 0 && (
+      {!loading && bottomItems.length > 0 && (
         <nav className={styles.navBottom} aria-label={t('nav.settings')}>
-          {visibleBottomItems.map(renderNavLink)}
+          {bottomItems.map(renderNavLink)}
         </nav>
       )}
 
@@ -215,6 +257,44 @@ function Sidebar({ viewport, collapsed, open, overlay, onNavigate, onToggle, onC
         </button>
       </div>
     </aside>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Mobile tab bar (≤768px) — the first four modules one thumb-tap away, plus
+// "More", which opens the full drawer.
+// ---------------------------------------------------------------------------
+
+const TAB_BAR_ITEMS = 4;
+
+function MobileTabBar({ items, moreOpen, onMore, onNavigate }) {
+  const { t } = useTranslation('sidebar');
+
+  return (
+    <nav className={styles.tabBar} aria-label={t('quickNavigation')}>
+      {items.slice(0, TAB_BAR_ITEMS).map(({ to, label, icon: Icon, end }) => (
+        <NavLink
+          key={to}
+          to={to}
+          end={end}
+          className={({ isActive }) => cx(styles.tab, isActive && styles.tabActive)}
+          onClick={onNavigate}
+        >
+          <Icon className={styles.tabIcon} aria-hidden="true" />
+          <span className={styles.tabLabel}>{label}</span>
+        </NavLink>
+      ))}
+      <button
+        type="button"
+        className={cx(styles.tab, moreOpen && styles.tabActive)}
+        onClick={onMore}
+        aria-controls={SIDEBAR_ID}
+        aria-expanded={moreOpen}
+      >
+        <FiMenu className={styles.tabIcon} aria-hidden="true" />
+        <span className={styles.tabLabel}>{t('more')}</span>
+      </button>
+    </nav>
   );
 }
 
@@ -249,9 +329,6 @@ const STAT_CANDIDATES = [
   { key: 'monthlySales', format: formatCurrency },
   { key: 'lowStockCount', format: formatNumber, polarity: 'inverse' },
 ];
-
-// Routes where every pixel belongs to the transaction workflow.
-const FOCUS_ROUTES = new Set(['/pos', '/pharmacy/sales/new', '/restaurant/orders/new', '/kitchen']);
 
 function toDayKey(date) {
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -460,6 +537,10 @@ function MainLayout() {
     else if (viewport === 'tablet') setIsRailExpanded((prev) => !prev);
   };
 
+  const navigation = useNavigationItems();
+  const isFocusRoute = FOCUS_ROUTES.has(location.pathname);
+  const showTabBar = viewport === 'mobile' && !isFocusRoute && !navigation.loading && navigation.mainItems.length > 0;
+
   const canViewDashboard = hasPermission('dashboard.view');
   const salesTrendAvailable = hasWidget('salesTrend');
   const statDefs = STAT_CANDIDATES
@@ -469,10 +550,10 @@ function MainLayout() {
   const needsTrend = statDefs.some((def) => def.trendField);
 
   const stats = useStatsSummary(canViewDashboard && !modulesLoading && statDefs.length > 0, needsTrend);
-  const showStats = canViewDashboard && !FOCUS_ROUTES.has(location.pathname) && (modulesLoading || statDefs.length > 0);
+  const showStats = canViewDashboard && !isFocusRoute && (modulesLoading || statDefs.length > 0);
 
   return (
-    <div className={styles.shell} data-collapsed={viewport === 'desktop' && desktopCollapsed}>
+    <div className={styles.shell} data-collapsed={viewport === 'desktop' && desktopCollapsed} data-tabbar={showTabBar}>
       <a href="#main-content" className={styles.skipLink}>{t('skipToContent')}</a>
 
       <div className={styles.overlay} data-visible={drawerOpen || railOverlay} onClick={closeTransient} aria-hidden="true" />
@@ -482,6 +563,7 @@ function MainLayout() {
         collapsed={collapsed}
         open={drawerOpen}
         overlay={railOverlay}
+        navigation={navigation}
         onNavigate={closeTransient}
         onToggle={handleToggle}
         onClose={closeTransient}
@@ -505,6 +587,15 @@ function MainLayout() {
           <PageTransition />
         </div>
       </main>
+
+      {showTabBar && (
+        <MobileTabBar
+          items={navigation.mainItems}
+          moreOpen={drawerOpen}
+          onMore={() => setIsDrawerOpen((prev) => !prev)}
+          onNavigate={closeTransient}
+        />
+      )}
     </div>
   );
 }

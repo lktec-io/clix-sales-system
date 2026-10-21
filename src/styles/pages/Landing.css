@@ -20,7 +20,12 @@
    are NOT redefined per theme anywhere in themes.css, confirmed by
    grepping it before writing this file.
 
-   PALETTE — "Ink & Verdant", with a warm gold used only as a rare accent.
+   PALETTE — "Navy & Orange" (the product brand): navy ink, orange for
+   every call to action and highlight, emerald only for checkmarks. The
+   --landing-emerald / --landing-gold variable names are historical; both
+   now carry the orange accent so every existing rule follows the brand.
+   (Previous palette notes below are kept for history.)
+   Old palette — "Ink & Verdant", with a warm gold used only as a rare accent.
    Ink (near-black navy) + emerald green are the same two colors
    colors.css's own --color-primary/--color-accent and --gradient-hero
    already use for the *authenticated* app's default look, restated here as
@@ -33,31 +38,35 @@
    never a general UI color (no gold buttons, no gold links). */
 
 .landing-page {
-  --landing-ink: #0B1220;
-  --landing-bg: #F7F9FC;
-  --landing-bg-alt: #EEF2F8;
+  --landing-ink: #0F172A;
+  --landing-bg: #F8FAFC;
+  --landing-bg-alt: #F1F5F9;
   --landing-card-bg: #FFFFFF;
-  --landing-navbar-bg: rgba(255, 255, 255, 0.86);
-  --landing-border: #E1E7F0;
-  --landing-text-primary: #0B1220;
-  --landing-text-secondary: #5B6472;
+  --landing-navbar-bg: rgba(255, 255, 255, 0.9);
+  --landing-border: #E2E8F0;
+  --landing-text-primary: #0F172A;
+  --landing-text-secondary: #475569;
   --landing-text-inverse: #FFFFFF;
-  --landing-primary: #0B1220;
-  --landing-primary-rgb: 11, 18, 32;
-  --landing-emerald: #10B981;
-  --landing-emerald-deep: #059669;
-  --landing-emerald-rgb: 16, 185, 129;
+  --landing-primary: #0F172A;
+  --landing-primary-rgb: 15, 23, 42;
+  --landing-emerald: #F97316;
+  --landing-emerald-deep: #EA580C;
+  --landing-emerald-rgb: 249, 115, 22;
   --landing-success: #10B981;
-  --landing-gold: #C8A56A;
-  --landing-gold-deep: #A88447;
-  --landing-gold-rgb: 200, 165, 106;
-  --landing-footer-bg: #0A0F1A;
-  --landing-footer-text: #E4E9F1;
-  --landing-glass-blur: 20px;
-  --landing-shadow-sm: 0 1px 2px rgba(11, 18, 32, 0.06);
-  --landing-shadow-lg: 0 16px 40px rgba(11, 18, 32, 0.14);
-  --landing-gradient-hero: linear-gradient(115deg, #071A3D 0%, #123A73 45%, #0E7A57 85%, #123A73 100%);
-  --landing-gradient-gold: linear-gradient(135deg, #D9BC84 0%, #A88447 100%);
+  --landing-gold: #F97316;
+  --landing-gold-deep: #C2410C;
+  --landing-gold-rgb: 249, 115, 22;
+  --landing-footer-bg: #0F172A;
+  --landing-footer-text: #E2E8F0;
+  --landing-glass-blur: 16px;
+  --landing-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+  --landing-shadow-lg: 0 18px 44px -12px rgba(15, 23, 42, 0.22);
+  --landing-gradient-hero:
+    radial-gradient(55% 75% at 88% 18%, rgba(249, 115, 22, 0.32) 0%, transparent 62%),
+    radial-gradient(40% 60% at 8% 100%, rgba(249, 115, 22, 0.12) 0%, transparent 60%),
+    linear-gradient(135deg, #0F172A 0%, #111C33 55%, #1E293B 100%);
+  --landing-gradient-gold: linear-gradient(135deg, #FB923C 0%, #F97316 100%);
+  font-family: var(--font-ui);
 
   background: var(--landing-bg);
   color: var(--landing-text-primary);
@@ -102,24 +111,29 @@
    would drag the average toward the lighter, lower-contrast end the same
    way this app's own .btn-primary comment (buttons.css) warns against for
    its navy/green mix. */
+/* Orange CTA with a navy label (6.4:1) — white on #F97316 is only 2.8:1. */
 .landing-page .btn-primary {
-  background-image: linear-gradient(135deg, var(--landing-emerald) 0%, var(--landing-emerald-deep) 70%, var(--landing-emerald-deep) 100%);
-  color: #ffffff;
+  background-color: #F97316;
+  background-image: none;
+  border-color: #F97316;
+  color: #0F172A;
+  font-weight: 700;
 }
 
 .landing-page .btn-primary:hover:not(:disabled) {
-  background-image: linear-gradient(135deg, var(--landing-emerald-deep) 0%, var(--landing-emerald-deep) 30%, var(--landing-emerald) 100%);
-  box-shadow: 0 10px 24px rgba(var(--landing-emerald-rgb), 0.35);
+  background-color: #EA580C;
+  border-color: #EA580C;
+  box-shadow: 0 12px 28px -8px rgba(249, 115, 22, 0.6);
   transform: translateY(-2px);
 }
 
 .landing-page .btn-outline {
-  border-color: #0B1220;
-  color: #0B1220;
+  border-color: #0F172A;
+  color: #0F172A;
 }
 
 .landing-page .btn-outline:hover:not(:disabled) {
-  background-color: #0B1220;
+  background-color: #0F172A;
   color: #ffffff;
 }
 
@@ -280,10 +294,10 @@
 }
 
 .landing-hero-title {
-  font-size: clamp(2.1rem, 3.6vw + 1rem, 3.5rem);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: -0.02em;
-  line-height: 1.08;
+  font-size: clamp(2.3rem, 4vw + 1rem, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
   color: #ffffff;
   text-wrap: balance;
 }
@@ -329,10 +343,13 @@
   width: 100%;
   max-width: 440px;
   margin: 0 auto;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   overflow: hidden;
   background: var(--landing-card-bg);
-  box-shadow: 0 30px 70px rgba(2, 6, 16, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 40px 80px -20px rgba(2, 6, 16, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 0 8px rgba(255, 255, 255, 0.04);
 }
 
 .landing-hero-preview-titlebar {
@@ -341,7 +358,7 @@
   justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  background: #101B30;
+  background: #0F172A;
 }
 
 .landing-hero-preview-dots {
@@ -547,6 +564,7 @@
 }
 
 .landing-business-card:hover {
+  border-color: rgba(249, 115, 22, 0.45);
   transform: translateY(-3px);
   box-shadow: var(--landing-shadow-lg);
 }
@@ -557,9 +575,9 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-md);
-  background: rgba(var(--card-accent-rgb, var(--landing-primary-rgb)), 0.12);
-  color: var(--card-accent, var(--landing-primary));
+  border-radius: var(--radius-lg);
+  background: #0F172A;
+  color: #FDBA74;
   font-size: 1.3rem;
   flex-shrink: 0;
 }
@@ -641,7 +659,7 @@
   min-width: 0;
   background: var(--landing-card-bg);
   border: 1px solid var(--landing-border);
-  border-radius: var(--radius-lg);
+  border-radius: 16px;
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
@@ -649,8 +667,8 @@
 }
 
 .landing-pricing-card.is-featured {
-  border-color: var(--landing-gold);
-  box-shadow: var(--landing-shadow-lg);
+  border: 2px solid #F97316;
+  box-shadow: 0 24px 48px -16px rgba(249, 115, 22, 0.45), var(--landing-shadow-lg);
   transform: translateY(-8px);
 }
 
@@ -659,8 +677,10 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--landing-gradient-gold);
-  color: #2E2107;
+  background: #F97316;
+  color: #0F172A;
+  font-weight: 700;
+  box-shadow: 0 6px 14px -4px rgba(249, 115, 22, 0.6);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   padding: var(--space-1) var(--space-3);
@@ -682,8 +702,93 @@
 }
 
 .landing-pricing-price {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
+  font-family: var(--font-mono);
+  font-size: clamp(1.6rem, 1.2rem + 1vw, 2rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.landing-pricing-subprice {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--landing-text-secondary);
+}
+
+.landing-pricing-save {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: #DCFCE7;
+  color: #15803D;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+}
+
+/* Monthly / yearly billing toggle */
+.landing-billing-toggle {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto var(--space-8);
+}
+
+.landing-billing-segment {
+  display: inline-flex;
+  padding: 4px;
+  border: 1px solid var(--landing-border);
+  border-radius: var(--radius-full);
+  background: var(--landing-card-bg);
+  box-shadow: var(--landing-shadow-sm);
+}
+
+.landing-billing-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 0 var(--space-5);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--landing-text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.landing-billing-option[aria-pressed='true'] {
+  background: #0F172A;
+  color: #ffffff;
+}
+
+.landing-billing-option:focus-visible {
+  outline: 2px solid #F97316;
+  outline-offset: 2px;
+}
+
+.landing-billing-option .landing-pricing-save {
+  padding: 1px 8px;
+}
+
+.landing-pricing-skeleton {
+  min-height: 380px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+  background-size: 200% 100%;
+  animation: landingShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes landingShimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-pricing-skeleton { animation: none; }
 }
 
 .landing-pricing-period {

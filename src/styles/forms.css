@@ -1,112 +1,150 @@
+/* Global form primitives (legacy class API, new design).
+   44px controls, 10px corners, navy border + orange ring on focus. */
+
 .form-group {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   margin-bottom: var(--space-5);
+  min-width: 0;
 }
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-5);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-5);
 }
 
 .form-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-gray-dark);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-main);
 }
 
 .form-label-required::after {
   content: ' *';
-  color: var(--color-danger);
+  color: var(--negative);
 }
 
 .form-control {
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-  background-color: var(--color-card-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  transition: border-color var(--transition-base), box-shadow var(--transition-base);
   width: 100%;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--card-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-ui);
+  font-size: var(--fs-base);
+  line-height: var(--lh-snug);
+  color: var(--text-main);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+/* iOS zooms into any focused field under 16px. */
+@media (pointer: coarse) {
+  .form-control {
+    font-size: var(--fs-md);
+  }
 }
 
 .form-control::placeholder {
-  color: var(--color-text-secondary);
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+.form-control:hover:not(:disabled):not(:focus) {
+  border-color: var(--text-muted);
 }
 
 .form-control:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.12);
+  border-color: var(--brand-navy);
+  box-shadow: var(--accent-ring);
+}
+
+:root[data-theme='dark'] .form-control:focus,
+:root[data-theme='midnight'] .form-control:focus {
+  border-color: var(--accent);
 }
 
 .form-control:disabled {
-  background-color: var(--color-gray-light);
+  background-color: var(--surface-sunken);
+  color: var(--text-muted);
   cursor: not-allowed;
 }
 
-.form-control-error {
-  border-color: var(--color-danger);
+.form-control-error,
+.form-control[aria-invalid='true'] {
+  border-color: var(--negative);
 }
-.form-control-error:focus {
-  box-shadow: 0 0 0 3px rgba(var(--color-danger-rgb, 220, 38, 38), 0.15);
+
+.form-control-error:focus,
+.form-control[aria-invalid='true']:focus {
+  box-shadow: 0 0 0 3px rgb(220 38 38 / 0.2);
+}
+
+input[type='number'].form-control,
+input[type='date'].form-control {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 select.form-control {
+  padding-right: var(--space-7);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
   cursor: pointer;
 }
 
 textarea.form-control {
-  min-height: 96px;
+  min-height: 104px;
+  padding-block: var(--space-3);
   resize: vertical;
 }
 
-/* Password field with a Show/Hide toggle — the input keeps its normal
-   .form-control styling, this just adds room on the right for the button. */
 .form-password-field {
   position: relative;
 }
 
 .form-password-field .form-control {
-  padding-right: calc(var(--space-4) + 28px);
+  padding-right: calc(var(--tap-min) + var(--space-2));
 }
 
 .form-password-toggle {
   position: absolute;
   top: 50%;
-  right: var(--space-2);
-  transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: none;
-  border: none;
+  right: 2px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-lg);
-  cursor: pointer;
-  transition: color var(--transition-fast), background-color var(--transition-fast);
+  color: var(--text-muted);
+  font-size: 1.125rem;
+  transform: translateY(-50%);
+  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
 }
 
 .form-password-toggle:hover {
-  color: var(--color-text-primary);
-  background-color: var(--color-gray-light);
+  background-color: var(--surface-hover);
+  color: var(--text-main);
 }
 
 .form-help {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
 }
 
 .form-error {
-  font-size: var(--font-size-xs);
-  color: var(--color-danger);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--negative);
 }
 
 .form-checkbox,
@@ -114,41 +152,41 @@ textarea.form-control {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  min-height: var(--tap-min);
+  font-size: var(--fs-base);
+  color: var(--text-main);
   cursor: pointer;
 }
 
 .form-checkbox input[type='checkbox'],
 .form-radio input[type='radio'] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--color-primary);
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
   cursor: pointer;
 }
 
-/* Switch toggle — for boolean settings (e.g. SystemSettings) in place of a plain checkbox */
 .form-switch {
   display: inline-flex;
   align-items: center;
   gap: var(--space-3);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  min-height: var(--tap-min);
+  font-size: var(--fs-base);
+  color: var(--text-main);
   cursor: pointer;
 }
 
 .form-switch input {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 38px;
-  height: 22px;
-  flex-shrink: 0;
-  border-radius: var(--radius-full);
-  background-color: var(--color-gray-light);
-  border: 1px solid var(--color-border);
   position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 24px;
+  appearance: none;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  background-color: var(--surface-sunken);
   cursor: pointer;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 
 .form-switch input::before {
@@ -156,17 +194,17 @@ textarea.form-control {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background-color: var(--color-white);
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast);
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.25);
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 .form-switch input:checked {
-  background-color: var(--color-accent);
-  border-color: var(--color-accent);
+  background-color: var(--accent);
+  border-color: var(--accent);
 }
 
 .form-switch input:checked::before {
@@ -174,27 +212,31 @@ textarea.form-control {
 }
 
 .form-switch input:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 .form-switch input:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--accent-ring);
 }
 
 .form-actions {
   display: flex;
-  justify-content: flex-end;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: var(--space-3);
   margin-top: var(--space-6);
   padding-top: var(--space-5);
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border-color);
 }
 
 @media (max-width: 768px) {
   .form-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .form-actions .btn {
+    flex: 1 1 auto;
   }
 }

@@ -73,7 +73,8 @@
     "completedRepairsTodaySubtitle": "Yaliyochukuliwa leo",
     "outstandingRepairPayments": "Malipo ya Matengenezo Yanayodaiwa",
     "outstandingRepairPaymentsSubtitle": "Salio linalodaiwa kwenye kazi zinazoendelea",
-    "trendVsYesterday": "{{percent}}% ikilinganishwa na jana"
+    "trendVsYesterday": "{{percent}}% ikilinganishwa na jana",
+    "vsYesterdayShort": "dhidi ya jana"
   },
   "charts": {
     "revenueVsExpenses": "Mapato dhidi ya Matumizi",

@@ -1,0 +1,166 @@
+/* Dashboard context header — navy module pills with an orange active
+   indicator. Scrolls horizontally on narrow screens instead of wrapping
+   into a tall block. */
+
+.switcher {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-5);
+  margin-bottom: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--brand-navy);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  color: #f8fafc;
+}
+
+:global(:root[data-theme='dark']) .switcher,
+:global(:root[data-theme='midnight']) .switcher {
+  background-color: #020617;
+  border: 1px solid var(--border-color);
+}
+
+.context {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: var(--lh-snug);
+}
+
+.eyebrow {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: #fdba74;
+}
+
+.company {
+  overflow: hidden;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pills {
+  display: flex;
+  flex: 1 1 420px;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  min-width: 0;
+  padding-block: 2px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.pills::-webkit-scrollbar {
+  display: none;
+}
+
+.pill {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border: 1px solid rgb(148 163 184 / 0.28);
+  border-radius: var(--radius-full);
+  background-color: rgb(255 255 255 / 0.04);
+  color: #cbd5e1;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+  scroll-snap-align: start;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.pill:hover {
+  background-color: rgb(255 255 255 / 0.1);
+  border-color: rgb(148 163 184 / 0.5);
+  color: #ffffff;
+}
+
+.pill:focus-visible {
+  outline: 2px solid #fdba74;
+  outline-offset: 2px;
+}
+
+.pillActive,
+.pillActive:hover {
+  background-color: #ffffff;
+  border-color: #ffffff;
+  color: #0f172a;
+}
+
+.pillActive::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  left: 10px;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background-color: var(--accent);
+}
+
+.pillIcon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.pillActive .pillIcon {
+  color: var(--accent-hover);
+}
+
+.pillSkeleton {
+  flex: none;
+  width: 104px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  --skeleton-base: #1e293b;
+  --skeleton-highlight: #2b3a52;
+}
+
+.shimmer {
+  background-color: var(--skeleton-base);
+  background-image: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-highlight) 50%, var(--skeleton-base) 75%);
+  background-size: 200% 100%;
+  animation: shimmer var(--dur-shimmer) ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (max-width: 768px) {
+  .pills {
+    flex-basis: 100%;
+    justify-content: flex-start;
+    margin-inline: calc(var(--space-4) * -1);
+    padding-inline: var(--space-4);
+  }
+}
+
+@media (pointer: coarse) {
+  .pill {
+    min-height: var(--tap-min);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
+  }
+}

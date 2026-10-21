@@ -1,47 +1,83 @@
+/* Global data tables (legacy class API, new design).
+   Clean header row, soft horizontal rules, subtle row hover, tabular
+   figures. On narrow screens the wrapper scrolls horizontally with edge
+   shadows that show there is more content — nothing is ever clipped. */
+
 .table-wrapper {
+  position: relative;
   width: 100%;
   overflow-x: auto;
-  background-color: var(--color-card-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  /* Scroll shadows: the "local" covers travel with the content and hide
+     the "scroll" shadows once an edge is reached. */
+  background:
+    linear-gradient(to right, var(--card-surface) 30%, transparent) left center / 40px 100% no-repeat local,
+    linear-gradient(to left, var(--card-surface) 30%, transparent) right center / 40px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, rgb(15 23 42 / 0.14), transparent) left center / 12px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, rgb(15 23 42 / 0.14), transparent) right center / 12px 100% no-repeat scroll,
+    var(--card-surface);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* Inside a card the card already draws the frame. */
+.card > .table-wrapper {
+  border: 0;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
 }
 
 .table {
   width: 100%;
-  border-collapse: collapse;
   min-width: 640px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .table thead th {
-  text-align: left;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--color-text-secondary);
-  background-color: var(--color-gray-light);
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-border);
-  white-space: nowrap;
   position: sticky;
   top: 0;
   z-index: 1;
+  height: 44px;
+  padding: 0 var(--space-4);
+  background-color: var(--surface-sunken);
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-muted);
 }
 
 .table tbody td {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-border);
-  transition: background-color var(--transition-fast);
+  height: 52px;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--fs-base);
+  color: var(--text-main);
+  vertical-align: middle;
+  transition: background-color var(--dur-fast) var(--ease-out);
 }
 
 .table tbody tr:last-child td {
-  border-bottom: none;
+  border-bottom: 0;
 }
 
 .table tbody tr:hover td {
-  background-color: var(--color-gray-light);
+  background-color: var(--surface-hover);
+}
+
+.table-row-clickable {
+  cursor: pointer;
+}
+
+.table-row-clickable:focus-visible td {
+  background-color: var(--accent-soft);
 }
 
 .table-sortable th {
@@ -51,43 +87,52 @@
 
 .table-actions {
   display: flex;
-  gap: var(--space-2);
   justify-content: flex-end;
+  gap: var(--space-1);
 }
 
 .table-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  border-bottom: 1px solid var(--color-border);
-  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .table-pagination {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
 }
 
 .pagination-indicator {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-  background-color: var(--color-gray-light);
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-full);
+  background-color: var(--surface-sunken);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  color: var(--text-muted);
 }
 
 .table-empty {
   padding: 0;
+}
+
+@media (max-width: 768px) {
+  .table thead th,
+  .table tbody td {
+    padding-inline: var(--space-3);
+  }
 }
 
 @media print {
@@ -96,8 +141,31 @@
   .table-actions {
     display: none !important;
   }
+
   .table-wrapper {
-    border: none;
     overflow: visible;
+    border: 0;
+    background: none;
   }
+}
+
+/* Numeric cells: right-aligned tabular figures for ledger columns. */
+.table .cell-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums slashed-zero;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table thead th.cell-num {
+  font-family: var(--font-ui);
+}
+
+/* Row tint for attention states (e.g. an overdue installment). */
+.table tbody tr.row-danger td {
+  background-color: color-mix(in srgb, var(--negative-bg) 55%, transparent);
+}
+
+.table tbody tr.row-success td {
+  background-color: color-mix(in srgb, var(--positive-bg) 40%, transparent);
 }
