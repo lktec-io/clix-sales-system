@@ -60,7 +60,7 @@
 }
 
 @keyframes posCartLineValuePulse {
-  0% { transform: scale(1.12); color: var(--color-success); }
+  0% { transform: scale(1.12); color: var(--color-success-text); }
   100% { transform: scale(1); color: inherit; }
 }
 
@@ -262,7 +262,7 @@
 }
 
 .pos-receipt-modal-icon {
-  color: var(--color-success);
+  color: var(--color-success-text);
   font-size: 2.5rem;
   margin-bottom: var(--space-2);
 }

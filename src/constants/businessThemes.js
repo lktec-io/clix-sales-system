@@ -25,7 +25,7 @@ export const BUSINESS_THEMES = {
   // Professional teal (Tailwind teal-600) — clean, trustworthy retail-
   // pharmacy identity without leaning on clinical/hospital blue imagery.
   pharmacy: { accent: '#0D9488', accentRgb: '13, 148, 136', icon: FiPlusSquare, label: 'Pharmacy' },
-  restaurant: { accent: '#F97316', accentRgb: '249, 115, 22', icon: FiCoffee, label: 'Restaurant' },
+  restaurant: { accent: '#1E40AF', accentRgb: '30, 64, 175', icon: FiCoffee, label: 'Restaurant' },
   // Gold — paired with the shared deep-navy hero base for a "deep blue +
   // gold" financial-institution identity; premium/authoritative.
   microfinance: { accent: '#C9A227', accentRgb: '201, 162, 39', icon: FiTrendingUp, label: 'Microfinance' },

@@ -10,7 +10,7 @@ import '../../../styles/pages/PlatformDashboard.css';
 const KPI_DEFS = [
   { key: 'totalTenants', label: 'Total Tenants', icon: FiBriefcase, accent: '#2F6BFF' },
   { key: 'activeTenants', label: 'Active Tenants', icon: FiCheckCircle, accent: '#10B981' },
-  { key: 'trialTenants', label: 'Trial Tenants', icon: FiClock, accent: '#F59E0B' },
+  { key: 'trialTenants', label: 'Trial Tenants', icon: FiClock, accent: '#2563EB' },
   { key: 'expiredTenants', label: 'Expired Tenants', icon: FiXCircle, accent: '#EF4444' },
   { key: 'suspendedTenants', label: 'Suspended Tenants', icon: FiSlash, accent: '#8B5CF6' },
   { key: 'newRegistrations', label: 'New (30 Days)', icon: FiUserPlus, accent: '#22D3EE' },

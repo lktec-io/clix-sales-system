@@ -1,82 +1,144 @@
-/* Design tokens — the single source of truth for every CSS Module.
-   Light is the :root default; dark swaps values under data-theme="dark".
-   Contrast ratios noted inline are WCAG 2.x, measured against the surface
-   each token is meant to sit on. Text tokens target AAA (7:1); fill-only
-   tokens (*-bg, --primary-green) are never used for small text. */
+/* Design tokens — ONE production theme (no light/dark switching).
+   Section 1 is the official theme engine, verbatim. Section 2 derives the
+   working tokens every component and CSS Module reads, so the whole app
+   follows Section 1. No orange anywhere; every radius is 5px. */
 
+/* ===================== 1. Theme engine (official) ===================== */
+:root {
+  /* Brand Palette */
+  --color-navy-900: #0f172a;   /* Primary Navy (sidebar, headings, topbar) */
+  --color-navy-800: #1e40af;   /* Accent Blue (primary buttons, active states) */
+  --color-navy-700: #1e3a8a;   /* Primary hover */
+  --color-slate-700: #1e40af;
+  --color-slate-600: #2563eb;
+  --color-steel-400: #94a3b8;  /* Dividers, muted icons */
+  --color-steel-200: #cbd5e1;
+  --color-steel-100: #e2e8f0;
+  --color-mist-50: #f8fafc;    /* Page background */
+  --color-white: #ffffff;
+
+  --color-charcoal-900: #1e293b;
+  --color-charcoal-700: #334155;
+  --color-charcoal-500: #64748b;
+
+  /* Semantic & Status Colors */
+  --color-primary: var(--color-navy-800);
+  --color-bg: var(--color-mist-50);
+  --color-surface: var(--color-white);
+  --color-border: #e2e8f0;
+
+  --color-success: #28a745;
+  --color-success-text: #1e7e34;
+  --color-success-bg: #eaf6ec;
+  --color-success-border: #c3e6cb;
+
+  --color-warning: #ffc107;
+  --color-warning-text: #856404;
+  --color-warning-bg: #fff8e1;
+  --color-warning-border: #ffeeba;
+
+  --color-danger: #dc3545;
+  --color-danger-text: #bd2130;
+  --color-danger-bg: #fdf2f3;
+  --color-danger-border: #f5c6cb;
+
+  --color-info: #2563eb;
+  --color-info-bg: #eff6ff;
+  --color-info-border: #bfdbfe;
+
+  /* Typography */
+  --font-heading: "Quicksand", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Quicksand", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Consolas", monospace;
+
+  /* Strict Shapes */
+  --radius-sm: 5px;
+  --radius-md: 5px;
+  --radius-lg: 5px;
+  --radius-pill: 5px;
+
+  --shadow-xs: 0 1px 1px rgba(15, 23, 42, 0.06);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* ===================== 2. Working tokens (derived) ===================== */
 :root {
   color-scheme: light;
 
-  /* ---------- Brand: Navy + Orange ---------- */
-  --brand-navy: #0f172a;             /* sidebar, dark headers, primary text */
-  --brand-navy-2: #1e293b;
-  --accent: #f97316;                 /* primary buttons, key actions, active indicators */
-  --accent-hover: #ea580c;
-  --on-accent: #0f172a;              /* navy label on orange → 6.4:1 (white would be 2.8:1) */
-  --accent-soft: #fff7ed;            /* selected / highlighted surfaces */
-  --accent-text: #c2410c;            /* orange text on light surfaces → 5.2:1 */
-  --accent-ring: 0 0 0 3px rgb(249 115 22 / 0.28);
+  /* Brand */
+  --brand-navy: var(--color-navy-900);
+  --brand-navy-2: var(--color-charcoal-900);
+  --accent: var(--color-navy-800);             /* primary buttons, active states */
+  --accent-hover: var(--color-navy-700);
+  --on-accent: var(--color-white);             /* white on #1e40af → 8.7:1 */
+  --accent-soft: var(--color-info-bg);
+  --accent-text: var(--color-navy-800);
+  --accent-ring: 0 0 0 3px rgb(37 99 235 / 0.25);
 
-  /* ---------- Success (Emerald) ---------- */
-  --primary-green: #059669;          /* fills, focus, chart-1 — not small text (3.77:1 on white) */
-  --primary-green-hover: #047857;
-  --primary-green-strong: #047857;   /* button bg with --on-primary label → 5.5:1 */
-  --primary-green-text: #065f46;     /* green text on light surfaces → 7.7:1 */
-  --primary-green-soft: #ecfdf5;     /* selected rows, success chip bg */
-  --on-primary: #ffffff;
+  /* Success green — CTAs, growth, paid */
+  --primary-green: var(--color-success);
+  --primary-green-hover: #218838;
+  --primary-green-strong: var(--color-success);
+  --primary-green-text: var(--color-success-text);
+  --primary-green-soft: var(--color-success-bg);
+  --on-primary: var(--color-white);
 
-  /* ---------- Surfaces ---------- */
-  --bg-main: #f8fafc;
-  --card-surface: #ffffff;
-  --surface-sunken: #f1f5f9;
+  /* Surfaces */
+  --bg-main: var(--color-bg);
+  --card-surface: var(--color-surface);
+  --surface-sunken: var(--color-mist-50);
   --surface-hover: #f1f5f9;
-  --sidebar-bg: #0f172a;             /* sidebar stays dark in both themes */
-  --sidebar-surface-hover: #1e293b;
-  --sidebar-text: #e2e8f0;           /* 14.5:1 on --sidebar-bg */
-  --sidebar-text-muted: #a9b6c8;     /* 8.7:1 on --sidebar-bg */
-  --sidebar-border: #1e293b;
-  --sidebar-active-text: #fdba74;    /* 11.6:1 on --sidebar-bg */
-  --overlay: rgb(15 23 42 / 0.55);
+  --sidebar-bg: var(--color-navy-900);
+  --sidebar-surface-hover: var(--color-charcoal-900);
+  --sidebar-text: var(--color-steel-100);
+  --sidebar-text-muted: var(--color-steel-400);
+  --sidebar-border: var(--color-charcoal-900);
+  --sidebar-active-text: #ffffff;
+  --overlay: rgb(15 23 42 / 0.5);
 
-  /* ---------- Text ---------- */
-  --text-main: #0f172a;              /* 17.9:1 on white */
-  --text-muted: #475569;             /* 7.3:1 on --bg-main, 7.6:1 on white */
-  --text-disabled: #94a3b8;          /* decorative / disabled only */
+  /* Text */
+  --text-main: var(--color-navy-900);
+  --text-muted: var(--color-charcoal-500);     /* 4.8:1 on white */
+  --text-disabled: var(--color-steel-400);
 
-  /* ---------- Lines & focus ---------- */
-  --border-color: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --focus-ring: 0 0 0 3px rgb(249 115 22 / 0.35);
+  /* Lines & focus */
+  --border-color: var(--color-border);
+  --border-strong: var(--color-steel-200);
+  --focus-ring: var(--accent-ring);
 
-  /* ---------- Status badges (text on its own *-bg) ---------- */
-  --positive: #15803d;               /* Paid / Completed — 4.9:1 on #dcfce7 */
-  --positive-bg: #dcfce7;
-  --negative: #b91c1c;               /* Overdue / Cancelled — 5.4:1 on #fee2e2 */
-  --negative-bg: #fee2e2;
-  --warning: #c2410c;                /* Pending / In progress — 4.6:1 on #ffedd5 */
-  --warning-bg: #ffedd5;
-  --info: #1e40af;
-  --info-bg: #dbeafe;
-  --neutral: #475569;
+  /* Status badges (text / background / border) */
+  --positive: var(--color-success-text);
+  --positive-bg: var(--color-success-bg);
+  --positive-border: var(--color-success-border);
+  --warning: var(--color-warning-text);
+  --warning-bg: var(--color-warning-bg);
+  --warning-border: var(--color-warning-border);
+  --negative: var(--color-danger-text);
+  --negative-bg: var(--color-danger-bg);
+  --negative-border: var(--color-danger-border);
+  --info: var(--color-info);
+  --info-bg: var(--color-info-bg);
+  --info-border: var(--color-info-border);
+  --neutral: var(--color-charcoal-700);
   --neutral-bg: #f1f5f9;
+  --neutral-border: var(--color-steel-100);
 
-  /* ---------- Skeleton ---------- */
+  /* Skeleton */
   --skeleton-base: #e2e8f0;
   --skeleton-highlight: #f1f5f9;
 
-  /* ---------- Charts ---------- */
-  --chart-1: #059669;
-  --chart-2: #475569;
-  --chart-3: #0284c7;
-  --chart-4: #d97706;
-  --chart-5: #7c3aed;
-  --chart-grid: #e2e8f0;
-  --chart-tooltip-bg: #0f172a;
+  /* Charts (blue / steel / green / navy family — no orange) */
+  --chart-1: var(--color-navy-800);
+  --chart-2: var(--color-steel-400);
+  --chart-3: var(--color-success);
+  --chart-4: var(--color-slate-600);
+  --chart-5: var(--color-navy-900);
+  --chart-grid: var(--color-steel-100);
+  --chart-tooltip-bg: var(--color-navy-900);
   --chart-tooltip-text: #f8fafc;
 
-  /* ---------- Typography ---------- */
-  --font-ui: 'Inter Variable', 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* Typography */
+  --font-ui: var(--font-body);
 
   --fs-2xs: 0.6875rem;
   --fs-xs: 0.75rem;
@@ -90,16 +152,16 @@
   --fw-regular: 400;
   --fw-medium: 500;
   --fw-semibold: 600;
-  --fw-bold: 700;
+  --fw-bold: 700;                              /* ceiling — nothing heavier */
 
   --lh-tight: 1.2;
   --lh-snug: 1.35;
-  --lh-base: 1.5;
+  --lh-base: 1.55;
 
-  --tracking-tight: -0.011em;
-  --tracking-caps: 0.06em;
+  --tracking-tight: 0;
+  --tracking-caps: 0.05em;
 
-  /* ---------- Spacing (4px grid) ---------- */
+  /* Spacing (4px grid) */
   --space-0: 2px;
   --space-1: 4px;
   --space-2: 8px;
@@ -110,29 +172,25 @@
   --space-7: 48px;
   --space-8: 64px;
 
-  /* ---------- Radius ---------- */
-  --radius-xs: 3px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
-  --radius-full: 9999px;
+  /* Radius — 5px everywhere, including former "full"/"xl" shapes */
+  --radius-xs: 5px;
+  --radius-xl: 5px;
+  --radius-full: 5px;
 
-  /* ---------- Elevation ---------- */
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.04);
-  --shadow-raised: 0 4px 12px -2px rgb(15 23 42 / 0.08), 0 2px 4px -2px rgb(15 23 42 / 0.05);
-  --shadow-pop: 0 12px 32px -8px rgb(15 23 42 / 0.18), 0 4px 8px -4px rgb(15 23 42 / 0.08);
-  --shadow-sidebar: 8px 0 24px -12px rgb(15 23 42 / 0.35);
+  /* Elevation — minimal */
+  --shadow-raised: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-pop: 0 2px 6px rgba(15, 23, 42, 0.08);
+  --shadow-sidebar: none;
 
-  /* ---------- Motion ---------- */
+  /* Motion */
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --dur-fast: 120ms;
-  --dur-base: 200ms;
-  --dur-sheet: 280ms;
+  --dur-base: 180ms;
+  --dur-sheet: 260ms;
   --dur-shimmer: 1.4s;
 
-  /* ---------- Layout ---------- */
+  /* Layout */
   --sidebar-w: 248px;
   --sidebar-w-rail: 68px;
   --topbar-h: 64px;
@@ -141,7 +199,7 @@
   --tap-min: 44px;
   --content-max: 1600px;
 
-  /* ---------- Z-index ---------- */
+  /* Z-index */
   --z-base: 1;
   --z-sticky: 100;
   --z-sidebar: 300;
@@ -150,84 +208,6 @@
   --z-drawer: 470;
   --z-modal: 510;
   --z-toast: 600;
-}
-
-/* "midnight" is the legacy dark theme id — mapped here so existing users of
-   the old ThemePicker land on the new dark tokens until it is retired. */
-:root[data-theme='dark'],
-:root[data-theme='midnight'] {
-  color-scheme: dark;
-
-  /* ---------- Brand: Navy + Orange ---------- */
-  --accent: #f97316;
-  --accent-hover: #fb923c;
-  --on-accent: #0f172a;
-  --accent-soft: rgb(249 115 22 / 0.14);
-  --accent-text: #fdba74;            /* 9.6:1 on --card-surface */
-  --accent-ring: 0 0 0 3px rgb(251 146 60 / 0.4);
-
-  /* ---------- Success (Emerald) ---------- */
-  --primary-green: #10b981;
-  --primary-green-hover: #34d399;
-  --primary-green-strong: #10b981;   /* button bg with dark label → 7.0:1 */
-  --primary-green-text: #34d399;     /* 9.3:1 on --bg-main, 7.6:1 on --card-surface */
-  --primary-green-soft: rgb(16 185 129 / 0.14);
-  --on-primary: #0f172a;
-
-  /* ---------- Surfaces ---------- */
-  --bg-main: #0f172a;
-  --card-surface: #1e293b;
-  --surface-sunken: #0b1220;
-  --surface-hover: #273449;
-  --sidebar-bg: #020617;
-  --sidebar-surface-hover: #111a2e;
-  --sidebar-text: #e2e8f0;
-  --sidebar-text-muted: #a9b6c8;
-  --sidebar-border: #1e293b;
-  --sidebar-active-text: #fdba74;
-  --overlay: rgb(2 6 23 / 0.7);
-
-  /* ---------- Text ---------- */
-  --text-main: #f8fafc;              /* 17.1:1 on --bg-main, 14.3:1 on --card-surface */
-  --text-muted: #a9b6c8;             /* 8.7:1 on --bg-main, 7.1:1 on --card-surface */
-  --text-disabled: #64748b;
-
-  /* ---------- Lines & focus ---------- */
-  --border-color: #334155;
-  --border-strong: #475569;
-  --focus-ring: 0 0 0 3px rgb(251 146 60 / 0.45);
-
-  /* ---------- Status ---------- */
-  --positive: #86efac;
-  --positive-bg: rgb(34 197 94 / 0.16);
-  --negative: #fca5a5;
-  --negative-bg: rgb(239 68 68 / 0.16);
-  --warning: #fdba74;
-  --warning-bg: rgb(249 115 22 / 0.16);
-  --info: #93c5fd;
-  --info-bg: rgb(59 130 246 / 0.14);
-  --neutral: #cbd5e1;
-  --neutral-bg: rgb(148 163 184 / 0.14);
-
-  /* ---------- Skeleton ---------- */
-  --skeleton-base: #273449;
-  --skeleton-highlight: #3a4a61;
-
-  /* ---------- Charts ---------- */
-  --chart-1: #34d399;
-  --chart-2: #94a3b8;
-  --chart-3: #38bdf8;
-  --chart-4: #fbbf24;
-  --chart-5: #a78bfa;
-  --chart-grid: #334155;
-  --chart-tooltip-bg: #f8fafc;
-  --chart-tooltip-text: #0f172a;
-
-  /* ---------- Elevation (shadows don't read on dark — use hairlines) ---------- */
-  --shadow-card: 0 0 0 1px #334155;
-  --shadow-raised: 0 0 0 1px #334155, 0 8px 20px -8px rgb(0 0 0 / 0.5);
-  --shadow-pop: 0 0 0 1px #334155, 0 16px 40px -8px rgb(0 0 0 / 0.6);
-  --shadow-sidebar: 8px 0 24px -12px rgb(0 0 0 / 0.7);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -320,11 +320,11 @@
 }
 
 .navbar-user-panel-item-danger {
-  color: var(--color-danger);
+  color: var(--color-danger-text);
 }
 
 .navbar-user-panel-item-danger svg {
-  color: var(--color-danger);
+  color: var(--color-danger-text);
 }
 
 .navbar-user-panel-divider {
@@ -557,7 +557,7 @@
 }
 
 .navbar-notification-clear-all {
-  color: var(--color-danger);
+  color: var(--color-danger-text);
 }
 
 .navbar-notification-clear-all:hover:not(:disabled) {
@@ -616,9 +616,9 @@
 }
 
 .navbar-notification-icon-info { color: var(--color-info); background-color: var(--color-info-bg); }
-.navbar-notification-icon-success { color: var(--color-success); background-color: var(--color-success-bg); }
-.navbar-notification-icon-warning { color: var(--color-warning); background-color: var(--color-warning-bg); }
-.navbar-notification-icon-danger { color: var(--color-danger); background-color: var(--color-danger-bg); }
+.navbar-notification-icon-success { color: var(--color-success-text); background-color: var(--color-success-bg); }
+.navbar-notification-icon-warning { color: var(--color-warning-text); background-color: var(--color-warning-bg); }
+.navbar-notification-icon-danger { color: var(--color-danger-text); background-color: var(--color-danger-bg); }
 
 .navbar-notification-body {
   display: flex;
@@ -787,10 +787,6 @@
   box-shadow: var(--accent-ring);
 }
 
-:root[data-theme='dark'] .navbar-search-input:focus {
-  border-color: var(--accent);
-}
-
 .navbar-search-icon {
   left: var(--space-4);
   color: var(--text-muted);
@@ -877,4 +873,11 @@
     border-color: transparent;
     background-color: transparent;
   }
+}
+
+/* No ringing bell / pulsing badge — static, calm indicators only. */
+.navbar-bell,
+.navbar-bell-active,
+.navbar-notification-badge {
+  animation: none !important;
 }

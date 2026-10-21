@@ -8,7 +8,8 @@
   gap: var(--space-3);
   height: 100%;
   min-width: 0;
-  padding: var(--space-5);
+  padding: 0 0 var(--space-4);
+  overflow: hidden;
   background-color: var(--card-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
@@ -21,13 +22,14 @@
 
 .card:hover {
   border-color: var(--border-strong);
-  box-shadow: var(--shadow-raised);
-  transform: translateY(-1px);
 }
 
+/* Dark navy accent header */
 .top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-navy-900);
   justify-content: space-between;
   gap: var(--space-3);
   min-width: 0;
@@ -36,34 +38,29 @@
 .label {
   min-width: 0;
   font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
+  font-weight: var(--fw-semibold);
   line-height: var(--lh-snug);
-  color: var(--text-muted);
+  color: #e2e8f0;
 }
 
 .icon {
   display: grid;
   flex: none;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-lg);
-  background-color: var(--brand-navy);
-  color: #ffffff;
-}
-
-:global(:root[data-theme='dark']) .icon,
-:global(:root[data-theme='midnight']) .icon {
-  background-color: var(--surface-hover);
-  color: var(--accent-text);
+  background-color: rgb(255 255 255 / 0.08);
+  color: #93c5fd;
 }
 
 .icon svg {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 
 .value {
+  padding-inline: var(--space-4);
   font-family: var(--font-mono);
   font-size: var(--fs-kpi);
   font-weight: var(--fw-semibold);
@@ -88,6 +85,7 @@
   gap: var(--space-2) var(--space-3);
   margin-top: auto;
   min-width: 0;
+  padding-inline: var(--space-4);
 }
 
 .meta {
@@ -174,9 +172,3 @@
   stroke-width: 2;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .card,
-  .card:hover {
-    transform: none;
-  }
-}

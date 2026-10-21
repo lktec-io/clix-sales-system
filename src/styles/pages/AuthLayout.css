@@ -29,9 +29,7 @@
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   background-color: var(--color-card-glass-bg);
-  background-image: radial-gradient(circle at 30% 20%, rgba(200, 155, 60, 0.12), transparent 65%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-image: none;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-lg);
   margin-bottom: var(--space-2);

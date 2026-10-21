@@ -112,7 +112,7 @@ function Pricing() {
                 )}
                 <Link
                   to={ROUTES.REGISTER}
-                  className={`btn btn-block btn-lg ${plan.isRecommended ? 'btn-primary' : 'btn-outline'}`}
+                  className="btn btn-block btn-lg btn-success"
                 >
                   {t('pricing.startTrialCta')}
                 </Link>

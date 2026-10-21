@@ -125,7 +125,7 @@
 
 .repair-hero-success-icon {
   display: inline-flex;
-  color: var(--color-success);
+  color: var(--color-success-text);
   font-size: 22px;
 }
 
@@ -165,7 +165,7 @@
 
 .repair-stepper-step-done {
   border-color: var(--color-success);
-  color: var(--color-success);
+  color: var(--color-success-text);
   background: var(--color-success-bg);
 }
 
@@ -206,7 +206,7 @@
 
 .repair-stepper-ended {
   border-color: var(--color-danger);
-  color: var(--color-danger);
+  color: var(--color-danger-text);
   background: var(--color-danger-bg);
 }
 

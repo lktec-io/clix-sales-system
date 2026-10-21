@@ -57,7 +57,29 @@ p { margin: 0; }
 .text-primary { color: var(--color-text-primary); }
 .text-secondary { color: var(--color-text-secondary); }
 .text-gold { color: var(--color-gold); }
-.text-success { color: var(--color-success); }
-.text-warning { color: var(--color-warning); }
-.text-danger { color: var(--color-danger); }
+.text-success { color: var(--color-success-text); }
+.text-warning { color: var(--color-warning-text); }
+.text-danger { color: var(--color-danger-text); }
 .text-info { color: var(--color-info); }
+
+/* Figures in JetBrains Mono: monetary values, receipt/transaction numbers,
+   quantities and codes. Matched by class-name convention so legacy pages
+   and CSS Modules (whose hashed names keep the original word) both follow.
+   :where() keeps specificity at zero — any explicit font-family wins.
+   Rows and labels are excluded so their text stays in Quicksand. */
+:where(
+  [class*='-amount'], [class*='-total'], [class*='-price'], [class*='-number'],
+  [class*='-qty'], [class*='-code'], [class*='-sku'], [class*='-receipt'],
+  [class*='Amount'], [class*='Price'], [class*='Total'], [class*='Number'], [class*='Code']
+):not([class*='row']):not([class*='Row']):not([class*='label']):not([class*='Label']):not([class*='input']):not([class*='field']) {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.font-mono,
+.mono,
+code,
+kbd {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums slashed-zero;
+}

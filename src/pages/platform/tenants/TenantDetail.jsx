@@ -349,7 +349,7 @@ function TenantDetail() {
           label={tenant.subscription_status === 'trial' ? 'Trial Days Remaining' : 'Plan Status'}
           value={tenant.subscription_status === 'trial' ? (daysRemaining ?? 0) : 0}
           formatter={tenant.subscription_status === 'trial' ? undefined : () => tenant.subscription_status}
-          accent="#F59E0B"
+          accent="#2563EB"
         />
       </div>
 

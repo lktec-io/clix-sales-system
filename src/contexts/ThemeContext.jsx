@@ -1,44 +1,23 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { ThemeContext, THEMES, THEME_IDS, LEGACY_THEME_MAP } from './themeContextInstance';
+import { useLayoutEffect, useMemo } from 'react';
+import { ThemeContext, THEMES } from './themeContextInstance';
 
-const STORAGE_KEY = 'clix-theme';
-const DEFAULT_THEME = 'light';
+const THEME = 'light';
+const LEGACY_STORAGE_KEY = 'clix-theme';
 
-function readInitialTheme() {
-  if (typeof window === 'undefined') return DEFAULT_THEME;
-  let stored;
-  try {
-    stored = window.localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return DEFAULT_THEME;
-  }
-  if (THEME_IDS.includes(stored)) return stored;
-  return LEGACY_THEME_MAP[stored] || DEFAULT_THEME;
-}
-
+// Single fixed theme. data-theme is still stamped on <html> for any
+// stylesheet that keys off it, and the old saved theme choice is cleared so
+// a returning user can never land on a removed theme.
 function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState(readInitialTheme);
-
-  // useLayoutEffect (not useEffect) — applies the data-theme attribute
-  // synchronously before the browser paints, so a reload never flashes the
-  // default theme before swapping to the persisted one.
   useLayoutEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', THEME);
     try {
-      window.localStorage.setItem(STORAGE_KEY, theme);
+      window.localStorage.removeItem(LEGACY_STORAGE_KEY);
     } catch {
-      // Storage unavailable (private mode / blocked) — theme just won't persist.
+      // Storage unavailable — nothing to clear.
     }
-  }, [theme]);
-
-  const setTheme = useCallback((next) => {
-    if (THEME_IDS.includes(next)) setThemeState(next);
   }, []);
 
-  const value = useMemo(() => ({ theme, setTheme, themes: THEMES }), [theme, setTheme]);
+  const value = useMemo(() => ({ theme: THEME, setTheme: () => {}, themes: THEMES }), []);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

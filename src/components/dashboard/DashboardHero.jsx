@@ -1,82 +1,67 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { FiMapPin } from 'react-icons/fi';
+import { FiCalendar, FiMapPin } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
-import { useModules } from '../../hooks/useModules';
-import { resolveBusinessTheme } from '../../constants/businessThemes';
-import { resolveBusinessExperience } from '../../constants/businessExperiences';
-import '../../styles/components/DashboardHero.css';
+import styles from './DashboardHero.module.css';
 
-function useLiveClock() {
-  const [now, setNow] = useState(new Date());
+const RANGE_KEYS = ['today', 'week', 'month', 'year'];
 
+function useClock() {
+  const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000 * 30);
+    const timer = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(timer);
   }, []);
-
   return now;
 }
 
-function DashboardHero() {
+// Clean "Welcome back" header: greeting, today's date and branch, plus
+// optional date-range pills (when `range`/`onRangeChange` are passed they
+// drive the dashboard's Sales Trend chart).
+function DashboardHero({ range, onRangeChange }) {
   const { t, i18n } = useTranslation(['dashboard', 'common']);
   const { user } = useAuth();
-  const { businessTemplateSlug } = useModules();
-  const businessTheme = resolveBusinessTheme(businessTemplateSlug);
-  const BusinessIcon = businessTheme.icon;
-  // Only Electronics/Cosmetics/Restaurant get a dedicated motif today —
-  // resolveBusinessExperience() returns null for every other template
-  // (Retail/Pharmacy/Microfinance), which keeps their existing generic
-  // .dashboard-hero-orb treatment untouched below.
-  const experience = resolveBusinessExperience(businessTemplateSlug);
-  const now = useLiveClock();
+  const now = useClock();
 
-  function getGreeting(hour) {
-    if (hour < 12) return t('dashboard:hero.goodMorning');
-    if (hour < 17) return t('dashboard:hero.goodAfternoon');
-    return t('dashboard:hero.goodEvening');
-  }
+  const hour = now.getHours();
+  let greeting = t('dashboard:hero.goodEvening');
+  if (hour < 12) greeting = t('dashboard:hero.goodMorning');
+  else if (hour < 17) greeting = t('dashboard:hero.goodAfternoon');
 
   const firstName = user?.first_name || t('dashboard:hero.guestName');
   const branchLabel = user?.branch_name || t('common:labels.allBranches');
-  const greeting = getGreeting(now.getHours());
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
-  const dateLabel = now.toLocaleDateString(dateLocale, { weekday: 'short', day: 'numeric', month: 'short' });
-  const timeLabel = now.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' });
+  const dateLabel = now.toLocaleDateString(dateLocale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <motion.div
-      className="dashboard-hero"
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {experience ? (
-        <span className={`business-motif business-motif-compact ${experience.motifClass}`} aria-hidden="true" />
-      ) : (
-        <span className="dashboard-hero-orb" aria-hidden="true" />
-      )}
-
-      <motion.div className="dashboard-hero-greeting-block" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.1 }}>
-        <span className="dashboard-hero-eyebrow">{greeting}</span>
-        <h1 className="dashboard-hero-title">{t('dashboard:hero.welcomeBack')} <span className="dashboard-hero-name">{firstName}</span></h1>
-        <p className="dashboard-hero-subtitle">{t('dashboard:hero.subtitle')}</p>
-      </motion.div>
-
-      <div className="dashboard-hero-meta">
-        {businessTheme.label && (
-          <span className="dashboard-hero-chip dashboard-hero-chip-business">
-            <BusinessIcon aria-hidden="true" /> {businessTheme.label}
-          </span>
-        )}
-        <span className="dashboard-hero-chip">{dateLabel}</span>
-        <span className="dashboard-hero-chip dashboard-hero-chip-time">{timeLabel}</span>
-        <span className="dashboard-hero-chip">
-          <FiMapPin aria-hidden="true" /> {branchLabel}
-        </span>
+    <header className={styles.hero}>
+      <div className={styles.text}>
+        <p className={styles.greeting}>{greeting}</p>
+        <h1 className={styles.title}>
+          {t('dashboard:hero.welcomeBack')} <span className={styles.name}>{firstName}</span>
+        </h1>
+        <p className={styles.meta}>
+          <span className={styles.metaItem}><FiCalendar aria-hidden="true" /> {dateLabel}</span>
+          <span className={styles.metaItem}><FiMapPin aria-hidden="true" /> {branchLabel}</span>
+        </p>
       </div>
-    </motion.div>
+
+      {range && onRangeChange && (
+        <div className={styles.pills} role="group" aria-label={t('dashboard:charts.salesTrendRange')}>
+          {RANGE_KEYS.map((key) => (
+            <button
+              key={key}
+              type="button"
+              className={styles.pill}
+              aria-pressed={range === key}
+              onClick={() => onRangeChange(key)}
+            >
+              {t(`dashboard:charts.${key}`)}
+            </button>
+          ))}
+        </div>
+      )}
+    </header>
   );
 }
 

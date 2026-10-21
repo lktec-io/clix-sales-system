@@ -1,79 +1,77 @@
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FiCheck, FiArrowRight } from 'react-icons/fi';
 import { ROUTES } from '../../constants/routes';
 import { BUSINESS_THEMES } from '../../constants/businessThemes';
+import { BUSINESS_PHOTOS } from '../../constants/landingMedia';
+import styles from './BusinessTypes.module.css';
 
-// The full, final six active templates — matches businessThemes.js's own
-// key order, which itself matches business_templates' seeded slugs.
-const SLUGS = ['retail-store', 'pharmacy', 'restaurant', 'microfinance', 'cosmetics-shop', 'electronics-shop'];
+// The six business templates the platform actually ships (business_templates
+// seed slugs). Each card: a real photo of that kind of business, what the
+// template covers, and its own pre-scoped "start" link (?template= is read
+// by Register.jsx).
+const SLUGS = ['retail-store', 'cosmetics-shop', 'electronics-shop', 'microfinance', 'pharmacy', 'restaurant'];
 
-const STAGGER = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
-};
-
-const ITEM = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
-};
-
-// Each card is a self-contained, non-interactive summary (icon/name/
-// description/capability tags) with one real, working action: its own
-// "Start free trial" link, pre-scoped to that business via the same
-// ?template= query param Register.jsx already reads. There is no
-// click-to-select/preview interaction anymore — that used to drive a
-// ProductPreview section below (removed), so cards no longer need any
-// click handling of their own.
 function BusinessTypes() {
   const { t } = useTranslation('landing');
 
   return (
-    <section id="business-types" className="landing-section">
-      <div className="landing-section-eyebrow">01</div>
-      <div className="landing-section-header">
-        <h2>{t('businessTypes.title')}</h2>
-        <p>{t('businessTypes.subtitle')}</p>
+    <section id="business-types" className={styles.section}>
+      <div className={styles.header}>
+        <span className={styles.eyebrow}>01</span>
+        <h2 className={styles.heading}>{t('businessTypes.title')}</h2>
+        <p className={styles.lead}>{t('businessTypes.subtitle')}</p>
       </div>
 
-      <motion.ul
-        className="landing-business-grid"
-        role="list"
-        aria-label={t('businessTypes.groupLabel')}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.15 }}
-        variants={STAGGER}
-      >
+      <ul className={styles.grid} aria-label={t('businessTypes.groupLabel')}>
         {SLUGS.map((slug) => {
           const theme = BUSINESS_THEMES[slug];
+          const photo = BUSINESS_PHOTOS[slug];
           const Icon = theme.icon;
           const capabilities = t(`businessTypes.${slug}.capabilities`, { returnObjects: true });
 
           return (
-            <motion.li key={slug} className="landing-business-card-wrap" variants={ITEM}>
-              <div
-                className="landing-business-card"
-                style={{ '--card-accent': theme.accent, '--card-accent-rgb': theme.accentRgb }}
-              >
-                <span className="landing-business-icon"><Icon aria-hidden="true" /></span>
-                <span className="landing-business-name">{t(`businessTypes.${slug}.name`)}</span>
-                <span className="landing-business-description">{t(`businessTypes.${slug}.description`)}</span>
-                <span className="landing-business-tags">
-                  {capabilities.slice(0, 3).map((capability) => (
-                    <span key={capability} className="landing-business-tag"><FiCheck aria-hidden="true" />{capability}</span>
-                  ))}
-                </span>
-              </div>
+            <li key={slug} className={styles.card}>
+              <figure className={styles.figure}>
+                <img
+                  className={styles.photo}
+                  src={photo.src}
+                  srcSet={photo.srcSet}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 380px"
+                  alt={t(`businessTypes.${slug}.photoAlt`)}
+                  width="800"
+                  height="533"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <figcaption className={styles.credit}>
+                  <a href={photo.credit.url} target="_blank" rel="noopener noreferrer">
+                    {t('mediaCredit', { name: photo.credit.name, site: photo.credit.site })}
+                  </a>
+                </figcaption>
+              </figure>
 
-              <Link to={`${ROUTES.REGISTER}?template=${slug}`} className="landing-business-cta">
-                {t('businessTypes.startCta')} <FiArrowRight aria-hidden="true" />
-              </Link>
-            </motion.li>
+              <div className={styles.body}>
+                <div className={styles.titleRow}>
+                  <span className={styles.icon} aria-hidden="true"><Icon /></span>
+                  <h3 className={styles.name}>{t(`businessTypes.${slug}.name`)}</h3>
+                </div>
+                <p className={styles.description}>{t(`businessTypes.${slug}.description`)}</p>
+                {Array.isArray(capabilities) && (
+                  <ul className={styles.tags}>
+                    {capabilities.slice(0, 4).map((capability) => (
+                      <li key={capability} className={styles.tag}><FiCheck aria-hidden="true" />{capability}</li>
+                    ))}
+                  </ul>
+                )}
+                <Link to={`${ROUTES.REGISTER}?template=${slug}`} className={styles.cta}>
+                  {t('businessTypes.startCta')} <FiArrowRight aria-hidden="true" />
+                </Link>
+              </div>
+            </li>
           );
         })}
-      </motion.ul>
+      </ul>
     </section>
   );
 }

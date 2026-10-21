@@ -212,16 +212,16 @@
 }
 
 .low-stock-alert-caution { background-color: var(--color-success-bg); border-color: rgba(16, 185, 129, 0.25); }
-.low-stock-alert-caution .low-stock-alert-icon { background-color: rgba(16, 185, 129, 0.15); color: var(--color-success); }
-.low-stock-alert-caution .low-stock-alert-tag { background-color: rgba(16, 185, 129, 0.15); color: var(--color-success); }
+.low-stock-alert-caution .low-stock-alert-icon { background-color: rgba(16, 185, 129, 0.15); color: var(--color-success-text); }
+.low-stock-alert-caution .low-stock-alert-tag { background-color: rgba(16, 185, 129, 0.15); color: var(--color-success-text); }
 
-.low-stock-alert-warning { background-color: var(--color-warning-bg); border-color: rgba(245, 158, 11, 0.25); }
-.low-stock-alert-warning .low-stock-alert-icon { background-color: rgba(245, 158, 11, 0.15); color: var(--color-warning); }
-.low-stock-alert-warning .low-stock-alert-tag { background-color: rgba(245, 158, 11, 0.15); color: var(--color-warning); }
+.low-stock-alert-warning { background-color: var(--color-warning-bg); border-color: var(--color-warning-border); }
+.low-stock-alert-warning .low-stock-alert-icon { background-color: var(--color-warning-bg); color: var(--color-warning-text); }
+.low-stock-alert-warning .low-stock-alert-tag { background-color: var(--color-warning-bg); color: var(--color-warning-text); }
 
 .low-stock-alert-critical { background-color: var(--color-danger-bg); border-color: rgba(239, 68, 68, 0.25); }
-.low-stock-alert-critical .low-stock-alert-icon { background-color: rgba(239, 68, 68, 0.15); color: var(--color-danger); }
-.low-stock-alert-critical .low-stock-alert-tag { background-color: rgba(239, 68, 68, 0.15); color: var(--color-danger); }
+.low-stock-alert-critical .low-stock-alert-icon { background-color: rgba(239, 68, 68, 0.15); color: var(--color-danger-text); }
+.low-stock-alert-critical .low-stock-alert-tag { background-color: rgba(239, 68, 68, 0.15); color: var(--color-danger-text); }
 
 /* The single dashboard subscription banner — plain card surface by
    default. .subscription-card-attention (trial/grace_period/
@@ -247,9 +247,9 @@
 }
 
 .subscription-card-critical {
-  background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%);
-  border-color: transparent;
-  color: #ffffff;
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
+  color: var(--color-danger-text);
   box-shadow: var(--shadow-md);
 }
 
@@ -349,4 +349,49 @@
 
 .table-row-clickable:hover {
   background-color: var(--color-gray-light);
+}
+
+/* ===================== Analytics card headers =====================
+   Dark navy accent header on every dashboard card, with light text and
+   controls sized for the dark strip. */
+.dashboard-page .card {
+  overflow: hidden;
+}
+
+.dashboard-page .card-header {
+  background-color: var(--color-navy-900);
+  border-bottom-color: var(--color-navy-900);
+}
+
+.dashboard-page .card-header .card-title {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.dashboard-page .card-header .btn-ghost,
+.dashboard-page .card-header a {
+  color: #cbd5e1;
+}
+
+.dashboard-page .card-header .btn-ghost:hover {
+  background-color: rgb(255 255 255 / 0.08);
+  color: #ffffff;
+}
+
+.dashboard-page .dashboard-range-tabs {
+  background-color: rgb(255 255 255 / 0.08);
+}
+
+.dashboard-page .dashboard-range-tab {
+  color: #cbd5e1;
+}
+
+.dashboard-page .dashboard-range-tab-active {
+  background-color: #ffffff;
+  color: var(--color-navy-900);
+  box-shadow: none;
+}
+
+.dashboard-page .kpi-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
 }

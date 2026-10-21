@@ -31,9 +31,9 @@
 }
 
 .platform-notifications-icon.type-info { background: var(--color-info-bg); color: var(--color-info); }
-.platform-notifications-icon.type-success { background: var(--color-success-bg); color: var(--color-success); }
-.platform-notifications-icon.type-warning { background: var(--color-warning-bg); color: var(--color-warning); }
-.platform-notifications-icon.type-danger { background: var(--color-danger-bg); color: var(--color-danger); }
+.platform-notifications-icon.type-success { background: var(--color-success-bg); color: var(--color-success-text); }
+.platform-notifications-icon.type-warning { background: var(--color-warning-bg); color: var(--color-warning-text); }
+.platform-notifications-icon.type-danger { background: var(--color-danger-bg); color: var(--color-danger-text); }
 
 .platform-notifications-body {
   display: flex;

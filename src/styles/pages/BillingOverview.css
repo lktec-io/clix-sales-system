@@ -108,7 +108,7 @@
 }
 
 .billing-plan-cycles svg {
-  color: var(--color-success);
+  color: var(--color-success-text);
 }
 
 .billing-plan-choose {

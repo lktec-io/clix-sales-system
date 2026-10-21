@@ -1,0 +1,39 @@
+/* Shape & cursor engine — loaded last so it wins over every stylesheet.
+
+   1. Strict 5px radius on every element and pseudo-element. Table rows and
+      cells are the only exclusion: rounding individual cells breaks the
+      continuous row dividers (the table frame itself is still 5px).
+   2. Native device cursors only: no custom cursor can hide the pointer. */
+
+*:not(tr):not(td):not(th):not(thead):not(tbody):not(tfoot),
+*::before,
+*::after {
+  border-radius: 5px !important;
+}
+
+html,
+body {
+  cursor: default;
+}
+
+a[href],
+button:not(:disabled),
+[role='button'],
+select,
+summary,
+label[for],
+input[type='checkbox'],
+input[type='radio'] {
+  cursor: pointer;
+}
+
+input:not([type='checkbox']):not([type='radio']):not([type='range']),
+textarea,
+[contenteditable='true'] {
+  cursor: text;
+}
+
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}

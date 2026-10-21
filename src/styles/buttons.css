@@ -1,5 +1,5 @@
 /* Global button primitives (legacy class API, new design).
-   Orange = primary action, Navy = outline/secondary emphasis.
+   Blue = primary action, Green = success / conversion CTA, Navy = outline.
    Every size reaches a 44px hit area on touch devices (pointer: coarse). */
 
 .btn {
@@ -49,18 +49,30 @@
   transform: translateY(1px);
 }
 
-/* Primary — orange fill, navy label (6.4:1). */
+/* Primary — accent blue, white label (8.7:1). */
 .btn-primary {
-  background-color: var(--accent);
-  border-color: var(--accent);
-  color: var(--on-accent);
-  box-shadow: 0 1px 2px rgb(194 65 12 / 0.25), inset 0 1px 0 rgb(255 255 255 / 0.18);
+  background-color: var(--color-navy-800);
+  border-color: var(--color-navy-800);
+  color: #ffffff;
+  box-shadow: var(--shadow-xs);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--accent-hover);
-  border-color: var(--accent-hover);
-  box-shadow: 0 6px 16px -6px rgb(249 115 22 / 0.55);
+  background-color: var(--color-navy-700);
+  border-color: var(--color-navy-700);
+}
+
+/* Success — green CTA (Start now / Upgrade plan / Paid). */
+.btn-success {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: #ffffff;
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #218838;
+  border-color: #1e7e34;
 }
 
 /* Secondary — quiet surface with a crisp border. */
@@ -77,15 +89,15 @@
 }
 
 .btn-danger {
-  background-color: #dc2626;
-  border-color: #dc2626;
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
   color: #ffffff;
-  box-shadow: 0 1px 2px rgb(185 28 28 / 0.25);
+  box-shadow: var(--shadow-xs);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background-color: #b91c1c;
-  border-color: #b91c1c;
+  background-color: #c82333;
+  border-color: #bd2130;
 }
 
 .btn-ghost {
@@ -216,8 +228,9 @@
   animation: spin 0.6s linear infinite;
 }
 
-.btn-primary.btn-loading::after {
-  border-color: var(--on-accent);
+.btn-primary.btn-loading::after,
+.btn-success.btn-loading::after {
+  border-color: #ffffff;
   border-top-color: transparent;
 }
 

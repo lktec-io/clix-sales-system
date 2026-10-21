@@ -47,7 +47,7 @@
 
 .toneSuccess { --bar-color: var(--primary-green); }
 .toneAccent { --bar-color: var(--accent); }
-.toneDanger { --bar-color: #dc2626; }
+.toneDanger { --bar-color: var(--color-danger); }
 
 .caption {
   font-size: var(--fs-xs);

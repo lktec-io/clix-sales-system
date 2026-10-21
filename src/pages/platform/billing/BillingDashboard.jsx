@@ -61,7 +61,7 @@ function BillingDashboard() {
         <KPICard
           icon={FiClock} label="Expiring Soon"
           value={loading || !billingKpis ? 0 : billingKpis.expiringSoon}
-          formatter={formatNumber} accent="#F59E0B"
+          formatter={formatNumber} accent="#2563EB"
         />
         <KPICard
           icon={FiXCircle} label="Expired"

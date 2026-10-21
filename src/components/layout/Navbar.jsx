@@ -14,7 +14,6 @@ import * as searchService from '../../services/searchService';
 import * as notificationService from '../../services/notificationService';
 import { ROUTES } from '../../constants/routes';
 import EmptyState from '../common/EmptyState';
-import ThemePicker from './ThemePicker';
 import '../../styles/components/Navbar.css';
 
 const DROPDOWN_MOTION = {
@@ -304,8 +303,6 @@ function Navbar({ onMenuClick, isOpen }) {
         <span className="navbar-datetime">
           {dateLabel} &middot; {timeLabel}
         </span>
-
-        <ThemePicker />
 
         <div className="navbar-notifications" ref={notificationsRef}>
           <button type="button" className="navbar-icon-btn" aria-label={t('notifications:title')} onClick={notifications.toggleOpen}>

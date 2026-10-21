@@ -113,8 +113,7 @@
   background-color: var(--accent);
   border-color: var(--accent);
   color: var(--on-accent);
-  box-shadow: 0 0 0 5px rgb(249 115 22 / 0.2);
-  animation: currentPulse 2.4s var(--ease-in-out) infinite;
+  box-shadow: 0 0 0 4px rgb(37 99 235 / 0.18);
 }
 
 .step[data-state='current'] .label {
@@ -131,16 +130,6 @@
   color: var(--negative);
 }
 
-@keyframes currentPulse {
-  0%, 100% { box-shadow: 0 0 0 5px rgb(249 115 22 / 0.2); }
-  50% { box-shadow: 0 0 0 9px rgb(249 115 22 / 0.06); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .step[data-state='current'] .node {
-    animation: none;
-  }
-}
 
 /* Narrow container: vertical list with the track down the left edge. */
 @container (max-width: 520px) {

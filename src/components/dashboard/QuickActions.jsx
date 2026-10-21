@@ -26,14 +26,14 @@ import '../../styles/components/QuickActions.css';
 // matter what.
 const ACTION_DEFS = {
   repairs: { labelKey: 'newRepair', icon: FiTool, to: '/repairs/new', accent: '#06B6D4' },
-  restaurant_orders: { labelKey: 'newOrder', icon: FiCoffee, to: '/restaurant/orders/new', accent: '#F97316' },
+  restaurant_orders: { labelKey: 'newOrder', icon: FiCoffee, to: '/restaurant/orders/new', accent: '#1E40AF' },
   loans: { labelKey: 'newLoan', icon: FiTrendingUp, to: '/loans/new', accent: '#C9A227' },
   pharmacy_sales: { labelKey: 'newSale', icon: FiDollarSign, to: '/pharmacy/sales/new', accent: '#0D9488' },
   sales: { labelKey: 'newSale', icon: FiDollarSign, to: '/pos', accent: '#2F6BFF' },
-  menu: { labelKey: 'newMenuItem', icon: FiShoppingBag, to: '/menu/new', accent: '#F97316' },
+  menu: { labelKey: 'newMenuItem', icon: FiShoppingBag, to: '/menu/new', accent: '#1E40AF' },
   pharmacy_purchases: { labelKey: 'receiveStock', icon: FiTruck, to: '/pharmacy/purchases/new', accent: '#10B981' },
   customers: { labelKey: 'newCustomer', icon: FiUserPlus, to: '/customers', accent: '#14B8A6' },
-  expenses: { labelKey: 'newExpense', icon: FiCreditCard, to: '/expenses', accent: '#F59E0B' },
+  expenses: { labelKey: 'newExpense', icon: FiCreditCard, to: '/expenses', accent: '#2563EB' },
   reports: { labelKey: 'reports', icon: FiBarChart2, to: '/reports', accent: '#8B5CF6' },
 };
 const ACTION_PRIORITY = [

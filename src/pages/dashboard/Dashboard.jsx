@@ -36,7 +36,7 @@ function useKpiDefs(t) {
     { key: 'todaySales', label: t('kpi.todaySales'), icon: FiDollarSign, formatter: formatCurrency, subtitle: t('kpi.todaySalesSubtitle'), accent: '#10B981' },
     { key: 'monthlySales', label: t('kpi.monthlySales'), icon: FiTrendingUp, formatter: formatCurrency, subtitle: t('kpi.monthlySalesSubtitle'), accent: '#2F6BFF' },
     { key: 'monthlyProfit', label: t('kpi.monthlyProfit'), icon: FiTrendingUp, formatter: formatCurrency, subtitle: t('kpi.monthlyProfitSubtitle'), accent: '#8B5CF6' },
-    { key: 'todayOrders', label: t('kpi.todayOrders'), icon: FiShoppingBag, formatter: formatNumber, subtitle: t('kpi.todayOrdersSubtitle'), accent: '#F59E0B' },
+    { key: 'todayOrders', label: t('kpi.todayOrders'), icon: FiShoppingBag, formatter: formatNumber, subtitle: t('kpi.todayOrdersSubtitle'), accent: '#2563EB' },
     { key: 'lowStockCount', label: t('kpi.lowStockCount'), icon: FiAlertTriangle, formatter: formatNumber, subtitle: t('kpi.lowStockCountSubtitle'), accent: '#EF4444' },
     // Microfinance — same hasWidget() gate as every retail KPI above, driven
     // by the 'loans' module's dashboard_widgets column
@@ -48,7 +48,7 @@ function useKpiDefs(t) {
     { key: 'activeLoans', label: t('kpi.activeLoans'), icon: FiUserCheck, formatter: formatNumber, subtitle: t('kpi.activeLoansSubtitle'), accent: '#2F6BFF' },
     { key: 'totalDisbursed', label: t('kpi.totalDisbursed'), icon: FiTrendingUp, formatter: formatCurrency, subtitle: t('kpi.totalDisbursedSubtitle'), accent: '#10B981' },
     { key: 'totalCollected', label: t('kpi.totalCollected'), icon: FiDollarSign, formatter: formatCurrency, subtitle: t('kpi.totalCollectedSubtitle'), accent: '#8B5CF6' },
-    { key: 'outstandingBalance', label: t('kpi.outstandingBalance'), icon: FiClock, formatter: formatCurrency, subtitle: t('kpi.outstandingBalanceSubtitle'), accent: '#F59E0B' },
+    { key: 'outstandingBalance', label: t('kpi.outstandingBalance'), icon: FiClock, formatter: formatCurrency, subtitle: t('kpi.outstandingBalanceSubtitle'), accent: '#2563EB' },
     { key: 'overdueLoans', label: t('kpi.overdueLoans'), icon: FiAlertOctagon, formatter: formatNumber, subtitle: t('kpi.overdueLoansSubtitle'), accent: '#EF4444' },
     { key: 'portfolioAtRisk', label: t('kpi.portfolioAtRisk'), icon: FiAlertTriangle, formatter: formatCurrency, subtitle: t('kpi.portfolioAtRiskSubtitle'), accent: '#DC2626' },
     { key: 'todayCollections', label: t('kpi.todayCollections'), icon: FiTrendingUp, formatter: formatCurrency, subtitle: t('kpi.todayCollectionsSubtitle'), accent: '#06B6D4' },
@@ -61,7 +61,7 @@ function useKpiDefs(t) {
     { key: 'totalMedicines', label: t('kpi.totalMedicines'), icon: FiBox, formatter: formatNumber, subtitle: t('kpi.totalMedicinesSubtitle'), accent: '#2F6BFF' },
     { key: 'outOfStockCount', label: t('kpi.outOfStockCount'), icon: FiAlertOctagon, formatter: formatNumber, subtitle: t('kpi.outOfStockCountSubtitle'), accent: '#DC2626' },
     { key: 'expiredCount', label: t('kpi.expiredCount'), icon: FiAlertTriangle, formatter: formatNumber, subtitle: t('kpi.expiredCountSubtitle'), accent: '#EF4444' },
-    { key: 'expiringSoonCount', label: t('kpi.expiringSoonCount'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.expiringSoonCountSubtitle'), accent: '#F59E0B' },
+    { key: 'expiringSoonCount', label: t('kpi.expiringSoonCount'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.expiringSoonCountSubtitle'), accent: '#2563EB' },
     { key: 'todaySalesCount', label: t('kpi.todaySalesCount'), icon: FiShoppingBag, formatter: formatNumber, subtitle: t('kpi.todaySalesCountSubtitle'), accent: '#8B5CF6' },
     { key: 'todayRevenue', label: t('kpi.todayRevenue'), icon: FiDollarSign, formatter: formatCurrency, subtitle: t('kpi.todayRevenueSubtitle'), accent: '#10B981' },
     { key: 'medicinesSoldCount', label: t('kpi.medicinesSoldCount'), icon: FiPackage, formatter: formatNumber, subtitle: t('kpi.medicinesSoldCountSubtitle'), accent: '#0D9488' },
@@ -76,13 +76,13 @@ function useKpiDefs(t) {
     // retail's own definitions); only the Restaurant-unique concepts below
     // get new keys.
     { key: 'completedOrdersToday', label: t('kpi.completedOrdersToday'), icon: FiCheckCircle, formatter: formatNumber, subtitle: t('kpi.completedOrdersTodaySubtitle'), accent: '#10B981' },
-    { key: 'pendingKitchenOrders', label: t('kpi.pendingKitchenOrders'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.pendingKitchenOrdersSubtitle'), accent: '#F59E0B' },
+    { key: 'pendingKitchenOrders', label: t('kpi.pendingKitchenOrders'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.pendingKitchenOrdersSubtitle'), accent: '#2563EB' },
     { key: 'occupiedTables', label: t('kpi.occupiedTables'), icon: FiUserCheck, formatter: formatNumber, subtitle: t('kpi.occupiedTablesSubtitle'), accent: '#EF4444' },
     { key: 'availableTables', label: t('kpi.availableTables'), icon: FiCheckCircle, formatter: formatNumber, subtitle: t('kpi.availableTablesSubtitle'), accent: '#2F6BFF' },
     // Electronics/Repairs — gated by the 'repairs' module's dashboard_widgets
     // column (034_finalize_template_scope_and_electronics_repairs.sql).
     { key: 'todayRepairs', label: t('kpi.todayRepairs'), icon: FiTool, formatter: formatNumber, subtitle: t('kpi.todayRepairsSubtitle'), accent: '#2F6BFF' },
-    { key: 'pendingDiagnosis', label: t('kpi.pendingDiagnosis'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.pendingDiagnosisSubtitle'), accent: '#F59E0B' },
+    { key: 'pendingDiagnosis', label: t('kpi.pendingDiagnosis'), icon: FiClock, formatter: formatNumber, subtitle: t('kpi.pendingDiagnosisSubtitle'), accent: '#2563EB' },
     { key: 'waitingApproval', label: t('kpi.waitingApproval'), icon: FiAlertOctagon, formatter: formatNumber, subtitle: t('kpi.waitingApprovalSubtitle'), accent: '#DC2626' },
     { key: 'inRepairCount', label: t('kpi.inRepairCount'), icon: FiTool, formatter: formatNumber, subtitle: t('kpi.inRepairCountSubtitle'), accent: '#8B5CF6' },
     { key: 'readyForCollection', label: t('kpi.readyForCollection'), icon: FiCheckCircle, formatter: formatNumber, subtitle: t('kpi.readyForCollectionSubtitle'), accent: '#06B6D4' },
@@ -169,6 +169,7 @@ function Dashboard() {
   const [todayTrend, setTodayTrend] = useState(null);
   const [ordersTrend, setOrdersTrend] = useState(null);
   const [salesWeek, setSalesWeek] = useState([]);
+  const [salesRange, setSalesRange] = useState('week');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -233,8 +234,8 @@ function Dashboard() {
   const revenueVsExpenses = charts['revenue-vs-expenses'] || [];
 
   return (
-    <div>
-      <DashboardHero />
+    <div className="dashboard-page">
+      <DashboardHero range={showSalesTrend ? salesRange : undefined} onRangeChange={showSalesTrend ? setSalesRange : undefined} />
       <ModuleSwitcher />
 
       {error && <div className="alert alert-danger mb-4" role="alert">{error}</div>}
@@ -269,7 +270,7 @@ function Dashboard() {
 
         {showSalesTrend && (
           <motion.div variants={STAGGER_ITEM}>
-            <SalesTrendCard />
+            <SalesTrendCard range={salesRange} onRangeChange={setSalesRange} />
           </motion.div>
         )}
 

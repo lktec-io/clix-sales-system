@@ -1,108 +1,59 @@
-/* Legacy bridge — maps every --color-* / --gradient-* / --glass-* variable
-   the pre-redesign global stylesheets consume onto the design tokens in
-   tokens.css. Pages that still use the global classes (.btn, .card, .table,
-   .badge, .form-control, …) therefore pick up the Navy + Orange system and
-   switch with light/dark automatically, with no per-page changes.
-
-   Every value is a var() reference, resolved on <html> where tokens.css
-   defines the light and dark sets — so this one block serves both themes. */
+/* Legacy bridge — maps the extra variables the pre-redesign global
+   stylesheets consume onto the theme engine in tokens.css. Names that the
+   official theme engine already defines (--color-primary, --color-success,
+   --color-border, …) are deliberately NOT redefined here. One theme only. */
 
 :root {
   /* Brand */
-  --color-primary: var(--brand-navy);
-  --color-primary-hover: var(--brand-navy-2);
-  --color-primary-rgb: 15, 23, 42;
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-rgb: 249, 115, 22;
-  --color-blue: var(--info);
-  --color-gold: var(--accent);
+  --color-primary-hover: var(--color-navy-700);
+  --color-primary-rgb: 30, 64, 175;
+  --color-accent: var(--color-navy-800);
+  --color-accent-hover: var(--color-navy-700);
+  --color-accent-rgb: 30, 64, 175;
+  --color-blue: var(--color-slate-600);
+  --color-gold: var(--color-navy-800);
 
   /* Neutrals */
-  --color-black: var(--text-main);
-  --color-white: #ffffff;
-  --color-gray-dark: var(--text-main);
-  --color-gray-light: var(--surface-sunken);
-  --color-background: var(--bg-main);
-  --color-border: var(--border-color);
-
-  /* Status */
-  --color-success: var(--positive);
-  --color-warning: var(--warning);
-  --color-danger: var(--negative);
-  --color-danger-rgb: 185, 28, 28;
-  --color-info: var(--info);
-  --color-success-bg: var(--positive-bg);
-  --color-warning-bg: var(--warning-bg);
-  --color-danger-bg: var(--negative-bg);
-  --color-info-bg: var(--info-bg);
+  --color-black: var(--color-navy-900);
+  --color-gray-dark: var(--color-charcoal-700);
+  --color-gray-light: #f1f5f9;
+  --color-background: var(--color-bg);
+  --color-danger-rgb: 220, 53, 69;
 
   /* Surfaces — solid, no glass */
-  --color-page-bg: var(--bg-main);
-  --color-card-bg: var(--card-surface);
-  --color-card-glass-bg: var(--card-surface);
-  --color-navbar-bg: var(--bg-main);
-  --glass-panel-bg: var(--card-surface);
+  --color-page-bg: var(--color-bg);
+  --color-card-bg: var(--color-surface);
+  --color-card-glass-bg: var(--color-surface);
+  --color-navbar-bg: var(--color-surface);
+  --glass-panel-bg: var(--color-surface);
   --glass-blur: 0px;
-  --modal-backdrop-bg: rgb(15 23 42 / 0.55);
-  --color-sidebar-bg: var(--sidebar-bg);
+  --modal-backdrop-bg: rgb(15 23 42 / 0.45);
+  --color-sidebar-bg: var(--color-navy-900);
 
   /* Text */
-  --color-text-primary: var(--text-main);
-  --color-text-secondary: var(--text-muted);
+  --color-text-primary: var(--color-navy-900);
+  --color-text-secondary: var(--color-charcoal-500);
   --color-text-inverse: #ffffff;
-  --color-text-on-sidebar: var(--sidebar-text-muted);
-  --color-icon: var(--text-main);
-  --color-link: var(--accent-text);
+  --color-text-on-sidebar: var(--color-steel-400);
+  --color-icon: var(--color-charcoal-700);
+  --color-link: var(--color-navy-800);
 
   /* Sidebar (PlatformLayout still uses these) */
-  --sidebar-hover-bg: var(--sidebar-surface-hover);
+  --sidebar-hover-bg: var(--color-charcoal-900);
   --sidebar-hover-text: #ffffff;
   --sidebar-text-strong: #ffffff;
 
-  /* Gradients collapse to flat brand surfaces */
+  /* No decorative gradients — flat brand surfaces */
   --gradient-sidebar: none;
-  --gradient-primary: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-  --gradient-hero: linear-gradient(120deg, #0f172a 0%, #1e293b 70%, #3b2416 100%);
+  --gradient-primary: none;
+  --gradient-hero: none;
 
-  /* Elevation */
-  --shadow-sm: var(--shadow-card);
-  --shadow-md: var(--shadow-raised);
-  --shadow-lg: var(--shadow-pop);
-  --shadow-glow: var(--accent-ring);
+  /* Elevation — minimal */
+  --shadow-sm: var(--shadow-xs);
+  --shadow-md: var(--shadow-card);
+  --shadow-lg: 0 2px 6px rgba(15, 23, 42, 0.08);
+  --shadow-glow: none;
 
-  /* Typography: legacy names → token values */
-  --font-family-base: var(--font-ui);
-}
-
-/* Legacy styles use --color-primary mostly as an "ink" (text, icons,
-   borders), so in dark mode it flips to the light ink. Its few fill uses
-   were moved to the accent pair, so nothing paints white-on-white. */
-:root[data-theme='dark'],
-:root[data-theme='midnight'] {
-  --color-primary: var(--text-main);
-  --color-primary-hover: #e2e8f0;
-  --color-primary-rgb: 248, 250, 252;
-  --modal-backdrop-bg: rgb(2 6 23 / 0.72);
-  --gradient-hero: linear-gradient(120deg, #020617 0%, #0f172a 70%, #2a1a10 100%);
-}
-
-/* Narrow, colour-only transitions so a theme switch animates without
-   animating layout properties. */
-body,
-.card, .modal-panel, .btn, .badge, .alert, .table,
-input, select, textarea, .form-control {
-  transition:
-    background-color var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out),
-    color var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body,
-  .card, .modal-panel, .btn, .badge, .alert, .table,
-  input, select, textarea, .form-control {
-    transition: none;
-  }
+  /* Typography */
+  --font-family-base: var(--font-body);
 }

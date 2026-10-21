@@ -1,6 +1,5 @@
-/* Dashboard context header — navy module pills with an orange active
-   indicator. Scrolls horizontally on narrow screens instead of wrapping
-   into a tall block. */
+/* Dashboard module bar — light surface (no dark card), navy text, blue
+   active pill. Scrolls horizontally on narrow screens instead of wrapping. */
 
 .switcher {
   display: flex;
@@ -10,16 +9,10 @@
   gap: var(--space-3) var(--space-5);
   margin-bottom: var(--space-5);
   padding: var(--space-3) var(--space-4);
-  background-color: var(--brand-navy);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-card);
-  color: #f8fafc;
-}
-
-:global(:root[data-theme='dark']) .switcher,
-:global(:root[data-theme='midnight']) .switcher {
-  background-color: #020617;
-  border: 1px solid var(--border-color);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  box-shadow: var(--shadow-xs);
 }
 
 .context {
@@ -34,7 +27,7 @@
   font-weight: var(--fw-semibold);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
-  color: #fdba74;
+  color: var(--color-navy-800);
 }
 
 .company {
@@ -43,6 +36,7 @@
   font-weight: var(--fw-semibold);
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--color-navy-900);
 }
 
 .pills {
@@ -62,17 +56,16 @@
 }
 
 .pill {
-  position: relative;
   display: inline-flex;
   flex: none;
   align-items: center;
   gap: var(--space-2);
-  min-height: 40px;
+  min-height: 38px;
   padding: 0 var(--space-3);
-  border: 1px solid rgb(148 163 184 / 0.28);
-  border-radius: var(--radius-full);
-  background-color: rgb(255 255 255 / 0.04);
-  color: #cbd5e1;
+  border: 1px solid var(--color-steel-200);
+  border-radius: 5px;
+  background-color: var(--color-surface);
+  color: var(--color-navy-900);
   font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
   text-decoration: none;
@@ -85,51 +78,39 @@
 }
 
 .pill:hover {
-  background-color: rgb(255 255 255 / 0.1);
-  border-color: rgb(148 163 184 / 0.5);
-  color: #ffffff;
+  border-color: var(--color-steel-400);
+  background-color: var(--surface-hover);
 }
 
 .pill:focus-visible {
-  outline: 2px solid #fdba74;
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--accent-ring);
 }
 
 .pillActive,
 .pillActive:hover {
-  background-color: #ffffff;
-  border-color: #ffffff;
-  color: #0f172a;
-}
-
-.pillActive::after {
-  content: '';
-  position: absolute;
-  right: 10px;
-  bottom: 5px;
-  left: 10px;
-  height: 2px;
-  border-radius: var(--radius-full);
-  background-color: var(--accent);
+  background-color: var(--color-navy-900);
+  border-color: var(--color-navy-900);
+  color: #ffffff;
+  box-shadow: inset 0 -3px 0 var(--color-slate-600);
 }
 
 .pillIcon {
   flex: none;
   width: 16px;
   height: 16px;
+  color: var(--color-steel-400);
 }
 
 .pillActive .pillIcon {
-  color: var(--accent-hover);
+  color: #93c5fd;
 }
 
 .pillSkeleton {
   flex: none;
   width: 104px;
-  height: 40px;
-  border-radius: var(--radius-full);
-  --skeleton-base: #1e293b;
-  --skeleton-highlight: #2b3a52;
+  height: 38px;
+  border-radius: 5px;
 }
 
 .shimmer {

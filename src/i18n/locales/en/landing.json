@@ -24,7 +24,14 @@
       "statThreeValue": "3",
       "caption": "Retail Store · Dashboard",
       "note": "Sample data for illustration only"
-    }
+    },
+    "points": [
+      "Sell at the counter with barcode scanning and instant receipts",
+      "Stock, expiry dates, repairs, loans or restaurant tables — built for your business type",
+      "English and Kiswahili, on phone, tablet or desktop"
+    ],
+    "videoAlt": "A cashier ringing up a customer's groceries at a shop counter with a POS terminal",
+    "videoCaption": "Real checkout at a retail counter"
   },
   "businessTypes": {
     "title": "One Platform. Six Real Business Types.",
@@ -40,7 +47,8 @@
         "Purchases",
         "Customer Records",
         "Reports"
-      ]
+      ],
+      "photoAlt": "A smiling shop owner behind the counter of her general store in Dar es Salaam"
     },
     "pharmacy": {
       "name": "Pharmacy",
@@ -51,7 +59,8 @@
         "Dispensing",
         "Suppliers",
         "Reports"
-      ]
+      ],
+      "photoAlt": "A pharmacist explaining a prescription bottle to a smiling customer at the pharmacy counter"
     },
     "restaurant": {
       "name": "Restaurant",
@@ -62,7 +71,8 @@
         "Kitchen Workflow",
         "Sales",
         "Reports"
-      ]
+      ],
+      "photoAlt": "A chef piping frosting onto a tray of cupcakes in a restaurant kitchen"
     },
     "microfinance": {
       "name": "Microfinance",
@@ -73,7 +83,8 @@
         "Borrowers",
         "Savings",
         "Financial Reports"
-      ]
+      ],
+      "photoAlt": "A customer paying with a bank card on a card terminal in Dar es Salaam"
     },
     "cosmetics-shop": {
       "name": "Cosmetics & Beauty",
@@ -84,7 +95,8 @@
         "Sales",
         "Customer Favorites",
         "Reports"
-      ]
+      ],
+      "photoAlt": "A client with freshly styled hair seated in a beauty salon"
     },
     "electronics-shop": {
       "name": "Electronics & Repairs",
@@ -95,7 +107,8 @@
         "Parts & Inventory",
         "Customer Updates",
         "Sales"
-      ]
+      ],
+      "photoAlt": "A technician repairing a smartphone circuit board at a workbench"
     }
   },
   "pricing": {
@@ -105,7 +118,7 @@
     "loadError": "Plans are temporarily unavailable. Please try again shortly.",
     "recommendedBadge": "Most Popular",
     "perMonth": "per month",
-    "startTrialCta": "Start Free Trial",
+    "startTrialCta": "Start Now",
     "billingToggle": "Billing period",
     "monthly": "Monthly",
     "yearly": "Yearly",
@@ -169,5 +182,6 @@
     "product": "Product",
     "company": "Company",
     "rights": "All rights reserved."
-  }
+  },
+  "mediaCredit": "Photo/video: {{name}} on {{site}}"
 }

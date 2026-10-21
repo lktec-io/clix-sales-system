@@ -24,8 +24,6 @@ function AuthLayout() {
                 src={company.logo_path}
                 alt={companyName}
                 className="auth-brand-logo"
-                animate={{ y: [0, -6, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               />
             </motion.div>
           ) : (

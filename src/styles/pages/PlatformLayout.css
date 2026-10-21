@@ -256,9 +256,9 @@
 }
 
 .platform-navbar-notification-icon.type-info { background: var(--color-info-bg); color: var(--color-info); }
-.platform-navbar-notification-icon.type-success { background: var(--color-success-bg); color: var(--color-success); }
-.platform-navbar-notification-icon.type-warning { background: var(--color-warning-bg); color: var(--color-warning); }
-.platform-navbar-notification-icon.type-danger { background: var(--color-danger-bg); color: var(--color-danger); }
+.platform-navbar-notification-icon.type-success { background: var(--color-success-bg); color: var(--color-success-text); }
+.platform-navbar-notification-icon.type-warning { background: var(--color-warning-bg); color: var(--color-warning-text); }
+.platform-navbar-notification-icon.type-danger { background: var(--color-danger-bg); color: var(--color-danger-text); }
 
 .platform-navbar-notification-body {
   display: flex;

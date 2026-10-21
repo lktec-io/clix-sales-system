@@ -96,13 +96,6 @@
   box-shadow: inset 0 -3px 0 var(--accent);
 }
 
-:global(:root[data-theme='dark']) .pill[aria-pressed='true'] {
-  background-color: var(--accent);
-  border-color: var(--accent);
-  color: var(--on-accent);
-  box-shadow: none;
-}
-
 @media (pointer: coarse) {
   .pill {
     min-height: var(--tap-min);
@@ -220,7 +213,7 @@
     border: 0;
     border-top: 1px solid var(--border-color);
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    box-shadow: 0 -12px 32px -12px rgb(15 23 42 / 0.28);
+    box-shadow: var(--shadow-xs);
   }
 
   .sheetBar {
@@ -493,11 +486,6 @@
   font-size: var(--fs-sm);
   font-weight: var(--fw-bold);
   letter-spacing: 0.02em;
-}
-
-:global(:root[data-theme='dark']) .tileThumb {
-  background-color: var(--surface-hover);
-  color: var(--accent-text);
 }
 
 .tile[data-in-cart='true'] .tileThumb {

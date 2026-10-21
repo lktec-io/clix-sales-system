@@ -123,12 +123,12 @@
   font-weight: var(--fw-semibold);
 }
 
-.kpi-card-trend-up { background-color: var(--positive-bg); color: var(--positive); }
-.kpi-card-trend-down { background-color: var(--negative-bg); color: var(--negative); }
+.kpi-card-trend-up { background-color: var(--color-success-bg); color: var(--color-success-text); }
+.kpi-card-trend-down { background-color: var(--color-danger-bg); color: var(--color-danger-text); }
 
 /* ---------- Status badges ----------
    Paid / Completed      → success  (#DCFCE7 / #15803D)
-   Pending / In progress → warning  (#FFEDD5 / #C2410C)
+   Pending / In progress → warning  (#FFF8E1 / #856404)
    Overdue / Cancelled   → danger   (#FEE2E2 / #B91C1C) */
 .badge {
   display: inline-flex;
@@ -143,11 +143,12 @@
   white-space: nowrap;
 }
 
-.badge-success { background-color: var(--positive-bg); color: var(--positive); }
-.badge-warning { background-color: var(--warning-bg); color: var(--warning); }
-.badge-danger { background-color: var(--negative-bg); color: var(--negative); }
-.badge-info { background-color: var(--info-bg); color: var(--info); }
-.badge-neutral { background-color: var(--neutral-bg); color: var(--neutral); }
+.badge { border: 1px solid transparent; }
+.badge-success { background-color: var(--color-success-bg); color: var(--color-success-text); border-color: var(--color-success-border); }
+.badge-warning { background-color: var(--color-warning-bg); color: var(--color-warning-text); border-color: var(--color-warning-border); }
+.badge-danger { background-color: var(--color-danger-bg); color: var(--color-danger-text); border-color: var(--color-danger-border); }
+.badge-info { background-color: var(--color-info-bg); color: var(--color-info); border-color: var(--color-info-border); }
+.badge-neutral { background-color: var(--neutral-bg); color: var(--neutral); border-color: var(--neutral-border); }
 
 /* ---------- Alerts ---------- */
 .alert {
@@ -161,7 +162,7 @@
   line-height: var(--lh-snug);
 }
 
-.alert-success { background-color: var(--positive-bg); color: var(--positive); border-color: color-mix(in srgb, var(--positive) 22%, transparent); }
-.alert-warning { background-color: var(--warning-bg); color: var(--warning); border-color: color-mix(in srgb, var(--warning) 22%, transparent); }
-.alert-danger { background-color: var(--negative-bg); color: var(--negative); border-color: color-mix(in srgb, var(--negative) 22%, transparent); }
-.alert-info { background-color: var(--info-bg); color: var(--info); border-color: color-mix(in srgb, var(--info) 22%, transparent); }
+.alert-success { background-color: var(--color-success-bg); color: var(--color-success-text); border-color: var(--color-success-border); }
+.alert-warning { background-color: var(--color-warning-bg); color: var(--color-warning-text); border-color: var(--color-warning-border); }
+.alert-danger { background-color: var(--color-danger-bg); color: var(--color-danger-text); border-color: var(--color-danger-border); }
+.alert-info { background-color: var(--color-info-bg); color: var(--color-info); border-color: var(--color-info-border); }

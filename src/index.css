@@ -1,7 +1,8 @@
 /* Order: fonts → reset (element-only rules) → legacy global layer
-   (pages not yet migrated to CSS Modules) → tokens last, so the new
-   design tokens win wherever a legacy file declares the same name. */
+   (pages not yet migrated to CSS Modules) → design tokens → shape engine
+   (5px radius + native cursors, last so nothing overrides it). */
 @import './styles/fonts.css';
 @import './styles/reset.css';
 @import './styles/theme.css';
 @import './styles/tokens.css';
+@import './styles/shape.css';

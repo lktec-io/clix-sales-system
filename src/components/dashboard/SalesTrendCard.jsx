@@ -14,7 +14,9 @@ function formatLabel(dateStr, range, locale) {
   return date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
 }
 
-function SalesTrendCard() {
+// `range`/`onRangeChange` are optional — when passed (the dashboard header's
+// date pills), the card follows them; otherwise it keeps its own tab state.
+function SalesTrendCard({ range: rangeProp, onRangeChange }) {
   const { t, i18n } = useTranslation('dashboard');
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const RANGES = [
@@ -23,7 +25,9 @@ function SalesTrendCard() {
     { key: 'month', label: t('charts.month') },
     { key: 'year', label: t('charts.year') },
   ];
-  const [range, setRange] = useState('week');
+  const [internalRange, setInternalRange] = useState('week');
+  const range = rangeProp ?? internalRange;
+  const setRange = onRangeChange ?? setInternalRange;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 

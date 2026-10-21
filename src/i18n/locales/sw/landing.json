@@ -24,7 +24,14 @@
       "statThreeValue": "3",
       "caption": "Duka la Rejareja · Dashibodi",
       "note": "Data ya mfano kwa maelezo tu"
-    }
+    },
+    "points": [
+      "Uza kaunta kwa kuskani barcode na kutoa risiti papo hapo",
+      "Stoo, tarehe za kuisha muda, matengenezo, mikopo au meza za mgahawa — kulingana na aina ya biashara yako",
+      "Kiingereza na Kiswahili, kwenye simu, tablet au kompyuta"
+    ],
+    "videoAlt": "Keshia akimhudumia mteja kwenye kaunta ya duka akitumia mashine ya POS",
+    "videoCaption": "Mauzo halisi kwenye kaunta ya duka"
   },
   "businessTypes": {
     "title": "Jukwaa Moja. Aina Sita Halisi za Biashara.",
@@ -40,7 +47,8 @@
         "Manunuzi",
         "Rekodi za Wateja",
         "Ripoti"
-      ]
+      ],
+      "photoAlt": "Mmiliki wa duka akitabasamu nyuma ya kaunta ya duka lake jijini Dar es Salaam"
     },
     "pharmacy": {
       "name": "Duka la Dawa",
@@ -51,7 +59,8 @@
         "Utoaji wa Dawa",
         "Wasambazaji",
         "Ripoti"
-      ]
+      ],
+      "photoAlt": "Mfamasia akimweleza mteja anayetabasamu kuhusu chupa ya dawa kwenye kaunta"
     },
     "restaurant": {
       "name": "Mkahawa",
@@ -62,7 +71,8 @@
         "Mtiririko wa Jikoni",
         "Mauzo",
         "Ripoti"
-      ]
+      ],
+      "photoAlt": "Mpishi akipamba keki ndogo jikoni mwa mgahawa"
     },
     "microfinance": {
       "name": "Fedha Ndogo",
@@ -73,7 +83,8 @@
         "Wakopaji",
         "Akiba",
         "Ripoti za Kifedha"
-      ]
+      ],
+      "photoAlt": "Mteja akilipa kwa kadi ya benki kwenye mashine ya malipo jijini Dar es Salaam"
     },
     "cosmetics-shop": {
       "name": "Vipodozi na Urembo",
@@ -84,7 +95,8 @@
         "Mauzo",
         "Bidhaa Pendwa za Wateja",
         "Ripoti"
-      ]
+      ],
+      "photoAlt": "Mteja aliyetengenezwa nywele akiwa amekaa saluni"
     },
     "electronics-shop": {
       "name": "Elektroniki na Matengenezo",
@@ -95,7 +107,8 @@
         "Vipuri na Hisa",
         "Taarifa kwa Wateja",
         "Mauzo"
-      ]
+      ],
+      "photoAlt": "Fundi akitengeneza bodi ya simu janja kwenye meza ya kazi"
     }
   },
   "pricing": {
@@ -105,7 +118,7 @@
     "loadError": "Mipango haipatikani kwa sasa. Tafadhali jaribu tena baadaye.",
     "recommendedBadge": "Maarufu Zaidi",
     "perMonth": "kwa mwezi",
-    "startTrialCta": "Anza Jaribio la Bure",
+    "startTrialCta": "Anza Sasa",
     "billingToggle": "Kipindi cha malipo",
     "monthly": "Kila mwezi",
     "yearly": "Kila mwaka",
@@ -169,5 +182,6 @@
     "product": "Bidhaa",
     "company": "Kampuni",
     "rights": "Haki zote zimehifadhiwa."
-  }
+  },
+  "mediaCredit": "Picha/video: {{name}} kwenye {{site}}"
 }

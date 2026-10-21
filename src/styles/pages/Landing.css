@@ -20,11 +20,11 @@
    are NOT redefined per theme anywhere in themes.css, confirmed by
    grepping it before writing this file.
 
-   PALETTE — "Navy & Orange" (the product brand): navy ink, orange for
-   every call to action and highlight, emerald only for checkmarks. The
-   --landing-emerald / --landing-gold variable names are historical; both
-   now carry the orange accent so every existing rule follows the brand.
-   (Previous palette notes below are kept for history.)
+   PALETTE — Navy #0f172a ink, accent blue #1e40af for highlights, success
+   green #28a745 for every conversion CTA, steel greys for structure. No
+   orange, no gradients, no glow. The --landing-emerald variables carry the
+   green CTA colour and --landing-gold the accent blue (historical names).
+   (Older palette notes below are kept for history only.)
    Old palette — "Ink & Verdant", with a warm gold used only as a rare accent.
    Ink (near-black navy) + emerald green are the same two colors
    colors.css's own --color-primary/--color-accent and --gradient-hero
@@ -49,24 +49,21 @@
   --landing-text-inverse: #FFFFFF;
   --landing-primary: #0F172A;
   --landing-primary-rgb: 15, 23, 42;
-  --landing-emerald: #F97316;
-  --landing-emerald-deep: #EA580C;
-  --landing-emerald-rgb: 249, 115, 22;
+  --landing-emerald: #28A745;
+  --landing-emerald-deep: #218838;
+  --landing-emerald-rgb: 40, 167, 69;
   --landing-success: #10B981;
-  --landing-gold: #F97316;
-  --landing-gold-deep: #C2410C;
-  --landing-gold-rgb: 249, 115, 22;
+  --landing-gold: #1E40AF;
+  --landing-gold-deep: #1E40AF;
+  --landing-gold-rgb: 30, 64, 175;
   --landing-footer-bg: #0F172A;
   --landing-footer-text: #E2E8F0;
   --landing-glass-blur: 16px;
-  --landing-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
-  --landing-shadow-lg: 0 18px 44px -12px rgba(15, 23, 42, 0.22);
-  --landing-gradient-hero:
-    radial-gradient(55% 75% at 88% 18%, rgba(249, 115, 22, 0.32) 0%, transparent 62%),
-    radial-gradient(40% 60% at 8% 100%, rgba(249, 115, 22, 0.12) 0%, transparent 60%),
-    linear-gradient(135deg, #0F172A 0%, #111C33 55%, #1E293B 100%);
-  --landing-gradient-gold: linear-gradient(135deg, #FB923C 0%, #F97316 100%);
-  font-family: var(--font-ui);
+  --landing-shadow-sm: 0 1px 1px rgba(15, 23, 42, 0.06);
+  --landing-shadow-lg: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --landing-gradient-hero: #0F172A;
+  --landing-gradient-gold: linear-gradient(#1E40AF, #1E40AF);
+  font-family: var(--font-body);
 
   background: var(--landing-bg);
   color: var(--landing-text-primary);
@@ -111,20 +108,22 @@
    would drag the average toward the lighter, lower-contrast end the same
    way this app's own .btn-primary comment (buttons.css) warns against for
    its navy/green mix. */
-/* Orange CTA with a navy label (6.4:1) — white on #F97316 is only 2.8:1. */
-.landing-page .btn-primary {
-  background-color: #F97316;
+/* Conversion CTA — success green, white label. */
+.landing-page .btn-primary,
+.landing-page .btn-success {
+  background-color: #28A745;
   background-image: none;
-  border-color: #F97316;
-  color: #0F172A;
+  border-color: #28A745;
+  color: #ffffff;
   font-weight: 700;
 }
 
-.landing-page .btn-primary:hover:not(:disabled) {
-  background-color: #EA580C;
-  border-color: #EA580C;
-  box-shadow: 0 12px 28px -8px rgba(249, 115, 22, 0.6);
-  transform: translateY(-2px);
+.landing-page .btn-primary:hover:not(:disabled),
+.landing-page .btn-success:hover:not(:disabled) {
+  background-color: #218838;
+  border-color: #1E7E34;
+  box-shadow: none;
+  transform: none;
 }
 
 .landing-page .btn-outline {
@@ -295,7 +294,7 @@
 
 .landing-hero-title {
   font-size: clamp(2.3rem, 4vw + 1rem, 4rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.04;
   color: #ffffff;
@@ -346,10 +345,7 @@
   border-radius: var(--radius-xl);
   overflow: hidden;
   background: var(--landing-card-bg);
-  box-shadow:
-    0 40px 80px -20px rgba(2, 6, 16, 0.6),
-    0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 0 0 8px rgba(255, 255, 255, 0.04);
+  box-shadow: var(--shadow-xs);
 }
 
 .landing-hero-preview-titlebar {
@@ -564,8 +560,7 @@
 }
 
 .landing-business-card:hover {
-  border-color: rgba(249, 115, 22, 0.45);
-  transform: translateY(-3px);
+  border-color: #94A3B8;
   box-shadow: var(--landing-shadow-lg);
 }
 
@@ -577,7 +572,7 @@
   height: 44px;
   border-radius: var(--radius-lg);
   background: #0F172A;
-  color: #FDBA74;
+  color: #93C5FD;
   font-size: 1.3rem;
   flex-shrink: 0;
 }
@@ -667,9 +662,9 @@
 }
 
 .landing-pricing-card.is-featured {
-  border: 2px solid #F97316;
-  box-shadow: 0 24px 48px -16px rgba(249, 115, 22, 0.45), var(--landing-shadow-lg);
-  transform: translateY(-8px);
+  border: 2px solid #1E40AF;
+  box-shadow: var(--landing-shadow-sm);
+  transform: none;
 }
 
 .landing-pricing-badge {
@@ -677,10 +672,10 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: #F97316;
-  color: #0F172A;
+  background: #1E40AF;
+  color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 6px 14px -4px rgba(249, 115, 22, 0.6);
+  box-shadow: none;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   padding: var(--space-1) var(--space-3);
@@ -766,7 +761,7 @@
 }
 
 .landing-billing-option:focus-visible {
-  outline: 2px solid #F97316;
+  outline: 2px solid #2563EB;
   outline-offset: 2px;
 }
 

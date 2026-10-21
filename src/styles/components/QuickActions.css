@@ -22,7 +22,7 @@
 .quick-actions-item:hover {
   transform: translateY(-2px);
   border-color: var(--quick-action-accent, var(--color-primary));
-  box-shadow: 0 10px 24px -12px rgba(var(--quick-action-accent-rgb), 0.5), var(--shadow-md);
+  box-shadow: var(--shadow-xs);
 }
 
 .quick-actions-icon {
