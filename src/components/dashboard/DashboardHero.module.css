@@ -33,7 +33,7 @@
 }
 
 .name {
-  color: var(--color-navy-800);
+  color: var(--accent);
 }
 
 .meta {
@@ -82,7 +82,7 @@
 }
 
 .pill[aria-pressed='true'] {
-  background-color: var(--color-navy-800);
+  background-color: var(--accent);
   color: #ffffff;
 }
 

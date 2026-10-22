@@ -62,6 +62,7 @@ const ReturnForm = lazy(() => import('../pages/returns/ReturnForm'));
 const ReturnDetail = lazy(() => import('../pages/returns/ReturnDetail'));
 const ExpenseList = lazy(() => import('../pages/expenses/ExpenseList'));
 const ReportsCenter = lazy(() => import('../pages/reports/ReportsCenter'));
+const BusinessReports = lazy(withNamespaces(() => import('../pages/reports/BusinessReports'), loadMicrofinanceNs, loadElectronicsNs, loadRestaurantNs, loadPharmacyNs));
 const LoanProductList = lazy(withNamespaces(() => import('../pages/microfinance/LoanProductList'), loadMicrofinanceNs));
 const LoanList = lazy(withNamespaces(() => import('../pages/microfinance/LoanList'), loadMicrofinanceNs));
 const LoanForm = lazy(withNamespaces(() => import('../pages/microfinance/LoanForm'), loadMicrofinanceNs));
@@ -194,6 +195,8 @@ function AppRouter() {
               <Route path="/returns/:id" element={<RequirePermission permission="returns.view"><ReturnDetail /></RequirePermission>} />
               <Route path="/expenses" element={<RequirePermission permission="expenses.view"><ExpenseList /></RequirePermission>} />
               <Route path="/reports" element={<RequirePermission permission="reports.view"><ReportsCenter /></RequirePermission>} />
+              {/* Module business reports — each tab checks its own module permission. */}
+              <Route path="/business-reports" element={<BusinessReports />} />
 
               <Route path="/loan-products" element={<RequirePermission permission="loan_products.view"><LoanProductList /></RequirePermission>} />
               <Route path="/loans" element={<RequirePermission permission="loans.view"><LoanList /></RequirePermission>} />

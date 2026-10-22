@@ -37,3 +37,9 @@ button:disabled,
 [aria-disabled='true'] {
   cursor: not-allowed;
 }
+
+/* Icon weight: system icons (Feather via react-icons draw with
+   stroke="currentColor") render with a light 1.6 stroke instead of 2. */
+svg[stroke='currentColor'] {
+  stroke-width: 1.6;
+}

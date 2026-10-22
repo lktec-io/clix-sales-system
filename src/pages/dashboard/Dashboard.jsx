@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -13,6 +12,8 @@ import SubscriptionCard from '../../components/dashboard/SubscriptionCard';
 import QuickActions from '../../components/dashboard/QuickActions';
 import SalesTrendCard from '../../components/dashboard/SalesTrendCard';
 import CustomerTrafficChart from '../../components/dashboard/CustomerTrafficChart';
+import RecentSalesCard from '../../components/dashboard/RecentSalesCard';
+import { useAuth } from '../../hooks/useAuth';
 import TopProductsCard from '../../components/dashboard/TopProductsCard';
 import LowStockAlertCard from '../../components/dashboard/LowStockAlertCard';
 import DoughnutChart from '../../components/charts/DoughnutChart';
@@ -113,26 +114,6 @@ const CHART_TYPE_TO_WIDGET = {
 // keyed to the series field that backs their trend chip and micro-chart.
 const KPI_TRENDS = { todaySales: 'value', todayOrders: 'count' };
 
-const STAGGER_CONTAINER = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
-};
-
-const STAGGER_ITEM = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-};
-
-const KPI_CARD_STAGGER = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
-};
-
-const KPI_CARD_ITEM = {
-  hidden: { opacity: 0, y: 16, scale: 0.96 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
-};
-
 // Today's Sales is the one KPI with a real, honest day-over-day comparison
 // readily available (the sales-trend series already includes yesterday) —
 // every other card is left without a trend badge rather than fabricate one.
@@ -157,6 +138,8 @@ function Dashboard() {
   const showPharmacy = isModuleEnabled('medicines');
   const showRestaurant = isModuleEnabled('restaurant_orders');
   const showElectronics = isModuleEnabled('repairs');
+  const { hasPermission } = useAuth();
+  const showRecentSales = isModuleEnabled('sales') && hasPermission('sales.view');
   const chartColors = useChartTheme();
   const [kpis, setKpis] = useState(null);
   const [charts, setCharts] = useState({});
@@ -240,14 +223,14 @@ function Dashboard() {
 
       {error && <div className="alert alert-danger mb-4" role="alert">{error}</div>}
 
-      <motion.div variants={STAGGER_CONTAINER} initial="hidden" animate="show">
-        <motion.div variants={STAGGER_ITEM}>
+      <div>
+        <div>
           <SubscriptionCard />
-        </motion.div>
+        </div>
 
-        <motion.div className="kpi-grid" variants={KPI_CARD_STAGGER}>
+        <div className="kpi-grid">
           {KPI_DEFS.map(({ key, label, icon, formatter, subtitle, accent }) => (
-            <motion.div key={key} variants={KPI_CARD_ITEM}>
+            <div key={key}>
               <KPICard
                 icon={icon}
                 label={label}
@@ -258,24 +241,37 @@ function Dashboard() {
                 trend={KPI_TRENDS[key] ? { todaySales: todayTrend, todayOrders: ordersTrend }[key] : null}
                 sparkline={KPI_TRENDS[key] && salesWeek.length >= 2 ? salesWeek.map((point) => Number(point[KPI_TRENDS[key]]) || 0) : undefined}
               />
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
+
+        {/* Middle row: circular summary on the left, sales line on the right. */}
+        {(hasWidget('paymentStatus') || showSalesTrend) && (
+          <div className="dashboard-analytics-row">
+            {hasWidget('paymentStatus') && (
+              <ChartCard title={t('charts.paymentStatus')} loading={loading} empty={paymentStatus.length === 0} emptyMessage={t('charts.noPayments')}>
+                <DoughnutChart data={paymentStatus.map((p) => ({ label: p.name, value: Number(p.value) }))} valueFormatter={formatCurrency} />
+              </ChartCard>
+            )}
+            {showSalesTrend && <SalesTrendCard range={salesRange} onRangeChange={setSalesRange} />}
+          </div>
+        )}
+
+        {/* Bottom row: latest orders with status pills. */}
+        {showRecentSales && (
+          <div className="dashboard-table-row">
+            <RecentSalesCard />
+          </div>
+        )}
 
         {showSalesTrend && (
-          <motion.div variants={STAGGER_ITEM}>
+          <div>
             <CustomerTrafficChart />
-          </motion.div>
+          </div>
         )}
 
-        {showSalesTrend && (
-          <motion.div variants={STAGGER_ITEM}>
-            <SalesTrendCard range={salesRange} onRangeChange={setSalesRange} />
-          </motion.div>
-        )}
-
-        {(hasWidget('revenueVsExpenses') || hasWidget('paymentStatus')) && (
-          <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
+        {hasWidget('revenueVsExpenses') && (
+          <div className="dashboard-bottom-grid dashboard-bottom-grid-single">
             {hasWidget('revenueVsExpenses') && (
               <ChartCard title={t('charts.revenueVsExpenses')} loading={loading} empty={revenueVsExpenses.length === 0} emptyMessage={t('charts.noFinancialActivity')}>
                 <BarChart
@@ -291,23 +287,18 @@ function Dashboard() {
               </ChartCard>
             )}
 
-            {hasWidget('paymentStatus') && (
-              <ChartCard title={t('charts.paymentStatus')} loading={loading} empty={paymentStatus.length === 0} emptyMessage={t('charts.noPayments')}>
-                <DoughnutChart data={paymentStatus.map((p) => ({ label: p.name, value: Number(p.value) }))} valueFormatter={formatCurrency} />
-              </ChartCard>
-            )}
-          </motion.div>
+          </div>
         )}
 
         {(hasWidget('topProducts') || showLowStock) && (
-          <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
+          <div className="dashboard-bottom-grid">
             {hasWidget('topProducts') && <TopProductsCard products={topProducts} loading={loading} />}
             {showLowStock && <LowStockAlertCard products={lowStockProducts} loading={loading} />}
-          </motion.div>
+          </div>
         )}
 
         {showLoanPortfolio && (
-          <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
+          <div className="dashboard-bottom-grid">
             <div className="card">
               <div className="card-header"><span className="card-title">{t('loanPortfolio.title')}</span></div>
               <div className="card-body loan-portfolio-breakdown">
@@ -355,11 +346,11 @@ function Dashboard() {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         )}
 
         {showPharmacy && (
-          <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
+          <div className="dashboard-bottom-grid">
             <div className="card">
               <div className="card-header"><span className="card-title">{t('expiryAlerts.title')}</span></div>
               {expiringBatches.length === 0 ? (
@@ -417,11 +408,11 @@ function Dashboard() {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         )}
 
         {showRestaurant && (
-          <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
+          <div className="dashboard-bottom-grid">
             <div className="card">
               <div className="card-header"><span className="card-title">{t('recentOrders.title')}</span></div>
               {recentOrders.length === 0 ? (
@@ -451,11 +442,11 @@ function Dashboard() {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         )}
 
         {showElectronics && (
-          <motion.div className="dashboard-bottom-grid" variants={STAGGER_ITEM}>
+          <div className="dashboard-bottom-grid">
             <div className="card">
               <div className="card-header"><span className="card-title">{t('recentRepairs.title')}</span></div>
               {recentRepairs.length === 0 ? (
@@ -485,13 +476,13 @@ function Dashboard() {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         )}
 
-        <motion.div variants={STAGGER_ITEM}>
+        <div>
           <QuickActions />
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -113,7 +113,7 @@
   background-color: var(--accent);
   border-color: var(--accent);
   color: var(--on-accent);
-  box-shadow: 0 0 0 4px rgb(37 99 235 / 0.18);
+  box-shadow: 0 0 0 4px rgb(4 120 87 / 0.18);
 }
 
 .step[data-state='current'] .label {

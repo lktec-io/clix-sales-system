@@ -404,7 +404,7 @@
 
 .navLinkActive,
 .navLinkActive:hover {
-  background-color: rgb(37 99 235 / 0.2);
+  background-color: rgb(16 185 129 / 0.16);
   color: var(--sidebar-active-text);
 }
 
@@ -416,7 +416,7 @@
   left: calc(var(--space-3) * -1);
   width: 3px;
   border-radius: 0 3px 3px 0;
-  background-color: var(--accent);
+  background-color: #10b981;
 }
 
 .navIcon {
@@ -752,7 +752,7 @@
   right: 28%;
   height: 3px;
   border-radius: 0 0 3px 3px;
-  background-color: var(--accent);
+  background-color: #10b981;
 }
 
 .tabIcon {

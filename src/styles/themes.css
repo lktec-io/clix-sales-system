@@ -7,9 +7,9 @@
   /* Brand */
   --color-primary-hover: var(--color-navy-700);
   --color-primary-rgb: 30, 64, 175;
-  --color-accent: var(--color-navy-800);
-  --color-accent-hover: var(--color-navy-700);
-  --color-accent-rgb: 30, 64, 175;
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-rgb: 4, 120, 87;
   --color-blue: var(--color-slate-600);
   --color-gold: var(--color-navy-800);
 
@@ -36,7 +36,7 @@
   --color-text-inverse: #ffffff;
   --color-text-on-sidebar: var(--color-steel-400);
   --color-icon: var(--color-charcoal-700);
-  --color-link: var(--color-navy-800);
+  --color-link: var(--accent-text);
 
   /* Sidebar (PlatformLayout still uses these) */
   --sidebar-hover-bg: var(--color-charcoal-900);

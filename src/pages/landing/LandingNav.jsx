@@ -39,7 +39,7 @@ function LandingNav() {
   return (
     <header className="landing-nav">
       <div className="landing-nav-inner">
-        <a href="#top" className="landing-brand" onClick={closeMenu}>Clix</a>
+        <a href="#top" className="landing-brand" onClick={closeMenu}>Clix Sales System</a>
 
         {/* Dims and blocks the page behind the open mobile menu, and gives
             a click-outside-to-close target — a real backdrop, not just a

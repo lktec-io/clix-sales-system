@@ -25,7 +25,8 @@
     "tables": "Meza",
     "restaurant_orders": "Oda",
     "kitchen": "Jikoni",
-    "repairs": "Matengenezo"
+    "repairs": "Matengenezo",
+    "businessReports": "Ripoti za Biashara"
   },
   "sectionMain": "Kuu",
   "logout": "Ondoka",

@@ -65,15 +65,19 @@
 :root {
   color-scheme: light;
 
-  /* Brand */
+  /* Brand — slate/navy structure, emerald for actions & active states */
+  --emerald-900: #064e3b;
+  --emerald-700: #047857;
+  --emerald-600: #059669;
+  --emerald-50: #ecfdf5;
   --brand-navy: var(--color-navy-900);
   --brand-navy-2: var(--color-charcoal-900);
-  --accent: var(--color-navy-800);             /* primary buttons, active states */
-  --accent-hover: var(--color-navy-700);
-  --on-accent: var(--color-white);             /* white on #1e40af → 8.7:1 */
-  --accent-soft: var(--color-info-bg);
-  --accent-text: var(--color-navy-800);
-  --accent-ring: 0 0 0 3px rgb(37 99 235 / 0.25);
+  --accent: var(--emerald-700);                /* primary buttons, active states */
+  --accent-hover: var(--emerald-900);
+  --on-accent: var(--color-white);             /* white on #047857 → 5.5:1 */
+  --accent-soft: var(--emerald-50);
+  --accent-text: var(--emerald-700);
+  --accent-ring: 0 0 0 3px rgb(4 120 87 / 0.25);
 
   /* Success green — CTAs, growth, paid */
   --primary-green: var(--color-success);
@@ -93,7 +97,7 @@
   --sidebar-text: var(--color-steel-100);
   --sidebar-text-muted: var(--color-steel-400);
   --sidebar-border: var(--color-charcoal-900);
-  --sidebar-active-text: #ffffff;
+  --sidebar-active-text: #6ee7b7;
   --overlay: rgb(15 23 42 / 0.5);
 
   /* Text */
@@ -127,8 +131,8 @@
   --skeleton-base: #e2e8f0;
   --skeleton-highlight: #f1f5f9;
 
-  /* Charts (blue / steel / green / navy family — no orange) */
-  --chart-1: var(--color-navy-800);
+  /* Charts (emerald / steel / blue / navy family — no orange) */
+  --chart-1: var(--emerald-700);
   --chart-2: var(--color-steel-400);
   --chart-3: var(--color-success);
   --chart-4: var(--color-slate-600);
@@ -149,7 +153,7 @@
   --fs-xl: clamp(1.25rem, 1.05rem + 0.8vw, 1.5rem);
   --fs-kpi: clamp(1.25rem, 1rem + 1vw, 1.75rem);
 
-  --fw-regular: 400;
+  --fw-regular: 500;                           /* Quicksand reads thin below 500 */
   --fw-medium: 500;
   --fw-semibold: 600;
   --fw-bold: 700;                              /* ceiling — nothing heavier */

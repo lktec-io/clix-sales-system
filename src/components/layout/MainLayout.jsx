@@ -86,7 +86,7 @@ function WorkspaceMenu({ collapsed, onNavigate }) {
   const containerRef = useRef(null);
   const menuId = useId();
 
-  const companyName = company?.company_name || 'Clix';
+  const companyName = company?.company_name || 'Clix Sales System';
   const templateLabel = businessTemplateSlug
     ? t(`landing:businessTypes.${businessTemplateSlug}.name`, { defaultValue: '' })
     : '';

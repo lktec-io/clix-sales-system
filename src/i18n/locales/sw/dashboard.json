@@ -213,5 +213,12 @@
     "status_rejected": "Imekataliwa",
     "status_unrepairable": "Haiwezi Kutengenezwa"
   },
-  "loadError": "Imeshindwa kupakia taarifa za dashibodi."
+  "loadError": "Imeshindwa kupakia taarifa za dashibodi.",
+  "recentOrdersTable": {
+    "title": "Oda za Karibuni",
+    "viewAll": "Ona zote",
+    "walkIn": "Mteja wa papo hapo",
+    "empty": "Hakuna mauzo yaliyorekodiwa bado",
+    "loadError": "Oda za karibuni hazikuweza kupakiwa."
+  }
 }

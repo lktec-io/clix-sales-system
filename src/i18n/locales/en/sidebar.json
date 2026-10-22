@@ -25,7 +25,8 @@
     "tables": "Tables",
     "restaurant_orders": "Orders",
     "kitchen": "Kitchen",
-    "repairs": "Repairs"
+    "repairs": "Repairs",
+    "businessReports": "Business Reports"
   },
   "sectionMain": "Main",
   "logout": "Logout",

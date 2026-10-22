@@ -395,3 +395,33 @@
 .dashboard-page .kpi-grid {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
 }
+
+/* Middle row: donut / circular summary (1) + sales line graph (2). */
+.dashboard-analytics-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.dashboard-analytics-row > :only-child {
+  grid-column: 1 / -1;
+}
+
+.dashboard-analytics-row .dashboard-trend-card {
+  margin-bottom: 0;
+}
+
+.dashboard-table-row {
+  margin-bottom: var(--space-5);
+}
+
+.dashboard-bottom-grid-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .dashboard-analytics-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

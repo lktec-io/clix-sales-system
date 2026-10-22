@@ -9,7 +9,7 @@ function PlatformAuthLayout() {
     <div className="platform-auth-shell">
       <div className="platform-auth-card fade-in">
         <div className="platform-auth-brand">
-          <span className="platform-auth-brand-mark">Clix</span>
+          <span className="platform-auth-brand-mark">Clix Sales System</span>
           <span className="platform-auth-brand-sub">Owner Portal · Clix Digital Works</span>
         </div>
         <PageTransition />

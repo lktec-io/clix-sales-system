@@ -235,3 +235,10 @@ textarea.form-control {
     flex: 1 1 auto;
   }
 }
+
+/* Auth page heading (Login / Register / Forgot / Reset). */
+.auth-title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  color: var(--color-navy-900);
+}

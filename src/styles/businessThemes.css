@@ -1,8 +1,8 @@
-/* Business-template identity — every template shares the one Navy + Blue
+/* Business-template identity — every template shares the one Slate + Emerald
    brand, so --business-accent (still read by a few legacy components)
    resolves to the global accent regardless of [data-business-template]. */
 
 :root {
   --business-accent: var(--accent);
-  --business-accent-rgb: 30, 64, 175;
+  --business-accent-rgb: 4, 120, 87;
 }

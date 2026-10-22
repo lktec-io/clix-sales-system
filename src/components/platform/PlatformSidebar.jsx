@@ -28,7 +28,7 @@ function PlatformSidebar() {
   return (
     <div className="platform-sidebar-inner">
       <div className="platform-sidebar-brand">
-        <span className="platform-sidebar-brand-mark">Clix</span>
+        <span className="platform-sidebar-brand-mark">Clix Sales System</span>
         <span className="platform-sidebar-brand-sub">Owner Portal</span>
       </div>
 

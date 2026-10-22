@@ -10,7 +10,7 @@
   "hero": {
     "eyebrow": "Jukwaa la Usimamizi wa Biashara",
     "title": "Imeundwa Kuendesha Biashara Yako, Si Kufuatilia Tu",
-    "subtitle": "Clix inasimamia mauzo, hisa, manunuzi, wateja na shughuli za kila siku kwa maduka ya rejareja, maduka ya dawa, migahawa, taasisi za fedha ndogo, maduka ya matengenezo ya elektroniki na wauzaji wa vipodozi — katika mfumo mmoja, kwa Kiingereza au Kiswahili.",
+    "subtitle": "Clix Sales System inasimamia mauzo, hisa, manunuzi, wateja na shughuli za kila siku kwa maduka ya rejareja, maduka ya dawa, migahawa, taasisi za fedha ndogo, maduka ya matengenezo ya elektroniki na wauzaji wa vipodozi — katika mfumo mmoja, kwa Kiingereza au Kiswahili.",
     "ctaPrimary": "Anza Jaribio la Bure",
     "ctaSecondary": "Angalia Jukwaa",
     "noCreditCard": "Hakuna kadi inayohitajika · Jaribio la siku 7 bila malipo",
@@ -31,7 +31,9 @@
       "Kiingereza na Kiswahili, kwenye simu, tablet au kompyuta"
     ],
     "videoAlt": "Keshia akimhudumia mteja kwenye kaunta ya duka akitumia mashine ya POS",
-    "videoCaption": "Mauzo halisi kwenye kaunta ya duka"
+    "videoCaption": "Mauzo halisi kwenye kaunta ya duka",
+    "portraitAlt": "Mmiliki wa duka akitabasamu kwenye kaunta yake jijini Dar es Salaam",
+    "badge": "aina za biashara, mfumo mmoja"
   },
   "businessTypes": {
     "title": "Jukwaa Moja. Aina Sita Halisi za Biashara.",
@@ -148,7 +150,7 @@
     }
   },
   "finalCta": {
-    "title": "Uko Tayari Kuendesha Biashara Yako kwa Clix?",
+    "title": "Uko Tayari Kuendesha Biashara Yako kwa Clix Sales System?",
     "subtitle": "Anza jaribio lako la siku 7 bila malipo leo — hakuna kadi, hakuna gharama za usanidi, hakuna ahadi.",
     "cta": "Anza Jaribio la Bure",
     "loginPrompt": "Tayari una akaunti?",
@@ -165,15 +167,15 @@
       "answer": "Bado unaweza kuingia, kuona dashibodi yako, ripoti, wasifu na mipangilio. Kuunda mauzo mapya, manunuzi, mabadiliko ya hisa, matumizi na uhamisho wa hisa kunasitishwa hadi uboreshe."
     },
     "q3": {
-      "question": "Naweza kutumia Clix kwa zaidi ya tawi moja?",
-      "answer": "Ndiyo — Clix imejengwa kwa biashara za matawi mengi tangu siku ya kwanza, na ruhusa kulingana na tawi."
+      "question": "Naweza kutumia Clix Sales System kwa zaidi ya tawi moja?",
+      "answer": "Ndiyo — Clix Sales System imejengwa kwa biashara za matawi mengi tangu siku ya kwanza, na ruhusa kulingana na tawi."
     },
     "q4": {
       "question": "Je, taarifa zangu ziko salama?",
-      "answer": "Taarifa za biashara yako zimetengwa kikamilifu na kampuni nyingine yoyote kwenye Clix, zenye usimbaji fiche wa hali ya juu."
+      "answer": "Taarifa za biashara yako zimetengwa kikamilifu na kampuni nyingine yoyote kwenye Clix Sales System, zenye usimbaji fiche wa hali ya juu."
     },
     "q5": {
-      "question": "Je, Clix inapatikana kwa Kiswahili?",
+      "question": "Je, Clix Sales System inapatikana kwa Kiswahili?",
       "answer": "Ndiyo — mfumo mzima, ikiwemo risiti na ripoti, unafanya kazi kwa Kiingereza na Kiswahili."
     }
   },
@@ -183,5 +185,6 @@
     "company": "Kampuni",
     "rights": "Haki zote zimehifadhiwa."
   },
-  "mediaCredit": "Picha/video: {{name}} kwenye {{site}}"
+  "mediaCredit": "Picha/video: {{name}} kwenye {{site}}",
+  "heroCredits": "Picha: {{portrait}} · Video: {{video}}"
 }

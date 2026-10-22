@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FiPlus, FiEdit2, FiPower } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Modal from '../../components/common/Modal';
+import TableMap from '../../components/restaurant/TableMap';
 import { usePermission } from '../../hooks/usePermission';
 import { useToast } from '../../hooks/useToast';
 import * as restaurantTableService from '../../services/restaurantTableService';
@@ -156,6 +157,8 @@ function TableList() {
       </div>
 
       {actionError && <div className="alert alert-danger mb-4" role="alert">{actionError}</div>}
+
+      <TableMap tables={tables} loading={loading} onSelect={canManage ? openEdit : undefined} />
 
       <div className="card">
         <div className="table-toolbar">

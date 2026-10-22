@@ -213,5 +213,12 @@
     "status_rejected": "Rejected",
     "status_unrepairable": "Unrepairable"
   },
-  "loadError": "Failed to load dashboard data."
+  "loadError": "Failed to load dashboard data.",
+  "recentOrdersTable": {
+    "title": "Recent Orders",
+    "viewAll": "View all",
+    "walkIn": "Walk-in customer",
+    "empty": "No sales recorded yet",
+    "loadError": "Recent orders could not be loaded."
+  }
 }

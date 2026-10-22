@@ -84,6 +84,11 @@
       "activate": "Activate",
       "statusUpdateSuccess": "Table status updated",
       "statusUpdateError": "Failed to update table status"
+    },
+    "map": {
+      "title": "Floor map",
+      "table": "Table",
+      "seats": "seats"
     }
   },
   "orders": {
@@ -182,6 +187,10 @@
       "served": "Served"
     },
     "updateSuccess": "Item status updated",
-    "updateError": "Failed to update item status"
+    "updateError": "Failed to update item status",
+    "updatedAt": "updated {{time}}",
+    "laneEmpty": "No tickets",
+    "age_one": "{{count}} min",
+    "age_other": "{{count}} min"
   }
 }

@@ -10,7 +10,7 @@
   "hero": {
     "eyebrow": "Business Management Platform",
     "title": "Built to Run Your Business, Not Just Track It",
-    "subtitle": "Clix handles sales, inventory, purchases, customers and daily operations for retail stores, pharmacies, restaurants, microfinance institutions, electronics repair shops and beauty retailers — in one system, in English or Kiswahili.",
+    "subtitle": "Clix Sales System handles sales, inventory, purchases, customers and daily operations for retail stores, pharmacies, restaurants, microfinance institutions, electronics repair shops and beauty retailers — in one system, in English or Kiswahili.",
     "ctaPrimary": "Start Free Trial",
     "ctaSecondary": "Explore Platform",
     "noCreditCard": "No credit card required · 7-day free trial",
@@ -31,7 +31,9 @@
       "English and Kiswahili, on phone, tablet or desktop"
     ],
     "videoAlt": "A cashier ringing up a customer's groceries at a shop counter with a POS terminal",
-    "videoCaption": "Real checkout at a retail counter"
+    "videoCaption": "Real checkout at a shop counter",
+    "portraitAlt": "A smiling shop owner at her counter in Dar es Salaam",
+    "badge": "business types, one system"
   },
   "businessTypes": {
     "title": "One Platform. Six Real Business Types.",
@@ -148,7 +150,7 @@
     }
   },
   "finalCta": {
-    "title": "Ready to Run Your Business on Clix?",
+    "title": "Ready to Run Your Business on Clix Sales System?",
     "subtitle": "Start your 7-day free trial today — no credit card, no setup fees, no commitment.",
     "cta": "Start Free Trial",
     "loginPrompt": "Already have an account?",
@@ -165,15 +167,15 @@
       "answer": "You can still log in, view your dashboard, reports, profile and settings. Creating new sales, purchases, inventory changes, expenses and stock transfers is paused until you upgrade."
     },
     "q3": {
-      "question": "Can I use Clix for more than one branch?",
-      "answer": "Yes — Clix is built for multi-branch businesses from day one, with role-based access per branch."
+      "question": "Can I use Clix Sales System for more than one branch?",
+      "answer": "Yes — Clix Sales System is built for multi-branch businesses from day one, with role-based access per branch."
     },
     "q4": {
       "question": "Is my data safe?",
-      "answer": "Your business's data is fully isolated from every other company on Clix, with bank-grade encryption in transit."
+      "answer": "Your business's data is fully isolated from every other company on Clix Sales System, with bank-grade encryption in transit."
     },
     "q5": {
-      "question": "Is Clix available in Kiswahili?",
+      "question": "Is Clix Sales System available in Kiswahili?",
       "answer": "Yes — the entire system, including receipts and reports, works in both English and Kiswahili."
     }
   },
@@ -183,5 +185,6 @@
     "company": "Company",
     "rights": "All rights reserved."
   },
-  "mediaCredit": "Photo/video: {{name}} on {{site}}"
+  "mediaCredit": "Photo/video: {{name}} on {{site}}",
+  "heroCredits": "Photo: {{portrait}} · Video: {{video}}"
 }

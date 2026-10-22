@@ -1,5 +1,5 @@
 /* Global button primitives (legacy class API, new design).
-   Blue = primary action, Green = success / conversion CTA, Navy = outline.
+   Emerald = primary action, Green = success / conversion CTA, Navy = outline.
    Every size reaches a 44px hit area on touch devices (pointer: coarse). */
 
 .btn {
@@ -49,17 +49,17 @@
   transform: translateY(1px);
 }
 
-/* Primary — accent blue, white label (8.7:1). */
+/* Primary — emerald, white label (5.5:1). */
 .btn-primary {
-  background-color: var(--color-navy-800);
-  border-color: var(--color-navy-800);
+  background-color: var(--accent);
+  border-color: var(--accent);
   color: #ffffff;
   box-shadow: var(--shadow-xs);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--color-navy-700);
-  border-color: var(--color-navy-700);
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 /* Success — green CTA (Start now / Upgrade plan / Paid). */

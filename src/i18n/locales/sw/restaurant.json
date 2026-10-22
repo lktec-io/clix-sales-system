@@ -84,6 +84,11 @@
       "activate": "Washa",
       "statusUpdateSuccess": "Hali ya meza imesasishwa",
       "statusUpdateError": "Imeshindwa kusasisha hali ya meza"
+    },
+    "map": {
+      "title": "Ramani ya meza",
+      "table": "Meza",
+      "seats": "viti"
     }
   },
   "orders": {
@@ -182,6 +187,10 @@
       "served": "Imehudumiwa"
     },
     "updateSuccess": "Hali ya kitu imesasishwa",
-    "updateError": "Imeshindwa kusasisha hali ya kitu"
+    "updateError": "Imeshindwa kusasisha hali ya kitu",
+    "updatedAt": "imesasishwa {{time}}",
+    "laneEmpty": "Hakuna oda",
+    "age_one": "Dak {{count}}",
+    "age_other": "Dak {{count}}"
   }
 }

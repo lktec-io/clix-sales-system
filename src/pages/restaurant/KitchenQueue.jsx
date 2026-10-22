@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiRefreshCw } from 'react-icons/fi';
 import EmptyState from '../../components/common/EmptyState';
@@ -14,6 +14,21 @@ import '../../styles/pages/Kitchen.css';
 // this app, and a 15s refresh is more than fast enough for a kitchen
 // screen that's also glanced at directly.
 const POLL_INTERVAL_MS = 15000;
+const LANES = ['new', 'preparing', 'ready'];
+const WARN_MINUTES = 15;
+const LATE_MINUTES = 30;
+
+// Kitchen order tickets: each lane's items grouped by order, oldest first.
+function groupTickets(items) {
+  const byOrder = new Map();
+  items.forEach((item) => {
+    if (!byOrder.has(item.order_number)) {
+      byOrder.set(item.order_number, { order: item.order_number, table: item.table_number, createdAt: item.order_created_at, items: [] });
+    }
+    byOrder.get(item.order_number).items.push(item);
+  });
+  return Array.from(byOrder.values()).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+}
 
 function KitchenQueue() {
   const { t, i18n } = useTranslation(['restaurant', 'common']);
@@ -22,13 +37,24 @@ function KitchenQueue() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
+  const [updatedAt, setUpdatedAt] = useState(null);
+  const [now, setNow] = useState(() => Date.now());
+
+  // Ticket age clock — ticks every 30s so timers stay current between polls.
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const formatTime = (isoString) => new Date(isoString).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' });
 
   const loadQueue = useCallback(() => {
     kitchenService.getKitchenQueue()
-      .then(setItems)
+      .then((data) => {
+        setItems(data);
+        setUpdatedAt(new Date());
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -52,12 +78,27 @@ function KitchenQueue() {
     }
   };
 
+  const lanes = useMemo(() => LANES.map((status) => {
+    const laneItems = items.filter((item) => item.kitchen_status === status);
+    return { status, count: laneItems.length, tickets: groupTickets(laneItems) };
+  }), [items]);
+
+  const ageMinutes = (iso) => Math.max(0, Math.floor((now - new Date(iso).getTime()) / 60000));
+  const ageTone = (minutes) => {
+    if (minutes >= LATE_MINUTES) return 'late';
+    if (minutes >= WARN_MINUTES) return 'warn';
+    return 'ok';
+  };
+
   return (
     <div>
       <div className="page-header">
         <div>
           <h1 className="page-title">{t('restaurant:kitchen.title')}</h1>
-          <p className="page-subtitle">{t('restaurant:kitchen.subtitle')}</p>
+          <p className="page-subtitle">
+            {t('restaurant:kitchen.subtitle')}
+            {updatedAt && <span className="kitchen-updated"> · {t('restaurant:kitchen.updatedAt', { time: formatTime(updatedAt) })}</span>}
+          </p>
         </div>
         <div className="page-actions">
           <button type="button" className="btn btn-secondary" onClick={loadQueue}>
@@ -67,41 +108,58 @@ function KitchenQueue() {
       </div>
 
       {loading ? (
-        <div className="kitchen-grid">
-          {Array.from({ length: 4 }, (_, i) => `kitchen-skeleton-${i}`).map((key) => (
-            <div className="card kitchen-ticket" key={key}><Skeleton height={140} /></div>
+        <div className="kitchen-board">
+          {LANES.map((status) => (
+            <div className="kitchen-lane" key={status}>
+              <div className="kitchen-lane-header" data-status={status}>{t(`restaurant:kitchen.kitchenStatus.${status}`)}</div>
+              <div className="kitchen-lane-body"><Skeleton height={140} /></div>
+            </div>
           ))}
         </div>
       ) : items.length === 0 ? (
         <EmptyState title={t('restaurant:kitchen.empty')} />
       ) : (
-        <div className="kitchen-grid">
-          {items.map((item) => (
-            <div key={item.id} className={`card kitchen-ticket kitchen-ticket-${item.kitchen_status}`}>
-              <div className="kitchen-ticket-header">
-                <span className="kitchen-ticket-order">{item.order_number}</span>
-                <span className="kitchen-ticket-time">{formatTime(item.order_created_at)}</span>
+        <div className="kitchen-board">
+          {lanes.map((lane) => (
+            <section className="kitchen-lane" key={lane.status} aria-label={t(`restaurant:kitchen.kitchenStatus.${lane.status}`)}>
+              <div className="kitchen-lane-header" data-status={lane.status}>
+                {t(`restaurant:kitchen.kitchenStatus.${lane.status}`)}
+                <span className="kitchen-lane-count">{lane.count}</span>
               </div>
-              <div className="kitchen-ticket-table">{item.table_number || t('restaurant:orders.takeaway')}</div>
-              <div className="kitchen-ticket-item">
-                <span className="kitchen-ticket-qty">{item.quantity}×</span> {item.menu_item_name}
+              <div className="kitchen-lane-body">
+                {lane.tickets.length === 0 && <p className="kitchen-lane-empty">{t('restaurant:kitchen.laneEmpty')}</p>}
+                {lane.tickets.map((ticket) => {
+                  const minutes = ageMinutes(ticket.createdAt);
+                  return (
+                    <article key={ticket.order} className="kitchen-kot" data-age={ageTone(minutes)}>
+                      <header className="kitchen-kot-header">
+                        <span className="kitchen-kot-order">{ticket.order}</span>
+                        <span className="kitchen-kot-age" title={formatTime(ticket.createdAt)}>{t('restaurant:kitchen.age', { count: minutes })}</span>
+                      </header>
+                      <div className="kitchen-kot-table">{ticket.table || t('restaurant:orders.takeaway')}</div>
+                      <ul className="kitchen-kot-items">
+                        {ticket.items.map((item) => (
+                          <li key={item.id} className="kitchen-kot-item">
+                            <span className="kitchen-ticket-qty">{item.quantity}×</span>
+                            <span className="kitchen-kot-name">{item.menu_item_name}</span>
+                            {canManage && item.kitchen_status !== 'ready' && (
+                              <button
+                                type="button"
+                                className={`btn btn-primary btn-sm ${updatingId === item.id ? 'btn-loading' : ''}`}
+                                disabled={updatingId === item.id}
+                                onClick={() => advanceItem(item)}
+                              >
+                                {t(item.kitchen_status === 'new' ? 'restaurant:kitchen.startPreparing' : 'restaurant:kitchen.markReady')}
+                              </button>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </article>
+                  );
+                })}
               </div>
-              <div className="kitchen-ticket-footer">
-                <span className={`badge badge-${item.kitchen_status === 'new' ? 'neutral' : item.kitchen_status === 'preparing' ? 'info' : 'warning'}`}>
-                  {t(`restaurant:kitchen.kitchenStatus.${item.kitchen_status}`)}
-                </span>
-                {canManage && item.kitchen_status !== 'ready' && (
-                  <button
-                    type="button"
-                    className={`btn btn-primary btn-sm ${updatingId === item.id ? 'btn-loading' : ''}`}
-                    disabled={updatingId === item.id}
-                    onClick={() => advanceItem(item)}
-                  >
-                    {t(item.kitchen_status === 'new' ? 'restaurant:kitchen.startPreparing' : 'restaurant:kitchen.markReady')}
-                  </button>
-                )}
-              </div>
-            </div>
+            </section>
           ))}
         </div>
       )}

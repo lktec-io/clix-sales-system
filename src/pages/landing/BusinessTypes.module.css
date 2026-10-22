@@ -18,14 +18,14 @@
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.3em;
-  color: #1e40af;
+  color: #047857;
 }
 
 .heading {
   font-size: clamp(1.6rem, 1.6vw + 1rem, 2.25rem);
   font-weight: 700;
   line-height: 1.2;
-  color: #0f172a;
+  color: #064e3b;
 }
 
 .lead {
@@ -55,16 +55,22 @@
   border: 1px solid #e2e8f0;
   border-radius: 5px;
   box-shadow: 0 1px 1px rgba(15, 23, 42, 0.06);
-  transition: border-color 150ms ease;
+  transition: border-color 200ms ease, transform 200ms ease;
 }
 
 .card:hover {
-  border-color: #94a3b8;
+  border-color: #6ee7b7;
+  transform: translateY(-3px);
+}
+
+.card:hover .photo {
+  transform: scale(1.03);
 }
 
 .figure {
   position: relative;
   margin: 0;
+  overflow: hidden;
 }
 
 .photo {
@@ -74,6 +80,7 @@
   aspect-ratio: 3 / 2;
   object-fit: cover;
   background-color: #e2e8f0;
+  transition: transform 400ms ease;
 }
 
 .credit {
@@ -116,8 +123,8 @@
   width: 36px;
   height: 36px;
   border-radius: 5px;
-  background-color: #0f172a;
-  color: #93c5fd;
+  background-color: #064e3b;
+  color: #6ee7b7;
   font-size: 1.1rem;
 }
 
@@ -157,7 +164,7 @@
 }
 
 .tag svg {
-  color: #28a745;
+  color: #047857;
 }
 
 .cta {
@@ -170,11 +177,11 @@
   padding-top: 6px;
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #1e40af;
+  color: #047857;
   text-decoration: none;
 }
 
 .cta:hover {
-  color: #1e3a8a;
+  color: #064e3b;
   text-decoration: underline;
 }

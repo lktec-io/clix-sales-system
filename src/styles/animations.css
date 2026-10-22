@@ -51,3 +51,15 @@
     animation: none;
   }
 }
+
+/* Route content entrance — opacity only (no transform, so sticky/fixed
+   children are unaffected) and short enough never to feel like a wait. */
+.page-enter {
+  animation: fadeIn 120ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation: none;
+  }
+}

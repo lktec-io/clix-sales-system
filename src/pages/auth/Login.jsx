@@ -60,7 +60,7 @@ function Login() {
 
   return (
     <div>
-      <h1 className="text-lg font-semibold">{t('login.welcomeBack')}</h1>
+      <h1 className="auth-title">{t('login.welcomeBack')}</h1>
       <p className="text-secondary text-sm mt-1 mb-4">
         {t('login.signInSubtitle')}
       </p>
@@ -90,7 +90,7 @@ function Login() {
           <label className="form-label form-label-required" htmlFor="password">
             {t('login.passwordLabel')}
           </label>
-          <div className="flex items-center gap-2">
+          <div className="form-password-field">
             <input
               id="password"
               type={showPassword ? 'text' : 'password'}
@@ -100,7 +100,7 @@ function Login() {
             />
             <button
               type="button"
-              className="btn btn-ghost btn-icon"
+              className="form-password-toggle"
               onClick={() => setShowPassword((prev) => !prev)}
               aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
             >
@@ -120,7 +120,7 @@ function Login() {
           </Link>
         </div>
 
-        <button type="submit" className={`btn btn-primary btn-block ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting}>
+        <button type="submit" className={`btn btn-primary btn-block btn-lg ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting} aria-busy={isSubmitting}>
           {t('login.signIn')}
         </button>
       </form>

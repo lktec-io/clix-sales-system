@@ -2,11 +2,12 @@ import { useTranslation } from 'react-i18next';
 import {
   FiGrid, FiUserCheck, FiTruck, FiBox, FiArchive, FiShoppingCart, FiDollarSign, FiRotateCcw,
   FiBarChart2, FiCreditCard, FiSettings, FiMapPin, FiUsers, FiShield, FiBell, FiRepeat, FiClock,
-  FiCheckCircle, FiLayers, FiCoffee, FiTool,
+  FiCheckCircle, FiLayers, FiCoffee, FiTool, FiFileText,
 } from 'react-icons/fi';
 import { useAuth } from './useAuth';
 import { useModules } from './useModules';
 import { ROUTES } from '../constants/routes';
+import { availableBusinessReports, BUSINESS_REPORTS_ROUTE } from '../constants/businessReports';
 
 // Resolves a module registry's `icon` string to the react-icons component —
 // the backend sends config, never JSX. Unknown keys fall back to a grid icon.
@@ -28,7 +29,7 @@ function resolveIcon(iconKey) {
 export function useNavigationItems() {
   const { t } = useTranslation('sidebar');
   const { hasPermission } = useAuth();
-  const { modules, loading } = useModules();
+  const { modules, loading, isModuleEnabled, businessTemplateSlug } = useModules();
 
   const moduleItems = modules
     .filter((module) => module.route)
@@ -46,7 +47,13 @@ export function useNavigationItems() {
   const billingItem = { key: 'billing', to: ROUTES.BILLING, label: t('nav.billing'), icon: FiCreditCard, requiredPermission: ['company.manage'] };
   const settingsIndex = moduleItems.findIndex((item) => item.to === '/settings/company');
 
-  const mainItems = settingsIndex === -1 ? moduleItems : moduleItems.slice(0, settingsIndex);
+  const baseMain = settingsIndex === -1 ? moduleItems : moduleItems.slice(0, settingsIndex);
+  // Module business reports — a fixed frontend page, shown when this
+  // tenant has at least one module report the user may read.
+  const hasBusinessReports = availableBusinessReports({ isModuleEnabled, hasPermission, businessTemplateSlug }).length > 0;
+  const mainItems = hasBusinessReports
+    ? [...baseMain, { key: 'business-reports', to: BUSINESS_REPORTS_ROUTE, label: t('nav.businessReports'), icon: FiFileText }]
+    : baseMain;
   const bottomItems = settingsIndex === -1 ? [billingItem] : [billingItem, ...moduleItems.slice(settingsIndex)];
 
   const isVisible = (item) => {
