@@ -1,0 +1,29 @@
+.module {
+  margin-bottom: var(--space-5);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+/* The module accent marks each card's title with a short rule. */
+.module :global(.card-title) {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.module :global(.card-title)::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  background-color: var(--module-accent);
+}
+
+@media (max-width: 1024px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

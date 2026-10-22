@@ -5,12 +5,15 @@
     "pricing": "Bei",
     "howItWorks": "Jinsi Inavyofanya Kazi",
     "login": "Ingia",
-    "startTrial": "Anza Jaribio la Bure"
+    "startTrial": "Anza Jaribio la Bure",
+    "menuLabel": "Menyu kuu",
+    "openMenu": "Fungua menyu",
+    "closeMenu": "Funga menyu"
   },
   "hero": {
-    "eyebrow": "Jukwaa la Usimamizi wa Biashara",
-    "title": "Imeundwa Kuendesha Biashara Yako, Si Kufuatilia Tu",
-    "subtitle": "Clix Sales System inasimamia mauzo, hisa, manunuzi, wateja na shughuli za kila siku kwa maduka ya rejareja, maduka ya dawa, migahawa, taasisi za fedha ndogo, maduka ya matengenezo ya elektroniki na wauzaji wa vipodozi — katika mfumo mmoja, kwa Kiingereza au Kiswahili.",
+    "eyebrow": "Clix Sales System",
+    "title": "Endesha biashara yako kwenye skrini moja.",
+    "subtitle": "Mauzo, stoo na ripoti kwa maduka, famasia, migahawa, mafundi na wakopeshaji.",
     "ctaPrimary": "Anza Jaribio la Bure",
     "ctaSecondary": "Angalia Jukwaa",
     "noCreditCard": "Hakuna kadi inayohitajika · Jaribio la siku 7 bila malipo",
@@ -25,11 +28,6 @@
       "caption": "Duka la Rejareja · Dashibodi",
       "note": "Data ya mfano kwa maelezo tu"
     },
-    "points": [
-      "Uza kaunta kwa kuskani barcode na kutoa risiti papo hapo",
-      "Stoo, tarehe za kuisha muda, matengenezo, mikopo au meza za mgahawa — kulingana na aina ya biashara yako",
-      "Kiingereza na Kiswahili, kwenye simu, tablet au kompyuta"
-    ],
     "videoAlt": "Keshia akimhudumia mteja kwenye kaunta ya duka akitumia mashine ya POS",
     "videoCaption": "Mauzo halisi kwenye kaunta ya duka",
     "portraitAlt": "Mmiliki wa duka akitabasamu kwenye kaunta yake jijini Dar es Salaam",
@@ -184,7 +182,5 @@
     "product": "Bidhaa",
     "company": "Kampuni",
     "rights": "Haki zote zimehifadhiwa."
-  },
-  "mediaCredit": "Picha/video: {{name}} kwenye {{site}}",
-  "heroCredits": "Picha: {{portrait}} · Video: {{video}}"
+  }
 }

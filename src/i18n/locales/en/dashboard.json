@@ -220,5 +220,18 @@
     "walkIn": "Walk-in customer",
     "empty": "No sales recorded yet",
     "loadError": "Recent orders could not be loaded."
+  },
+  "moduleAnalytics": {
+    "monthlySales": "Monthly sales comparison",
+    "monthlyReceipts": "Receipts per month",
+    "expiryProfile": "Batch expiry profile",
+    "over90": "Over 90 days",
+    "dispensingWeek": "Dispensing — last 7 days",
+    "revenueByHour": "Today's revenue by hour",
+    "ordersByStatus": "Today's orders by status",
+    "jobsPerDay": "Jobs received — last 7 days",
+    "repairPipeline": "Repair pipeline (30 days)",
+    "portfolioStatus": "Portfolio by status",
+    "collections": "Collections — last 14 days"
   }
 }

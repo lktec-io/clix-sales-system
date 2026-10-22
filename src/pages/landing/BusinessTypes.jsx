@@ -44,11 +44,6 @@ function BusinessTypes() {
                   loading="lazy"
                   decoding="async"
                 />
-                <figcaption className={styles.credit}>
-                  <a href={photo.credit.url} target="_blank" rel="noopener noreferrer">
-                    {t('mediaCredit', { name: photo.credit.name, site: photo.credit.site })}
-                  </a>
-                </figcaption>
               </figure>
 
               <div className={styles.body}>

@@ -18,10 +18,13 @@
   gap: var(--space-6);
   padding: clamp(28px, 4vw, 56px);
   background-color: var(--emerald-900);
+  /* Local photo of a smiling merchant under a rich emerald overlay. */
   background-image:
-    linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
-  background-size: 32px 32px;
+    linear-gradient(165deg, rgb(6 78 59 / 0.94) 0%, rgb(6 78 59 / 0.78) 45%, rgb(4 120 87 / 0.62) 100%),
+    url('/assets/images/hero-merchant.webp');
+  background-position: center, center 20%;
+  background-size: cover, cover;
+  background-repeat: no-repeat;
   color: #ecfdf5;
 }
 

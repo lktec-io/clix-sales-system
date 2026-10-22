@@ -27,6 +27,7 @@ export function presetRange(preset, now = new Date()) {
     case 'today': return { from: today, to: today };
     case 'yesterday': return { from: daysAgo(1), to: daysAgo(1) };
     case '7d': return { from: daysAgo(6), to: today };
+    case '14d': return { from: daysAgo(13), to: today };
     case '30d': return { from: daysAgo(29), to: today };
     case 'month': return { from: `${today.slice(0, 8)}01`, to: today };
     default: return { from: daysAgo(6), to: today };

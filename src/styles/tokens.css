@@ -88,7 +88,8 @@
   --on-primary: var(--color-white);
 
   /* Surfaces */
-  --bg-main: var(--color-bg);
+  --bg-main: var(--color-surface);            /* white canvas */
+  --panel-bg: var(--color-mist-50);            /* light-grey analytics cards */
   --card-surface: var(--color-surface);
   --surface-sunken: var(--color-mist-50);
   --surface-hover: #f1f5f9;

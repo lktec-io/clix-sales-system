@@ -43,3 +43,12 @@ button:disabled,
 svg[stroke='currentColor'] {
   stroke-width: 1.6;
 }
+
+/* Buttons never carry an underline or a single-edge bottom rule. */
+button,
+.btn,
+a.btn,
+[role='button'],
+[role='tab'] {
+  text-decoration: none !important;
+}

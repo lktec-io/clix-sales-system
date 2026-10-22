@@ -13,6 +13,7 @@ import QuickActions from '../../components/dashboard/QuickActions';
 import SalesTrendCard from '../../components/dashboard/SalesTrendCard';
 import CustomerTrafficChart from '../../components/dashboard/CustomerTrafficChart';
 import RecentSalesCard from '../../components/dashboard/RecentSalesCard';
+import ModuleAnalytics from '../../components/dashboard/ModuleAnalytics';
 import { useAuth } from '../../hooks/useAuth';
 import TopProductsCard from '../../components/dashboard/TopProductsCard';
 import LowStockAlertCard from '../../components/dashboard/LowStockAlertCard';
@@ -244,6 +245,9 @@ function Dashboard() {
             </div>
           ))}
         </div>
+
+        {/* Industry-specific charts for this tenant's module(s). */}
+        <ModuleAnalytics />
 
         {/* Middle row: circular summary on the left, sales line on the right. */}
         {(hasWidget('paymentStatus') || showSalesTrend) && (

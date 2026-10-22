@@ -1,50 +1,43 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiArrowRight, FiCheckCircle, FiPlayCircle } from 'react-icons/fi';
+import { FiArrowRight, FiPlayCircle } from 'react-icons/fi';
 import { ROUTES } from '../../constants/routes';
 import { HERO_PORTRAIT, HERO_VIDEO } from '../../constants/landingMedia';
 import styles from './Hero.module.css';
 
-// Hero: the promise on the left; on the right a smiling merchant set in a
-// curved emerald cut-out, with a live video preview of a real POS checkout
-// overlapping it. All media is local (public/assets). If the video can't
-// play, its poster frame stays — never an empty box.
+// Emerald hero: a short promise on the left; on the right a smiling merchant
+// in a curved arch cut-out with a live checkout video overlapping it. All
+// media is local (public/assets). If the video can't play, its poster stays.
 function Hero() {
   const { t } = useTranslation('landing');
   const [videoFailed, setVideoFailed] = useState(false);
-  const points = t('hero.points', { returnObjects: true });
 
   return (
     <section className={styles.hero}>
+      <span className={`${styles.glow} ${styles.glowA}`} aria-hidden="true" />
+      <span className={`${styles.glow} ${styles.glowB}`} aria-hidden="true" />
+      <span className={`${styles.glow} ${styles.glowC}`} aria-hidden="true" />
+
       <div className={styles.grid}>
         <div className={styles.copy}>
           <span className={`${styles.eyebrow} ${styles.enter}`}>{t('hero.eyebrow')}</span>
           <h1 className={`${styles.title} ${styles.enter}`}>{t('hero.title')}</h1>
           <p className={`${styles.subtitle} ${styles.enter}`}>{t('hero.subtitle')}</p>
 
-          {Array.isArray(points) && (
-            <ul className={`${styles.points} ${styles.enter}`}>
-              {points.map((point) => (
-                <li key={point}><FiCheckCircle aria-hidden="true" /> {point}</li>
-              ))}
-            </ul>
-          )}
-
           <div className={`${styles.actions} ${styles.enter}`}>
-            <Link to={ROUTES.REGISTER} className="btn btn-primary btn-lg">
+            <Link to={ROUTES.REGISTER} className={`btn btn-lg ${styles.ctaPrimary}`}>
               {t('hero.ctaPrimary')} <FiArrowRight aria-hidden="true" />
             </Link>
             {/* Plain anchor: a same-page scroll, not a route change. */}
-            <a href="#business-types" className="btn btn-outline btn-lg">{t('hero.ctaSecondary')}</a>
+            <a href="#business-types" className={`btn btn-lg ${styles.ctaSecondary}`}>{t('hero.ctaSecondary')}</a>
           </div>
 
           <p className={`${styles.note} ${styles.enter}`}>{t('hero.noCreditCard')}</p>
         </div>
 
         <div className={styles.visual}>
-          <span className={styles.blob} aria-hidden="true" />
-          <span className={styles.ring} aria-hidden="true" />
+          <span className={styles.arch} aria-hidden="true" />
 
           <figure className={styles.portrait}>
             <img
@@ -90,13 +83,6 @@ function Hero() {
           </span>
         </div>
       </div>
-
-      <p className={styles.credits}>
-        {t('heroCredits', {
-          portrait: `${HERO_PORTRAIT.credit.name} / ${HERO_PORTRAIT.credit.site}`,
-          video: `${HERO_VIDEO.credit.name} / ${HERO_VIDEO.credit.site}`,
-        })}
-      </p>
     </section>
   );
 }

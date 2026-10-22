@@ -10,10 +10,10 @@
   min-width: 0;
   padding: 0 0 var(--space-4);
   overflow: hidden;
-  background-color: var(--card-surface);
-  border: 1px solid var(--border-color);
+  background-color: var(--panel-bg);
+  border: 1px solid #e2e8f0;
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
   transition:
     box-shadow var(--dur-base) var(--ease-out),
     border-color var(--dur-base) var(--ease-out),
@@ -24,12 +24,10 @@
   border-color: var(--border-strong);
 }
 
-/* Dark navy accent header */
 .top {
   display: flex;
   align-items: center;
-  padding: var(--space-2) var(--space-4);
-  background-color: var(--color-navy-900);
+  padding: var(--space-3) var(--space-4) 0;
   justify-content: space-between;
   gap: var(--space-3);
   min-width: 0;
@@ -40,7 +38,7 @@
   font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
   line-height: var(--lh-snug);
-  color: #e2e8f0;
+  color: var(--text-muted);
 }
 
 .icon {
@@ -50,8 +48,8 @@
   width: 30px;
   height: 30px;
   border-radius: var(--radius-lg);
-  background-color: rgb(255 255 255 / 0.08);
-  color: #6ee7b7;
+  background-color: var(--accent-soft);
+  color: var(--accent);
 }
 
 .icon svg {

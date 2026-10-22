@@ -48,11 +48,12 @@ function prepareSlices(data, palette, otherColor, otherLabel) {
   }));
 }
 
-function DoughnutChart({ data, valueFormatter = (v) => v }) {
+// `colors` optionally overrides the slice palette (module dashboards).
+function DoughnutChart({ data, valueFormatter = (v) => v, colors }) {
   const { t } = useTranslation('common');
   const chartColors = useChartTheme();
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const slices = prepareSlices(data || [], chartColors.doughnut, chartColors.doughnutOther, t('chart.other'));
+  const slices = prepareSlices(data || [], colors || chartColors.doughnut, chartColors.doughnutOther, t('chart.other'));
   const total = slices.reduce((sum, s) => sum + s.value, 0);
   const hovered = hoveredIndex !== null ? slices[hoveredIndex] : null;
 

@@ -1,76 +1,100 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiX, FiArrowRight, FiLogIn } from 'react-icons/fi';
 import { ROUTES } from '../../constants/routes';
+import styles from './LandingNav.module.css';
 
+const SECTIONS = [
+  { href: '#business-types', key: 'nav.businessTypes' },
+  { href: '#pricing', key: 'nav.pricing' },
+  { href: '#how-it-works', key: 'nav.howItWorks' },
+];
+
+// Sticky top bar. Desktop: inline links + Login + Start Trial. Mobile: a
+// solid, opaque slide-in drawer (sections, then Start Trial with Login
+// directly below) over a full-screen overlay. The header itself uses no
+// backdrop-filter, so the fixed drawer is positioned against the viewport.
 function LandingNav() {
   const { t } = useTranslation('landing');
   const [open, setOpen] = useState(false);
+  const closeMenu = () => setOpen(false);
 
-  // Locks page scroll behind the mobile menu while it's open — without
-  // this, a visitor could scroll the hero/sections underneath through the
-  // fixed menu panel. Restored on close and on unmount, never left stuck.
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [open]);
-
-  // Escape closes the open mobile menu, matching the overlay/outside-click
-  // dismissal below — a keyboard user shouldn't need to tab to the close
-  // button just to get back to the page.
   useEffect(() => {
     if (!open) return undefined;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') setOpen(false);
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [open]);
 
-  const closeMenu = () => setOpen(false);
-
   return (
-    <header className="landing-nav">
-      <div className="landing-nav-inner">
-        <a href="#top" className="landing-brand" onClick={closeMenu}>Clix Sales System</a>
+    <header className={styles.nav}>
+      <div className={styles.inner}>
+        <a href="#top" className={styles.brand} onClick={closeMenu}>
+          <span className={styles.brandMark} aria-hidden="true">C</span>
+          <span>Clix Sales System</span>
+        </a>
 
-        {/* Dims and blocks the page behind the open mobile menu, and gives
-            a click-outside-to-close target — a real backdrop, not just a
-            dropdown floating over unblocked content. Desktop never renders
-            this open (menu is always visible inline there), so it's inert
-            above the 768px breakpoint. */}
-        {open && <button type="button" className="landing-nav-overlay" aria-label="Close menu" onClick={closeMenu} />}
-
-        <nav className={`landing-nav-links ${open ? 'is-open' : ''}`}>
-          {/* No standalone "Platform" nav item — its target (id="platform",
-              Benefits.jsx) was removed, and repointing it to
-              #business-types would just duplicate the link right below.
-              Business Types is the first real section now, so it starts
-              the list. */}
-          <a href="#business-types" onClick={closeMenu}>{t('nav.businessTypes')}</a>
-          <a href="#pricing" onClick={closeMenu}>{t('nav.pricing')}</a>
-          <a href="#how-it-works" onClick={closeMenu}>{t('nav.howItWorks')}</a>
-          <Link to={ROUTES.LOGIN} className="landing-nav-login" onClick={closeMenu}>{t('nav.login')}</Link>
-          <Link to={ROUTES.REGISTER} className="btn btn-primary" onClick={closeMenu}>{t('nav.startTrial')}</Link>
+        <nav className={styles.desktopLinks} aria-label={t('nav.menuLabel')}>
+          {SECTIONS.map((section) => (
+            <a key={section.href} href={section.href} className={styles.link}>{t(section.key)}</a>
+          ))}
         </nav>
+
+        <div className={styles.desktopActions}>
+          <Link to={ROUTES.LOGIN} className={styles.loginLink}>{t('nav.login')}</Link>
+          <Link to={ROUTES.REGISTER} className="btn btn-primary">{t('nav.startTrial')}</Link>
+        </div>
 
         <button
           type="button"
-          className="landing-nav-toggle"
-          aria-label={open ? 'Close menu' : 'Open menu'}
+          className={styles.toggle}
+          aria-label={open ? t('nav.closeMenu') : t('nav.openMenu')}
           aria-expanded={open}
+          aria-controls="landing-mobile-menu"
           onClick={() => setOpen((prev) => !prev)}
         >
-          {open ? <FiX /> : <FiMenu />}
+          {open ? <FiX aria-hidden="true" /> : <FiMenu aria-hidden="true" />}
         </button>
       </div>
+
+      <div className={styles.overlay} data-open={open} onClick={closeMenu} aria-hidden="true" />
+
+      <aside id="landing-mobile-menu" className={styles.drawer} data-open={open} inert={!open} aria-label={t('nav.menuLabel')}>
+        <div className={styles.drawerHeader}>
+          <span className={styles.brand}>
+            <span className={styles.brandMark} aria-hidden="true">C</span>
+            <span>Clix Sales System</span>
+          </span>
+          <button type="button" className={styles.closeBtn} onClick={closeMenu} aria-label={t('nav.closeMenu')}>
+            <FiX aria-hidden="true" />
+          </button>
+        </div>
+
+        <nav className={styles.drawerLinks}>
+          {SECTIONS.map((section) => (
+            <a key={section.href} href={section.href} className={styles.drawerLink} onClick={closeMenu}>
+              {t(section.key)} <FiArrowRight aria-hidden="true" />
+            </a>
+          ))}
+        </nav>
+
+        <div className={styles.drawerActions}>
+          <Link to={ROUTES.REGISTER} className="btn btn-primary btn-lg btn-block" onClick={closeMenu}>
+            {t('nav.startTrial')}
+          </Link>
+          <Link to={ROUTES.LOGIN} className="btn btn-outline btn-lg btn-block" onClick={closeMenu}>
+            <FiLogIn aria-hidden="true" /> {t('nav.login')}
+          </Link>
+        </div>
+      </aside>
     </header>
   );
 }

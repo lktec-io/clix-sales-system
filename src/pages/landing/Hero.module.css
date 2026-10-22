@@ -1,18 +1,66 @@
-/* Landing hero — emerald & slate. Curved cut-outs use clip-path (the 5px
-   radius rule applies to border-radius only). Fixed palette: the public
-   page never follows in-app tokens. */
+/* Landing hero — dark emerald gradient with a curved lower edge and soft
+   ambient glows. Curves use clip-path / ellipses (the 5px radius rule
+   applies to border-radius only). Fixed palette: the public page never
+   follows in-app tokens. */
 
 .hero {
   position: relative;
   overflow: hidden;
-  padding: clamp(40px, 6vw, 96px) clamp(16px, 4vw, 48px) 24px;
-  background-color: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  color: #0f172a;
+  padding: clamp(48px, 7vw, 104px) clamp(16px, 4vw, 48px) clamp(88px, 10vw, 140px);
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 45%, #047857 100%);
+  color: #ffffff;
   font-family: "Quicksand", "Segoe UI", system-ui, sans-serif;
+  /* Curved bottom edge */
+  clip-path: ellipse(140% 100% at 50% 0%);
+}
+
+/* ---------- Ambient glows ---------- */
+
+.glow {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(60px);
+  clip-path: circle(50%);
+}
+
+.glowA {
+  top: -12%;
+  right: -6%;
+  width: 46vw;
+  max-width: 620px;
+  aspect-ratio: 1;
+  background-color: rgb(52 211 153 / 0.35);
+  animation: glowDrift 14s ease-in-out infinite alternate;
+}
+
+.glowB {
+  bottom: 4%;
+  left: -10%;
+  width: 34vw;
+  max-width: 460px;
+  aspect-ratio: 1;
+  background-color: rgb(16 185 129 / 0.28);
+  animation: glowDrift 18s ease-in-out infinite alternate-reverse;
+}
+
+.glowC {
+  top: 30%;
+  left: 38%;
+  width: 18vw;
+  max-width: 240px;
+  aspect-ratio: 1;
+  background-color: rgb(167 243 208 / 0.18);
+}
+
+@keyframes glowDrift {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-24px, 18px); }
 }
 
 .grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
@@ -27,73 +75,74 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 16px;
+  gap: 18px;
   min-width: 0;
 }
 
 .eyebrow {
   padding: 6px 12px;
-  border: 1px solid #a7f3d0;
+  border: 1px solid rgb(167 243 208 / 0.4);
   border-radius: 5px;
-  background-color: #ecfdf5;
-  color: #047857;
+  background-color: rgb(255 255 255 / 0.08);
+  color: #a7f3d0;
   font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .title {
   font-family: "Quicksand", "Segoe UI", system-ui, sans-serif;
-  font-size: clamp(2rem, 2.8vw + 1rem, 3.3rem);
+  font-size: clamp(2.1rem, 3vw + 1rem, 3.6rem);
   font-weight: 700;
-  line-height: 1.1;
-  color: #064e3b;
+  line-height: 1.08;
+  color: #ffffff;
   text-wrap: balance;
 }
 
 .subtitle {
-  max-width: 560px;
-  font-size: 1.0625rem;
+  max-width: 480px;
+  font-size: 1.125rem;
   font-weight: 500;
-  line-height: 1.65;
-  color: #475569;
-}
-
-.points {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.points li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: #334155;
-}
-
-.points svg {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  color: #047857;
+  line-height: 1.6;
+  color: #d1fae5;
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 6px;
+}
+
+.ctaPrimary {
+  background-color: #ffffff;
+  border-color: #ffffff;
+  color: #064e3b;
+  font-weight: 700;
+}
+
+.ctaPrimary:hover {
+  background-color: #ecfdf5;
+  border-color: #ecfdf5;
+  color: #064e3b;
+}
+
+.ctaSecondary {
+  background-color: transparent;
+  border-color: rgb(255 255 255 / 0.5);
+  color: #ffffff;
+}
+
+.ctaSecondary:hover {
+  background-color: rgb(255 255 255 / 0.1);
+  border-color: #ffffff;
+  color: #ffffff;
 }
 
 .note {
   font-size: 0.8125rem;
-  color: #64748b;
+  color: #a7f3d0;
 }
 
 /* ---------- Visual composition ---------- */
@@ -104,31 +153,22 @@
   min-height: clamp(380px, 46vw, 560px);
 }
 
-/* Emerald backdrop behind the portrait — a soft organic curve. */
-.blob {
-  position: absolute;
-  inset: 6% 2% 4% 14%;
-  background-color: #047857;
-  clip-path: ellipse(48% 50% at 52% 50%);
-  animation: heroScale 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-.ring {
+/* Soft emerald arch behind the portrait. */
+.arch {
   position: absolute;
   top: 0;
-  right: 4%;
-  width: 34%;
-  aspect-ratio: 1;
-  background-color: #a7f3d0;
-  clip-path: circle(50%);
-  opacity: 0.55;
-  animation: heroFade 900ms ease-out 200ms both;
+  right: 8%;
+  width: 70%;
+  height: 96%;
+  background: linear-gradient(180deg, rgb(110 231 183 / 0.45), rgb(16 185 129 / 0.15));
+  clip-path: inset(0 round 999px 999px 18px 18px);
+  animation: heroScale 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 /* Merchant portrait in an arch cut-out. */
 .portrait {
   position: absolute;
-  top: 2%;
+  top: 4%;
   right: 12%;
   width: 62%;
   margin: 0;
@@ -156,7 +196,6 @@
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 5px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
   animation: heroRise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 280ms both;
   transition: transform 200ms ease;
 }
@@ -206,7 +245,6 @@
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 5px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
   font-size: 0.8125rem;
   font-weight: 600;
   color: #334155;
@@ -220,14 +258,6 @@
   color: #047857;
 }
 
-.credits {
-  max-width: 1200px;
-  margin: 24px auto 0;
-  font-size: 0.6875rem;
-  color: #94a3b8;
-  text-align: right;
-}
-
 /* ---------- Entrance ---------- */
 
 .enter {
@@ -238,7 +268,6 @@
 .copy > .enter:nth-child(3) { animation-delay: 120ms; }
 .copy > .enter:nth-child(4) { animation-delay: 180ms; }
 .copy > .enter:nth-child(5) { animation-delay: 240ms; }
-.copy > .enter:nth-child(6) { animation-delay: 300ms; }
 
 @keyframes heroRise {
   from {
@@ -250,10 +279,6 @@
     opacity: 1;
     transform: none;
   }
-}
-
-@keyframes heroFade {
-  from { opacity: 0; }
 }
 
 @keyframes heroScale {
@@ -270,11 +295,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .enter,
-  .blob,
-  .ring,
+  .arch,
   .portrait,
   .videoCard,
-  .badge {
+  .badge,
+  .glowA,
+  .glowB {
     animation: none;
   }
 }
@@ -282,6 +308,10 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 960px) {
+  .hero {
+    clip-path: ellipse(220% 100% at 50% 0%);
+  }
+
   .grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -310,9 +340,5 @@
   .badge {
     top: 4%;
     padding: 8px 10px;
-  }
-
-  .credits {
-    text-align: left;
   }
 }

@@ -220,5 +220,18 @@
     "walkIn": "Mteja wa papo hapo",
     "empty": "Hakuna mauzo yaliyorekodiwa bado",
     "loadError": "Oda za karibuni hazikuweza kupakiwa."
+  },
+  "moduleAnalytics": {
+    "monthlySales": "Ulinganisho wa mauzo kwa mwezi",
+    "monthlyReceipts": "Risiti kwa mwezi",
+    "expiryProfile": "Muda wa kuisha wa bechi",
+    "over90": "Zaidi ya siku 90",
+    "dispensingWeek": "Mauzo ya dawa — siku 7",
+    "revenueByHour": "Mapato ya leo kwa saa",
+    "ordersByStatus": "Oda za leo kwa hali",
+    "jobsPerDay": "Kazi zilizopokelewa — siku 7",
+    "repairPipeline": "Mfuatano wa matengenezo (siku 30)",
+    "portfolioStatus": "Mikopo kwa hali",
+    "collections": "Makusanyo — siku 14"
   }
 }

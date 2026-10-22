@@ -5,12 +5,15 @@
     "pricing": "Pricing",
     "howItWorks": "How It Works",
     "login": "Log In",
-    "startTrial": "Start Free Trial"
+    "startTrial": "Start Free Trial",
+    "menuLabel": "Main menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "hero": {
-    "eyebrow": "Business Management Platform",
-    "title": "Built to Run Your Business, Not Just Track It",
-    "subtitle": "Clix Sales System handles sales, inventory, purchases, customers and daily operations for retail stores, pharmacies, restaurants, microfinance institutions, electronics repair shops and beauty retailers — in one system, in English or Kiswahili.",
+    "eyebrow": "Clix Sales System",
+    "title": "Run your business from one screen.",
+    "subtitle": "Sales, stock and reports for shops, pharmacies, restaurants, repair centres and lenders.",
     "ctaPrimary": "Start Free Trial",
     "ctaSecondary": "Explore Platform",
     "noCreditCard": "No credit card required · 7-day free trial",
@@ -25,11 +28,6 @@
       "caption": "Retail Store · Dashboard",
       "note": "Sample data for illustration only"
     },
-    "points": [
-      "Sell at the counter with barcode scanning and instant receipts",
-      "Stock, expiry dates, repairs, loans or restaurant tables — built for your business type",
-      "English and Kiswahili, on phone, tablet or desktop"
-    ],
     "videoAlt": "A cashier ringing up a customer's groceries at a shop counter with a POS terminal",
     "videoCaption": "Real checkout at a shop counter",
     "portraitAlt": "A smiling shop owner at her counter in Dar es Salaam",
@@ -184,7 +182,5 @@
     "product": "Product",
     "company": "Company",
     "rights": "All rights reserved."
-  },
-  "mediaCredit": "Photo/video: {{name}} on {{site}}",
-  "heroCredits": "Photo: {{portrait}} · Video: {{video}}"
+  }
 }

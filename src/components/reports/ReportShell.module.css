@@ -132,10 +132,10 @@
   gap: 4px;
   min-width: 0;
   padding: var(--space-3) var(--space-4);
-  background-color: var(--card-surface);
-  border: 1px solid var(--border-color);
-  border-left: 3px solid var(--color-navy-900);
-  box-shadow: var(--shadow-xs);
+  background-color: var(--panel-bg);
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid var(--accent);
+  box-shadow: none;
 }
 
 .stat[data-tone='positive'] { border-left-color: var(--color-success); }
@@ -183,9 +183,9 @@
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  background-color: var(--card-surface);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-xs);
+  background-color: var(--panel-bg);
+  border: 1px solid #e2e8f0;
+  box-shadow: none;
 }
 
 .sectionWide {
@@ -200,17 +200,18 @@
   gap: var(--space-2);
   min-height: 46px;
   padding: var(--space-2) var(--space-4);
-  background-color: var(--color-navy-900);
+  background-color: transparent;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .sectionTitle {
   font-size: var(--fs-base);
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-navy-900);
 }
 
 .sectionActions :global(.btn) {
-  color: #e2e8f0;
+  color: var(--accent-text);
 }
 
 .sectionBody {

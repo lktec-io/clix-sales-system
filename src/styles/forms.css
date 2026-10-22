@@ -61,7 +61,7 @@
 
 .form-control:focus {
   outline: none;
-  border-color: var(--brand-navy);
+  border-color: var(--accent);
   box-shadow: var(--accent-ring);
 }
 

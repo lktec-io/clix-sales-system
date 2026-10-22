@@ -1,7 +1,6 @@
 // Landing page media — every file is served locally from public/assets (no
-// hotlinking). Sources and licences are listed in public/assets/CREDITS.md;
-// all are free to use (Unsplash License / Pexels License), credits shown on
-// the page as a courtesy.
+// hotlinking). Sources and licences (Unsplash License / Pexels License, no
+// attribution required) are recorded in docs/MEDIA_CREDITS.md, not on the UI.
 
 const businessImage = (slug, credit) => ({
   src: `/assets/images/business-${slug}-800.webp`,
