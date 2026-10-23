@@ -90,8 +90,8 @@
 }
 
 .pill[aria-pressed='true'] {
-  background-color: var(--brand-navy);
-  border-color: var(--brand-navy);
+  background-color: var(--c-blue);
+  border-color: var(--c-blue);
   color: #ffffff;
   box-shadow: none;
 }

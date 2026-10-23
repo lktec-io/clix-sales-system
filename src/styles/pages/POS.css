@@ -379,3 +379,9 @@
     min-height: var(--tap-min);
   }
 }
+
+/* Discounts use the amber accent. */
+.pos-totals-row-input label {
+  color: #92400e;
+  font-weight: 600;
+}

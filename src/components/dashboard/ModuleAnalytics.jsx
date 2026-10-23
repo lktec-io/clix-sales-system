@@ -19,12 +19,14 @@ import styles from './ModuleAnalytics.module.css';
 // Per-industry accent + doughnut palette — each module reads as its own
 // product while sharing the Clix layout.
 const MODULE_THEME = {
-  retail: { accent: '#047857', palette: ['#047857', '#10B981', '#6EE7B7', '#0F172A', '#94A3B8', '#CBD5E1'] },
-  cosmetics: { accent: '#9D4B73', palette: ['#9D4B73', '#C27BA0', '#E8B7CF', '#0F172A', '#94A3B8', '#CBD5E1'] },
-  repair: { accent: '#1E40AF', palette: ['#1E40AF', '#2563EB', '#93C5FD', '#28A745', '#DC3545', '#94A3B8'] },
-  loans: { accent: '#0F766E', palette: ['#0F766E', '#14B8A6', '#99F6E4', '#28A745', '#DC3545', '#94A3B8'] },
-  pharmacy: { accent: '#15803D', palette: ['#DC3545', '#F59E0B', '#15803D', '#86EFAC', '#94A3B8', '#CBD5E1'] },
-  restaurant: { accent: '#B45309', palette: ['#B45309', '#D97706', '#FCD34D', '#28A745', '#DC3545', '#94A3B8'] },
+  // Palette roles: emerald = paid/checkout, blue = system, rose = alerts,
+  // amber = pending/highlights, navy = structure.
+  retail: { accent: '#047857', palette: ['#047857', '#2563EB', '#D97706', '#E11D48', '#0F172A', '#94A3B8'] },
+  cosmetics: { accent: '#E11D48', palette: ['#E11D48', '#F43F5E', '#2563EB', '#D97706', '#0F172A', '#94A3B8'] },
+  repair: { accent: '#2563EB', palette: ['#94A3B8', '#D97706', '#2563EB', '#0F172A', '#047857', '#E11D48'] },
+  loans: { accent: '#D97706', palette: ['#2563EB', '#047857', '#E11D48', '#0F172A', '#D97706', '#94A3B8'] },
+  pharmacy: { accent: '#047857', palette: ['#E11D48', '#D97706', '#2563EB', '#047857', '#94A3B8', '#CBD5E1'] },
+  restaurant: { accent: '#D97706', palette: ['#D97706', '#F59E0B', '#2563EB', '#0F172A', '#047857', '#E11D48'] },
 };
 
 const useDayLabel = () => {

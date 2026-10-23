@@ -32,7 +32,7 @@
 
   /* Text */
   --color-text-primary: var(--color-navy-900);
-  --color-text-secondary: var(--color-charcoal-500);
+  --color-text-secondary: var(--text-muted);
   --color-text-inverse: #ffffff;
   --color-text-on-sidebar: var(--color-steel-400);
   --color-icon: var(--color-charcoal-700);

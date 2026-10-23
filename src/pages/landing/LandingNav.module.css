@@ -6,7 +6,7 @@
   z-index: 400;
   background-color: #ffffff;
   border-bottom: 1px solid #e2e8f0;
-  font-family: "Quicksand", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-body);
 }
 
 .inner {

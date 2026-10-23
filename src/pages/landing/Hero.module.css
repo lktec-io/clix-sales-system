@@ -9,7 +9,7 @@
   padding: clamp(48px, 7vw, 104px) clamp(16px, 4vw, 48px) clamp(88px, 10vw, 140px);
   background: linear-gradient(135deg, #064e3b 0%, #065f46 45%, #047857 100%);
   color: #ffffff;
-  font-family: "Quicksand", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-body);
   /* Curved bottom edge */
   clip-path: ellipse(140% 100% at 50% 0%);
 }
@@ -92,7 +92,7 @@
 }
 
 .title {
-  font-family: "Quicksand", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-heading);
   font-size: clamp(2.1rem, 3vw + 1rem, 3.6rem);
   font-weight: 700;
   line-height: 1.08;

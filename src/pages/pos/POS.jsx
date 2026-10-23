@@ -762,7 +762,7 @@ function POS() {
 
           <button
             type="button"
-            className={`btn btn-primary btn-lg ${isCheckingOut ? 'btn-loading' : ''}`}
+            className={`btn btn-success btn-lg ${isCheckingOut ? 'btn-loading' : ''}`}
             disabled={!canCheckout}
             onClick={handleCheckout}
           >

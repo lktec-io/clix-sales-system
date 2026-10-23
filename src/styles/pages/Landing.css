@@ -1275,3 +1275,32 @@
     transform: none;
   }
 }
+
+/* Final CTA sits on dark emerald — invert the button so it stands out:
+   white fill, deep-emerald text (9.8:1). */
+.landing-final-cta .btn-primary,
+.landing-final-cta .btn-primary:hover {
+  background-color: #ffffff;
+  border-color: #ffffff;
+  color: #064e3b;
+}
+
+.landing-final-cta .btn-primary:hover {
+  background-color: #ecfdf5;
+  border-color: #ecfdf5;
+}
+
+.landing-final-cta-login {
+  color: #d1fae5;
+}
+
+/* Typography on the public page follows the app's 4-font hierarchy. */
+.landing-page {
+  font-family: var(--font-body);
+}
+
+.landing-page h1,
+.landing-page h2,
+.landing-page h3 {
+  font-family: var(--font-heading);
+}

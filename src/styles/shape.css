@@ -52,3 +52,43 @@ a.btn,
 [role='tab'] {
   text-decoration: none !important;
 }
+
+/* ===================== Typography hierarchy =====================
+   Loaded last so it wins over the legacy layer; any component class that
+   sets its own font (e.g. monospace figures) still wins over these. */
+body {
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+h1, h2, h3, h4, h5, h6,
+.page-title,
+.card-title,
+.modal-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.page-subtitle,
+p {
+  color: inherit;
+}
+
+/* Interactive controls — Outfit, semibold, slightly tracked. */
+button,
+.btn,
+.badge,
+[role='tab'],
+.table thead th,
+.pagination-indicator {
+  font-family: var(--font-control);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.badge,
+.table thead th {
+  text-transform: uppercase;
+}

@@ -456,3 +456,16 @@
     print-color-adjust: exact;
   }
 }
+
+/* Job card uniformity — light-grey panels, 1px border, no shadow; the
+   repair module's blue accent marks the hero card. */
+.repair-detail-page .card,
+.repair-stepper-wrapper {
+  background-color: var(--panel-bg);
+  border: 1px solid #e2e8f0;
+  box-shadow: none;
+}
+
+.repair-hero::before {
+  background: var(--c-blue);
+}

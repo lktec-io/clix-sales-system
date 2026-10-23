@@ -120,7 +120,7 @@ function Login() {
           </Link>
         </div>
 
-        <button type="submit" className={`btn btn-primary btn-block btn-lg ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting} aria-busy={isSubmitting}>
+        <button type="submit" className={`btn btn-success btn-block btn-lg ${isSubmitting ? 'btn-loading' : ''}`} disabled={isSubmitting} aria-busy={isSubmitting}>
           {t('login.signIn')}
         </button>
       </form>

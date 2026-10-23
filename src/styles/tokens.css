@@ -27,28 +27,42 @@
   --color-surface: var(--color-white);
   --color-border: #e2e8f0;
 
-  --color-success: #28a745;
-  --color-success-text: #1e7e34;
-  --color-success-bg: #eaf6ec;
-  --color-success-border: #c3e6cb;
+  /* 5-colour accent palette */
+  --c-emerald: #047857;        /* checkout, paid, conversion CTAs */
+  --c-emerald-bright: #10b981;
+  --c-navy: #0f172a;           /* sidebar, dark navigation, hero badges */
+  --c-navy-2: #1e293b;
+  --c-blue: #1d4ed8;           /* system actions, info, active states */
+  --c-blue-bright: #2563eb;
+  --c-rose: #e11d48;           /* delete / cancel, expiry alerts, cosmetics */
+  --c-rose-bright: #f43f5e;
+  --c-amber: #d97706;          /* pending, discounts, microfinance & restaurant */
+  --c-amber-bright: #f59e0b;
 
-  --color-warning: #ffc107;
-  --color-warning-text: #856404;
-  --color-warning-bg: #fff8e1;
-  --color-warning-border: #ffeeba;
+  /* Status (fill / text on bg / bg / border) — text pairs pass WCAG AA */
+  --color-success: #047857;
+  --color-success-text: #047857;       /* 5.2:1 on #ecfdf5 */
+  --color-success-bg: #ecfdf5;
+  --color-success-border: #a7f3d0;
 
-  --color-danger: #dc3545;
-  --color-danger-text: #bd2130;
-  --color-danger-bg: #fdf2f3;
-  --color-danger-border: #f5c6cb;
+  --color-warning: #d97706;
+  --color-warning-text: #92400e;       /* 7.0:1 on #fffbeb */
+  --color-warning-bg: #fffbeb;
+  --color-warning-border: #fde68a;
 
-  --color-info: #2563eb;
+  --color-danger: #e11d48;
+  --color-danger-text: #be123c;        /* 5.6:1 on #fff1f2 */
+  --color-danger-bg: #fff1f2;
+  --color-danger-border: #fecdd3;
+
+  --color-info: #1d4ed8;               /* 6.3:1 on #eff6ff */
   --color-info-bg: #eff6ff;
   --color-info-border: #bfdbfe;
 
-  /* Typography */
-  --font-heading: "Quicksand", "Segoe UI", system-ui, sans-serif;
-  --font-body: "Quicksand", "Segoe UI", system-ui, sans-serif;
+  /* Typography — 4-font hierarchy */
+  --font-heading: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-control: "Outfit", "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Consolas", monospace;
 
   /* Strict Shapes */
@@ -65,23 +79,23 @@
 :root {
   color-scheme: light;
 
-  /* Brand — slate/navy structure, emerald for actions & active states */
+  /* Brand — navy structure; blue system actions; emerald checkout */
   --emerald-900: #064e3b;
   --emerald-700: #047857;
   --emerald-600: #059669;
   --emerald-50: #ecfdf5;
   --brand-navy: var(--color-navy-900);
   --brand-navy-2: var(--color-charcoal-900);
-  --accent: var(--emerald-700);                /* primary buttons, active states */
-  --accent-hover: var(--emerald-900);
-  --on-accent: var(--color-white);             /* white on #047857 → 5.5:1 */
-  --accent-soft: var(--emerald-50);
-  --accent-text: var(--emerald-700);
-  --accent-ring: 0 0 0 3px rgb(4 120 87 / 0.25);
+  --accent: var(--c-blue);                     /* system actions, active states */
+  --accent-hover: #1e40af;
+  --on-accent: var(--color-white);             /* white on #1d4ed8 → 6.7:1 */
+  --accent-soft: #eff6ff;
+  --accent-text: var(--c-blue);
+  --accent-ring: 0 0 0 3px rgb(37 99 235 / 0.28);
 
   /* Success green — CTAs, growth, paid */
   --primary-green: var(--color-success);
-  --primary-green-hover: #218838;
+  --primary-green-hover: var(--emerald-900);
   --primary-green-strong: var(--color-success);
   --primary-green-text: var(--color-success-text);
   --primary-green-soft: var(--color-success-bg);
@@ -98,12 +112,13 @@
   --sidebar-text: var(--color-steel-100);
   --sidebar-text-muted: var(--color-steel-400);
   --sidebar-border: var(--color-charcoal-900);
-  --sidebar-active-text: #6ee7b7;
+  --sidebar-active-text: #93c5fd;
   --overlay: rgb(15 23 42 / 0.5);
 
   /* Text */
   --text-main: var(--color-navy-900);
-  --text-muted: var(--color-charcoal-500);     /* 4.8:1 on white */
+  --text-body: var(--color-charcoal-700);      /* #334155 — 10.4:1 on white */
+  --text-muted: #475569;                       /* 7.5:1 on white */
   --text-disabled: var(--color-steel-400);
 
   /* Lines & focus */
@@ -132,12 +147,12 @@
   --skeleton-base: #e2e8f0;
   --skeleton-highlight: #f1f5f9;
 
-  /* Charts (emerald / steel / blue / navy family — no orange) */
-  --chart-1: var(--emerald-700);
+  /* Charts — the 5-colour accent palette */
+  --chart-1: var(--c-emerald);
   --chart-2: var(--color-steel-400);
-  --chart-3: var(--color-success);
-  --chart-4: var(--color-slate-600);
-  --chart-5: var(--color-navy-900);
+  --chart-3: var(--c-blue-bright);
+  --chart-4: var(--c-amber);
+  --chart-5: var(--c-rose);
   --chart-grid: var(--color-steel-100);
   --chart-tooltip-bg: var(--color-navy-900);
   --chart-tooltip-text: #f8fafc;
@@ -154,7 +169,7 @@
   --fs-xl: clamp(1.25rem, 1.05rem + 0.8vw, 1.5rem);
   --fs-kpi: clamp(1.25rem, 1rem + 1vw, 1.75rem);
 
-  --fw-regular: 500;                           /* Quicksand reads thin below 500 */
+  --fw-regular: 500;                           /* body text weight */
   --fw-medium: 500;
   --fw-semibold: 600;
   --fw-bold: 700;                              /* ceiling — nothing heavier */
