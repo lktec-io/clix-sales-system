@@ -341,3 +341,11 @@
     box-shadow: none;
   }
 }
+
+/* Touch and phone widths: presets and date inputs reach 44px. */
+@media (pointer: coarse), (max-width: 767.98px) {
+  .preset,
+  .dateField input {
+    min-height: var(--tap-min);
+  }
+}

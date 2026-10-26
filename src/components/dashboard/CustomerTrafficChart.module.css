@@ -575,3 +575,9 @@
     animation: none;
   }
 }
+
+@media (pointer: coarse), (max-width: 767.98px) {
+  .segment {
+    min-height: var(--tap-min);
+  }
+}

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FiTrendingUp } from 'react-icons/fi';
 import { ReportShell, ReportSection, ReportGrid, ReportTable, BarList } from './ReportShell';
-import LoanCalculator from './LoanCalculator';
+import LoanSimulator from '../microfinance/LoanSimulator';
 import ProgressBar from '../common/ProgressBar';
 import * as loanService from '../../services/loanService';
 import { useReportLoader } from '../../hooks/useReportLoader';
@@ -163,7 +163,7 @@ function LoanReport() {
         </ReportSection>
 
         <ReportSection title={t('reports:business.loans.calculator')} wide>
-          <LoanCalculator />
+          <LoanSimulator />
         </ReportSection>
       </ReportGrid>
     </ReportShell>

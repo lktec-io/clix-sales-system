@@ -287,5 +287,110 @@
       "removeSuccess": "Mwanachama ameondolewa",
       "removeError": "Imeshindwa kuondoa mwanachama"
     }
+  },
+  "fintech": {
+    "tabs": {
+      "label": "Mionekano ya marejesho",
+      "desk": "Dawati la makusanyo",
+      "history": "Historia ya malipo"
+    },
+    "risk": {
+      "performing": "Inalipwa vizuri",
+      "paid": "Imelipwa",
+      "grace": "Muda wa neema",
+      "overdue": "Imechelewa",
+      "due": "Inadaiwa"
+    },
+    "health": {
+      "title": "Afya ya mkopo",
+      "paid": "Imelipwa {{percent}}%",
+      "remaining": "Imebaki {{percent}}%"
+    },
+    "calc": {
+      "title": "Kikokotoo cha mkopo",
+      "principal": "Kiasi cha mkopo (TZS)",
+      "rate": "Kiwango cha riba",
+      "rateBasis": "Msingi wa riba",
+      "perMonth": "Kwa mwezi",
+      "perAnnum": "Kwa mwaka",
+      "tenure": "Muda wa mkopo",
+      "tenureUnit": "Kipimo cha muda",
+      "frequency": "Mzunguko wa marejesho",
+      "startDate": "Tarehe ya kutoa mkopo",
+      "perInstallment": "Rejesho ({{frequency}})",
+      "installmentsCount_one": "Rejesho {{count}}",
+      "installmentsCount_other": "Marejesho {{count}}",
+      "installment": "Rejesho",
+      "totalInterest": "Jumla ya riba",
+      "totalRepayment": "Jumla ya kurejesha",
+      "systemRate": "Kiwango cha kuweka kwenye bidhaa ya mkopo",
+      "split": "Mgawanyo wa msingi na riba",
+      "scheduleTitle": "Ratiba ya marejesho",
+      "scheduled": "Imepangwa",
+      "printSummary": "Msingi {{principal}} · kiwango cha mfumo {{rate}}% ({{method}}) · marejesho {{count}} ya {{frequency}}",
+      "note": "Makadirio tu. Inatumia fomula ileile ya mfumo wakati mkopo unatolewa; riba ya flat huhifadhiwa kama % ya msingi kwa muda wote, riba ya salio linalopungua kwa mwaka."
+    },
+    "cashflow": {
+      "title": "Makusanyo yanayotarajiwa dhidi ya halisi",
+      "subtitle": "Marejesho yanayodaiwa dhidi ya yaliyopokelewa, siku 30 zilizopita.",
+      "expected": "Yanayotarajiwa",
+      "actual": "Yaliyopokelewa",
+      "rate": "Kiwango cha makusanyo"
+    },
+    "log": {
+      "title": "Daftari la makusanyo ya kila siku",
+      "subtitle": "Marejesho yanayodaiwa katika kipindi kilichochaguliwa, na hatua za haraka kwa maafisa wa nyanjani.",
+      "range": "Kipindi",
+      "ranges": {
+        "today": "Leo",
+        "yesterday": "Jana",
+        "week": "Wiki hii",
+        "custom": "Chagua tarehe"
+      },
+      "withArrears": "Jumuisha madeni ya nyuma",
+      "installments": "Marejesho",
+      "dueTotal": "Yanayodaiwa",
+      "collected": "Yaliyokusanywa",
+      "outstanding": "Bado yanadaiwa",
+      "due": "Inadaiwa",
+      "actions": "Hatua",
+      "empty": "Hakuna rejesho linalodaiwa katika kipindi hiki."
+    },
+    "actions": {
+      "record": "Rekodi malipo",
+      "sms": "Kumbusho la SMS",
+      "receipt": "Risiti"
+    },
+    "record": {
+      "installmentDue": "Kilichobaki kwenye rejesho",
+      "amountRequired": "Weka kiasi kikubwa kuliko sifuri.",
+      "allocationNote": "Malipo hupelekwa kwanza kwenye rejesho la zamani zaidi ambalo halijalipwa."
+    },
+    "sms": {
+      "title": "Hakiki ya kumbusho la SMS",
+      "to": "Kwa",
+      "noPhone": "Hakuna namba ya simu",
+      "copy": "Nakili ujumbe",
+      "open": "Fungua kwenye SMS",
+      "note": "Herufi {{count}}. Hakiki tu: mfumo hautumi ujumbe huu. Ufungue kwenye programu ya SMS ya simu yako au uunakili.",
+      "template": "Habari {{name}}, tunakukumbusha kuwa rejesho la mkopo wako {{loan}} la {{amount}} linadaiwa tarehe {{date}}. Asante. {{company}}"
+    },
+    "receipt": {
+      "title": "Risiti ya rejesho",
+      "latest": "Malipo ya mwisho kwenye mkopo huu",
+      "none": "Bado hakuna malipo kwenye mkopo huu",
+      "balanceAfter": "Salio la mkopo sasa"
+    },
+    "officers": {
+      "title": "Ulinganisho wa maafisa wa nyanjani",
+      "subtitle": "Fedha zilizopokelewa katika kipindi hiki, kwa mfanyakazi aliyezirekodi.",
+      "payments_one": "Malipo {{count}}",
+      "payments_other": "Malipo {{count}}",
+      "other": "Benki / hundi / mengine",
+      "staff": "Mfanyakazi #{{id}}",
+      "empty": "Hakuna marejesho yaliyorekodiwa katika kipindi hiki."
+    },
+    "truncated": "Mikopo ni mingi: mikopo hai 120 ya kwanza tu imejumuishwa.",
+    "loadError": "Imeshindwa kupakia ratiba za mikopo. Jaribu kuonyesha upya."
   }
 }

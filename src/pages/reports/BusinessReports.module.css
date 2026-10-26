@@ -39,3 +39,9 @@
   display: block;
   height: 320px;
 }
+
+@media (pointer: coarse), (max-width: 767.98px) {
+  .tab {
+    min-height: var(--tap-min);
+  }
+}

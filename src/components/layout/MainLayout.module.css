@@ -300,13 +300,6 @@
   object-fit: contain;
 }
 
-.brandName {
-  flex: 1;
-  font-size: var(--fs-md);
-  font-weight: var(--fw-semibold);
-  color: var(--sidebar-text);
-}
-
 .closeBtn {
   display: none;
   flex: none;
@@ -827,7 +820,7 @@
 }
 
 /* Touch devices: every navigation target is at least 44px tall. */
-@media (pointer: coarse) {
+@media (pointer: coarse), (max-width: 767.98px) {
   .navLink,
   .navSkeleton,
   .workspaceButton {

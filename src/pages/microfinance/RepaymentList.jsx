@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { FiPlus } from 'react-icons/fi';
+import { FiPlus, FiActivity, FiList } from 'react-icons/fi';
 import Table from '../../components/common/Table';
 import Pagination from '../../components/common/Pagination';
 import SearchInput from '../../components/common/SearchInput';
 import Modal from '../../components/common/Modal';
+import CollectionsDesk from '../../components/microfinance/CollectionsDesk';
 import { useTable } from '../../hooks/useTable';
 import { usePermission } from '../../hooks/usePermission';
 import { useToast } from '../../hooks/useToast';
@@ -17,6 +18,7 @@ function RepaymentList() {
   const canRecord = usePermission('loan_repayments.create');
   const toast = useToast();
   const [activeLoans, setActiveLoans] = useState([]);
+  const [view, setView] = useState('desk');
 
   const dateLocale = i18n.language === 'sw' ? 'sw-TZ' : 'en-TZ';
   const formatDate = (isoString) => new Date(isoString).toLocaleDateString(dateLocale, { dateStyle: 'medium' });
@@ -102,7 +104,18 @@ function RepaymentList() {
         )}
       </div>
 
-      <div className="card">
+      <div className="page-tabs" role="tablist" aria-label={t('microfinance:fintech.tabs.label')}>
+        <button type="button" role="tab" aria-selected={view === 'desk'} className={`page-tab ${view === 'desk' ? 'page-tab-active' : ''}`} onClick={() => setView('desk')}>
+          <FiActivity aria-hidden="true" /> {t('microfinance:fintech.tabs.desk')}
+        </button>
+        <button type="button" role="tab" aria-selected={view === 'history'} className={`page-tab ${view === 'history' ? 'page-tab-active' : ''}`} onClick={() => setView('history')}>
+          <FiList aria-hidden="true" /> {t('microfinance:fintech.tabs.history')}
+        </button>
+      </div>
+
+      {view === 'desk' && <CollectionsDesk />}
+
+      <div className="card" hidden={view !== 'history'}>
         <div className="table-toolbar">
           <SearchInput value={search} onChange={setSearch} placeholder={t('microfinance:loans.list.searchPlaceholder')} />
         </div>

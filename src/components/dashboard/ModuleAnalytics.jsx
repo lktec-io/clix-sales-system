@@ -14,6 +14,9 @@ import * as repairService from '../../services/repairService';
 import * as loanService from '../../services/loanService';
 import { fetchAllPages, presetRange, eachDay, toDayKey, inRange, sum } from '../../utils/reportData';
 import { formatCurrency, formatNumber } from '../../utils/formatCurrency';
+import { useCollectionsBook, useRepaymentsSince } from '../../hooks/useCollectionsBook';
+import CashflowChart from '../microfinance/CashflowChart';
+import LoanSimulator from '../microfinance/LoanSimulator';
 import styles from './ModuleAnalytics.module.css';
 
 // Per-industry accent + doughnut palette — each module reads as its own
@@ -200,43 +203,36 @@ function RepairAnalytics({ theme }) {
 }
 
 // ---------------------------------------------------------------------------
-// Microfinance — portfolio by status + collections over the last 14 days.
+// Microfinance — expected vs actual collections (30 days), portfolio by
+// status, and the loan simulator.
 // ---------------------------------------------------------------------------
 function LoanAnalytics({ theme }) {
   const { t } = useTranslation(['dashboard', 'microfinance']);
-  const dayLabel = useDayLabel();
-  const window14 = presetRange('14d');
+  const window30 = presetRange('30d');
 
+  const book = useCollectionsBook(window30.from);
+  const repayments = useRepaymentsSince(window30.from);
   const loans = useReportLoader(() => fetchAllPages(({ page, limit }) => loanService.listLoans({ page, limit }), { maxPages: 10 }), []);
-  const repayments = useReportLoader(async () => {
-    const { items } = await fetchAllPages(
-      ({ page, limit }) => loanService.listRepayments({ page, limit }),
-      { isBeforeRange: (row) => toDayKey(row.created_at) < window14.from, maxPages: 10 },
-    );
-    return items;
-  }, [window14.from]);
 
   const statusMix = ['active', 'completed', 'defaulted', 'written_off', 'approved', 'submitted']
     .map((status) => ({ label: t(`microfinance:loans.status.${status}`), value: (loans.data?.items || []).filter((l) => l.status === status).length }))
     .filter((s) => s.value > 0);
-  const days = eachDay(window14.from, window14.to);
-  const payments = repayments.data || [];
 
   return (
-    <div className={styles.row}>
-      <ChartCard title={t('dashboard:moduleAnalytics.portfolioStatus')} loading={loans.loading} empty={statusMix.length === 0}>
-        <DoughnutChart data={statusMix} valueFormatter={formatNumber} colors={theme.palette} />
-      </ChartCard>
-      <ChartCard title={t('dashboard:moduleAnalytics.collections')} loading={repayments.loading} empty={payments.length === 0}>
-        <BarChart
-          labels={days.map(dayLabel)}
-          values={days.map((day) => sum(payments.filter((p) => toDayKey(p.payment_date || p.created_at) === day), (p) => p.amount))}
-          color={theme.accent}
-          valueFormatter={formatCurrency}
-          height={260}
-        />
-      </ChartCard>
-    </div>
+    <>
+      <div className={styles.row}>
+        <ChartCard title={t('microfinance:fintech.cashflow.title')} loading={book.loading || repayments.loading}>
+          <CashflowChart loans={book.data?.loans || []} payments={repayments.data?.rows || []} from={window30.from} to={window30.to} />
+        </ChartCard>
+        <ChartCard title={t('dashboard:moduleAnalytics.portfolioStatus')} loading={loans.loading} empty={statusMix.length === 0}>
+          <DoughnutChart data={statusMix} valueFormatter={formatNumber} colors={theme.palette} />
+        </ChartCard>
+      </div>
+      <div className={`card ${styles.stack}`}>
+        <div className="card-header"><span className="card-title">{t('microfinance:fintech.calc.title')}</span></div>
+        <LoanSimulator />
+      </div>
+    </>
   );
 }
 

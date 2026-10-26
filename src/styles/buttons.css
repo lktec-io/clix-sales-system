@@ -7,7 +7,7 @@
      danger   rose     #e11d48 / white 4.7:1   delete, cancel
      warning  amber    #b45309 / white 5.0:1   pending, discounts
      dark     navy     #0f172a / white 17:1
-   Every size reaches a 44px hit area on touch devices (pointer: coarse). */
+   Every size reaches a 44px hit area on touch devices and phone-width viewports. */
 
 .btn {
   display: inline-flex;
@@ -176,7 +176,7 @@
 }
 
 /* Touch devices: every button is at least 44×44. */
-@media (pointer: coarse) {
+@media (pointer: coarse), (max-width: 767.98px) {
   .btn,
   .btn-sm,
   .btn-icon,

@@ -115,26 +115,26 @@
   margin-top: 6px;
 }
 
-.ctaPrimary {
+.actions .ctaPrimary {
   background-color: #ffffff;
   border-color: #ffffff;
   color: #064e3b;
   font-weight: 700;
 }
 
-.ctaPrimary:hover {
+.actions .ctaPrimary:hover {
   background-color: #ecfdf5;
   border-color: #ecfdf5;
   color: #064e3b;
 }
 
-.ctaSecondary {
+.actions .ctaSecondary {
   background-color: transparent;
   border-color: rgb(255 255 255 / 0.5);
   color: #ffffff;
 }
 
-.ctaSecondary:hover {
+.actions .ctaSecondary:hover {
   background-color: rgb(255 255 255 / 0.1);
   border-color: #ffffff;
   color: #ffffff;

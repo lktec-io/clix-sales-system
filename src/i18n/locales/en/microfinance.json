@@ -287,5 +287,110 @@
       "removeSuccess": "Member removed",
       "removeError": "Failed to remove member"
     }
+  },
+  "fintech": {
+    "tabs": {
+      "label": "Repayment views",
+      "desk": "Collections desk",
+      "history": "Payment history"
+    },
+    "risk": {
+      "performing": "Performing",
+      "paid": "Paid",
+      "grace": "Grace period",
+      "overdue": "Overdue",
+      "due": "Due"
+    },
+    "health": {
+      "title": "Loan health",
+      "paid": "Paid {{percent}}%",
+      "remaining": "Remaining {{percent}}%"
+    },
+    "calc": {
+      "title": "Loan simulator",
+      "principal": "Principal amount (TZS)",
+      "rate": "Interest rate",
+      "rateBasis": "Rate basis",
+      "perMonth": "Per month",
+      "perAnnum": "Per annum",
+      "tenure": "Tenure",
+      "tenureUnit": "Tenure unit",
+      "frequency": "Repayment frequency",
+      "startDate": "Disbursement date",
+      "perInstallment": "Installment ({{frequency}})",
+      "installmentsCount_one": "{{count}} installment",
+      "installmentsCount_other": "{{count}} installments",
+      "installment": "Installment",
+      "totalInterest": "Total interest payable",
+      "totalRepayment": "Total repayment",
+      "systemRate": "Rate to enter in loan product",
+      "split": "Principal vs interest split",
+      "scheduleTitle": "Amortization schedule",
+      "scheduled": "Scheduled",
+      "printSummary": "Principal {{principal}} · system rate {{rate}}% ({{method}}) · {{count}} {{frequency}} installments",
+      "note": "Estimate only. Uses the same formula the system applies when a loan is disbursed; flat rates are stored as % of principal for the whole term, reducing-balance rates per annum."
+    },
+    "cashflow": {
+      "title": "Expected vs actual collections",
+      "subtitle": "Installments falling due against repayments received, last 30 days.",
+      "expected": "Expected",
+      "actual": "Received",
+      "rate": "Collection rate"
+    },
+    "log": {
+      "title": "Daily collections log",
+      "subtitle": "Installments due in the selected period, with quick actions for field officers.",
+      "range": "Period",
+      "ranges": {
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "week": "This week",
+        "custom": "Custom range"
+      },
+      "withArrears": "Include earlier arrears",
+      "installments": "Installments",
+      "dueTotal": "Due",
+      "collected": "Collected",
+      "outstanding": "Still outstanding",
+      "due": "Due",
+      "actions": "Actions",
+      "empty": "Nothing falls due in this period."
+    },
+    "actions": {
+      "record": "Record payment",
+      "sms": "SMS reminder",
+      "receipt": "Receipt"
+    },
+    "record": {
+      "installmentDue": "Installment remaining",
+      "amountRequired": "Enter an amount greater than zero.",
+      "allocationNote": "Payments are applied to the oldest unpaid installment first."
+    },
+    "sms": {
+      "title": "SMS reminder preview",
+      "to": "To",
+      "noPhone": "No phone number on file",
+      "copy": "Copy text",
+      "open": "Open in SMS app",
+      "note": "{{count}} characters. Preview only: the system does not send this message. Open it in your phone's SMS app or copy it.",
+      "template": "Hello {{name}}, a reminder that your loan {{loan}} installment of {{amount}} is due on {{date}}. Thank you. {{company}}"
+    },
+    "receipt": {
+      "title": "Repayment receipt",
+      "latest": "Latest payment on this loan",
+      "none": "No payments recorded on this loan yet",
+      "balanceAfter": "Loan balance now"
+    },
+    "officers": {
+      "title": "Field officer reconciliation",
+      "subtitle": "Money received in the selected period, by the staff member who recorded it.",
+      "payments_one": "{{count}} payment",
+      "payments_other": "{{count}} payments",
+      "other": "Bank / cheque / other",
+      "staff": "Staff #{{id}}",
+      "empty": "No repayments recorded in this period."
+    },
+    "truncated": "Large portfolio: only the first 120 live loans are included.",
+    "loadError": "Could not load loan schedules. Try refreshing."
   }
 }

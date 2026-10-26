@@ -63,86 +63,8 @@
   color: #ffffff;
 }
 
-.dueBadge {
-  font-family: var(--font-mono);
-}
-
-/* Interest calculator */
-.calculator {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-  gap: var(--space-4);
-  padding: var(--space-4);
-}
-
-.calcForm {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  align-content: start;
-}
-
-.calcForm label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.calcNote {
-  grid-column: 1 / -1;
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-}
-
-.calcResult {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  min-width: 0;
-}
-
-.calcTotals {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-2);
-}
-
-.calcTotal {
-  padding: var(--space-3);
-  background-color: var(--surface-sunken);
-  border: 1px solid var(--border-color);
-}
-
-.calcTotal span {
-  display: block;
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-}
-
-.calcTotal strong {
-  font-family: var(--font-mono);
-  font-size: var(--fs-md);
-  font-weight: 600;
-  color: var(--color-navy-900);
-}
-
-.calcTable {
-  max-height: 320px;
-  overflow: auto;
-}
-
-@media (max-width: 900px) {
-  .calculator {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .calcForm,
-  .calcTotals {
-    grid-template-columns: minmax(0, 1fr);
+@media (pointer: coarse), (max-width: 767.98px) {
+  .pill {
+    min-height: var(--tap-min);
   }
 }

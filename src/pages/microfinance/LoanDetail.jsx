@@ -9,6 +9,8 @@ import PageSkeleton from '../../components/common/PageSkeleton';
 import EmptyState from '../../components/common/EmptyState';
 import KPICard from '../../components/dashboard/KPICard';
 import ProgressBar from '../../components/common/ProgressBar';
+import RiskBadge from '../../components/microfinance/RiskBadge';
+import { installmentHealth, loanHealth } from '../../utils/loanMath';
 import { usePermission } from '../../hooks/usePermission';
 import { useToast } from '../../hooks/useToast';
 import * as loanService from '../../services/loanService';
@@ -220,6 +222,10 @@ function LoanDetail() {
       {totals && (
         <div className="card mb-5">
           <div className="card-body">
+            <div className="flex items-center justify-between gap-2 mb-2" style={{ flexWrap: 'wrap' }}>
+              <span className="text-sm font-semibold">{t('microfinance:fintech.health.title')}</span>
+              <RiskBadge health={loanHealth(loan)} />
+            </div>
             <ProgressBar
               showLabel
               label={t('microfinance:loans.detail.repaymentProgress')}
@@ -232,6 +238,10 @@ function LoanDetail() {
                 installments: totals.installmentCount,
               })}
             />
+            <div className="flex gap-4 mt-2 text-sm" style={{ flexWrap: 'wrap', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ color: '#047857' }}>{t('microfinance:fintech.health.paid', { percent: (totals.totalPayable ? (totals.totalPaid / totals.totalPayable) * 100 : 0).toFixed(1) })}</span>
+              <span className="text-secondary">{t('microfinance:fintech.health.remaining', { percent: (totals.totalPayable ? Math.max(0, 100 - (totals.totalPaid / totals.totalPayable) * 100) : 0).toFixed(1) })}</span>
+            </div>
             {totals.overdueInstallments > 0 && (
               <p className="mt-2"><span className="badge badge-danger">{t('microfinance:loans.detail.overdueInstallments', { count: totals.overdueInstallments })}</span></p>
             )}
@@ -277,7 +287,11 @@ function LoanDetail() {
                         tone={row.status === 'overdue' ? 'danger' : row.status === 'paid' ? 'success' : 'accent'}
                       />
                     </td>
-                    <td><span className={`badge ${SCHEDULE_STATUS_BADGE[row.status] || 'badge-neutral'}`}>{t(`microfinance:loans.scheduleStatus.${row.status}`)}</span></td>
+                    <td>
+                      {['paid', 'grace', 'overdue'].includes(installmentHealth(row))
+                        ? <RiskBadge health={installmentHealth(row)} />
+                        : <span className={`badge ${SCHEDULE_STATUS_BADGE[row.status] || 'badge-neutral'}`}>{t(`microfinance:loans.scheduleStatus.${row.status}`)}</span>}
+                    </td>
                   </tr>
                 ))}
               </tbody>

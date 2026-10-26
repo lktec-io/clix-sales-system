@@ -307,7 +307,7 @@
   text-align: right;
 }
 
-@media (pointer: coarse) {
+@media (pointer: coarse), (max-width: 767.98px) {
   .pos-cart-discount-field {
     min-height: var(--tap-min);
   }
@@ -373,7 +373,7 @@
   min-height: 36px;
 }
 
-@media (pointer: coarse) {
+@media (pointer: coarse), (max-width: 767.98px) {
   .pos-qty-stepper-btn {
     min-width: var(--tap-min);
     min-height: var(--tap-min);

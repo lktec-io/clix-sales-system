@@ -84,25 +84,6 @@
   transition: transform 400ms ease;
 }
 
-.credit {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  padding: 2px 8px;
-  border-radius: 5px;
-  background-color: rgb(15 23 42 / 0.72);
-  font-size: 0.6875rem;
-}
-
-.credit a {
-  color: #f8fafc;
-  text-decoration: none;
-}
-
-.credit a:hover {
-  text-decoration: underline;
-}
-
 .body {
   display: flex;
   flex: 1;
